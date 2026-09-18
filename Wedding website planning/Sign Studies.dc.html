@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=EB+Garamond:ital,wght@0,400;0,500&display=swap" rel="stylesheet" />
+<style>
+  body { margin: 0; background: #17140F; color: #EDE7D7; font-family: 'EB Garamond', Georgia, serif; -webkit-font-smoothing: antialiased; }
+  * { box-sizing: border-box; }
+  p { text-wrap: pretty; }
+  a { color: #E8C07A; text-decoration: none; border-bottom: 1px solid rgba(232,192,122,.4); }
+</style>
+</helmet>
+
+<section style="padding:clamp(20px,3vw,44px)">
+  <div style="max-width:1560px;margin:0 auto">
+    <p style="margin:0 0 6px;font-size:11px;letter-spacing:.4em;text-transform:uppercase;color:#9C917A">Wing sign versions</p>
+    <h1 style="margin:0 0 6px;font-family:'Cormorant Garamond',Georgia,serif;font-weight:400;font-size:clamp(22px,3vw,32px);color:#F4EFE1">Every version, on the real wall at real proportions</h1>
+    <p style="margin:0 0 clamp(20px,3vw,32px);max-width:800px;font-size:15px;line-height:1.7;color:#B6AC95">Each panel is the actual 1480&times;640 wall that stands through the opening, scaled to fit, with each sign at its true coordinates and type size. So the relative sizes here are exactly what you see in the gallery. The opening is on the right-hand side of this wall &mdash; that edge is where clipping happens.</p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:clamp(18px,2.4vw,30px)">
+
+      <div id="v1">
+        <p style="margin:0 0 9px;font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:#E8C07A">1 &middot; pale caps &amp; italic subtitle</p>
+        <div style="position:relative;width:100%;aspect-ratio:1480/640;overflow:hidden;border:1px solid rgba(232,192,122,.28)">
+          <div style="position:absolute;left:0;top:0;width:1480px;height:640px;transform:scale(.3);transform-origin:0 0;background:#E4DAC0 url(assets/tex-plaster.jpg) center/300px repeat;border-bottom:26px solid #34302A;border-top:12px solid #F1EBDC">
+            <div style="position:absolute;left:1140px;top:158px;width:330px;text-align:center">
+              <p style="margin:0 0 16px;font-size:42px;line-height:1;color:#3E5B50">&larr;</p>
+              <div style="height:1px;width:120px;margin:0 auto 18px;background:rgba(232,192,122,.85)"></div>
+              <p style="margin:0 0 12px;font-size:46px;line-height:1.08;letter-spacing:.14em;text-transform:uppercase;color:#332C22">Wing&nbsp;I</p>
+              <p style="margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:38px;line-height:1.1;color:#3E5B50">the ceremony</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="v2">
+        <p style="margin:0 0 9px;font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:#E8C07A">2 &middot; small soffit label</p>
+        <div style="position:relative;width:100%;aspect-ratio:1480/640;overflow:hidden;border:1px solid rgba(232,192,122,.28)">
+          <div style="position:absolute;left:0;top:0;width:1480px;height:640px;transform:scale(.3);transform-origin:0 0;background:#E4DAC0 url(assets/tex-plaster.jpg) center/300px repeat;border-bottom:26px solid #34302A;border-top:12px solid #F1EBDC">
+            <div style="position:absolute;left:1140px;top:290px;width:330px;text-align:center">
+              <p style="margin:0;font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:#3E5B50">Wing I &middot; the ceremony</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="v3">
+        <p style="margin:0 0 9px;font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:#E8C07A">3 &middot; narrow pilaster face</p>
+        <div style="position:relative;width:100%;aspect-ratio:1480/640;overflow:hidden;border:1px solid rgba(232,192,122,.28)">
+          <div style="position:absolute;left:0;top:0;width:1480px;height:640px;transform:scale(.3);transform-origin:0 0;background:#E4DAC0 url(assets/tex-plaster.jpg) center/300px repeat;border-bottom:26px solid #34302A;border-top:12px solid #F1EBDC">
+            <div style="position:absolute;left:1290px;top:186px;width:180px;text-align:center">
+              <p style="margin:0 0 14px;font-size:40px;line-height:1;color:#3E5B50">&larr;</p>
+              <div style="height:1px;width:86px;margin:0 auto 16px;background:rgba(232,192,122,.8)"></div>
+              <p style="margin:0 0 10px;font-size:34px;line-height:1.12;letter-spacing:.12em;text-transform:uppercase;color:#332C22">Wing&nbsp;I</p>
+              <p style="margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:30px;line-height:1.12;color:#3E5B50">the<br />ceremony</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="v4">
+        <p style="margin:0 0 9px;font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:#E8C07A">4 &middot; brass, single line</p>
+        <div style="position:relative;width:100%;aspect-ratio:1480/640;overflow:hidden;border:1px solid rgba(232,192,122,.28)">
+          <div style="position:absolute;left:0;top:0;width:1480px;height:640px;transform:scale(.3);transform-origin:0 0;background:#E4DAC0 url(assets/tex-plaster.jpg) center/300px repeat;border-bottom:26px solid #34302A;border-top:12px solid #F1EBDC">
+            <div style="position:absolute;left:1000px;top:262px;width:450px;text-align:right;padding-right:18px">
+              <p style="margin:0;font-size:52px;line-height:1.05;letter-spacing:.16em;text-transform:uppercase;color:#CBA761;text-shadow:0 1px 0 rgba(255,244,214,.5),0 -1px 0 rgba(0,0,0,.55),0 4px 7px rgba(0,0,0,.5)">&larr;&nbsp; Wing I</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="v5">
+        <p style="margin:0 0 9px;font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:#E8C07A">5 &middot; brass under a picture light</p>
+        <div style="position:relative;width:100%;aspect-ratio:1480/640;overflow:hidden;border:1px solid rgba(232,192,122,.28)">
+          <div style="position:absolute;left:0;top:0;width:1480px;height:640px;transform:scale(.3);transform-origin:0 0;background:#E4DAC0 url(assets/tex-plaster.jpg) center/300px repeat;border-bottom:26px solid #34302A;border-top:12px solid #F1EBDC">
+            <div style="position:absolute;left:1160px;top:210px;width:310px;text-align:center">
+              <div style="position:absolute;left:50%;top:-46px;transform:translateX(-50%);width:120px;height:14px;border-radius:7px;background:linear-gradient(180deg,#D8B46F,#8A6F3C);box-shadow:0 2px 6px rgba(0,0,0,.6)"></div>
+              <div style="position:absolute;left:50%;top:-34px;transform:translateX(-50%);width:300px;height:300px;clip-path:polygon(38% 0,62% 0,100% 100%,0 100%);background:linear-gradient(180deg,rgba(255,231,186,.3),rgba(255,231,186,0) 74%);pointer-events:none"></div>
+              <p style="margin:0 0 10px;font-size:40px;line-height:1;color:#CBA761;text-shadow:0 1px 0 rgba(255,244,214,.55),0 -1px 0 rgba(0,0,0,.6),0 4px 8px rgba(0,0,0,.55)">&larr;</p>
+              <p style="margin:0;font-size:34px;line-height:1.1;letter-spacing:.1em;text-transform:uppercase;color:#CBA761;text-shadow:0 1px 0 rgba(255,244,214,.55),0 -1px 0 rgba(0,0,0,.6),0 4px 8px rgba(0,0,0,.55)">Wing&nbsp;I</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="v6">
+        <p style="margin:0 0 9px;font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:#E8C07A">6 &middot; brass, oversized &mdash; in the gallery now</p>
+        <div style="position:relative;width:100%;aspect-ratio:1480/640;overflow:hidden;border:1px solid rgba(232,192,122,.28)">
+          <div style="position:absolute;left:0;top:0;width:1480px;height:640px;transform:scale(.3);transform-origin:0 0;background:#E4DAC0 url(assets/tex-plaster.jpg) center/300px repeat;border-bottom:26px solid #34302A;border-top:12px solid #F1EBDC">
+            <div style="position:absolute;left:990px;top:168px;width:440px;text-align:center">
+              <div style="position:absolute;left:50%;top:-46px;transform:translateX(-50%);width:230px;height:18px;border-radius:9px;background:linear-gradient(180deg,#D8B46F,#8A6F3C);box-shadow:0 2px 6px rgba(0,0,0,.6)"></div>
+              <div style="position:absolute;left:50%;top:-40px;transform:translateX(-50%);width:560px;height:420px;clip-path:polygon(40% 0,60% 0,100% 100%,0 100%);background:linear-gradient(180deg,rgba(255,231,186,.3),rgba(255,231,186,0) 74%);pointer-events:none"></div>
+              <p style="margin:0 0 10px;font-size:96px;line-height:1;color:#7A5E1C;text-shadow:0 2px 0 rgba(255,248,224,.85),0 -2px 1px rgba(60,42,10,.55),0 10px 16px rgba(0,0,0,.4)">&larr;</p>
+              <p style="margin:0;font-size:104px;line-height:1.02;letter-spacing:.1em;text-transform:uppercase;color:#7A5E1C;text-shadow:0 2px 0 rgba(255,248,224,.85),0 -2px 1px rgba(60,42,10,.55),0 10px 16px rgba(0,0,0,.4)">Wing&nbsp;II</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <p style="margin:clamp(22px,3vw,34px) 0 0;max-width:840px;font-size:14px;line-height:1.7;color:#9C917A">Say a number and I will put exactly that back. If none of these is the one you remember, tell me which part is wrong &mdash; type size, brass or painted, with or without the picture light &mdash; and I will not change anything else.</p>
+  </div>
+</section>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{}"></script>
+</body>
+</html>

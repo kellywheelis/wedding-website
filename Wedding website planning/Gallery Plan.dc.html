@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Cormorant+Garamond:wght@400&display=swap" rel="stylesheet" />
+<style>
+  body { margin: 0; background: #14110D; color: #EDE7D7; font-family: 'EB Garamond', Georgia, serif; -webkit-font-smoothing: antialiased; }
+  * { box-sizing: border-box; }
+</style>
+</helmet>
+
+<div style="padding:clamp(16px,3vw,36px)">
+  <p style="margin:0 0 4px;font-size:11px;letter-spacing:.38em;text-transform:uppercase;color:#9C917A">Plan view &middot; drawn from the built coordinates</p>
+  <h1 style="margin:0 0 4px;font-family:'Cormorant Garamond',Georgia,serif;font-weight:400;font-size:clamp(20px,2.6vw,28px);color:#F4EFE1">What is actually in the model</h1>
+  <p style="margin:0 0 18px;font-size:14px;line-height:1.6;color:#B6AC95;max-width:760px">North is up; you enter at the bottom. Scale 1&nbsp;:&nbsp;6 of the model units. Gold = wall you can see. Red = the parts that don&rsquo;t make sense.</p>
+
+  <div style="position:relative;width:min(100%,880px);aspect-ratio:880/620;background:#1B1712;border:1px solid rgba(232,192,122,.25)">
+
+    <div style="position:absolute;left:47.7%;top:0;bottom:0;width:4.6%;background:rgba(232,192,122,.05);border-left:2px solid #C9A667;border-right:2px solid #C9A667"></div>
+    <p style="position:absolute;left:50%;top:76%;transform:translateX(-50%) rotate(-90deg);margin:0;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#C9A667;white-space:nowrap">atrium corridor</p>
+    <div style="position:absolute;left:47.7%;top:88%;width:4.6%;height:2px;background:#C9A667"></div>
+    <p style="position:absolute;left:50%;top:91%;transform:translateX(-50%);margin:0;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#E8C07A;white-space:nowrap">entry doors</p>
+
+    <div style="position:absolute;left:4%;top:34%;width:39%;height:26%;border:2px solid #C9A667;background:rgba(147,174,162,.12)">
+      <p style="margin:6px 0 0;text-align:center;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:#B7D2C4">Wing I &mdash; ceremony</p>
+      <p style="margin:2px 0 0;text-align:center;font-size:11px;color:#8FA79A">Birth of Venus on the far wall</p>
+    </div>
+    <div style="position:absolute;left:57%;top:34%;width:39%;height:26%;border:2px solid #C9A667;background:rgba(209,154,110,.12)">
+      <p style="margin:6px 0 0;text-align:center;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:#EDBA92">Wing II &mdash; reception</p>
+      <p style="margin:2px 0 0;text-align:center;font-size:11px;color:#C79B7C">Primavera on the far wall</p>
+    </div>
+
+    <div style="position:absolute;left:37%;top:4%;width:26%;height:20%;border:2px solid #C9A667;background:rgba(232,192,122,.08)">
+      <p style="margin:6px 0 0;text-align:center;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:#E8C07A">Exhibit details</p>
+      <p style="margin:2px 0 0;text-align:center;font-size:11px;color:#B6AC95">visiting &middot; collection &middot; RSVP</p>
+    </div>
+
+    <div style="position:absolute;left:43%;top:60%;width:4%;height:3px;background:#E05A45"></div>
+    <div style="position:absolute;left:53%;top:60%;width:4%;height:3px;background:#E05A45"></div>
+    <p style="position:absolute;left:50%;top:63%;transform:translateX(-50%);margin:0;text-align:center;font-size:11px;line-height:1.5;color:#E8907E;white-space:nowrap">wing openings sit here &mdash; 1150 down the corridor</p>
+    <p style="position:absolute;left:50%;top:44%;transform:translateX(-50%);margin:0;text-align:center;font-size:11px;line-height:1.5;color:#E8907E;white-space:nowrap">but the wing rooms centre here</p>
+    <div style="position:absolute;left:43%;top:47%;width:14%;height:0;border-top:2px dashed #E05A45"></div>
+
+    <div style="position:absolute;left:12%;top:26%;width:24%;height:6%;border:2px solid #E05A45;background:rgba(224,90,69,.1)">
+      <p style="margin:2px 0 0;text-align:center;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#E8907E">spare wall &middot; no purpose</p>
+    </div>
+    <div style="position:absolute;right:12%;top:26%;width:24%;height:6%;border:2px solid #E05A45;background:rgba(224,90,69,.1)">
+      <p style="margin:2px 0 0;text-align:center;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#E8907E">spare wall &middot; no purpose</p>
+    </div>
+
+    <p style="position:absolute;left:4%;bottom:3%;margin:0;font-size:11px;line-height:1.6;color:#9C917A">Gold outline = built wall &nbsp;&middot;&nbsp; red = misaligned or redundant</p>
+  </div>
+
+  <div style="max-width:880px;margin:18px 0 0">
+    <p style="margin:0 0 8px;font-size:15px;line-height:1.7;color:#D6CCB6">Three problems visible from above:</p>
+    <p style="margin:0 0 6px;font-size:14px;line-height:1.7;color:#B6AC95"><strong style="color:#E8C07A;font-weight:500">1.</strong> The wing openings are 1150 units down the corridor, but the wing rooms centre level with the atrium &mdash; so walking in always doglegs.</p>
+    <p style="margin:0 0 6px;font-size:14px;line-height:1.7;color:#B6AC95"><strong style="color:#E8C07A;font-weight:500">2.</strong> Two large walls sit between the corridor and each wing doing nothing but carrying the brass signs &mdash; they are what reads as floating slabs.</p>
+    <p style="margin:0;font-size:14px;line-height:1.7;color:#B6AC95"><strong style="color:#E8C07A;font-weight:500">3.</strong> The details hall has its own side walls that overlap the corridor&rsquo;s, so two sets of geometry occupy the same space.</p>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{}"></script>
+</body>
+</html>

@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
+<script src="./image-slot.js"></script>
+<style>
+  body { margin: 0; background: #2B2520; color: #EDE7D7; font-family: 'EB Garamond', Georgia, serif; -webkit-font-smoothing: antialiased; overflow: hidden; }
+  * { box-sizing: border-box; }
+  p { text-wrap: pretty; }
+  button { font-family: inherit; }
+  @keyframes drawRule { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  @keyframes riseIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+  @keyframes brushIn { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes lampGlow { 0%,100% { opacity: .78; } 50% { opacity: 1; } }
+  @keyframes washA { 0%,100% { transform: scale(1.06) translate(0,0); } 50% { transform: scale(1.13) translate(-2%,1%); } }
+  @keyframes washB { 0%,100% { transform: scale(1.1) skewX(0deg); } 50% { transform: scale(1.04) skewX(-1.4deg); } }
+  @keyframes drift { 0% { transform: translate3d(0,0,0); opacity: 0; } 14% { opacity: .5; } 100% { transform: translate3d(30px,-160px,0); opacity: 0; } }
+  @keyframes petalFall { 0% { transform: translate3d(0,-10vh,0) rotate(0deg); opacity: 0; } 12% { opacity: .8; } 88% { opacity: .45; } 100% { transform: translate3d(40px,105vh,0) rotate(400deg); opacity: 0; } }
+  @keyframes gild { 0% { background-position: 0% 50%; opacity: 0; } 18% { opacity: 1; } 100% { background-position: 100% 50%; opacity: 1; } }
+  @keyframes sheen { 0% { transform: translateX(-130%) skewX(-18deg); } 55%,100% { transform: translateX(240%) skewX(-18deg); } }
+</style>
+</helmet>
+
+<div style="position:fixed;inset:0;overflow:hidden;background:#2B2520;display:flex;flex-direction:column">
+
+  <div ref="{{ stageRef }}" style="position:relative;flex:1;min-height:0;overflow:hidden">
+  <div style="position:absolute;left:50%;top:50%;width:1040px;height:760px;margin:-380px 0 0 -520px;transform:scale({{ scale }});transform-origin:50% 50%;transition:transform 400ms ease;perspective:900px;perspective-origin:50% 47%">
+    <div style="position:absolute;left:50%;top:47%;width:0;height:0;transform-style:preserve-3d;transform:rotateX({{ pitch }}deg) rotateY({{ yaw }}deg);transition:transform {{ turnMs }}ms cubic-bezier(.4,0,.2,1)">
+    <div style="position:absolute;left:0;top:0;width:0;height:0;transform-style:preserve-3d;transform:translate3d({{ tx }}px,{{ hover }}px,{{ tz }}px);transition:transform {{ transMs }}ms cubic-bezier(.33,0,.2,1)">
+
+      <!-- FLOOR / CEILING -->
+      <div style="position:absolute;left:-2700px;top:-1900px;width:5400px;height:3800px;transform:rotateX(90deg) translateZ(-420px) translateY(-800px);transform-origin:50% 50%;background:#A9A69E url(assets/tex-stone.jpg) center/900px 330px repeat"></div>
+      <div data-ceiling="plain" style="position:absolute;left:-2700px;top:-1900px;width:5400px;height:3800px;transform:rotateX(-90deg) translateZ(-420px) translateY(800px);transform-origin:50% 50%;background:#DED5BE"></div>
+
+
+                                                                                                            
+      
+      
+
+      
+
+      <!-- ATRIUM BACK WALL -->
+      
+
+      <!-- ATRIUM BACK WALL -->
+      <div data-room="atrium" style="border-bottom:26px solid #34302A;border-top:12px solid #F1EBDC;position:absolute;left:-500px;top:-420px;width:1000px;height:840px;transform:translate3d(0,0,1000px) rotateY(180deg);background:#E4DAC0;background-image:linear-gradient(165deg,rgba(255,252,242,.42),rgba(255,252,242,0) 46%,rgba(96,82,58,.16)),url(assets/tex-plaster.jpg);background-size:auto,auto,300px;background-repeat:repeat"></div>
+
+      <!-- CORRIDOR WALLS, WITH AN OPENING CUT INTO EACH -->
+      <div data-room="atrium" style="border-bottom:26px solid #34302A;border-top:12px solid #F1EBDC;position:absolute;left:-750px;top:-420px;width:1500px;height:840px;transform:translate3d(-500px,0,250px) rotateY(90deg);background:#E4DAC0;background-image:linear-gradient(165deg,rgba(255,252,242,.42),rgba(255,252,242,0) 46%,rgba(96,82,58,.16)),linear-gradient(90deg,rgba(90,70,40,.12),rgba(0,0,0,0) 40%),url(assets/tex-plaster.jpg);background-size:auto,auto,auto,300px;background-repeat:repeat"></div>
+      <div data-room="atrium" style="border-bottom:26px solid #34302A;border-top:12px solid #F1EBDC;position:absolute;left:-750px;top:-420px;width:1500px;height:840px;transform:translate3d(500px,0,250px) rotateY(-90deg);background:#E4DAC0;background-image:linear-gradient(165deg,rgba(255,252,242,.42),rgba(255,252,242,0) 46%,rgba(96,82,58,.16)),linear-gradient(270deg,rgba(90,70,40,.12),rgba(0,0,0,0) 40%),url(assets/tex-plaster.jpg);background-size:auto,auto,auto,300px;background-repeat:repeat"></div>
+      
+                  
+
+            
+            
+      <!-- HALLWAY RETURNS (occlude past each opening) -->
+      
+      
+
+
+      <!-- THE WALL YOU SEE THROUGH EACH OPENING, FACING YOU -->
+      
+      <!-- DETAILS HALL SIDE WALLS, VISIBLE FROM THE ATRIUM -->
+      <div data-room="detfar" style="border-bottom:26px solid #34302A;border-top:12px solid #F1EBDC;position:absolute;left:-500px;top:-420px;width:1000px;height:840px;transform:translate3d(-500px,0,-2000px) rotateY(90deg);background:#E4DAC0;background-image:linear-gradient(90deg,rgba(90,70,40,.2),rgba(255,252,242,.28) 60%)"></div>
+      <div data-room="detfar" style="border-bottom:26px solid #34302A;border-top:12px solid #F1EBDC;position:absolute;left:-500px;top:-420px;width:1000px;height:840px;transform:translate3d(500px,0,-2000px) rotateY(-90deg);background:#E4DAC0;background-image:linear-gradient(270deg,rgba(90,70,40,.2),rgba(255,252,242,.28) 60%)"></div>
+
+      <!-- HALLWAY RETURNS -->
+      
+      
+
+      <!-- WALLS SEEN THROUGH EACH OPENING, CARRYING THE BRASS SIGNS -->
+      
+      
+
+      <!-- ===== WING I ===== -->
+      <div data-room="w1" style="border-bottom:26px solid #34302A;border-top:12px solid #F1EBDC;position:absolute;left:-500px;top:-420px;width:1000px;height:840px;transform:translate3d(-2500px,0,-1000px) rotateY(90deg);background:#E4DAC0;background-image:linear-gradient(165deg,rgba(255,252,242,.42),rgba(255,252,242,0) 46%,rgba(96,82,58,.16)),linear-gradient(90deg,rgba(90,70,40,.12),rgba(0,0,0,0) 34%),url(assets/tex-plaster.jpg);background-size:auto,auto,auto,300px;background-repeat:repeat">
+        <div style="position:absolute;left:100px;top:110px;width:800px;opacity:{{ l1 }};transition:opacity 1200ms ease">
+          <div style="position:absolute;left:50%;top:-38px;transform:translateX(-50%);width:42%;height:15px;border-radius:8px;background:linear-gradient(180deg,#D8B46F,#8A6F3C);"></div>
+          <div style="position:absolute;left:50%;top:-24px;transform:translateX(-50%);width:140%;height:175%;clip-path:polygon(37% 0,63% 0,100% 100%,0 100%);background:linear-gradient(180deg,rgba(255,231,186,.3),rgba(255,231,186,0) 76%);pointer-events:none"></div>
+          <div style="position:relative;padding:16px;border:1px solid rgba(216,180,111,.78);background:linear-gradient(150deg,rgba(216,180,111,.16),rgba(216,180,111,.04));box-shadow:0 44px 80px -34px rgba(0,0,0,.98)">
+            <div style="border:1px solid rgba(216,180,111,.42);padding:10px">
+              <div style="position:relative;width:100%;aspect-ratio:278/172;background:#B9AE95">
+                <image-slot id="venus-principal" shape="rect" fit="cover" src="assets/birth-of-venus.jpg" placeholder="Drop Botticelli, The Birth of Venus"></image-slot>
+              </div>
+            </div>
+          </div>
+          <p style="margin:14px 0 0;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:#3E5B50">Sandro Botticelli &middot; The Birth of Venus &middot; c.&thinsp;1485</p>
+        </div>
+      </div>
+
+      <div data-room="w1" style="border-bottom:26px solid #34302A;border-top:12px solid #F1EBDC;position:absolute;left:-1000px;top:-420px;width:2000px;height:840px;transform:translate3d(-1500px,0,-1500px);background:#E4DAC0;background-image:linear-gradient(165deg,rgba(255,252,242,.42),rgba(255,252,242,0) 46%,rgba(96,82,58,.16)),url(assets/tex-plaster.jpg);background-size:auto,auto,300px;background-repeat:repeat">
+        <div style="position:absolute;left:820px;top:150px;width:360px;opacity:{{ l2 }};transition:opacity 1200ms ease">
+          <div style="position:absolute;left:50%;top:-32px;transform:translateX(-50%);width:56%;height:12px;border-radius:6px;background:linear-gradient(180deg,#C9A667,#8A6F3C);"></div>
+          <div style="position:absolute;left:50%;top:-20px;transform:translateX(-50%);width:160%;height:155%;clip-path:polygon(35% 0,65% 0,100% 100%,0 100%);background:linear-gradient(180deg,rgba(255,231,186,.24),rgba(255,231,186,0) 78%);pointer-events:none"></div>
+          <div style="position:relative;padding:12px;border:1px solid rgba(201,166,103,.62);background:rgba(255,252,242,.55);box-shadow:0 30px 56px -28px rgba(0,0,0,.95)">
+            <div style="border:1px solid rgba(201,166,103,.32);padding:8px">
+              <div style="position:relative;aspect-ratio:3/4;overflow:hidden;background:radial-gradient(64% 58% at 42% 26%,#F3E4CE,#D8C3A4 40%,#8E9C92 78%,#3B4A45 96%)"><image-slot id="wing1-procession" shape="rect" placeholder="Drop art for The Procession"></image-slot>
+                
+                
+              </div>
+            </div>
+          </div>
+          <p style="margin:12px 0 0;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#3E5B50">The Procession</p>
+        </div>
+        <div style="position:absolute;left:1726px;top:290px;width:260px;text-align:center">
+          <div style="position:absolute;left:50%;top:-34px;transform:translateX(-50%);width:96px;height:9px;border-radius:5px;background:linear-gradient(180deg,#D8B46F,#8A6F3C);box-shadow:0 2px 6px rgba(0,0,0,.6)"></div>
+          <p style="margin:0 0 11px;font-size:42px;line-height:1;color:#5A3F0C;text-shadow:0 1px 0 rgba(255,252,238,1),0 -1px 0 rgba(40,26,4,.7)">&larr;</p>
+          <p style="margin:0;font-size:46px;line-height:1.05;letter-spacing:.03em;text-transform:uppercase;color:#5A3F0C;text-shadow:0 1px 0 rgba(255,252,238,1),0 -1px 0 rgba(40,26,4,.7)">Wing&nbsp;I</p>
+        </div>
+      </div>
+
+      <div data-room="w1" style="border-bottom:26px solid #34302A;border-top:12px solid #F1EBDC;position:absolute;left:-1000px;top:-420px;width:2000px;height:840px;transform:translate3d(-1500px,0,-500px) rotateY(180deg);background:#E4DAC0;background-image:linear-gradient(165deg,rgba(255,252,242,.42),rgba(255,252,242,0) 46%,rgba(96,82,58,.16)),url(assets/tex-plaster.jpg);background-size:auto,auto,300px;background-repeat:repeat">
+        <div style="position:absolute;left:820px;top:150px;width:360px;opacity:{{ l3 }};transition:opacity 1200ms ease">
+          <div style="position:absolute;left:50%;top:-32px;transform:translateX(-50%);width:56%;height:12px;border-radius:6px;background:linear-gradient(180deg,#C9A667,#8A6F3C);"></div>
+          <div style="position:absolute;left:50%;top:-20px;transform:translateX(-50%);width:160%;height:155%;clip-path:polygon(35% 0,65% 0,100% 100%,0 100%);background:linear-gradient(180deg,rgba(255,231,186,.24),rgba(255,231,186,0) 78%);pointer-events:none"></div>
+          <div style="position:relative;padding:12px;border:1px solid rgba(201,166,103,.62);background:rgba(255,252,242,.55);box-shadow:0 30px 56px -28px rgba(0,0,0,.95)">
+            <div style="border:1px solid rgba(201,166,103,.32);padding:8px">
+              <div style="position:relative;aspect-ratio:3/4;overflow:hidden;background:radial-gradient(66% 58% at 60% 34%,#FBEEDC,#E3C3B4 44%,#B98A75 82%,#5A3A30 97%)"><image-slot id="wing1-vows" shape="rect" placeholder="Drop art for The Vows"></image-slot>
+                
+                
+              </div>
+            </div>
+          </div>
+          <p style="margin:12px 0 0;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#3E5B50">The Vows</p>
+        </div>
+      </div>
+
+      <!-- ===== WING II ===== -->
+      <div data-room="w2" style="border-bottom:26px solid #34302A;border-top:12px solid #F1EBDC;position:absolute;left:-500px;top:-420px;width:1000px;height:840px;transform:translate3d(2500px,0,-1000px) rotateY(-90deg);background:#E7DCC0;background-image:linear-gradient(165deg,rgba(255,252,242,.42),rgba(255,252,242,0) 46%,rgba(96,82,58,.16)),linear-gradient(270deg,rgba(90,70,40,.12),rgba(0,0,0,0) 34%),url(assets/tex-plaster.jpg);background-size:auto,auto,auto,300px;background-repeat:repeat">
+        <div style="position:absolute;left:100px;top:110px;width:800px;opacity:{{ l4 }};transition:opacity 1200ms ease">
+          <div style="position:absolute;left:50%;top:-38px;transform:translateX(-50%);width:42%;height:15px;border-radius:8px;background:linear-gradient(180deg,#D8B46F,#8A6F3C);"></div>
+          <div style="position:absolute;left:50%;top:-24px;transform:translateX(-50%);width:140%;height:175%;clip-path:polygon(37% 0,63% 0,100% 100%,0 100%);background:linear-gradient(180deg,rgba(255,224,178,.32),rgba(255,224,178,0) 76%);pointer-events:none"></div>
+          <div style="position:relative;padding:16px;border:1px solid rgba(216,180,111,.78);background:linear-gradient(150deg,rgba(216,180,111,.16),rgba(216,180,111,.04));box-shadow:0 44px 80px -34px rgba(0,0,0,.98)">
+            <div style="border:1px solid rgba(216,180,111,.42);padding:10px">
+              <div style="position:relative;width:100%;aspect-ratio:314/203;background:#B9AE95">
+                <image-slot id="primavera-principal" shape="rect" fit="cover" src="assets/primavera.jpg" placeholder="Drop Botticelli, Primavera"></image-slot>
+              </div>
+            </div>
+          </div>
+          <p style="margin:14px 0 0;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:#7A3E24">Sandro Botticelli &middot; Primavera &middot; c.&thinsp;1480</p>
+        </div>
+      </div>
+
+      <div data-room="w2" style="border-bottom:26px solid #34302A;border-top:12px solid #F1EBDC;position:absolute;left:-1000px;top:-420px;width:2000px;height:840px;transform:translate3d(1500px,0,-500px) rotateY(180deg);background:#E7DCC0;background-image:linear-gradient(165deg,rgba(255,252,242,.42),rgba(255,252,242,0) 46%,rgba(96,82,58,.16)),url(assets/tex-plaster.jpg);background-size:auto,auto,300px;background-repeat:repeat">
+        <div style="position:absolute;left:820px;top:150px;width:360px;opacity:{{ l5 }};transition:opacity 1200ms ease">
+          <div style="position:absolute;left:50%;top:-32px;transform:translateX(-50%);width:56%;height:12px;border-radius:6px;background:linear-gradient(180deg,#C9A667,#8A6F3C);"></div>
+          <div style="position:absolute;left:50%;top:-20px;transform:translateX(-50%);width:160%;height:155%;clip-path:polygon(35% 0,65% 0,100% 100%,0 100%);background:linear-gradient(180deg,rgba(255,224,178,.26),rgba(255,224,178,0) 78%);pointer-events:none"></div>
+          <div style="position:relative;padding:12px;border:1px solid rgba(201,166,103,.62);background:rgba(255,252,242,.55);box-shadow:0 30px 56px -28px rgba(0,0,0,.95)">
+            <div style="border:1px solid rgba(201,166,103,.32);padding:8px">
+              <div style="position:relative;aspect-ratio:3/4;overflow:hidden;background:radial-gradient(70% 62% at 40% 60%,#F0A86C,#C4583F 42%,#6E3524 82%,#241612 97%)"><image-slot id="wing2-banquet" shape="rect" placeholder="Drop art for The Banquet"></image-slot>
+                
+                
+              </div>
+            </div>
+          </div>
+          <p style="margin:12px 0 0;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#7A3E24">The Banquet</p>
+        </div>
+      </div>
+
+      <div data-room="w2" style="border-bottom:26px solid #34302A;border-top:12px solid #F1EBDC;position:absolute;left:-1000px;top:-420px;width:2000px;height:840px;transform:translate3d(1500px,0,-1500px);background:#E7DCC0;background-image:linear-gradient(165deg,rgba(255,252,242,.42),rgba(255,252,242,0) 46%,rgba(96,82,58,.16)),url(assets/tex-plaster.jpg);background-size:auto,auto,300px;background-repeat:repeat">
+        <div style="position:absolute;left:8px;top:290px;width:260px;text-align:center">
+          <div style="position:absolute;left:50%;top:-34px;transform:translateX(-50%);width:96px;height:9px;border-radius:5px;background:linear-gradient(180deg,#D8B46F,#8A6F3C);box-shadow:0 2px 6px rgba(0,0,0,.6)"></div>
+          <p style="margin:0 0 11px;font-size:42px;line-height:1;color:#5A3F0C;text-shadow:0 1px 0 rgba(255,252,238,1),0 -1px 0 rgba(40,26,4,.7)">&rarr;</p>
+          <p style="margin:0;font-size:46px;line-height:1.05;letter-spacing:.03em;text-transform:uppercase;color:#5A3F0C;text-shadow:0 1px 0 rgba(255,252,238,1),0 -1px 0 rgba(40,26,4,.7)">Wing&nbsp;II</p>
+        </div>
+        <div style="position:absolute;left:820px;top:150px;width:360px;opacity:{{ l6 }};transition:opacity 1200ms ease">
+          <div style="position:absolute;left:50%;top:-32px;transform:translateX(-50%);width:56%;height:12px;border-radius:6px;background:linear-gradient(180deg,#C9A667,#8A6F3C);"></div>
+          <div style="position:absolute;left:50%;top:-20px;transform:translateX(-50%);width:160%;height:155%;clip-path:polygon(35% 0,65% 0,100% 100%,0 100%);background:linear-gradient(180deg,rgba(255,224,178,.26),rgba(255,224,178,0) 78%);pointer-events:none"></div>
+          <div style="position:relative;padding:12px;border:1px solid rgba(201,166,103,.62);background:rgba(255,252,242,.55);box-shadow:0 30px 56px -28px rgba(0,0,0,.95)">
+            <div style="border:1px solid rgba(201,166,103,.32);padding:8px">
+              <div style="position:relative;aspect-ratio:3/4;overflow:hidden;background:radial-gradient(68% 60% at 58% 38%,#F7DE9B,#D9A94C 44%,#8A6520 82%,#2E230C 97%)"><image-slot id="wing2-dancing" shape="rect" placeholder="Drop art for The Dancing"></image-slot>
+                
+                
+              </div>
+            </div>
+          </div>
+          <p style="margin:12px 0 0;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#7A3E24">The Dancing</p>
+        </div>
+      </div>
+
+      <!-- ===== DETAILS HALL ===== -->
+      <div data-room="detfar" style="border-bottom:26px solid #34302A;border-top:12px solid #F1EBDC;position:absolute;left:-500px;top:-420px;width:1000px;height:840px;transform:translate3d(0,0,-2500px);background:#E0D6BC;background-image:radial-gradient(52% 44% at 50% 34%,rgba(255,244,214,.85),rgba(255,244,214,0) 74%);background-image:linear-gradient(165deg,rgba(255,252,242,.42),rgba(255,252,242,0) 46%,rgba(96,82,58,.16)),linear-gradient(180deg,rgba(90,70,40,.1),rgba(0,0,0,0) 44%),url(assets/tex-plaster.jpg);background-size:auto,auto,auto,300px;background-repeat:repeat">
+        <div style="position:absolute;left:50%;top:40px;transform:translateX(-50%);width:740px;height:800px;border-radius:370px 370px 0 0;background:linear-gradient(180deg,#F8EFD8,#C9B48C 62%,#8A7551);box-shadow:inset 0 0 60px -10px rgba(90,70,40,.5)"></div>
+        <div style="position:absolute;left:50%;top:68px;transform:translateX(-50%);width:660px;height:770px;border-radius:330px 330px 0 0;background:linear-gradient(180deg,#5E4E36,#2E2619 70%,#1E1811)"></div>
+        <div style="position:absolute;left:50%;top:82px;transform:translateX(-50%);width:580px;height:750px;border-radius:290px 290px 0 0;background:radial-gradient(60% 46% at 50% 26%,rgba(255,238,200,.55),rgba(255,238,200,0) 74%)"></div>
+
+        <div style="position:absolute;left:330px;top:150px;width:700px;opacity:{{ l7 }};transition:opacity 1200ms ease">
+          <div style="position:absolute;left:50%;top:-32px;transform:translateX(-50%);width:36%;height:13px;border-radius:7px;background:linear-gradient(180deg,#C9A667,#8A6F3C);"></div>
+          <p style="margin:0 0 14px;font-size:22px;letter-spacing:.34em;text-transform:uppercase;color:#7E6118">Visiting</p>
+          <p style="margin:0 0 22px;font-family:'Cormorant Garamond',Georgia,serif;font-weight:400;font-size:64px;line-height:1.06;color:#332C22">Getting to Sovicille</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:26px">
+            <div>
+              <p style="margin:0;font-size:30px;line-height:1.55;color:#4E4636">Villa Cetinale sits in the hills west of Siena, twenty minutes from the city walls.</p>
+            </div>
+            <div>
+              <p style="margin:0 0 16px;font-size:20px;letter-spacing:.26em;text-transform:uppercase;color:#6A5F49">Nearest airports</p>
+              <p style="margin:0 0 10px;font-size:30px;color:#3A3226">Florence &mdash; FLR</p>
+              <p style="margin:0 0 10px;font-size:30px;color:#3A3226">Pisa &mdash; PSA</p>
+              <p style="margin:0 0 22px;font-size:30px;color:#3A3226">Rome &mdash; FCO</p>
+              <p style="margin:0;font-size:22px;line-height:1.5;color:#6A5F49">Lodging and the five-day program are still being arranged.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      
+
+      
+
+
+      
+      
+      
+
+      <!-- SUSPENDED DIRECTORY -->
+      <div data-room="atrium" style="position:absolute;left:-16px;top:-420px;width:2px;height:48px;transform:translate3d(-110px,0,-1450px);background:linear-gradient(180deg,#8A6F3C,#C9A667)"></div>
+      <div data-room="atrium" style="position:absolute;left:-16px;top:-420px;width:2px;height:48px;transform:translate3d(110px,0,-1450px);background:linear-gradient(180deg,#8A6F3C,#C9A667)"></div>
+      <div data-room="atrium" style="position:absolute;left:-320px;top:-388px;width:640px;height:150px;transform:translate3d(0,0,-1450px);background:linear-gradient(170deg,#6E5A31,#443619);border:1px solid rgba(232,192,122,.5);box-shadow:0 16px 34px -18px rgba(0,0,0,.9)">
+        <div style="position:absolute;left:0;right:0;top:0;bottom:0;display:flex;flex-direction:column;justify-content:center;text-align:center;opacity:{{ l0 }};transition:opacity 1200ms ease">
+          <p style="margin:0 0 9px;font-size:40px;line-height:1.14;letter-spacing:.12em;text-transform:uppercase;color:#F2DFAE;text-shadow:0 1px 0 rgba(0,0,0,.55)">&larr;&nbsp; Wing I &nbsp;&middot;&nbsp; Wing II &nbsp;&rarr;</p>
+          <div style="height:1px;width:200px;margin:0 auto 12px;background:rgba(242,223,174,.55)"></div>
+          <p style="margin:0;font-size:40px;line-height:1.14;letter-spacing:.12em;text-transform:uppercase;color:#F2DFAE;text-shadow:0 1px 0 rgba(0,0,0,.55)">Exhibit details &nbsp;&uarr;</p>
+        </div>
+      </div>
+            </div>
+    </div>
+  </div>
+  </div>
+
+  
+
+  
+
+  
+
+  <div style="position:fixed;inset:0;pointer-events:none;z-index:9;background:radial-gradient(140% 112% at 50% 44%,rgba(0,0,0,0) 58%,rgba(0,0,0,.2) 100%)"></div>
+
+  <div style="position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:clamp(20px,6vw,70px);pointer-events:none;opacity:{{ mottoOpacity }};transition:opacity 2200ms ease">
+    <div style="max-width:min(880px,90vw);text-align:center">
+      <div style="height:1px;margin:0 auto clamp(20px,3vw,34px);width:clamp(90px,16vw,150px);background:linear-gradient(90deg,rgba(232,192,122,0),rgba(232,192,122,.95),rgba(232,192,122,0));animation:drawRule 1600ms cubic-bezier(.2,.8,.2,1) 300ms both"></div>
+      <p style="margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-style:italic;font-size:clamp(26px,5.6vw,62px);line-height:1.26;color:#8A681C;filter:drop-shadow(0 2px 10px rgba(0,0,0,.55)) drop-shadow(0 0 26px rgba(255,226,150,.45));animation:fadeIn 1400ms ease 200ms both">&ldquo;I am a museum of everything I&rsquo;ve ever loved&hellip;&rdquo;</p>
+            <div style="height:1px;margin:clamp(20px,3vw,34px) auto 0;width:clamp(90px,16vw,150px);background:linear-gradient(90deg,rgba(232,192,122,0),rgba(232,192,122,.95),rgba(232,192,122,0));animation:drawRule 1600ms cubic-bezier(.2,.8,.2,1) 600ms both"></div>
+            </div>
+          </div>
+
+            
+    <div style="position:relative;z-index:12;flex:none;padding:0 clamp(14px,3vw,34px);opacity:{{ hudOn }};transition:opacity 900ms ease">
+    <div style="max-width:1040px;margin:0 auto;border-top:1px solid rgba(201,166,103,.32);padding:clamp(13px,1.8vw,20px) 0 clamp(6px,1vw,10px);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:8px clamp(20px,3vw,40px);align-items:start">
+      <div>
+        <p style="margin:0 0 7px;font-size:10px;letter-spacing:.34em;text-transform:uppercase;color:{{ accent }};transition:color 900ms ease">{{ eyebrow }}</p>
+        <h2 style="margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-weight:400;font-size:clamp(20px,2.6vw,28px);line-height:1.2;color:#F6F1E4">{{ title }}</h2>
+      </div>
+      <div>
+        <p style="margin:0 0 8px;font-size:15px;line-height:1.7;color:#BCB29B">{{ body }}</p>
+        <p style="margin:0;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#988E7C">{{ meta }}</p>
+      </div>
+            </div>
+  </div>
+
+  <div style="position:relative;z-index:13;flex:none;padding:6px clamp(14px,3vw,34px) 14px;opacity:{{ hudOn }};transition:opacity 900ms ease">
+    <div style="max-width:1040px;margin:0 auto;display:flex;align-items:center;gap:clamp(8px,1.4vw,14px)">
+      <button onClick="{{ back }}" aria-label="Step back" style="width:46px;height:46px;border-radius:50%;background:rgba(10,9,8,.6);border:1px solid rgba(201,166,103,.5);color:#F2E6C9;font-size:15px;cursor:pointer;flex:none">&larr;</button>
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;gap:clamp(6px,1.2vw,14px)">
+        <button onClick="{{ goAtrium }}" style="flex:1;min-width:0;height:46px;background:{{ bgAtrium }};border:1px solid {{ brAtrium }};color:{{ fgAtrium }};font-size:10px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:all 400ms ease;white-space:nowrap;overflow:hidden">Atrium</button>
+        <button onClick="{{ goWing1 }}" style="flex:1;min-width:0;height:46px;background:{{ bgW1 }};border:1px solid {{ brW1 }};color:{{ fgW1 }};font-size:10px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:all 400ms ease;white-space:nowrap;overflow:hidden">Wing I</button>
+        <button onClick="{{ goWing2 }}" style="flex:1;min-width:0;height:46px;background:{{ bgW2 }};border:1px solid {{ brW2 }};color:{{ fgW2 }};font-size:10px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:all 400ms ease;white-space:nowrap;overflow:hidden">Wing II</button>
+        <button onClick="{{ goDetails }}" style="flex:1;min-width:0;height:46px;background:{{ bgDet }};border:1px solid {{ brDet }};color:{{ fgDet }};font-size:10px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:all 400ms ease;white-space:nowrap;overflow:hidden">Details</button>
+      </div>
+      <button onClick="{{ fwd }}" aria-label="Walk forward" style="height:46px;padding:0 clamp(14px,2.4vw,22px);border-radius:24px;background:rgba(232,192,122,.14);border:1px solid rgba(201,166,103,.6);color:#F2E6C9;font-size:11px;letter-spacing:.24em;text-transform:uppercase;cursor:pointer;flex:none;white-space:nowrap">{{ fwdLabel }}</button>
+            </div>
+  </div>
+
+  <sc-if value="{{ gateVisible }}" hint-placeholder-val="{{ true }}">
+    <div style="position:fixed;inset:0;z-index:70;pointer-events:{{ gatePointer }}">
+      <div style="position:absolute;left:0;top:0;width:50.4%;height:100%;overflow:hidden;background:#3A2A1A;background-image:linear-gradient(90deg,rgba(0,0,0,.5),rgba(0,0,0,0) 22%,rgba(0,0,0,.18) 92%),url(assets/tex-wood.jpg);background-size:auto,cover;background-position:center;border-right:5px solid #24180C;box-shadow:inset -24px 0 44px -26px rgba(0,0,0,.95);transform:translateX({{ doorL }}%);transition:transform 2200ms cubic-bezier(.58,0,.2,1)">
+        <div style="position:absolute;inset:6% 9% 6% 11%;border:14px solid #4A3521;box-shadow:inset 0 0 0 2px rgba(255,226,176,.12),0 0 0 2px rgba(20,12,4,.6)"></div>
+        <div style="position:absolute;left:14%;right:12%;top:9%;height:38%;background:#2E2113 url(assets/tex-wood.jpg) center/cover;box-shadow:inset 0 3px 10px rgba(0,0,0,.65),inset 0 -2px 0 rgba(255,226,176,.08)"></div>
+        <div style="position:absolute;left:14%;right:12%;bottom:9%;height:38%;background:#2E2113 url(assets/tex-wood.jpg) center/cover;box-shadow:inset 0 3px 10px rgba(0,0,0,.65),inset 0 -2px 0 rgba(255,226,176,.08)"></div>
+        <div style="position:absolute;left:14%;right:12%;top:47%;height:6%;background:linear-gradient(180deg,#543D25,#33240F)"></div>
+        <div style="position:absolute;right:14px;top:calc(62% - 80px);width:26px;height:160px;pointer-events:none">
+          <div style="position:absolute;right:2px;top:0;width:20px;height:160px;border-radius:10px;background:radial-gradient(60% 40% at 50% 8%,rgba(0,0,0,.45),rgba(0,0,0,0) 60%);filter:blur(7px);transform:translateX(-6px)"></div>
+          <div style="position:absolute;right:10px;top:16px;width:12px;height:7px;border-radius:2px;background:linear-gradient(90deg,#C9A45C,#7A5C22)"></div>
+          <div style="position:absolute;right:10px;bottom:16px;width:12px;height:7px;border-radius:2px;background:linear-gradient(90deg,#C9A45C,#7A5C22)"></div>
+          <div style="position:absolute;right:0;top:5px;width:9px;height:150px;border-radius:5px;background:linear-gradient(90deg,#6E5220 0%,#A98436 14%,#F6E3AE 34%,#FFF8E2 44%,#D8B368 55%,#9C7A32 72%,#5E4718 100%)"></div>
+          <div style="position:absolute;right:4px;top:12px;width:2px;height:136px;border-radius:1px;background:linear-gradient(180deg,rgba(255,252,236,.9),rgba(255,252,236,.25) 40%,rgba(255,252,236,.75))"></div>
+          <div style="position:absolute;right:0;top:0;width:9px;height:10px;border-radius:5px 5px 2px 2px;background:linear-gradient(180deg,#FFF6D8,#B08F3E)"></div>
+          <div style="position:absolute;right:0;bottom:0;width:9px;height:10px;border-radius:2px 2px 5px 5px;background:linear-gradient(0deg,#5A4416,#A98436)"></div>
+        </div>
+      </div>
+      <div style="position:absolute;right:0;top:0;width:50.4%;height:100%;overflow:hidden;background:#3A2A1A;background-image:linear-gradient(270deg,rgba(0,0,0,.5),rgba(0,0,0,0) 22%,rgba(0,0,0,.18) 92%),url(assets/tex-wood.jpg);background-size:auto,cover;background-position:center right;border-left:5px solid #24180C;box-shadow:inset 24px 0 44px -26px rgba(0,0,0,.95);transform:translateX({{ doorR }}%);transition:transform 2200ms cubic-bezier(.58,0,.2,1)">
+        <div style="position:absolute;inset:6% 11% 6% 9%;border:14px solid #4A3521;box-shadow:inset 0 0 0 2px rgba(255,226,176,.12),0 0 0 2px rgba(20,12,4,.6)"></div>
+        <div style="position:absolute;left:12%;right:14%;top:9%;height:38%;background:#2E2113 url(assets/tex-wood.jpg) center/cover;box-shadow:inset 0 3px 10px rgba(0,0,0,.65),inset 0 -2px 0 rgba(255,226,176,.08)"></div>
+        <div style="position:absolute;left:12%;right:14%;bottom:9%;height:38%;background:#2E2113 url(assets/tex-wood.jpg) center/cover;box-shadow:inset 0 3px 10px rgba(0,0,0,.65),inset 0 -2px 0 rgba(255,226,176,.08)"></div>
+        <div style="position:absolute;left:12%;right:14%;top:47%;height:6%;background:linear-gradient(180deg,#543D25,#33240F)"></div>
+        <div style="position:absolute;left:14px;top:calc(62% - 80px);width:26px;height:160px;pointer-events:none">
+          <div style="position:absolute;left:2px;top:0;width:20px;height:160px;border-radius:10px;background:radial-gradient(60% 40% at 50% 8%,rgba(0,0,0,.45),rgba(0,0,0,0) 60%);filter:blur(7px);transform:translateX(6px)"></div>
+          <div style="position:absolute;left:10px;top:16px;width:12px;height:7px;border-radius:2px;background:linear-gradient(270deg,#C9A45C,#7A5C22)"></div>
+          <div style="position:absolute;left:10px;bottom:16px;width:12px;height:7px;border-radius:2px;background:linear-gradient(270deg,#C9A45C,#7A5C22)"></div>
+          <div style="position:absolute;left:0;top:5px;width:9px;height:150px;border-radius:5px;background:linear-gradient(270deg,#6E5220 0%,#A98436 14%,#F6E3AE 34%,#FFF8E2 44%,#D8B368 55%,#9C7A32 72%,#5E4718 100%)"></div>
+          <div style="position:absolute;left:4px;top:12px;width:2px;height:136px;border-radius:1px;background:linear-gradient(180deg,rgba(255,252,236,.9),rgba(255,252,236,.25) 40%,rgba(255,252,236,.75))"></div>
+          <div style="position:absolute;left:0;top:0;width:9px;height:10px;border-radius:5px 5px 2px 2px;background:linear-gradient(180deg,#FFF6D8,#B08F3E)"></div>
+          <div style="position:absolute;left:0;bottom:0;width:9px;height:10px;border-radius:2px 2px 5px 5px;background:linear-gradient(0deg,#5A4416,#A98436)"></div>
+        </div>
+      </div>
+      <div style="position:absolute;inset:0;z-index:9;display:grid;align-content:center;justify-items:center;overflow-y:auto;padding:clamp(18px,4vw,44px);opacity:{{ gateOpacity }};transition:opacity 620ms ease">
+        <div style="width:100%;max-width:860px;text-align:center">
+          <div style="height:1px;background:linear-gradient(90deg,rgba(232,192,122,0),rgba(232,192,122,.9),rgba(232,192,122,0));transform-origin:50% 50%;animation:drawRule 1700ms cubic-bezier(.2,.8,.2,1) both"></div>
+          <p style="margin:clamp(18px,3.4vw,34px) 0 clamp(16px,3vw,30px);font-size:11px;letter-spacing:.46em;text-transform:uppercase;color:#A79C85;animation:riseIn 1200ms ease 800ms both">Two collections &middot; opening april 2027</p>
+          <div style="position:relative;display:inline-block">
+            <h1 style="margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-size:clamp(27px,5vw,52px);line-height:1.14;color:#F4EFE1;animation:fadeIn 1400ms ease 300ms both">Kelly Wheelis<br /><span style="font-style:italic;font-size:.48em">and</span><br />Anthony Alvarez</h1>
+            
+          </div>
+                              <div style="height:58px;margin:clamp(16px,3vw,30px) auto 0" aria-hidden="true"></div>
+          <div>
+            <div style="height:52px;margin-top:clamp(20px,3.6vw,38px)"></div>
+            <button onClick="{{ enter }}" style="position:absolute;left:50%;top:62%;transform:translate(-50%,-50%);background:transparent;border:1px solid rgba(232,192,122,.75);color:#F2E6C9;padding:16px 40px;font-size:12px;letter-spacing:.34em;text-transform:uppercase;cursor:pointer;transition:background 300ms ease,color 300ms ease;animation:fadeIn 1000ms ease 400ms both" style-hover="background:#E8C07A;color:#0B0A09">Open the doors</button>
+            <p style="margin:18px 0 0;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#A79C85;animation:fadeIn 700ms ease 200ms both">or <button onClick="{{ skip }}" style="background:none;border:0;border-bottom:1px solid rgba(167,156,133,.85);padding:0;color:#A79C85;font:inherit;letter-spacing:.2em;text-transform:uppercase;cursor:pointer">skip to the details</button></p>
+          </div>
+          <div style="margin-top:clamp(18px,3.4vw,34px);height:1px;background:linear-gradient(90deg,rgba(232,192,122,0),rgba(232,192,122,.9),rgba(232,192,122,0));transform-origin:50% 50%;animation:drawRule 1700ms cubic-bezier(.2,.8,.2,1) 400ms both"></div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;holdAtJunction&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Camera path&quot;},&quot;junctionZ&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:-1220,&quot;min&quot;:-1450,&quot;max&quot;:-600,&quot;step&quot;:10,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Camera path&quot;},&quot;wingStopX&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1900,&quot;min&quot;:1400,&quot;max&quot;:2400,&quot;step&quot;:20,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Camera path&quot;},&quot;platesStopX&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1500,&quot;min&quot;:900,&quot;max&quot;:2200,&quot;step&quot;:20,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Camera path&quot;},&quot;wingStopZ&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:-1000,&quot;min&quot;:-1400,&quot;max&quot;:-600,&quot;step&quot;:10,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Camera path&quot;},&quot;ceiling&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;beamed&quot;,&quot;vault&quot;,&quot;clerestory&quot;,&quot;plain&quot;],&quot;default&quot;:&quot;plain&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Architecture&quot;},&quot;view&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;normal&quot;,&quot;overhead&quot;],&quot;default&quot;:&quot;normal&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Architecture&quot;},&quot;overheadPitch&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:56,&quot;min&quot;:10,&quot;max&quot;:88,&quot;step&quot;:2,&quot;unit&quot;:&quot;°&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Overhead view&quot;},&quot;overheadSpin&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0,&quot;min&quot;:-180,&quot;max&quot;:180,&quot;step&quot;:5,&quot;unit&quot;:&quot;°&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Overhead view&quot;},&quot;overheadZoom&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0.22,&quot;min&quot;:0.08,&quot;max&quot;:0.6,&quot;step&quot;:0.02,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Overhead view&quot;}}">
+const STATIONS = [
+  { x: 0, z: 0, yaw: 0, room: 'atrium', accent: '#7E6118', eyebrow: 'The atrium', title: 'Two collections, one exhibit', body: 'Villa Cetinale, in the hills outside Siena. Two wings and five days of open hours. Wing I is through the opening on your left, Wing II on your right; the hall straight ahead holds the exhibit details \u2014 travel, lodging, and the program.', meta: 'Turn and choose a wing' },
+  { x: -1900, z: -1000, yaw: -90, room: 'w1', accent: '#2F6E5A', eyebrow: 'Wing I \u00b7 principal work', title: 'The Birth of Venus', body: 'Botticelli gave a woman the entire centre of the canvas, in gold light, with flowers in the air and nobody hurrying her. That is the tone of the ceremony \u2014 femininity taken completely seriously.', meta: 'Sandro Botticelli, c. 1485 \u00b7 Uffizi, Florence' },
+  { x: -1500, z: -1000, yaw: 0, room: 'w1', accent: '#2F6E5A', eyebrow: 'Wing I \u00b7 complementary work', title: 'The Procession', body: 'Down the cypress avenue at four o\u2019clock, in the part of the afternoon when the light does the work for you.', meta: 'Live performance \u00b7 approx. 30 minutes' },
+  { x: -1500, z: -1000, yaw: 180, room: 'w1', accent: '#2F6E5A', eyebrow: 'Wing I \u00b7 complementary work', title: 'The Vows', body: 'Written by both of us, read once, never rehearsed. Anthony maintains he will not cry.', meta: 'Ink on paper \u00b7 2027' },
+  { x: 1900, z: -1000, yaw: 90, room: 'w2', accent: '#A85A25', eyebrow: 'Wing II \u00b7 principal work', title: 'Primavera', body: 'A hundred and ninety species of plant in one painting, and a garden that refuses to stop. The reception takes this as instruction rather than inspiration.', meta: 'Sandro Botticelli, c. 1480 \u00b7 Uffizi, Florence' },
+  { x: 1500, z: -1000, yaw: 0, room: 'w2', accent: '#A85A25', eyebrow: 'Wing II \u00b7 complementary work', title: 'The Banquet', body: 'Tables dressed as banquet still life: figs, pomegranates, spilled candle wax, far too many flowers. We are attempting fewer than a hundred and ninety.', meta: 'Still life \u00b7 perishable \u00b7 hours undecided' },
+  { x: 1500, z: -1000, yaw: 180, room: 'w2', accent: '#A85A25', eyebrow: 'Wing II \u00b7 complementary work', title: 'The Dancing', body: 'Three Graces, minimum. Participation is not optional but skill is not required.', meta: 'Performance \u00b7 ongoing' },
+  { x: 0, z: -2000, yaw: 0, room: 'det', accent: '#7E6118', eyebrow: 'Exhibit details \u00b7 visiting', title: 'Getting to Sovicille', body: 'Twenty minutes west of Siena, in the hills. Fly into Florence (FLR) or Pisa (PSA) and drive down through the Chianti \u2014 about ninety minutes. Rome (FCO) works too, at roughly three hours.', meta: 'Lodging, transport and the five-day program are still being arranged' },
+  { x: 0, z: -2000, yaw: 90, room: 'det', accent: '#7E6118', eyebrow: 'Exhibit details \u00b7 permanent collection', title: 'Everything we love, catalogued', body: 'The dogs, the card table, the shared library, the plastic brick. Everything in this exhibit is something one of us loves.', meta: 'Mixed media \u00b7 ongoing' },
+  { x: 0, z: -2000, yaw: -90, room: 'det', accent: '#7E6118', eyebrow: 'Exhibit details \u00b7 RSVP', title: 'The exhibit is complete but for one element.', body: 'Invitations follow, and with them this frame gets a name in it.', meta: 'RSVP opens with the invitation' }
+];
+
+const ROOM_ENTRY = { atrium: 0, w1: 1, w2: 4, det: 7 };
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      i: 0, gateVisible: true, gateOpacity: 1, doorsOpen: false, on: false,
+      seen: { 0: true }, motto: false, veil: 0,
+      px: STATIONS[0].x, pz: STATIONS[0].z, yawNow: STATIONS[0].yaw,
+      scale: 1, narrow: false
+    };
+    this.lightRef = React.createRef();
+    this.stageRef = React.createRef();
+    this.atriumRef = React.createRef();
+    this.w1Ref = React.createRef();
+    this.w2Ref = React.createRef();
+    this.detRef = React.createRef();
+  }
+
+  componentDidMount() {
+    this.fit = () => {
+      const box = this.stageRef.current;
+      const w = box ? box.clientWidth : window.innerWidth;
+      const h = box ? box.clientHeight : window.innerHeight - 200;
+      const sc = Math.max(0.28, Math.min(1.3, Math.min((w - 24) / 1040, (h - 16) / 760)));
+      this.setState({ scale: sc, narrow: window.innerWidth < 620 });
+    };
+    window.addEventListener('resize', this.fit);
+    this.fit();
+    requestAnimationFrame(this.fit);
+    this.syncRooms();
+    this.applyCeiling();
+    const q = document.querySelectorAll('[style*="preserve-3d"]');
+    this.rotEl = q[0];
+    this.moverEl = q[1];
+    this.cull();
+
+    this.onKey = (e) => {
+      if (this.state.gateVisible) return;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowUp') this.go(this.state.i + 1);
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') this.go(this.state.i - 1);
+    };
+    window.addEventListener('keydown', this.onKey);
+
+    this.wheelLock = 0;
+    this.onWheel = (e) => {
+      if (this.state.gateVisible) return;
+      const now = Date.now();
+      if (now - this.wheelLock < 1100) return;
+      if (Math.abs(e.deltaY) < 14) return;
+      this.wheelLock = now;
+      this.go(this.state.i + (e.deltaY > 0 ? 1 : -1));
+    };
+    window.addEventListener('wheel', this.onWheel, { passive: true });
+
+    this.raf = 0;
+    this.onMove = (e) => {
+      const el = this.lightRef.current;
+      if (!el) return;
+      const x = e.clientX, y = e.clientY;
+      if (this.raf) return;
+      this.raf = requestAnimationFrame(() => {
+        this.raf = 0;
+        el.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0)';
+      });
+    };
+    window.addEventListener('pointermove', this.onMove, { passive: true });
+  }
+
+  buildArches() {
+    const stage = this.stageRef.current;
+    if (!stage || stage.querySelector('[data-arch]')) return;
+    const mk = (isLeft) => {
+      const d = document.createElement('div');
+      d.setAttribute('data-arch', isLeft ? 'l' : 'r');
+      d.style.cssText = [
+        'position:absolute',
+        'z-index:4',
+        'pointer-events:none',
+        isLeft ? 'left:34.2%' : 'right:34.2%',
+        'top:14%',
+        'width:7.4%',
+        'height:62%',
+        'background:#E2D7BB url(assets/tex-plaster.jpg) center/300px repeat',
+        isLeft
+          ? 'clip-path:polygon(0% 0%,100% 0%,100% 100%,44% 100%,22% 44%,0% 20%)'
+          : 'clip-path:polygon(0% 0%,100% 0%,100% 20%,78% 44%,56% 100%,0% 100%)',
+        isLeft ? 'box-shadow:5px 0 18px -7px rgba(50,38,18,.5)' : 'box-shadow:-5px 0 18px -7px rgba(50,38,18,.5)'
+      ].join(';');
+      return d;
+    };
+    stage.appendChild(mk(true));
+    stage.appendChild(mk(false));
+  }
+
+  buildArches() {
+    const stage = this.stageRef.current;
+    if (!stage || stage.querySelector('[data-arch]')) return;
+    const mk = (isLeft) => {
+      const wrap = document.createElement('div');
+      wrap.setAttribute('data-arch', isLeft ? 'l' : 'r');
+      wrap.style.cssText = 'position:absolute;z-index:4;pointer-events:none;top:15.5%;height:60%;width:7.6%;' + (isLeft ? 'left:34.4%' : 'right:34.4%');
+      wrap.innerHTML = '<svg viewBox="0 0 100 100" preserveAspectRatio="none" style="width:100%;height:100%;display:block">'
+        + '<path d="' + (isLeft ? 'M0,0 L100,0 L100,100 L58,100 Q30,54 0,17 Z' : 'M100,0 L0,0 L0,100 L42,100 Q70,54 100,17 Z') + '" fill="#E2D7BB"/></svg>';
+      return wrap;
+    };
+    stage.appendChild(mk(true));
+    stage.appendChild(mk(false));
+  }
+
+  applyCeiling() {
+    const el = document.querySelector('[data-ceiling]');
+    if (!el) return;
+    const kind = this.props.ceiling || 'beamed';
+    const looks = {
+      plain: 'linear-gradient(180deg,rgba(255,253,246,.7),rgba(120,104,74,.1))',
+      beamed: 'repeating-linear-gradient(0deg,#4A3B28 0 46px,rgba(0,0,0,0) 46px 430px),repeating-linear-gradient(0deg,rgba(74,59,40,.28) 46px 62px,rgba(0,0,0,0) 62px 430px),linear-gradient(180deg,rgba(255,253,246,.75),rgba(120,104,74,.14))',
+      vault: 'repeating-linear-gradient(90deg,rgba(120,104,74,.34) 0 3px,rgba(0,0,0,0) 3px 520px),linear-gradient(90deg,rgba(96,82,58,.3),rgba(255,253,246,.85) 26%,rgba(255,255,250,.95) 50%,rgba(255,253,246,.85) 74%,rgba(96,82,58,.3))',
+      clerestory: 'linear-gradient(90deg,rgba(255,252,236,1) 0 7%,rgba(120,104,74,.22) 9%,rgba(238,232,216,1) 22%,rgba(238,232,216,1) 78%,rgba(120,104,74,.22) 91%,rgba(255,252,236,1) 93%)'
+    };
+    el.style.backgroundImage = looks[kind] || looks.beamed;
+    el.style.backgroundSize = 'auto';
+  }
+
+  collectWalls() {
+    this.wallGeo = [];
+    document.querySelectorAll('div').forEach((el) => {
+      const tf = el.style.transform || '';
+      if (!tf || tf.indexOf('translate3d') < 0 || tf.indexOf('rotateX') > -1) return;
+      const h = parseInt(el.style.height, 10);
+      const w = parseInt(el.style.width, 10);
+      const L = parseInt(el.style.left, 10);
+      if (!(h >= 300) || !w || isNaN(L)) return;
+      const t = /translate3d\(\s*(-?[\d.]+)px?\s*,\s*(-?[\d.]+)px?\s*,\s*(-?[\d.]+)px?\s*\)/.exec(tf);
+      if (!t) return;
+      const ry = /rotateY\(\s*(-?[\d.]+)deg\s*\)/.exec(tf);
+      const a = ry ? Math.abs(parseFloat(ry[1])) % 180 : 0;
+      const tx = parseFloat(t[1]), tz = parseFloat(t[3]);
+      const p = Math.round(a) === 90
+        ? [{ x: tx, z: tz + L }, { x: tx, z: tz + L + w }]
+        : [{ x: tx + L, z: tz }, { x: tx + L + w, z: tz }];
+      this.wallGeo.push({ el: el, a: p[0], b: p[1] });
+    });
+  }
+
+  cull() {
+    document.querySelectorAll('div').forEach((el) => {
+      if (el.style.visibility) el.style.visibility = '';
+    });
+  }
+
+  syncRooms() {
+    document.querySelectorAll('[data-room]').forEach((el) => {
+      el.style.opacity = '1';
+      el.style.filter = 'none';
+      el.style.pointerEvents = 'none';
+    });
+  }
+
+  componentDidUpdate() {
+    this.syncRooms();
+    this.applyCeiling();
+    const jz = this.props.junctionZ ?? -1220;
+    const key = [jz, this.props.wingStopX, this.props.platesStopX, this.props.wingStopZ].join(',');
+    if (this.lastKey === undefined) { this.lastKey = key; return; }
+    if (key === this.lastKey || this.moving) return;
+    this.lastKey = key;
+    const inWing = this.state.px !== 0;
+    if (inWing) {
+      const t = this.stops()[this.state.i];
+      if (t.x !== this.state.px) this.setState({ px: t.x, transMs: 400 });
+    } else if (this.state.i !== 0 && this.state.pz !== jz) {
+      this.setState({ pz: jz, transMs: 400 });
+    }
+  }
+
+  pivot(yaw) {
+    const d = Math.abs(yaw - this.state.yawNow);
+    const ms = Math.round(800 + Math.min(d, 180) * 4);
+    clearTimeout(this.tDur);
+    this.setState({ yawNow: yaw, turnMs: ms });
+    this.tDur = setTimeout(() => this.setState({ turnMs: 900 }), ms + 120);
+  }
+
+
+  stops() {
+    const wx = this.props.wingStopX ?? 1900;
+    const wpx = this.props.platesStopX ?? 1500;
+    const wz = this.props.wingStopZ ?? -1000;
+    return STATIONS.map((st) => {
+      if (st.room === 'w1') return Object.assign({}, st, { x: st.x === -1900 ? -wx : -wpx, z: wz });
+      if (st.room === 'w2') return Object.assign({}, st, { x: st.x === 1900 ? wx : wpx, z: wz });
+      return st;
+    });
+  }
+
+  runSteps(list, k) {
+    k = k || 0;
+    if (k >= list.length) { this.moving = false; return; }
+    this.moving = true;
+    const st = list[k];
+    const isPivot = st.yaw !== undefined && st.x === undefined && st.z === undefined;
+    if (isPivot) {
+      if (st.yaw === this.state.yawNow) return this.runSteps(list, k + 1);
+      this.pivot(st.yaw);
+      this.tSeq = setTimeout(() => this.runSteps(list, k + 1), 1800);
+      return;
+    }
+    const sameX = st.x === undefined || st.x === this.state.px;
+    const sameZ = st.z === undefined || st.z === this.state.pz;
+    if (sameX && sameZ) return this.runSteps(list, k + 1);
+    const patch = { transMs: 1250 };
+    if (st.x !== undefined) patch.px = st.x;
+    if (st.z !== undefined) patch.pz = st.z;
+    if (st.yaw !== undefined) patch.yawNow = st.yaw;
+    this.setState(patch);
+    this.tSeq = setTimeout(() => this.runSteps(list, k + 1), 1500);
+  }
+
+  go(n) {
+    const all = this.stops();
+    const i = Math.max(0, Math.min(all.length - 1, n));
+    if (i === this.state.i) return;
+    const t = all[i];
+    clearTimeout(this.tSeq);
+    clearTimeout(this.tMove);
+    clearTimeout(this.tTurn);
+    clearTimeout(this.tMotto);
+    clearTimeout(this.tDur);
+    if (this.state.motto) this.setState({ motto: false });
+
+    this.setState((s) => {
+      const seen = Object.assign({}, s.seen);
+      seen[i] = true;
+      return { i: i, seen: seen };
+    });
+
+    const jz = this.props.junctionZ ?? -1220;
+    const fromX = this.state.px;
+    const steps = [];
+
+    // if you are inside a wing, face the corridor and walk back out to the centre line
+    if (fromX !== 0) {
+      steps.push({ yaw: fromX < 0 ? 90 : -90 });
+      steps.push({ x: 0 });
+    }
+
+    if (t.x !== 0) {
+      // into a wing: walk up the corridor, pivot at the junction, walk straight in
+      steps.push({ yaw: 0 });
+      steps.push({ z: jz });
+      if (this.props.holdAtJunction) { steps.push({ yaw: t.yaw }); this.runSteps(steps); return; }
+      steps.push({ yaw: t.yaw });
+      steps.push({ x: t.x });
+    } else {
+      steps.push({ yaw: 0 });
+      steps.push({ z: t.z });
+      steps.push({ yaw: t.yaw });
+    }
+    this.runSteps(steps);
+  }
+
+  reveal(instant) {
+    if (instant) {
+      this.setState({ gateVisible: false, gateOpacity: 0, doorsOpen: true, on: true, motto: false });
+      return;
+    }
+    this.setState({ gateOpacity: 0 });
+    this.t1 = setTimeout(() => this.setState({ doorsOpen: true, on: true, motto: true }), 520);
+    this.t2 = setTimeout(() => this.setState({ gateVisible: false }), 2900);
+    this.tMotto = setTimeout(() => this.setState({ motto: false }), 6600);
+  }
+
+  enter = () => this.reveal(false);
+  skip = () => { this.reveal(true); this.go(7); };
+
+  renderVals() {
+    const i = this.state.i;
+    const st = this.stops()[i];
+    const on = this.state.on;
+    const room = st.room;
+
+    const tone = (key) => room === key;
+    const v = {
+      gateVisible: this.state.gateVisible,
+      gateOpacity: this.state.gateOpacity,
+      gatePointer: this.state.doorsOpen ? 'none' : 'auto',
+      doorL: this.state.doorsOpen ? -101 : 0,
+      doorR: this.state.doorsOpen ? 101 : 0,
+      enter: this.enter,
+      skip: this.skip,
+      lightRef: this.lightRef,
+      stageRef: this.stageRef,
+      atriumRef: this.atriumRef,
+      w1Ref: this.w1Ref,
+      w2Ref: this.w2Ref,
+      detRef: this.detRef,
+      scale: this.props.view === 'overhead' ? this.state.scale * (this.props.overheadZoom ?? 0.22) : this.state.scale,
+      atriumOn: i === 0 ? 1 : 0,
+      roomOn: i === 0 ? 0 : 1,
+      detOn: i === 0 ? 0 : 1,
+      atmos: on ? 1 : 0,
+      hudOn: on ? 1 : 0,
+      mottoOpacity: this.state.motto ? 1 : 0,
+      petals: on && room === 'w2' ? 1 : 0,
+      tx: -this.state.px,
+      tz: -this.state.pz,
+      yaw: this.props.view === 'overhead' ? (this.props.overheadSpin ?? 0) : this.state.yawNow,
+      transMs: this.state.transMs || 900,
+      turnMs: this.state.turnMs || 900,
+      pitch: this.props.view === 'overhead' ? (this.props.overheadPitch ?? 56) : 0,
+      hover: this.props.view === 'overhead' ? -1200 : 0,
+      accent: st.accent,
+      eyebrow: st.eyebrow,
+      title: st.title,
+      body: st.body,
+      meta: st.meta,
+      fwdLabel: this.state.narrow ? '\u2192' : 'Walk on \u00a0\u2192',
+      back: () => this.go(i - 1),
+      fwd: () => this.go(i + 1),
+      goAtrium: () => this.go(ROOM_ENTRY.atrium),
+      goWing1: () => this.go(ROOM_ENTRY.w1),
+      goWing2: () => this.go(ROOM_ENTRY.w2),
+      goDetails: () => this.go(ROOM_ENTRY.det)
+    };
+
+    const keys = [['Atrium', 'atrium'], ['W1', 'w1'], ['W2', 'w2'], ['Det', 'det']];
+    keys.forEach((pair) => {
+      const active = tone(pair[1]);
+      v['bg' + pair[0]] = active ? 'rgba(232,192,122,.16)' : 'transparent';
+      v['br' + pair[0]] = active ? 'rgba(232,192,122,.75)' : 'rgba(201,166,103,.3)';
+      v['fg' + pair[0]] = active ? '#F2E6C9' : '#A79C85';
+    });
+
+    for (let n = 0; n < STATIONS.length; n++) {
+      v['l' + n] = on && n === i ? 1 : 0;
+    }
+    return v;
+  }
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400&family=EB+Garamond:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  body { margin: 0; background: #17140F; color: #EDE7D7; font-family: 'EB Garamond', Georgia, serif; -webkit-font-smoothing: antialiased; }
+  * { box-sizing: border-box; }
+  a { color: #E8C07A; text-decoration: none; border-bottom: 1px solid rgba(232,192,122,.4); }
+</style>
+</helmet>
+
+<section style="padding:clamp(20px,3vw,40px)">
+  <div style="max-width:1400px;margin:0 auto">
+    <p style="margin:0 0 6px;font-size:11px;letter-spacing:.4em;text-transform:uppercase;color:#9C917A">Atrium far wall &middot; elevation studies</p>
+    <h1 style="margin:0 0 20px;font-family:'Cormorant Garamond',Georgia,serif;font-weight:400;font-size:clamp(21px,2.8vw,30px);color:#F4EFE1">A &mdash; arched panels &nbsp;/&nbsp; B &mdash; three-arch arcade</h1>
+
+    <div style="display:flex;flex-wrap:wrap;gap:clamp(18px,2.4vw,30px)">
+
+      <div id="A" style="flex:1 1 440px;min-width:min(100%,400px)">
+        <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:10px">
+          <span style="font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#17140F;background:#E8C07A;padding:3px 8px">A</span>
+          <h2 style="margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-weight:400;font-size:19px;color:#F4EFE1">Arched panels</h2>
+        </div>
+        <div style="position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;background:#D8CFB6 url(assets/tex-plaster.jpg) center/26% repeat;border:1px solid rgba(232,192,122,.26)">
+          <div style="position:absolute;left:0;right:0;bottom:0;height:7%;background:#34302A"></div>
+          <div style="position:absolute;left:0;right:0;top:0;height:3%;background:#F1EBDC"></div>
+          <div style="position:absolute;left:4%;bottom:7%;width:30%;height:66%;border-radius:50% 50% 0 0 / 34% 34% 0 0;background:#EFE7D0 url(assets/tex-plaster.jpg) center/32% repeat;box-shadow:inset 0 0 0 2px rgba(255,252,240,.6),inset 4px 8px 22px -8px rgba(60,44,20,.45)"></div>
+          <div style="position:absolute;right:4%;bottom:7%;width:30%;height:66%;border-radius:50% 50% 0 0 / 34% 34% 0 0;background:#EFE7D0 url(assets/tex-plaster.jpg) center/32% repeat;box-shadow:inset 0 0 0 2px rgba(255,252,240,.6),inset -4px 8px 22px -8px rgba(60,44,20,.45)"></div>
+          <div style="position:absolute;left:50%;transform:translateX(-50%);bottom:7%;width:20%;height:56%;border-radius:50% 50% 0 0 / 30% 30% 0 0;background:linear-gradient(180deg,#5C4C34,#241C12);box-shadow:inset 0 10px 26px rgba(0,0,0,.6)"></div>
+          <div style="position:absolute;left:50%;transform:translateX(-50%);top:9%;width:26%;height:11%;background:linear-gradient(170deg,#6E5A31,#443619);border:1px solid rgba(232,192,122,.5)">
+            <p style="margin:0;padding-top:4%;text-align:center;font-size:1vw;letter-spacing:.14em;text-transform:uppercase;color:#F2DFAE">&larr; Wing I &nbsp;&middot;&nbsp; Wing II &rarr;</p>
+          </div>
+        </div>
+        <p style="margin:10px 0 0;font-size:13px;line-height:1.6;color:#B6AC95">The two pale wall faces become arch-shaped. One real opening in the middle; the sides stay solid wall.</p>
+      </div>
+
+      <div id="B" style="flex:1 1 440px;min-width:min(100%,400px)">
+        <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:10px">
+          <span style="font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#17140F;background:#E8C07A;padding:3px 8px">B</span>
+          <h2 style="margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-weight:400;font-size:19px;color:#F4EFE1">Three-arch arcade</h2>
+        </div>
+        <div style="position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;background:#D8CFB6 url(assets/tex-plaster.jpg) center/26% repeat;border:1px solid rgba(232,192,122,.26)">
+          <div style="position:absolute;left:0;right:0;bottom:0;height:7%;background:#34302A"></div>
+          <div style="position:absolute;left:0;right:0;top:0;height:3%;background:#F1EBDC"></div>
+          <div style="position:absolute;left:6%;bottom:7%;width:22%;height:60%;border-radius:50% 50% 0 0 / 32% 32% 0 0;background:linear-gradient(180deg,#6B5B3E,#2A2116);box-shadow:inset 0 12px 30px rgba(0,0,0,.55)"></div>
+          <div style="position:absolute;left:50%;transform:translateX(-50%);bottom:7%;width:26%;height:70%;border-radius:50% 50% 0 0 / 30% 30% 0 0;background:linear-gradient(180deg,#5C4C34,#201810);box-shadow:inset 0 14px 34px rgba(0,0,0,.65)"></div>
+          <div style="position:absolute;right:6%;bottom:7%;width:22%;height:60%;border-radius:50% 50% 0 0 / 32% 32% 0 0;background:linear-gradient(180deg,#6B5B3E,#2A2116);box-shadow:inset 0 12px 30px rgba(0,0,0,.55)"></div>
+          <div style="position:absolute;left:28%;bottom:7%;width:6%;height:74%;background:#E7DDC4 url(assets/tex-plaster.jpg) center/40% repeat;box-shadow:inset 0 0 0 2px rgba(255,252,240,.4)"></div>
+          <div style="position:absolute;right:28%;bottom:7%;width:6%;height:74%;background:#E7DDC4 url(assets/tex-plaster.jpg) center/40% repeat;box-shadow:inset 0 0 0 2px rgba(255,252,240,.4)"></div>
+          <div style="position:absolute;left:50%;transform:translateX(-50%);top:6%;width:26%;height:10%;background:linear-gradient(170deg,#6E5A31,#443619);border:1px solid rgba(232,192,122,.5)">
+            <p style="margin:0;padding-top:4%;text-align:center;font-size:1vw;letter-spacing:.14em;text-transform:uppercase;color:#F2DFAE">Exhibit details &uarr;</p>
+          </div>
+          <p style="position:absolute;left:8%;bottom:26%;width:18%;margin:0;text-align:center;font-size:1.1vw;letter-spacing:.08em;text-transform:uppercase;color:#E9D7A6">&larr; Wing I</p>
+          <p style="position:absolute;right:8%;bottom:26%;width:18%;margin:0;text-align:center;font-size:1.1vw;letter-spacing:.08em;text-transform:uppercase;color:#E9D7A6">Wing II &rarr;</p>
+        </div>
+        <p style="margin:10px 0 0;font-size:13px;line-height:1.6;color:#B6AC95">Three real openings separated by piers &mdash; left into Wing I, centre to the details hall, right into Wing II. The wings are entered head-on instead of by turning.</p>
+      </div>
+
+    </div>
+    <p style="margin:clamp(18px,2.6vw,30px) 0 0;font-size:14px;color:#9C917A">Say <a href="#A">A</a> or <a href="#B">B</a> and I&rsquo;ll build only that one into the atrium.</p>
+  </div>
+</section>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{}"></script>
+</body>
+</html>

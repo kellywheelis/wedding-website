@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Gallery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.184.0/build/three.module.js",
+    "three/addons/controls/OrbitControls.js": "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js",
+    "three/addons/exporters/OBJExporter.js": "https://unpkg.com/three@0.184.0/examples/jsm/exporters/OBJExporter.js",
+    "three/addons/exporters/GLTFExporter.js": "https://unpkg.com/three@0.184.0/examples/jsm/exporters/GLTFExporter.js"
+  },
+  "integrity": {
+    "https://unpkg.com/three@0.184.0/build/three.module.js": "sha384-8FCZ1eVO6it4+pbec2aDtnTrwjWXZLJRC+MAGCIPDgsYnUrl/E0A2YlF8ioMKI/J",
+    "https://unpkg.com/three@0.184.0/build/three.core.js": "sha384-dw2ooPewaEIrAgl6oFDBmmBWCE9oW9LxRGcfwZ0hLvEprzo202wXl7vCYHRlSnOT",
+    "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js": "sha384-4rziNxOBZKQ69i+w+f89KJ55TCYquwchVbByQwmaOeIOXdOU2PLDn3kOfXHwIJC9",
+    "https://unpkg.com/three@0.184.0/examples/jsm/exporters/OBJExporter.js": "sha384-nbwtoZENJD3Vq+ACK0CuGQdPMuDWHkamC2KJD70EV5nfg6jQjfppKOea07YJN+N3",
+    "https://unpkg.com/three@0.184.0/examples/jsm/exporters/GLTFExporter.js": "sha384-VofkvpG6HERhFCYbsUOHeNXBCqID2nfqkQqnVzE1jc/oPcz+qJ13ADdXH08hE+cQ"
+  }
+}
+</script>
+<style>
+  html, body { margin: 0; height: 100%; background: #2B2520; color: #EDE7D7; font-family: 'EB Garamond', Georgia, serif; -webkit-font-smoothing: antialiased; overflow: hidden; }
+  * { box-sizing: border-box; }
+  p { text-wrap: pretty; }
+  button { font-family: inherit; }
+  #shell { position: fixed; inset: 0; display: flex; flex-direction: column; }
+  #stage { position: relative; flex: 1; min-height: 0; }
+  #view { display: block; width: 100%; height: 100%; }
+  @keyframes drawRule { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  @keyframes riseIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+</style>
+</head>
+<body>
+<div id="shell">
+  <div id="stage"><canvas id="view"></canvas></div>
+
+  <div id="label" style="position:relative;z-index:12;flex:none;padding:0 clamp(14px,3vw,34px);opacity:0;transition:opacity 700ms ease">
+    <div style="max-width:1040px;margin:0 auto;border-top:1px solid rgba(201,166,103,.32);padding:clamp(13px,1.8vw,20px) 0 clamp(6px,1vw,10px);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:8px clamp(20px,3vw,40px);align-items:start">
+      <div>
+        <p id="eyebrow" style="margin:0 0 7px;font-size:10px;letter-spacing:.34em;text-transform:uppercase;color:#C9A667;transition:color 700ms ease"></p>
+        <h2 id="title" style="margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-weight:400;font-size:clamp(20px,2.6vw,28px);line-height:1.2;color:#F6F1E4"></h2>
+      </div>
+      <div>
+        <p id="body" style="margin:0 0 8px;font-size:15px;line-height:1.7;color:#BCB29B"></p>
+        <p id="meta" style="margin:0;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#988E7C"></p>
+      </div>
+    </div>
+  </div>
+
+  <div id="nav" style="position:relative;z-index:13;flex:none;padding:6px clamp(14px,3vw,34px) 14px;opacity:0;transition:opacity 700ms ease">
+    <div style="max-width:1040px;margin:0 auto;display:flex;align-items:center;gap:clamp(8px,1.4vw,14px)">
+      <button data-back="1" aria-label="Step back" style="width:46px;height:46px;border-radius:50%;background:rgba(10,9,8,.6);border:1px solid rgba(201,166,103,.5);color:#F2E6C9;font-size:15px;cursor:pointer;flex:none">&larr;</button>
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;gap:clamp(6px,1.2vw,14px)">
+        <button data-room="atrium" style="flex:1;min-width:0;height:46px;background:transparent;border:1px solid rgba(201,166,103,.3);color:#A79C85;font-size:10px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:all 400ms ease;white-space:nowrap;overflow:hidden">Atrium</button>
+        <button data-room="w1" style="flex:1;min-width:0;height:46px;background:transparent;border:1px solid rgba(201,166,103,.3);color:#A79C85;font-size:10px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:all 400ms ease;white-space:nowrap;overflow:hidden">Wing I</button>
+        <button data-room="w2" style="flex:1;min-width:0;height:46px;background:transparent;border:1px solid rgba(201,166,103,.3);color:#A79C85;font-size:10px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:all 400ms ease;white-space:nowrap;overflow:hidden">Wing II</button>
+        <button data-room="det" style="flex:1;min-width:0;height:46px;background:transparent;border:1px solid rgba(201,166,103,.3);color:#A79C85;font-size:10px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:all 400ms ease;white-space:nowrap;overflow:hidden">Details</button>
+      </div>
+      <button data-fwd="1" aria-label="Walk forward" style="height:46px;padding:0 clamp(14px,2.4vw,22px);border-radius:24px;background:rgba(232,192,122,.14);border:1px solid rgba(201,166,103,.6);color:#F2E6C9;font-size:11px;letter-spacing:.24em;text-transform:uppercase;cursor:pointer;flex:none;white-space:nowrap">Walk on &nbsp;&rarr;</button>
+    </div>
+  </div>
+</div>
+
+<!-- ENTRANCE -->
+<div id="gate" style="position:fixed;inset:0;z-index:70">
+  <div id="doorL" style="position:absolute;left:0;top:0;width:50.4%;height:100%;overflow:hidden;background:#3A2A1A;background-image:linear-gradient(90deg,rgba(0,0,0,.5),rgba(0,0,0,0) 22%,rgba(0,0,0,.18) 92%),url(assets/tex-wood.jpg);background-size:auto,cover;background-position:center;border-right:5px solid #24180C;box-shadow:inset -24px 0 44px -26px rgba(0,0,0,.95);transition:transform 2200ms cubic-bezier(.58,0,.2,1)">
+    <div style="position:absolute;inset:6% 10% 6% 10%;border:14px solid #4A3521;box-shadow:inset 0 0 0 2px rgba(255,226,176,.12),0 0 0 2px rgba(20,12,4,.6)"></div>
+    <div style="position:absolute;left:12%;right:12%;top:9%;height:40%;background:#2E2113 url(assets/tex-wood.jpg) center/cover;box-shadow:inset 0 3px 10px rgba(0,0,0,.65),inset 0 -2px 0 rgba(255,226,176,.08)"></div>
+    <div style="position:absolute;left:12%;right:12%;bottom:9%;height:39.4%;background:#2E2113 url(assets/tex-wood.jpg) center/cover;box-shadow:inset 0 3px 10px rgba(0,0,0,.65),inset 0 -2px 0 rgba(255,226,176,.08)"></div>
+    <div style="position:absolute;left:12%;right:12%;top:49%;height:2.6%;background:linear-gradient(180deg,#543D25,#33240F)"></div>
+    <div style="position:absolute;right:14px;top:calc(74% - 80px);width:26px;height:160px;pointer-events:none">
+      <div style="position:absolute;right:10px;top:16px;width:12px;height:7px;border-radius:2px;background:linear-gradient(90deg,#C9A45C,#7A5C22)"></div>
+      <div style="position:absolute;right:10px;bottom:16px;width:12px;height:7px;border-radius:2px;background:linear-gradient(90deg,#C9A45C,#7A5C22)"></div>
+      <div style="position:absolute;right:0;top:5px;width:9px;height:150px;border-radius:5px;background:linear-gradient(90deg,#6E5220 0%,#A98436 14%,#F6E3AE 34%,#FFF8E2 44%,#D8B368 55%,#9C7A32 72%,#5E4718 100%)"></div>
+      <div style="position:absolute;right:4px;top:12px;width:2px;height:136px;border-radius:1px;background:linear-gradient(180deg,rgba(255,252,236,.9),rgba(255,252,236,.25) 40%,rgba(255,252,236,.75))"></div>
+    </div>
+  </div>
+  <div id="doorR" style="position:absolute;right:0;top:0;width:50.4%;height:100%;overflow:hidden;background:#3A2A1A;background-image:linear-gradient(270deg,rgba(0,0,0,.5),rgba(0,0,0,0) 22%,rgba(0,0,0,.18) 92%),url(assets/tex-wood.jpg);background-size:auto,cover;background-position:center right;border-left:5px solid #24180C;box-shadow:inset 24px 0 44px -26px rgba(0,0,0,.95);transition:transform 2200ms cubic-bezier(.58,0,.2,1)">
+    <div style="position:absolute;inset:6% 10% 6% 10%;border:14px solid #4A3521;box-shadow:inset 0 0 0 2px rgba(255,226,176,.12),0 0 0 2px rgba(20,12,4,.6)"></div>
+    <div style="position:absolute;left:12%;right:12%;top:9%;height:40%;background:#2E2113 url(assets/tex-wood.jpg) center/cover;box-shadow:inset 0 3px 10px rgba(0,0,0,.65),inset 0 -2px 0 rgba(255,226,176,.08)"></div>
+    <div style="position:absolute;left:12%;right:12%;bottom:9%;height:39.4%;background:#2E2113 url(assets/tex-wood.jpg) center/cover;box-shadow:inset 0 3px 10px rgba(0,0,0,.65),inset 0 -2px 0 rgba(255,226,176,.08)"></div>
+    <div style="position:absolute;left:12%;right:12%;top:49%;height:2.6%;background:linear-gradient(180deg,#543D25,#33240F)"></div>
+    <div style="position:absolute;left:14px;top:calc(74% - 80px);width:26px;height:160px;pointer-events:none">
+      <div style="position:absolute;left:10px;top:16px;width:12px;height:7px;border-radius:2px;background:linear-gradient(270deg,#C9A45C,#7A5C22)"></div>
+      <div style="position:absolute;left:10px;bottom:16px;width:12px;height:7px;border-radius:2px;background:linear-gradient(270deg,#C9A45C,#7A5C22)"></div>
+      <div style="position:absolute;left:0;top:5px;width:9px;height:150px;border-radius:5px;background:linear-gradient(270deg,#6E5220 0%,#A98436 14%,#F6E3AE 34%,#FFF8E2 44%,#D8B368 55%,#9C7A32 72%,#5E4718 100%)"></div>
+      <div style="position:absolute;left:4px;top:12px;width:2px;height:136px;border-radius:1px;background:linear-gradient(180deg,rgba(255,252,236,.9),rgba(255,252,236,.25) 40%,rgba(255,252,236,.75))"></div>
+    </div>
+  </div>
+  <div style="position:absolute;left:0;right:0;top:74%;transform:translateY(-50%);z-index:10;display:flex;justify-content:center;pointer-events:none">
+    <button id="enter" style="pointer-events:auto;background:rgba(26,18,8,.55);backdrop-filter:blur(2px);border:1px solid rgba(232,192,122,.75);color:#F2E6C9;padding:16px 40px;font-size:12px;letter-spacing:.34em;text-transform:uppercase;cursor:pointer;animation:riseIn 1000ms ease 400ms both">Open the doors</button>
+  </div>
+  <div style="position:absolute;left:0;right:0;top:calc(74% + 112px);z-index:10;text-align:center;pointer-events:none">
+    <p style="margin:0;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#A79C85;animation:fadeIn 700ms ease 200ms both">or <button id="skip" style="pointer-events:auto;background:none;border:0;border-bottom:1px solid rgba(167,156,133,.85);padding:0;color:#A79C85;font:inherit;letter-spacing:.2em;text-transform:uppercase;cursor:pointer">skip to the details</button></p>
+  </div>
+  <div id="gateCopy" style="position:absolute;inset:0;z-index:9;transform:translateY(-5vh);display:grid;align-content:center;justify-items:center;overflow-y:auto;padding:clamp(18px,4vw,44px);transition:opacity 620ms ease">
+    <div style="position:relative;width:100%;max-width:680px;text-align:center">
+      <div style="height:1px;background:linear-gradient(90deg,rgba(232,192,122,0),rgba(232,192,122,.9),rgba(232,192,122,0));transform-origin:50% 50%;animation:drawRule 1700ms cubic-bezier(.2,.8,.2,1) both"></div>
+      <p style="margin:clamp(12px,2.2vw,22px) 0 clamp(12px,2.2vw,22px);font-size:11px;letter-spacing:.46em;text-transform:uppercase;color:#A79C85;animation:riseIn 1200ms ease 800ms both">Two collections &middot; opening april 2027</p>
+      <h1 style="margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-size:clamp(27px,5vw,52px);line-height:1.14;color:#F4EFE1;animation:fadeIn 1400ms ease 300ms both">Kelly Wheelis<br /><span style="font-style:italic;font-size:.48em;color:#CBC1A8">and</span><br />Anthony Alvarez</h1>
+      <div style="margin-top:clamp(12px,2.2vw,22px);height:1px;background:linear-gradient(90deg,rgba(232,192,122,0),rgba(232,192,122,.9),rgba(232,192,122,0));transform-origin:50% 50%;animation:drawRule 1700ms cubic-bezier(.2,.8,.2,1) 400ms both"></div>
+    </div>
+  </div>
+</div>
+
+<div id="motto" style="position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:clamp(20px,6vw,70px);pointer-events:none;opacity:0;transition:opacity 2200ms ease">
+  <div style="max-width:min(880px,90vw);text-align:center">
+    <div style="height:1px;margin:0 auto clamp(20px,3vw,34px);width:clamp(90px,16vw,150px);background:linear-gradient(90deg,rgba(232,192,122,0),rgba(232,192,122,.95),rgba(232,192,122,0))"></div>
+    <p style="margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-style:italic;font-size:clamp(26px,5.6vw,62px);line-height:1.26;background:linear-gradient(104deg,#9A7524 0%,#F2D98F 20%,#FFF8E2 36%,#E8BE63 52%,#A87F26 72%,#FBE7AE 88%,#9A7524 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 10px rgba(0,0,0,.55))">&ldquo;I am a museum of everything I&rsquo;ve ever loved&hellip;&rdquo;</p>
+    <div style="height:1px;margin:clamp(20px,3vw,34px) auto 0;width:clamp(90px,16vw,150px);background:linear-gradient(90deg,rgba(232,192,122,0),rgba(232,192,122,.95),rgba(232,192,122,0))"></div>
+  </div>
+</div>
+
+<script>
+(function alignAnd() {
+  function fit() {
+    var copy = document.getElementById('gateCopy');
+    if (!copy) return;
+    var span = copy.querySelector('h1 span');
+    var rail = document.querySelector('#doorL div[style*="top:49%"]');
+    if (!span || !rail) return;
+    copy.style.transform = 'translateY(0px)';
+    var a = span.getBoundingClientRect();
+    var r = rail.getBoundingClientRect();
+    var dy = (r.top + r.height / 2) - (a.top + a.height / 2);
+    copy.style.transform = 'translateY(' + dy.toFixed(1) + 'px)';
+  }
+  window.addEventListener('resize', fit);
+  window.addEventListener('load', fit);
+  document.addEventListener('DOMContentLoaded', fit);
+  setTimeout(fit, 400);
+  setTimeout(fit, 1600);
+})();
+</script>
+<script type="module" src="gallery3d.js?v=1789761817674"></script>
+</body>
+</html>

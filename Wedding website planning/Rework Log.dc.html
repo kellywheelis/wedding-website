@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="./doc-page.js"></script>
+<style>
+  doc-page:not(:defined) { visibility: hidden; }
+  body { margin: 0; font-family: 'EB Garamond', Georgia, serif; }
+  a { color: #7C1F40; }
+  a:hover { color: #2C2723; }
+</style>
+</helmet>
+
+<doc-page margin="0.85in" style="font-family:'EB Garamond',Georgia,serif">
+  <p style="margin:0 0 6px;font-size:10.5pt;letter-spacing:.22em;text-transform:uppercase;color:#6B6155">Rework log &middot; assistant-caused</p>
+  <h1 style="margin:0 0 4px;font-weight:500;font-size:24pt;line-height:1.15;color:#1F1B16">Session rework record</h1>
+  <p style="margin:0 0 20px;font-size:12pt;color:#4A433A">Wedding website project &middot; &ldquo;The Gallery&rdquo; walkable exhibit &middot; compiled 18 September 2026</p>
+
+  <div style="border-top:2px solid #1F1B16;border-bottom:1px solid #C9C0AE;padding:14px 0;margin-bottom:22px">
+    <p style="margin:0;font-size:12pt;line-height:1.6;color:#2C2723">This is a self-reported account, written by the assistant, of work in this session that was caused by its own errors rather than by changes of direction from the user. Each entry states what happened, what the user had actually asked for, and how the error was established as an error &mdash; in most cases by the assistant&rsquo;s own admission in the transcript, or by a direct inspection of the rendered page that contradicted a claim the assistant had made.</p>
+  </div>
+
+  <h2 style="margin:0 0 10px;font-weight:500;font-size:15pt;color:#1F1B16">Summary</h2>
+  <table style="width:100%;border-collapse:collapse;font-size:12pt;table-layout:fixed;margin-bottom:26px">
+    <thead>
+      <tr>
+        <th style="text-align:left;padding:8px 6px;border-bottom:1px solid #1F1B16;font-weight:500">Category</th>
+        <th style="text-align:left;padding:8px 6px;border-bottom:1px solid #1F1B16;font-weight:500">Nature of the error</th>
+        <th style="text-align:right;padding:8px 6px;border-bottom:1px solid #1F1B16;font-weight:500">Exchanges</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="padding:8px 6px;border-bottom:1px solid #E2DACA">Silent styling failure</td>
+        <td style="padding:8px 6px;border-bottom:1px solid #E2DACA">Same non-working technique attempted three times before inspecting the page</td>
+        <td style="padding:8px 6px;border-bottom:1px solid #E2DACA;text-align:right">6</td>
+      </tr>
+      <tr>
+        <td style="padding:8px 6px;border-bottom:1px solid #E2DACA">Corrupted markup</td>
+        <td style="padding:8px 6px;border-bottom:1px solid #E2DACA">Bulk edit duplicated whole sections and unbalanced tags; required scripted audit and repair</td>
+        <td style="padding:8px 6px;border-bottom:1px solid #E2DACA;text-align:right">7</td>
+      </tr>
+      <tr>
+        <td style="padding:8px 6px;border-bottom:1px solid #E2DACA">Unverified claims</td>
+        <td style="padding:8px 6px;border-bottom:1px solid #E2DACA">Told the user a change was applied when it was not, three times</td>
+        <td style="padding:8px 6px;border-bottom:1px solid #E2DACA;text-align:right">5</td>
+      </tr>
+      <tr>
+        <td style="padding:8px 6px;border-bottom:1px solid #E2DACA">Unrequested changes</td>
+        <td style="padding:8px 6px;border-bottom:1px solid #E2DACA">Altered or removed work the user had not asked to change, then had to restore it</td>
+        <td style="padding:8px 6px;border-bottom:1px solid #E2DACA;text-align:right">5</td>
+      </tr>
+      <tr>
+        <td style="padding:8px 6px;border-bottom:1px solid #E2DACA">Ignored supplied material</td>
+        <td style="padding:8px 6px;border-bottom:1px solid #E2DACA">Built studies by hand-drawing surfaces after the user had supplied reference photographs</td>
+        <td style="padding:8px 6px;border-bottom:1px solid #E2DACA;text-align:right">3</td>
+      </tr>
+      <tr>
+        <td style="padding:8px 6px;border-bottom:2px solid #1F1B16;font-weight:500">Total</td>
+        <td style="padding:8px 6px;border-bottom:2px solid #1F1B16"></td>
+        <td style="padding:8px 6px;border-bottom:2px solid #1F1B16;text-align:right;font-weight:500">26</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 style="margin:0 0 12px;font-weight:500;font-size:15pt;color:#1F1B16">Itemised record</h2>
+
+  <div style="break-inside:avoid;margin-bottom:20px;padding-left:14px;border-left:3px solid #7C1F40">
+    <p style="margin:0 0 4px;font-size:10.5pt;letter-spacing:.18em;text-transform:uppercase;color:#6B6155">Item 1 &middot; silent styling failure</p>
+    <p style="margin:0 0 8px;font-size:13pt;font-weight:500;color:#1F1B16">Rooms visible inside one another; three failed attempts at the same fix</p>
+    <p style="margin:0 0 8px;font-size:12pt;line-height:1.6;color:#3A342C">Wing I and Wing II wall panels rendered inside the atrium view as large floating slabs. The assistant attempted to hide them using a dynamic value in a style attribute, a technique the rendering layer silently discards. The same approach was tried a second time with a different property, and a third time before the assistant inspected the live page and found the property absent from the element entirely.</p>
+    <p style="margin:0;font-size:12pt;line-height:1.55;color:#5A5245"><span style="font-family:'IBM Plex Mono',monospace;font-size:10pt">EVIDENCE</span> &mdash; A direct inspection of the rendered element returned the style attribute with the property missing and the element&rsquo;s computed visibility still active, contradicting the assistant&rsquo;s two prior statements that the rooms were now hidden. Fixed only on the fourth attempt, by tagging each wall and setting it directly.</p>
+  </div>
+
+  <div style="break-inside:avoid;margin-bottom:20px;padding-left:14px;border-left:3px solid #7C1F40">
+    <p style="margin:0 0 4px;font-size:10.5pt;letter-spacing:.18em;text-transform:uppercase;color:#6B6155">Item 2 &middot; corrupted markup</p>
+    <p style="margin:0 0 8px;font-size:13pt;font-weight:500;color:#1F1B16">A bulk edit duplicated entire sections of the document</p>
+    <p style="margin:0 0 8px;font-size:12pt;line-height:1.6;color:#3A342C">While grouping rooms, the assistant ran a scripted edit whose boundary markers resolved in the wrong order. The result duplicated the atrium and both wings, left two unclosed elements, and collapsed the layout so that the interface overlapped itself. Repair required a structural audit, removal of two duplicated blocks, and insertion of a missing closing tag.</p>
+    <p style="margin:0;font-size:12pt;line-height:1.55;color:#5A5245"><span style="font-family:'IBM Plex Mono',monospace;font-size:10pt">EVIDENCE</span> &mdash; A tag-balance audit reported 194 opening elements against 192 closing, and printed the section markers appearing twice in sequence. The user had asked only for the arch to be raised and the floors matched.</p>
+  </div>
+
+  <div style="break-inside:avoid;margin-bottom:20px;padding-left:14px;border-left:3px solid #7C1F40">
+    <p style="margin:0 0 4px;font-size:10.5pt;letter-spacing:.18em;text-transform:uppercase;color:#6B6155">Item 3 &middot; unverified claims</p>
+    <p style="margin:0 0 8px;font-size:13pt;font-weight:500;color:#1F1B16">Three statements that work was complete when it was not</p>
+    <p style="margin:0 0 8px;font-size:12pt;line-height:1.6;color:#3A342C">First: the assistant stated the tinted wing walls had been returned to plaster. The user could still see them, and was correct &mdash; the panels on screen were the atrium&rsquo;s own sign walls, which the assistant had never touched. Second: the assistant stated the wing signs had been enlarged roughly threefold. An inspection of the page showed them still at 34px; the edit had targeted text that no longer matched and had silently done nothing. Third: the assistant described the enlarged signs as correct while they were in fact overflowing their wall, which the user then had to point out with a drawing.</p>
+    <p style="margin:0;font-size:12pt;line-height:1.55;color:#5A5245"><span style="font-family:'IBM Plex Mono',monospace;font-size:10pt">EVIDENCE</span> &mdash; In each case the assistant conceded the error in the following message. For the sign size, the measured font size of the rendered element directly contradicted the claim.</p>
+  </div>
+
+  <div style="break-inside:avoid;margin-bottom:20px;padding-left:14px;border-left:3px solid #7C1F40">
+    <p style="margin:0 0 4px;font-size:10.5pt;letter-spacing:.18em;text-transform:uppercase;color:#6B6155">Item 4 &middot; unrequested changes</p>
+    <p style="margin:0 0 8px;font-size:13pt;font-weight:500;color:#1F1B16">Work altered or removed that the user had not asked to change</p>
+    <p style="margin:0 0 8px;font-size:12pt;line-height:1.6;color:#3A342C">Three instances. The wing signs were shrunk as a side effect of an unrelated fix, and the user had to ask for them back. The artwork fills in the gallery frames were removed on a misreading of &ldquo;no placeholder colour washes&rdquo; &mdash; the user had meant the tinted walls &mdash; and had to be restored. A cove-lighting treatment was added to every wall without being requested, and was removed at the user&rsquo;s instruction.</p>
+    <p style="margin:0;font-size:12pt;line-height:1.55;color:#5A5245"><span style="font-family:'IBM Plex Mono',monospace;font-size:10pt">EVIDENCE</span> &mdash; The user&rsquo;s instructions in each case were narrower than the change made; all three were reverted or restored at the user&rsquo;s request.</p>
+  </div>
+
+  <div style="break-inside:avoid;margin-bottom:26px;padding-left:14px;border-left:3px solid #7C1F40">
+    <p style="margin:0 0 4px;font-size:10.5pt;letter-spacing:.18em;text-transform:uppercase;color:#6B6155">Item 5 &middot; ignored supplied material</p>
+    <p style="margin:0 0 8px;font-size:13pt;font-weight:500;color:#1F1B16">Reference photographs left unused in favour of hand-drawn surfaces</p>
+    <p style="margin:0 0 8px;font-size:12pt;line-height:1.6;color:#3A342C">The user supplied nine reference photographs of Italian museums. The assistant produced three atrium studies with every surface drawn in code, which the user rejected as looking machine-made. The assistant then proposed that the user upload further textures &mdash; material it already had. Only after the user asked why the supplied images were not being used did the assistant extract textures from them, which produced the result the user accepted.</p>
+    <p style="margin:0;font-size:12pt;line-height:1.55;color:#5A5245"><span style="font-family:'IBM Plex Mono',monospace;font-size:10pt">EVIDENCE</span> &mdash; The assistant acknowledged in the following message that the supplied photographs were exactly what should have been used.</p>
+  </div>
+
+  <h2 style="margin:0 0 10px;font-weight:500;font-size:15pt;color:#1F1B16">Note on scope</h2>
+  <p style="margin:0 0 10px;font-size:12pt;line-height:1.6;color:#3A342C">Excluded from this record are the many iterations that arose from ordinary design exploration &mdash; changes of concept, revised layouts, and the several mechanic explorations the user requested. Those are normal design cost. The 26 exchanges above are confined to work that repeated or repaired the assistant&rsquo;s own mistakes, and would not have occurred had the first attempt been correct or the claims about it accurate.</p>
+  <p style="margin:0 0 10px;font-size:12pt;line-height:1.6;color:#3A342C">The count is expressed in conversational exchanges rather than tokens, because the assistant has no access to the account&rsquo;s billing or usage figures. Token consumption per exchange in this session was well above average, as most exchanges involved rewriting or auditing a single large document.</p>
+  <p style="margin:0;font-size:12pt;line-height:1.6;color:#3A342C">For credit, this record can be attached to a request to Anthropic Support at <a href="https://support.anthropic.com">support.anthropic.com</a>, which has visibility of the usage on the account. The assistant cannot submit such a request or issue credit itself.</p>
+</doc-page>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{}"></script>
+</body>
+</html>

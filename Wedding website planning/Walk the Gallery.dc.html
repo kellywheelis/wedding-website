@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
+<style>
+  body { margin: 0; background: #EDE8DC; color: #23201C; font-family: 'EB Garamond', Georgia, serif; -webkit-font-smoothing: antialiased; overflow: hidden; }
+  * { box-sizing: border-box; }
+  p { text-wrap: pretty; }
+  a { color: inherit; text-decoration: none; border-bottom: 1px solid currentColor; }
+  button { font-family: inherit; }
+  .trk::-webkit-scrollbar { height: 0; width: 0; }
+  @keyframes drawRule { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  @keyframes riseIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  @keyframes brushIn { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes bleed { 0%,100% { transform: scale(1) translate(0,0); } 50% { transform: scale(1.05) translate(1%,-1%); } }
+  @keyframes lampGlow { 0%,100% { opacity: .82; } 50% { opacity: 1; } }
+  @keyframes drift { 0% { transform: translate3d(0,0,0); opacity: 0; } 14% { opacity: .5; } 100% { transform: translate3d(28px,-150px,0); opacity: 0; } }
+</style>
+</helmet>
+
+<div style="height:100vh;display:flex;flex-direction:column;background:{{ shell }};transition:background-color 1100ms ease">
+
+  <!-- ENTRANCE -->
+  <sc-if value="{{ gateVisible }}" hint-placeholder-val="{{ true }}">
+    <div style="position:fixed;inset:0;z-index:70;background:#EDE8DC;display:grid;align-content:center;justify-items:center;overflow-y:auto;padding:clamp(18px,4vw,44px);opacity:{{ gateOpacity }};transition:opacity 1200ms ease">
+      <div style="width:100%;max-width:840px;text-align:center">
+        <div style="height:1px;background:#23201C;opacity:.5;transform-origin:50% 50%;animation:drawRule 1500ms cubic-bezier(.2,.8,.2,1) both"></div>
+        <p style="margin:clamp(18px,3.4vw,34px) 0 clamp(16px,3vw,30px);font-size:11px;letter-spacing:.46em;text-transform:uppercase;color:#6B6355;animation:riseIn 1000ms ease 500ms both">Six rooms &middot; opening april 2027</p>
+        <div style="position:relative;display:inline-block">
+          <h1 style="margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-size:clamp(27px,5vw,50px);line-height:1.14;color:transparent;-webkit-text-stroke:.65px rgba(35,32,28,.5)">Kelly Wheelis<br /><span style="font-style:italic;font-size:.48em">and</span><br />Anthony Alvarez</h1>
+          <h1 aria-hidden="true" style="position:absolute;inset:0;margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-size:clamp(27px,5vw,50px);line-height:1.14;color:#23201C;animation:brushIn 2400ms cubic-bezier(.65,.05,.3,1) 900ms both">Kelly Wheelis<br /><span style="font-style:italic;font-size:.48em;color:#6B6355">and</span><br />Anthony Alvarez</h1>
+        </div>
+        <p style="margin:clamp(16px,3vw,30px) auto 0;max-width:430px;font-size:clamp(14px,1.8vw,17px);line-height:1.85;color:#3A342C;animation:riseIn 1200ms ease 2300ms both">Two collections, five days of open hours, one villa outside Siena. Walk it end to end.</p>
+        <div>
+          <button onClick="{{ enter }}" style="margin-top:clamp(20px,3.6vw,38px);background:transparent;border:1px solid #23201C;color:#23201C;padding:16px 40px;font-size:12px;letter-spacing:.34em;text-transform:uppercase;cursor:pointer;transition:background 280ms ease,color 280ms ease;animation:riseIn 1000ms ease 400ms both" style-hover="background:#23201C;color:#EDE8DC">Enter the first room</button>
+          <p style="margin:17px 0 0;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#8A8274;animation:fadeIn 700ms ease 200ms both">or <button onClick="{{ skipToEnd }}" style="background:none;border:0;border-bottom:1px solid rgba(138,130,116,.8);padding:0;color:#8A8274;font:inherit;letter-spacing:.2em;text-transform:uppercase;cursor:pointer">skip to the details</button></p>
+        </div>
+        <div style="margin-top:clamp(18px,3.4vw,34px);height:1px;background:#23201C;opacity:.5;transform-origin:50% 50%;animation:drawRule 1500ms cubic-bezier(.2,.8,.2,1) 300ms both"></div>
+      </div>
+    </div>
+  </sc-if>
+
+  <header style="flex:none;color:{{ shellInk }};transition:color 1100ms ease;border-bottom:1px solid {{ shellLine }}">
+    <div style="padding:11px clamp(14px,3vw,34px);display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+      <button onClick="{{ go0 }}" style="background:none;border:0;padding:0;display:flex;align-items:center;gap:10px;cursor:pointer;color:inherit">
+        <img src="assets/monogram-ka.png" alt="K A" style="height:23px;width:auto;filter:{{ monoFilter }};transition:filter 1100ms ease" />
+        <span style="font-size:11px;letter-spacing:.3em;text-transform:uppercase">Wheelis &middot; Alvarez</span>
+      </button>
+      <nav style="display:flex;gap:clamp(9px,1.8vw,22px);flex-wrap:wrap;font-size:10px;letter-spacing:.2em;text-transform:uppercase">
+        <button onClick="{{ go1 }}" style="background:none;border:0;padding:0;cursor:pointer;color:inherit;font-size:10px;letter-spacing:.2em;text-transform:uppercase">Wing I</button>
+        <button onClick="{{ go3 }}" style="background:none;border:0;padding:0;cursor:pointer;color:inherit;font-size:10px;letter-spacing:.2em;text-transform:uppercase">Wing II</button>
+        <button onClick="{{ go4 }}" style="background:none;border:0;padding:0;cursor:pointer;color:inherit;font-size:10px;letter-spacing:.2em;text-transform:uppercase">Everything We Love</button>
+        <button onClick="{{ go5 }}" style="background:none;border:0;padding:0;cursor:pointer;color:inherit;font-size:10px;letter-spacing:.2em;text-transform:uppercase">Visiting &amp; RSVP</button>
+      </nav>
+    </div>
+  </header>
+
+  <div ref="{{ trackRef }}" class="trk" style="flex:1;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none">
+
+    <!-- ROOM I -->
+    <section class="trk" data-screen-label="Room I Entrance" style="flex:0 0 100%;scroll-snap-align:start;overflow-y:auto;background:#EDE8DC;display:grid;place-items:center;padding:clamp(22px,5vw,60px) clamp(16px,4vw,44px)">
+      <div style="max-width:760px;opacity:{{ r0 }};transform:translateX({{ x0 }}px);transition:opacity 900ms ease,transform 1100ms cubic-bezier(.2,.8,.2,1)">
+        <p style="margin:0 0 clamp(16px,3vw,30px);font-size:11px;letter-spacing:.44em;text-transform:uppercase;color:#6B6355">Room I &middot; entrance</p>
+        <p style="margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-style:italic;font-size:clamp(24px,4.2vw,46px);line-height:1.32">&ldquo;I am a museum of everything I&rsquo;ve ever loved&hellip;&rdquo;</p>
+        <div style="width:100px;height:1px;background:rgba(35,32,28,.42);margin:clamp(20px,3.4vw,36px) 0"></div>
+        <h1 style="margin:0 0 18px;font-family:'Cormorant Garamond',Georgia,serif;font-weight:400;font-size:clamp(25px,4vw,42px);line-height:1.2">Kelly Danielle Wheelis<br />and Anthony Scott Alvarez</h1>
+        <p style="margin:0 0 14px;max-width:560px;font-size:clamp(15px,1.9vw,17px);line-height:1.9;color:#3A342C">Eight years of collecting, hung for the first time at Villa Cetinale in Sovicille, Italy. Two wings, five days of open hours. The only element still missing is you.</p>
+        <p style="margin:0 0 clamp(22px,4vw,36px);font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:#6B6355">Saturday 24 April 2027 &middot; four o&rsquo;clock</p>
+        <button onClick="{{ next }}" style="background:transparent;border:1px solid #23201C;color:#23201C;padding:15px 34px;font-size:12px;letter-spacing:.32em;text-transform:uppercase;cursor:pointer;transition:background 260ms ease,color 260ms ease" style-hover="background:#23201C;color:#EDE8DC">Enter Wing I &nbsp;&rarr;</button>
+      </div>
+    </section>
+
+    <!-- ROOM II -->
+    <section class="trk" data-screen-label="Room II Wing I Venus" style="flex:0 0 100%;scroll-snap-align:start;overflow-y:auto;background:#D7E3DF;padding:clamp(22px,5vw,52px) clamp(16px,4vw,44px);display:flex;align-items:center">
+      <div style="width:100%;max-width:1120px;margin:0 auto;opacity:{{ r1 }};transform:translateX({{ x1 }}px);transition:opacity 900ms ease,transform 1100ms cubic-bezier(.2,.8,.2,1)">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:clamp(18px,3vw,34px)">
+          <p style="margin:0;font-size:11px;letter-spacing:.42em;text-transform:uppercase;color:#2F5450">Room II &middot; wing I &middot; the ceremony</p>
+          <p style="margin:0;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#4D706B">after Botticelli, <em>The Birth of Venus</em></p>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,225px),1fr));gap:clamp(18px,3vw,38px);align-items:start">
+          <figure style="margin:0">
+            <div style="position:relative;padding:11px;border:1px solid #6E9585;background:rgba(255,255,255,.34)">
+              <div style="position:relative;aspect-ratio:3/4;overflow:hidden">
+                <div style="position:absolute;inset:-6%;background:radial-gradient(70% 60% at 38% 30%,#CFE0D8,#8FB0A4 46%,#54806F 92%);animation:bleed 13s ease-in-out infinite"></div>
+                <div style="position:absolute;inset:0;display:grid;place-items:end center;padding:12px"><span style="font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.72)">plate pending</span></div>
+              </div>
+            </div>
+            <figcaption style="margin-top:13px;border-left:2px solid #6E9585;padding-left:14px">
+              <p style="margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-size:20px;color:#1F3A37">The Arrival</p>
+              <p style="margin:4px 0 0;font-size:14px;line-height:1.75;color:#37534F">Sea light and wind, down the cypress avenue.</p>
+              <p style="margin:9px 0 0;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#4D706B">Live performance &middot; approx. 30 min</p>
+            </figcaption>
+          </figure>
+          <figure style="margin:0">
+            <div style="position:relative;padding:11px;border:1px solid #B79147;background:rgba(255,255,255,.34)">
+              <div style="position:relative;aspect-ratio:3/4;overflow:hidden">
+                <div style="position:absolute;inset:-6%;background:radial-gradient(66% 58% at 62% 34%,#FAE7DA,#E3C3B4 46%,#B98A75 92%);animation:bleed 15s ease-in-out 1s infinite"></div>
+                <div style="position:absolute;inset:0;display:grid;place-items:end center;padding:12px"><span style="font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.72)">plate pending</span></div>
+              </div>
+            </div>
+            <figcaption style="margin-top:13px;border-left:2px solid #B79147;padding-left:14px">
+              <p style="margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-size:20px;color:#1F3A37">The Vows</p>
+              <p style="margin:4px 0 0;font-size:14px;line-height:1.75;color:#37534F">Read once, never rehearsed. Anthony maintains he will not cry.</p>
+              <p style="margin:9px 0 0;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#4D706B">Ink on paper &middot; 2027</p>
+            </figcaption>
+          </figure>
+          <div style="padding:clamp(16px,2.4vw,28px);border:1px solid rgba(47,84,80,.3);display:flex;flex-direction:column;gap:13px">
+            <p style="margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:clamp(18px,2.3vw,24px);line-height:1.38;color:#1F3A37">She arrives on the water, and everyone is already waiting.</p>
+            <div style="width:48px;height:1px;background:rgba(47,84,80,.5)"></div>
+            <p style="margin:0;font-size:14px;line-height:1.85;color:#37534F">Wind on the left, land on the right, the whole composition holding its breath for an arrival. The painting hangs an hour up the road in Florence.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ROOM III THRESHOLD -->
+    <section class="trk" data-screen-label="Room III Threshold" style="flex:0 0 100%;scroll-snap-align:start;overflow-y:auto;background:#0E0D0B;display:grid;place-items:center;padding:clamp(22px,5vw,60px) clamp(16px,4vw,44px);position:relative">
+      <div style="position:absolute;inset:0;pointer-events:none;opacity:{{ r2 }};transition:opacity 1200ms ease">
+        <div style="position:absolute;left:18%;top:80%;width:2px;height:2px;border-radius:50%;background:#FFE9C4;animation:drift 18s linear infinite"></div>
+        <div style="position:absolute;left:34%;top:88%;width:3px;height:3px;border-radius:50%;background:#FFE9C4;animation:drift 24s linear 3s infinite"></div>
+        <div style="position:absolute;left:58%;top:76%;width:2px;height:2px;border-radius:50%;background:#FFF3D8;animation:drift 21s linear 6s infinite"></div>
+        <div style="position:absolute;left:78%;top:86%;width:2px;height:2px;border-radius:50%;background:#FFE9C4;animation:drift 19s linear 1.5s infinite"></div>
+      </div>
+      <div style="max-width:580px;text-align:center;position:relative;opacity:{{ r2 }};transform:translateX({{ x2 }}px);transition:opacity 1100ms ease,transform 1100ms cubic-bezier(.2,.8,.2,1)">
+        <div style="height:1px;background:linear-gradient(90deg,rgba(232,192,122,0),rgba(232,192,122,.8),rgba(232,192,122,0));margin-bottom:clamp(24px,4vw,42px)"></div>
+        <p style="margin:0 0 clamp(18px,3vw,32px);font-size:11px;letter-spacing:.44em;text-transform:uppercase;color:#7E7663">Room III &middot; the passage</p>
+        <p style="margin:0 0 20px;font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-style:italic;font-size:clamp(21px,3.5vw,36px);line-height:1.36;color:#F0E3C6">Between the two wings there is a dark corridor, and it is deliberate.</p>
+        <p style="margin:0 auto clamp(24px,4vw,38px);max-width:420px;font-size:15px;line-height:1.9;color:#9C917A">One collection ends. Your eyes adjust. The next begins in a completely different key.</p>
+        <button onClick="{{ next }}" style="background:transparent;border:1px solid rgba(232,192,122,.75);color:#F0E3C6;padding:15px 34px;font-size:12px;letter-spacing:.32em;text-transform:uppercase;cursor:pointer;transition:background 280ms ease,color 280ms ease" style-hover="background:#E8C07A;color:#0E0D0B">Continue to Wing II &nbsp;&rarr;</button>
+        <div style="margin-top:clamp(24px,4vw,42px);height:1px;background:linear-gradient(90deg,rgba(232,192,122,0),rgba(232,192,122,.8),rgba(232,192,122,0))"></div>
+      </div>
+    </section>
+
+    <!-- ROOM IV -->
+    <section class="trk" data-screen-label="Room IV Wing II Primavera" style="flex:0 0 100%;scroll-snap-align:start;overflow-y:auto;background:#F0E2CD;padding:clamp(22px,5vw,52px) clamp(16px,4vw,44px);display:flex;align-items:center">
+      <div style="width:100%;max-width:1120px;margin:0 auto;opacity:{{ r3 }};transform:translateX({{ x3 }}px);transition:opacity 900ms ease,transform 1100ms cubic-bezier(.2,.8,.2,1)">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:clamp(18px,3vw,34px)">
+          <p style="margin:0;font-size:11px;letter-spacing:.42em;text-transform:uppercase;color:#7A3A22">Room IV &middot; wing II &middot; the reception</p>
+          <p style="margin:0;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#96522F">after Botticelli, <em>Primavera</em></p>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,225px),1fr));gap:clamp(18px,3vw,38px);align-items:start">
+          <div style="padding:clamp(16px,2.4vw,28px);border:1px solid rgba(122,58,34,.3);display:flex;flex-direction:column;gap:13px">
+            <p style="margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:clamp(18px,2.3vw,24px);line-height:1.38;color:#5C2A17">Then the garden comes indoors and nobody goes home.</p>
+            <div style="width:48px;height:1px;background:rgba(122,58,34,.5)"></div>
+            <p style="margin:0;font-size:14px;line-height:1.85;color:#6B4028">Tables dressed as banquet still life. Botticelli put a hundred and ninety species of plant in one painting. We are attempting fewer.</p>
+          </div>
+          <figure style="margin:0">
+            <div style="position:relative;padding:11px;border:1px solid #C4583F;background:rgba(255,255,255,.4)">
+              <div style="position:relative;aspect-ratio:3/4;overflow:hidden">
+                <div style="position:absolute;inset:-6%;background:radial-gradient(72% 62% at 40% 60%,#F0A86C,#C4583F 44%,#7A3524 92%);animation:bleed 14s ease-in-out .6s infinite"></div>
+                <div style="position:absolute;inset:0;display:grid;place-items:end center;padding:12px"><span style="font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.72)">plate pending</span></div>
+              </div>
+            </div>
+            <figcaption style="margin-top:13px;border-left:2px solid #C4583F;padding-left:14px">
+              <p style="margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-size:20px;color:#5C2A17">The Banquet</p>
+              <p style="margin:4px 0 0;font-size:14px;line-height:1.75;color:#6B4028">Figs, pomegranates, spilled candle wax, far too many flowers.</p>
+              <p style="margin:9px 0 0;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#96522F">Still life &middot; perishable</p>
+            </figcaption>
+          </figure>
+          <figure style="margin:0">
+            <div style="position:relative;padding:11px;border:1px solid #B5842C;background:rgba(255,255,255,.4)">
+              <div style="position:relative;aspect-ratio:3/4;overflow:hidden">
+                <div style="position:absolute;inset:-6%;background:radial-gradient(68% 60% at 58% 38%,#F7DE9B,#D9A94C 46%,#8A6520 92%);animation:bleed 16s ease-in-out 1.4s infinite"></div>
+                <div style="position:absolute;inset:0;display:grid;place-items:end center;padding:12px"><span style="font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.72)">plate pending</span></div>
+              </div>
+            </div>
+            <figcaption style="margin-top:13px;border-left:2px solid #B5842C;padding-left:14px">
+              <p style="margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-size:20px;color:#5C2A17">The Dancing</p>
+              <p style="margin:4px 0 0;font-size:14px;line-height:1.75;color:#6B4028">Three Graces, minimum. Participation is not optional; skill is not required.</p>
+              <p style="margin:9px 0 0;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#96522F">Performance &middot; ongoing</p>
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ROOM V -->
+    <section class="trk" data-screen-label="Room V Everything we love" style="flex:0 0 100%;scroll-snap-align:start;overflow-y:auto;background:#EDE8DC;padding:clamp(22px,5vw,52px) clamp(16px,4vw,44px);display:flex;align-items:center">
+      <div style="width:100%;max-width:1120px;margin:0 auto;opacity:{{ r4 }};transform:translateX({{ x4 }}px);transition:opacity 900ms ease,transform 1100ms cubic-bezier(.2,.8,.2,1)">
+        <p style="margin:0 0 6px;font-size:11px;letter-spacing:.42em;text-transform:uppercase;color:#6B6355">Room V &middot; the permanent collection</p>
+        <h2 style="margin:0 0 clamp(20px,3vw,36px);font-family:'Cormorant Garamond',Georgia,serif;font-weight:400;font-size:clamp(22px,3.2vw,34px)">Everything we love, catalogued</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,155px),1fr));gap:clamp(14px,2.2vw,28px)">
+          <figure style="margin:0">
+            <div style="padding:8px;border:1px solid rgba(35,32,28,.35)">
+              <div style="position:relative;aspect-ratio:1;overflow:hidden"><div style="position:absolute;inset:-6%;background:radial-gradient(70% 70% at 40% 34%,#DCD2AC,#9A8F6F 48%,#6A6045 92%)"></div></div>
+            </div>
+            <figcaption style="margin-top:11px">
+              <p style="margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:16px">Untitled (Two Dogs)</p>
+              <p style="margin:3px 0 0;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#6B6355">Mixed media &middot; ongoing</p>
+            </figcaption>
+          </figure>
+          <figure style="margin:0">
+            <div style="padding:8px;border:1px solid rgba(35,32,28,.35)">
+              <div style="position:relative;aspect-ratio:1;overflow:hidden"><div style="position:absolute;inset:-6%;background:radial-gradient(70% 70% at 58% 40%,#C8AE84,#7C6B52 48%,#4E4230 92%)"></div></div>
+            </div>
+            <figcaption style="margin-top:11px">
+              <p style="margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:16px">The Card Table</p>
+              <p style="margin:3px 0 0;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#6B6355">Oil on canvas &middot; most evenings</p>
+            </figcaption>
+          </figure>
+          <figure style="margin:0">
+            <div style="padding:8px;border:1px solid rgba(35,32,28,.35)">
+              <div style="position:relative;aspect-ratio:1;overflow:hidden"><div style="position:absolute;inset:-6%;background:radial-gradient(70% 70% at 44% 56%,#A8BA95,#5E6B57 48%,#39422F 92%)"></div></div>
+            </div>
+            <figcaption style="margin-top:11px">
+              <p style="margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:16px">Library, Shared</p>
+              <p style="margin:3px 0 0;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#6B6355">Paper and ink &middot; thousands of pages</p>
+            </figcaption>
+          </figure>
+          <figure style="margin:0">
+            <div style="padding:8px;border:1px solid rgba(35,32,28,.35)">
+              <div style="position:relative;aspect-ratio:1;overflow:hidden"><div style="position:absolute;inset:-6%;background:radial-gradient(70% 70% at 50% 38%,#EFA97F,#B5613C 48%,#6E3520 92%)"></div></div>
+            </div>
+            <figcaption style="margin-top:11px">
+              <p style="margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:16px">Study in Plastic Brick</p>
+              <p style="margin:3px 0 0;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#6B6355">ABS &middot; scale 1:1</p>
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ROOM VI -->
+    <section class="trk" data-screen-label="Room VI Visiting and RSVP" style="flex:0 0 100%;scroll-snap-align:start;overflow-y:auto;background:#E6E0D2;padding:clamp(22px,5vw,52px) clamp(16px,4vw,44px);display:flex;align-items:center">
+      <div style="width:100%;max-width:1020px;margin:0 auto;opacity:{{ r5 }};transform:translateX({{ x5 }}px);transition:opacity 900ms ease,transform 1100ms cubic-bezier(.2,.8,.2,1);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,235px),1fr));gap:clamp(24px,4vw,48px);align-items:center">
+        <div>
+          <p style="margin:0 0 6px;font-size:11px;letter-spacing:.42em;text-transform:uppercase;color:#6B6355">Room VI &middot; visiting</p>
+          <h2 style="margin:0 0 14px;font-family:'Cormorant Garamond',Georgia,serif;font-weight:400;font-size:clamp(22px,3.2vw,32px)">Getting to Sovicille</h2>
+          <p style="margin:0 0 14px;font-size:15px;line-height:1.9;color:#3A342C">Villa Cetinale sits in the hills west of Siena, twenty minutes from the city walls. Most guests will fly into Florence or Pisa and drive down.</p>
+          <p style="margin:0 0 4px;font-size:15px">Florence &mdash; FLR &nbsp;&middot;&nbsp; Pisa &mdash; PSA &nbsp;&middot;&nbsp; Rome &mdash; FCO</p>
+          <p style="margin:12px 0 0;font-size:13px;line-height:1.7;color:#6B6355">Lodging, transport and the full five-day program are still being arranged. This label will be revised.</p>
+        </div>
+        <div style="text-align:center">
+          <div style="position:relative;max-width:200px;margin:0 auto 20px">
+            <div style="position:absolute;left:50%;top:-24px;transform:translateX(-50%);width:54%;height:11px;border-radius:6px;background:linear-gradient(180deg,#C9A667,#8A6F3C);animation:lampGlow 6s ease-in-out infinite"></div>
+            <div style="position:relative;padding:11px;border:1px solid rgba(35,32,28,.42)">
+              <div style="position:relative;aspect-ratio:3/4;overflow:hidden;background:#F4F0E6">
+                <div style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(35,32,28,.07) 0 1px,rgba(35,32,28,0) 1px 9px)"></div>
+                <div style="position:absolute;inset:0;display:grid;place-items:center"><span style="font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:#8A8274">on loan &mdash; pending</span></div>
+              </div>
+            </div>
+          </div>
+          <p style="margin:0 0 10px;font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:clamp(19px,2.6vw,26px);line-height:1.34">The exhibit is complete but for one element.</p>
+          <p style="margin:0;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:#6B6355">RSVP opens with the invitation</p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <div style="flex:none;color:{{ shellInk }};transition:color 1100ms ease;border-top:1px solid {{ shellLine }}">
+    <div style="padding:10px clamp(14px,3vw,34px);display:flex;align-items:center;justify-content:space-between;gap:16px">
+      <button onClick="{{ prev }}" aria-label="Previous room" style="width:44px;height:44px;border-radius:50%;background:transparent;border:1px solid {{ shellLine }};color:inherit;font-size:15px;cursor:pointer">&larr;</button>
+      <div style="position:relative;flex:1;max-width:340px;margin:0 auto">
+        <div style="display:grid;grid-template-columns:repeat(6,1fr)">
+          <button onClick="{{ go0 }}" aria-label="Room 1" style="height:30px;background:none;border:0;border-bottom:1px solid {{ shellLine }};cursor:pointer"></button>
+          <button onClick="{{ go1 }}" aria-label="Room 2" style="height:30px;background:none;border:0;border-bottom:1px solid {{ shellLine }};cursor:pointer"></button>
+          <button onClick="{{ go2 }}" aria-label="Room 3" style="height:30px;background:none;border:0;border-bottom:1px solid {{ shellLine }};cursor:pointer"></button>
+          <button onClick="{{ go3 }}" aria-label="Room 4" style="height:30px;background:none;border:0;border-bottom:1px solid {{ shellLine }};cursor:pointer"></button>
+          <button onClick="{{ go4 }}" aria-label="Room 5" style="height:30px;background:none;border:0;border-bottom:1px solid {{ shellLine }};cursor:pointer"></button>
+          <button onClick="{{ go5 }}" aria-label="Room 6" style="height:30px;background:none;border:0;border-bottom:1px solid {{ shellLine }};cursor:pointer"></button>
+        </div>
+        <div style="position:absolute;left:0;bottom:0;width:16.666%;height:2px;background:currentColor;transform:translateX({{ railShift }}%);transition:transform 700ms cubic-bezier(.3,.8,.2,1)"></div>
+      </div>
+      <button onClick="{{ next }}" aria-label="Next room" style="width:44px;height:44px;border-radius:50%;background:transparent;border:1px solid {{ shellLine }};color:inherit;font-size:15px;cursor:pointer">&rarr;</button>
+    </div>
+  </div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { i: 0, gateVisible: true, gateOpacity: 1 };
+    this.trackRef = React.createRef();
+  }
+
+  componentDidMount() {
+    try {
+      if (localStorage.getItem('ka-walk-entered') === '1') {
+        this.setState({ gateVisible: false, gateOpacity: 0 });
+      }
+    } catch (e) {}
+
+    const t = this.trackRef.current;
+    if (t) {
+      this.onScroll = () => {
+        const w = t.clientWidth || 1;
+        const i = Math.round(t.scrollLeft / w);
+        if (i !== this.state.i) this.setState({ i });
+      };
+      t.addEventListener('scroll', this.onScroll, { passive: true });
+    }
+    this.onKey = (e) => {
+      if (this.state.gateVisible) return;
+      if (e.key === 'ArrowRight') this.go(this.state.i + 1);
+      if (e.key === 'ArrowLeft') this.go(this.state.i - 1);
+    };
+    window.addEventListener('keydown', this.onKey);
+  }
+
+  componentWillUnmount() {
+    const t = this.trackRef.current;
+    if (t && this.onScroll) t.removeEventListener('scroll', this.onScroll);
+    window.removeEventListener('keydown', this.onKey);
+  }
+
+  go(n) {
+    const t = this.trackRef.current;
+    const i = Math.max(0, Math.min(5, n));
+    if (t) t.scrollTo({ left: i * t.clientWidth, behavior: 'smooth' });
+    this.setState({ i });
+  }
+
+  enter = () => {
+    try { localStorage.setItem('ka-walk-entered', '1'); } catch (e) {}
+    this.setState({ gateOpacity: 0 });
+    setTimeout(() => this.setState({ gateVisible: false }), 1200);
+  };
+
+  skipToEnd = () => {
+    try { localStorage.setItem('ka-walk-entered', '1'); } catch (e) {}
+    this.setState({ gateVisible: false, gateOpacity: 0 });
+    setTimeout(() => this.go(5), 60);
+  };
+
+  renderVals() {
+    const i = this.state.i;
+    const dark = i === 2;
+    const v = {
+      trackRef: this.trackRef,
+      railShift: i * 100,
+      gateVisible: this.state.gateVisible,
+      gateOpacity: this.state.gateOpacity,
+      enter: this.enter,
+      skipToEnd: this.skipToEnd,
+      shell: dark ? '#0E0D0B' : '#EDE8DC',
+      shellInk: dark ? '#F0E3C6' : '#23201C',
+      shellLine: dark ? 'rgba(232,192,122,.42)' : 'rgba(35,32,28,.22)',
+      monoFilter: dark ? 'brightness(0) invert(1) opacity(.85)' : 'brightness(0) opacity(.8)',
+      prev: () => this.go(i - 1),
+      next: () => this.go(i + 1),
+      go0: () => this.go(0),
+      go1: () => this.go(1),
+      go2: () => this.go(2),
+      go3: () => this.go(3),
+      go4: () => this.go(4),
+      go5: () => this.go(5)
+    };
+    for (let n = 0; n <= 5; n++) {
+      const d = n - i;
+      v['r' + n] = d === 0 ? 1 : 0.2;
+      v['x' + n] = d === 0 ? 0 : (d > 0 ? 44 : -44);
+    }
+    return v;
+  }
+}
+
+</script>
+</body>
+</html>

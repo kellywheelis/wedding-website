@@ -39,7 +39,10 @@
 </head>
 <body>
 <div id="shell">
-  <div id="stage"><canvas id="view"></canvas></div>
+  <div id="stage"><canvas id="view"></canvas>
+    <button id="back" aria-label="Step back" style="position:absolute;left:clamp(12px,2vw,24px);top:clamp(12px,2vw,24px);z-index:12;height:42px;padding:0 clamp(14px,2vw,20px);border-radius:22px;background:rgba(26,18,8,.55);backdrop-filter:blur(2px);border:1px solid rgba(232,192,122,.7);color:#F2E6C9;font-size:11px;letter-spacing:.24em;text-transform:uppercase;cursor:pointer;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity 500ms ease">&larr;&nbsp; Step back</button>
+    <button data-fwd="1" aria-label="Walk forward" style="position:absolute;right:clamp(12px,2vw,24px);top:clamp(12px,2vw,24px);z-index:12;height:42px;padding:0 clamp(14px,2vw,20px);border-radius:22px;background:rgba(26,18,8,.55);backdrop-filter:blur(2px);border:1px solid rgba(232,192,122,.7);color:#F2E6C9;font-size:11px;letter-spacing:.24em;text-transform:uppercase;cursor:pointer;white-space:nowrap">Walk on &nbsp;&rarr;</button>
+  </div>
 
   <div id="label" style="position:relative;z-index:12;flex:none;padding:0 clamp(14px,3vw,34px);opacity:0;transition:opacity 700ms ease">
     <div style="max-width:1040px;margin:0 auto;border-top:1px solid rgba(201,166,103,.32);padding:clamp(13px,1.8vw,20px) 0 clamp(6px,1vw,10px);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:8px clamp(20px,3vw,40px);align-items:start">
@@ -63,18 +66,31 @@
         <button data-room="w2" style="flex:1;min-width:0;height:46px;background:transparent;border:1px solid rgba(201,166,103,.3);color:#A79C85;font-size:10px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:all 400ms ease;white-space:nowrap;overflow:hidden">Wing II</button>
         <button data-room="det" style="flex:1;min-width:0;height:46px;background:transparent;border:1px solid rgba(201,166,103,.3);color:#A79C85;font-size:10px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:all 400ms ease;white-space:nowrap;overflow:hidden">Details</button>
       </div>
-      <button data-fwd="1" aria-label="Walk forward" style="height:46px;padding:0 clamp(14px,2.4vw,22px);border-radius:24px;background:rgba(232,192,122,.14);border:1px solid rgba(201,166,103,.6);color:#F2E6C9;font-size:11px;letter-spacing:.24em;text-transform:uppercase;cursor:pointer;flex:none;white-space:nowrap">Walk on &nbsp;&rarr;</button>
     </div>
   </div>
 </div>
 
 <!-- ENTRANCE -->
 <div id="gate" style="position:fixed;inset:0;z-index:70">
-  <div id="doorL" style="position:absolute;left:0;top:0;width:50.4%;height:100%;overflow:hidden;background:#3A2A1A;background-image:linear-gradient(90deg,rgba(0,0,0,.5),rgba(0,0,0,0) 22%,rgba(0,0,0,.18) 92%),url(assets/tex-wood.jpg);background-size:auto,cover;background-position:center;border-right:5px solid #24180C;box-shadow:inset -24px 0 44px -26px rgba(0,0,0,.95);transition:transform 2200ms cubic-bezier(.58,0,.2,1)">
-    <div style="position:absolute;inset:6% 10% 6% 10%;border:14px solid #4A3521;box-shadow:inset 0 0 0 2px rgba(255,226,176,.12),0 0 0 2px rgba(20,12,4,.6)"></div>
-    <div style="position:absolute;left:12%;right:12%;top:9%;height:40%;background:#2E2113 url(assets/tex-wood.jpg) center/cover;box-shadow:inset 0 3px 10px rgba(0,0,0,.65),inset 0 -2px 0 rgba(255,226,176,.08)"></div>
-    <div style="position:absolute;left:12%;right:12%;bottom:9%;height:39.4%;background:#2E2113 url(assets/tex-wood.jpg) center/cover;box-shadow:inset 0 3px 10px rgba(0,0,0,.65),inset 0 -2px 0 rgba(255,226,176,.08)"></div>
-    <div style="position:absolute;left:12%;right:12%;top:49%;height:2.6%;background:linear-gradient(180deg,#543D25,#33240F)"></div>
+  <div id="doorL" style="position:absolute;left:0;top:0;width:50.4%;height:100%;overflow:hidden;background:#3A2A1A url(assets/door-walnut-stile.jpg) center/cover;border-right:5px solid #140C06;box-shadow:inset -24px 0 44px -26px rgba(0,0,0,.95);transition:transform 2200ms cubic-bezier(.58,0,.2,1)">
+    <div style="position:absolute;left:12%;right:12%;background:url(assets/door-walnut-rail.jpg) center/cover;box-shadow:-1px 0 0 rgba(0,0,0,.5),1px 0 0 rgba(0,0,0,.5);top:0;height:9%"></div>
+    <div style="position:absolute;left:12%;right:12%;top:9%;height:37%;border-style:solid;border-width:clamp(7px,1.1vw,14px);border-color:rgba(0,0,0,.62) rgba(255,222,170,.13) rgba(255,222,170,.24) rgba(0,0,0,.5);background:url(assets/door-walnut-stile.jpg) center/cover;box-shadow:0 0 0 1px rgba(0,0,0,.65)">
+      <div style="position:absolute;inset:0;overflow:hidden;background:url(assets/door-walnut-panel.jpg) center/cover;box-shadow:inset 0 14px 20px -8px rgba(0,0,0,.85),inset 12px 0 18px -9px rgba(0,0,0,.6),inset 0 -1px 0 rgba(255,225,180,.14),inset 0 0 0 1px rgba(0,0,0,.55)">
+        <div style="position:absolute;inset:clamp(12px,2.4vw,34px);border-style:solid;border-width:clamp(6px,.9vw,12px);border-color:rgba(255,226,178,.26) rgba(0,0,0,.42) rgba(0,0,0,.62) rgba(255,226,178,.12);background:url(assets/door-walnut-panel.jpg) center/cover;box-shadow:0 8px 16px rgba(0,0,0,.6),0 0 0 1px rgba(0,0,0,.4)"></div>
+      </div>
+    </div>
+    <div style="position:absolute;left:12%;right:12%;background:url(assets/door-walnut-rail.jpg) center/cover;box-shadow:-1px 0 0 rgba(0,0,0,.5),1px 0 0 rgba(0,0,0,.5);top:46%;height:8.6%"></div>
+    <div style="position:absolute;left:12%;right:12%;top:49%;height:2.6%"></div>
+    <div style="position:absolute;left:12%;right:12%;top:54.6%;height:34.4%;border-style:solid;border-width:clamp(7px,1.1vw,14px);border-color:rgba(0,0,0,.62) rgba(255,222,170,.13) rgba(255,222,170,.24) rgba(0,0,0,.5);background:url(assets/door-walnut-stile.jpg) center/cover;box-shadow:0 0 0 1px rgba(0,0,0,.65)">
+      <div style="position:absolute;inset:0;overflow:hidden;background:url(assets/door-walnut-panel.jpg) center/cover;box-shadow:inset 0 14px 20px -8px rgba(0,0,0,.85),inset 12px 0 18px -9px rgba(0,0,0,.6),inset 0 -1px 0 rgba(255,225,180,.14),inset 0 0 0 1px rgba(0,0,0,.55)">
+        <div style="position:absolute;inset:clamp(12px,2.4vw,34px);border-style:solid;border-width:clamp(6px,.9vw,12px);border-color:rgba(255,226,178,.26) rgba(0,0,0,.42) rgba(0,0,0,.62) rgba(255,226,178,.12);background:url(assets/door-walnut-panel.jpg) center/cover;box-shadow:0 8px 16px rgba(0,0,0,.6),0 0 0 1px rgba(0,0,0,.4)"></div>
+      </div>
+    </div>
+    <div style="position:absolute;left:12%;right:12%;background:url(assets/door-walnut-rail.jpg) center/cover;box-shadow:-1px 0 0 rgba(0,0,0,.5),1px 0 0 rgba(0,0,0,.5);top:89%;height:11%"></div>
+    <div style="position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(255,232,190,.12) 0%,rgba(255,232,190,0) 26%,rgba(0,0,0,0) 58%,rgba(0,0,0,.45) 100%),radial-gradient(ellipse 130% 95% at 100% 45%,rgba(0,0,0,0) 52%,rgba(0,0,0,.5) 100%)"></div>
+    <div style="--m:clamp(104px,20vh,200px);position:absolute;left:calc(49.6vw + 2.5px - var(--m) / 2);top:calc(15.5% - var(--m) / 2);width:var(--m);height:var(--m);pointer-events:none;filter:drop-shadow(0 2px 2px rgba(0,0,0,.7)) drop-shadow(0 -1px 0 rgba(255,244,214,.28))">
+      <div style="position:absolute;inset:0;background:linear-gradient(125deg,#5E4718 0%,#A98436 22%,#F3DFA6 42%,#D8B368 55%,#8E6E2B 76%,#5E4718 100%);-webkit-mask:url(assets/monogram-ka.png) center/contain no-repeat;mask:url(assets/monogram-ka.png) center/contain no-repeat"></div>
+    </div>
     <div style="position:absolute;right:14px;top:calc(74% - 80px);width:26px;height:160px;pointer-events:none">
       <div style="position:absolute;right:10px;top:16px;width:12px;height:7px;border-radius:2px;background:linear-gradient(90deg,#C9A45C,#7A5C22)"></div>
       <div style="position:absolute;right:10px;bottom:16px;width:12px;height:7px;border-radius:2px;background:linear-gradient(90deg,#C9A45C,#7A5C22)"></div>
@@ -82,11 +98,25 @@
       <div style="position:absolute;right:4px;top:12px;width:2px;height:136px;border-radius:1px;background:linear-gradient(180deg,rgba(255,252,236,.9),rgba(255,252,236,.25) 40%,rgba(255,252,236,.75))"></div>
     </div>
   </div>
-  <div id="doorR" style="position:absolute;right:0;top:0;width:50.4%;height:100%;overflow:hidden;background:#3A2A1A;background-image:linear-gradient(270deg,rgba(0,0,0,.5),rgba(0,0,0,0) 22%,rgba(0,0,0,.18) 92%),url(assets/tex-wood.jpg);background-size:auto,cover;background-position:center right;border-left:5px solid #24180C;box-shadow:inset 24px 0 44px -26px rgba(0,0,0,.95);transition:transform 2200ms cubic-bezier(.58,0,.2,1)">
-    <div style="position:absolute;inset:6% 10% 6% 10%;border:14px solid #4A3521;box-shadow:inset 0 0 0 2px rgba(255,226,176,.12),0 0 0 2px rgba(20,12,4,.6)"></div>
-    <div style="position:absolute;left:12%;right:12%;top:9%;height:40%;background:#2E2113 url(assets/tex-wood.jpg) center/cover;box-shadow:inset 0 3px 10px rgba(0,0,0,.65),inset 0 -2px 0 rgba(255,226,176,.08)"></div>
-    <div style="position:absolute;left:12%;right:12%;bottom:9%;height:39.4%;background:#2E2113 url(assets/tex-wood.jpg) center/cover;box-shadow:inset 0 3px 10px rgba(0,0,0,.65),inset 0 -2px 0 rgba(255,226,176,.08)"></div>
-    <div style="position:absolute;left:12%;right:12%;top:49%;height:2.6%;background:linear-gradient(180deg,#543D25,#33240F)"></div>
+  <div id="doorR" style="position:absolute;right:0;top:0;width:50.4%;height:100%;overflow:hidden;background:#3A2A1A url(assets/door-walnut-stile.jpg) center/cover;border-left:5px solid #140C06;box-shadow:inset 24px 0 44px -26px rgba(0,0,0,.95);transition:transform 2200ms cubic-bezier(.58,0,.2,1)">
+    <div style="position:absolute;left:12%;right:12%;background:url(assets/door-walnut-rail.jpg) center/cover;box-shadow:-1px 0 0 rgba(0,0,0,.5),1px 0 0 rgba(0,0,0,.5);top:0;height:9%"></div>
+    <div style="position:absolute;left:12%;right:12%;top:9%;height:37%;border-style:solid;border-width:clamp(7px,1.1vw,14px);border-color:rgba(0,0,0,.62) rgba(255,222,170,.13) rgba(255,222,170,.24) rgba(0,0,0,.5);background:url(assets/door-walnut-stile.jpg) center/cover;box-shadow:0 0 0 1px rgba(0,0,0,.65)">
+      <div style="position:absolute;inset:0;overflow:hidden;background:url(assets/door-walnut-panel.jpg) center/cover;box-shadow:inset 0 14px 20px -8px rgba(0,0,0,.85),inset 12px 0 18px -9px rgba(0,0,0,.6),inset 0 -1px 0 rgba(255,225,180,.14),inset 0 0 0 1px rgba(0,0,0,.55)">
+        <div style="position:absolute;inset:clamp(12px,2.4vw,34px);border-style:solid;border-width:clamp(6px,.9vw,12px);border-color:rgba(255,226,178,.26) rgba(0,0,0,.42) rgba(0,0,0,.62) rgba(255,226,178,.12);background:url(assets/door-walnut-panel.jpg) center/cover;box-shadow:0 8px 16px rgba(0,0,0,.6),0 0 0 1px rgba(0,0,0,.4)"></div>
+      </div>
+    </div>
+    <div style="position:absolute;left:12%;right:12%;background:url(assets/door-walnut-rail.jpg) center/cover;box-shadow:-1px 0 0 rgba(0,0,0,.5),1px 0 0 rgba(0,0,0,.5);top:46%;height:8.6%"></div>
+    <div style="position:absolute;left:12%;right:12%;top:49%;height:2.6%"></div>
+    <div style="position:absolute;left:12%;right:12%;top:54.6%;height:34.4%;border-style:solid;border-width:clamp(7px,1.1vw,14px);border-color:rgba(0,0,0,.62) rgba(255,222,170,.13) rgba(255,222,170,.24) rgba(0,0,0,.5);background:url(assets/door-walnut-stile.jpg) center/cover;box-shadow:0 0 0 1px rgba(0,0,0,.65)">
+      <div style="position:absolute;inset:0;overflow:hidden;background:url(assets/door-walnut-panel.jpg) center/cover;box-shadow:inset 0 14px 20px -8px rgba(0,0,0,.85),inset 12px 0 18px -9px rgba(0,0,0,.6),inset 0 -1px 0 rgba(255,225,180,.14),inset 0 0 0 1px rgba(0,0,0,.55)">
+        <div style="position:absolute;inset:clamp(12px,2.4vw,34px);border-style:solid;border-width:clamp(6px,.9vw,12px);border-color:rgba(255,226,178,.26) rgba(0,0,0,.42) rgba(0,0,0,.62) rgba(255,226,178,.12);background:url(assets/door-walnut-panel.jpg) center/cover;box-shadow:0 8px 16px rgba(0,0,0,.6),0 0 0 1px rgba(0,0,0,.4)"></div>
+      </div>
+    </div>
+    <div style="position:absolute;left:12%;right:12%;background:url(assets/door-walnut-rail.jpg) center/cover;box-shadow:-1px 0 0 rgba(0,0,0,.5),1px 0 0 rgba(0,0,0,.5);top:89%;height:11%"></div>
+    <div style="position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(255,232,190,.12) 0%,rgba(255,232,190,0) 26%,rgba(0,0,0,0) 58%,rgba(0,0,0,.45) 100%),radial-gradient(ellipse 130% 95% at 0% 45%,rgba(0,0,0,0) 52%,rgba(0,0,0,.5) 100%)"></div>
+    <div style="--m:clamp(104px,20vh,200px);position:absolute;left:calc(-2.5px - var(--m) / 2);top:calc(15.5% - var(--m) / 2);width:var(--m);height:var(--m);pointer-events:none;filter:drop-shadow(0 2px 2px rgba(0,0,0,.7)) drop-shadow(0 -1px 0 rgba(255,244,214,.28))">
+      <div style="position:absolute;inset:0;background:linear-gradient(125deg,#5E4718 0%,#A98436 22%,#F3DFA6 42%,#D8B368 55%,#8E6E2B 76%,#5E4718 100%);-webkit-mask:url(assets/monogram-ka.png) center/contain no-repeat;mask:url(assets/monogram-ka.png) center/contain no-repeat"></div>
+    </div>
     <div style="position:absolute;left:14px;top:calc(74% - 80px);width:26px;height:160px;pointer-events:none">
       <div style="position:absolute;left:10px;top:16px;width:12px;height:7px;border-radius:2px;background:linear-gradient(270deg,#C9A45C,#7A5C22)"></div>
       <div style="position:absolute;left:10px;bottom:16px;width:12px;height:7px;border-radius:2px;background:linear-gradient(270deg,#C9A45C,#7A5C22)"></div>
@@ -94,6 +124,7 @@
       <div style="position:absolute;left:4px;top:12px;width:2px;height:136px;border-radius:1px;background:linear-gradient(180deg,rgba(255,252,236,.9),rgba(255,252,236,.25) 40%,rgba(255,252,236,.75))"></div>
     </div>
   </div>
+  <div id="gateGlow" style="position:absolute;inset:0;z-index:5;pointer-events:none;opacity:0;transition:opacity 500ms ease;mix-blend-mode:screen;background:radial-gradient(circle 320px at var(--gx,50%) var(--gy,50%),rgba(255,214,150,.2),rgba(255,214,150,.07) 45%,rgba(255,214,150,0) 72%)"></div>
   <div style="position:absolute;left:0;right:0;top:74%;transform:translateY(-50%);z-index:10;display:flex;justify-content:center;pointer-events:none">
     <button id="enter" style="pointer-events:auto;background:rgba(26,18,8,.55);backdrop-filter:blur(2px);border:1px solid rgba(232,192,122,.75);color:#F2E6C9;padding:16px 40px;font-size:12px;letter-spacing:.34em;text-transform:uppercase;cursor:pointer;animation:riseIn 1000ms ease 400ms both">Open the doors</button>
   </div>
@@ -111,10 +142,8 @@
 </div>
 
 <div id="motto" style="position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:clamp(20px,6vw,70px);pointer-events:none;opacity:0;transition:opacity 2200ms ease">
-  <div style="max-width:min(880px,90vw);text-align:center">
-    <div style="height:1px;margin:0 auto clamp(20px,3vw,34px);width:clamp(90px,16vw,150px);background:linear-gradient(90deg,rgba(232,192,122,0),rgba(232,192,122,.95),rgba(232,192,122,0))"></div>
-    <p style="margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-style:italic;font-size:clamp(26px,5.6vw,62px);line-height:1.26;background:linear-gradient(104deg,#9A7524 0%,#F2D98F 20%,#FFF8E2 36%,#E8BE63 52%,#A87F26 72%,#FBE7AE 88%,#9A7524 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 10px rgba(0,0,0,.55))">&ldquo;I am a museum of everything I&rsquo;ve ever loved&hellip;&rdquo;</p>
-    <div style="height:1px;margin:clamp(20px,3vw,34px) auto 0;width:clamp(90px,16vw,150px);background:linear-gradient(90deg,rgba(232,192,122,0),rgba(232,192,122,.95),rgba(232,192,122,0))"></div>
+  <div style="max-width:min(760px,94vw);text-align:center;padding:clamp(36px,6vw,80px) clamp(40px,8vw,110px);background:radial-gradient(ellipse closest-side,rgba(251,246,232,.7) 0%,rgba(251,246,232,.54) 50%,rgba(251,246,232,0) 100%)">
+    <p style="margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-style:italic;font-size:clamp(24px,3.6vw,42px);line-height:1.26;background:linear-gradient(104deg,#9A7524 0%,#B48A2C 24%,#A87F26 50%,#B48A2C 76%,#9A7524 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 1px 1px rgba(70,48,8,.3))">&ldquo;I am a museum of everything I&rsquo;ve ever loved&hellip;&rdquo;</p>
   </div>
 </div>
 

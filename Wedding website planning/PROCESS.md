@@ -48,49 +48,75 @@ as well as reference.
 ### Current file
 `The Gallery 3D.html` + `gallery3d.js` — the live build.
 `The Gallery.dc.html` — the CSS-3D version, kept intact for reference.
+`HANDOFF.md` — the full technical handoff: where everything is, how to run and test it.
 
 ---
 
 ## The building as built
 
+_Updated 18 September 2026._
+
 Plan, in metres, measured from the entrance standing point:
 
-- **Entry hall** — 5 m wide, running from a back wall at z +12 to the crossing.
-  Long unbroken walls both sides, intended for hung pictures.
-- **Crossing** at z −7.5 — arched openings left and right, 2.6 m wide, springing 2.3 m.
-- **Wing I** left, **Wing II** right — each 10 m deep, principal Botticelli on the end
-  wall, two complementary plates on the side walls.
-- **Exhibit Details** straight ahead through a third arch, ending at z −15.
-- **Columns** — one pair, framing the details arch.
+- **Entry hall (atrium)** — 5 m wide, running from a back wall at z +12 to the crossing. The
+  back wall carries the inside face of the walnut entrance doors. Shallow pilasters mark each
+  vault bay. Two small photo galleries face each other across the hall — **Kelly** on the left
+  wall, **Anthony** on the right — three ornate frames each over an engraved brass name plaque.
+- **Crossing** at z −7.5 — arched openings left and right, 2.6 m wide, springing 2.3 m, with
+  moulded stone surrounds and keystones, and gilt numerals **I** and **II** above them.
+- **Wing I** left, **Wing II** right — each 10 m deep, principal Botticelli on the end wall,
+  two complementary plates on the side walls.
+  - Wing I (Venus): urns of cascading roses flank the painting; Thorvaldsen's *Venus with the
+    Apple* and *Cupid Playing the Lyre* stand on the side walls.
+  - Wing II (Primavera): orange trees in terracotta pots flank the painting; Canova's
+    *Venus Italica* and a Laurana bust stand on the side walls.
+- **Details room** straight ahead through a third arch — now a 10 × 9 m salon after the
+  Galleria Borghese reference: walls in the invitation burgundy over a pale dado, a gilt cornice,
+  a coved ceiling with a sky panel, a 14-frame salon hang, a centre table, three gilt consoles,
+  four Roman busts, and the *Apollo Belvedere* and a *Diana* flanking the principal picture.
+- **Columns** — one pair, framing the details arch. A wall-mounted directory plaque above it.
 
-**Materials:** warm plaster walls, pale stone floor with cut joints, stone-coursed
-groin vaults. Brass for signage and picture lights.
+**Materials:** warm plaster walls, pale honed stone slabs laid in staggered courses (drawn in
+code), stone-coursed groin vaults, warm stone dressing (cornices, pilasters, surrounds). Carved
+gilt frames throughout. Brass for plaques and picture lights.
 
-**Ceiling:** groin-vaulted throughout — hall and both wings. Walls stop at the
-springing line (3.95 m) and the vault sweeps 2.45 m to the crown, with diagonal
-groin ribs and transverse arches on every bay. No flat ceiling anywhere.
+**Ceiling:** true groin vaults over the hall and both wings — walls stop at the springing line
+(3.95 m) and the vault sweeps 2.45 m to the crown, with diagonal ribs, an arch on every bay edge
+and a carved boss at each crown. The details room has a coved ceiling instead.
 
-**Movement:** three beats — square up, walk, turn. You never pass through a wall and
-never face the details hall when crossing between wings.
+**Movement:** three beats — square up, walk, turn. You never pass through a wall (or the
+details-room table), and never face the details room when crossing between wings. Beyond the
+bottom-bar buttons you can now click doorways, pictures, frames, plaques and the table;
+**Step back** goes one level at a time; **Walk on** advances the tour; the two Botticellis and
+the details room's principal pictures have close-up views.
 
-**Entrance:** walnut double doors with recessed panels and brass pulls. They part,
-the gilded motto floats up over the atrium, shimmers, and fades.
+**Entrance:** walnut frame-and-panel double doors with the brass KA monogram across the seam.
+They part, the dark-gold motto rises over the atrium on a soft ivory haze, and fades.
+
+**Sculpture:** real 3D scans from museum collections (see `assets/sculpture/SOURCES.md`), credited
+in the page's Credits panel. No scans of Villa Cetinale's own sculpture exist online.
 
 ---
 
 ## Still to do
 
-- Brass WING I / WING II signage (currently placeholder textures)
-- The four complementary plates are colour studies, not artwork
-- Exhibit Details hall content: Visiting, Everything We Love, RSVP
-- Pictures along the lengthened entry hall
+- The four complementary plates in the wings are colour studies, not artwork
+- Every picture in the details room and both atrium galleries is a placeholder
+  (`DETAIL_PICTURES` and `ATRIUM_PICTURES` in `gallery3d.js` — add `src: 'assets/…'` to hang one)
+- Info-panel text marked "Placeholder" (the atrium galleries, the table, two entrance-wall frames)
+- Things to interact with on the details-room table (the close, tilted table view is ready)
 - RSVP mechanism (needs a service — a static page can't collect responses)
 - All dates/logistics beyond 24 April 2027 are placeholders pending decisions
+- Check performance on phones (so far only seen on a desktop)
 
 ---
 
 ## Assets in use
 
 `assets/birth-of-venus.jpg`, `assets/primavera.jpg` — public-domain Uffizi scans
-`assets/tex-plaster.jpg`, `tex-stone.jpg`, `tex-wood.jpg`, `tex-ceiling.jpg`
-`assets/monogram-ka.png` — the KA monogram from the save-the-date
+`assets/tex-plaster.jpg` — wall plaster (the floor and vault textures are now drawn in code)
+`assets/door-walnut-stile.jpg`, `-rail.jpg`, `-panel.jpg` — generated walnut grain for the entry doors
+`assets/monogram-ka.png` — the KA monogram from the save-the-date (burgundy; used as a brass stencil on the doors)
+`assets/sculpture/*.glb` — ten sculpture scans; sources and licences in `assets/sculpture/SOURCES.md`
+`assets/ref-*.jpg` — reference photographs (`ref-terracotta.jpg` is the details-room reference)
+No longer used by the live page: `tex-stone.jpg`, `tex-wood.jpg`, `tex-ceiling.jpg`, `tex-vault.jpg`

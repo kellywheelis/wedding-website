@@ -1,0 +1,35 @@
+<!doctype html><meta charset="utf-8"><body><script>
+const W = 768, H = 1536;
+const hash = (ix, iy) => { let h = Math.imul(ix, 374761393) + Math.imul(iy, 668265263) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); h ^= h >>> 16; return (h >>> 0) / 4294967295; };
+const vn = (x, y) => { const ix = Math.floor(x), iy = Math.floor(y), fx = x - ix, fy = y - iy; const sx = fx * fx * (3 - 2 * fx), sy = fy * fy * (3 - 2 * fy); const a = hash(ix, iy), b = hash(ix + 1, iy), c = hash(ix, iy + 1), d = hash(ix + 1, iy + 1); return a + (b - a) * sx + (c - a) * sy + (a - b - c + d) * sx * sy; };
+const fbm = (x, y, o) => { let s = 0, a = 0.5, t = 0; for (let i = 0; i < o; i++) { s += a * vn(x, y); t += a; x *= 2.03; y *= 2.03; a *= 0.5; } return s / t; };
+const ramp = (t) => { t = Math.max(0, Math.min(1, t)); const k = [[26, 15, 9], [58, 36, 21], [92, 62, 36], [128, 90, 54]]; const p = t * 3, i = Math.min(2, Math.floor(p)), f = p - i; return k[i].map((v, j) => v + (k[i + 1][j] - v) * f); };
+function make(kind, seed) {
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const g = c.getContext('2d'), img = g.createImageData(W, H), d = img.data;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const X = x + seed * 1000, Y = y + seed * 777;
+    const wx = 24 * (fbm(X * 0.006, Y * 0.0016, 3) - 0.5) + 5 * (vn(X * 0.03, Y * 0.006) - 0.5);
+    const u = X + wx;
+    let phase;
+    if (kind === 'panel') {       // flat-sawn: stacked cathedral arches rising up the board
+      const cx = W * 0.5 + seed * 1000 + 40 * (fbm(Y * 0.002, 3.3, 2) - 0.5);
+      const dd = Math.hypot((u - cx) * 1.0, (y - H * 1.35) * 0.17);
+      phase = dd * 0.17 + 14 * fbm(u * 0.003, Y * 0.0008, 3);
+    } else {                      // quarter-sawn: straight, gently wandering grain
+      phase = u * 0.07 + 22 * fbm(u * 0.0028, Y * 0.0005, 3);
+    }
+    const ring = Math.pow(0.5 + 0.5 * Math.sin(phase), 1.6);
+    const fine = vn(u * 0.55, Y * 0.012);
+    const po = vn(u * 1.7, Y * 0.035), pore = po > 0.72 ? (po - 0.72) / 0.28 : 0;
+    const band = fbm(X * 0.0035, Y * 0.0007, 2);
+    const t = 0.46 * band + 0.24 * ring + 0.22 * fine + 0.08 * vn(X * 0.23, Y * 0.23) - 0.32 * pore;
+    const col = ramp(t * 0.92 + 0.02), i = (y * W + x) * 4;
+    d[i] = col[0]; d[i + 1] = col[1]; d[i + 2] = col[2]; d[i + 3] = 255;
+  }
+  g.putImageData(img, 0, 0);
+  return c.toDataURL('image/jpeg', 0.84);
+}
+const out = { stile: make('straight', 1), rail: make('straight', 2), panel: make('panel', 3) };
+const pre = document.createElement('pre'); pre.id = 'out'; pre.textContent = JSON.stringify(out); document.body.appendChild(pre);
+</script></body>

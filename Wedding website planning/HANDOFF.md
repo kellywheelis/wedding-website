@@ -1,0 +1,200 @@
+# Handoff — Wheelis · Alvarez wedding site (the 3D gallery)
+
+_Written 18 September 2026, at the end of a long working session, so that anyone (a person or
+an AI agent) can pick the project up cold. Read this first, then `PROCESS.md` for the creative
+reasoning, then `CLAUDE.md` for the owner's working rules._
+
+---
+
+## 1. What this is
+
+A wedding website for **Kelly Wheelis and Anthony Alvarez** — Villa Cetinale, Sovicille (near
+Siena), Italy, **24 April 2027** (weekend of 22–26 April). The motto is *"I am a museum of
+everything I've ever loved…"*, so the site **is** a museum: a 3D building you walk through in
+the browser.
+
+- **Wing I** = the ceremony, anchored by Botticelli's *Birth of Venus*.
+- **Wing II** = the reception, anchored by Botticelli's *Primavera*.
+- **Details room** = travel, lodging, program, RSVP. A burgundy salon-hung room modelled on
+  the Galleria Borghese reference photo `assets/ref-terracotta.jpg`.
+- **Atrium** = the entrance hall, with a small photo gallery each for Kelly and Anthony.
+
+The owner (Kelly) is **not a developer**. She directs by looking at the result in a browser,
+marking up screenshots, and describing what she wants in plain language. Explain things in
+plain language; don't assume git, JavaScript or 3D vocabulary.
+
+## 2. Where everything is
+
+Project root (a local git repository, branch `main`):
+
+    /Users/kellywheelis/Desktop/wedding website/
+
+Everything that matters lives in one subfolder:
+
+    /Users/kellywheelis/Desktop/wedding website/Wedding website planning/
+
+| Path (inside `Wedding website planning/`) | What it is |
+|---|---|
+| `The Gallery 3D.html` | **The live page.** Entry doors, motto, info panel, buttons, credits panel, import map. |
+| `gallery3d.js` | **The live build** — all of the 3D gallery (~1,900 lines, three.js 0.184 from unpkg). |
+| `assets/` | Paintings, textures, the KA monogram, reference photos. |
+| `assets/sculpture/` | The ten real sculpture scans (`.glb`) + `SOURCES.md` (where each came from, licence, how it was converted). |
+| `assets/door-walnut-*.jpg` | Generated walnut grain for the entry doors (`tools/make_walnut_textures.html` regenerates them). |
+| `tools/convert_scan.py` | Turns a raw museum scan (`.stl`/`.obj`, often 100 MB+) into a small `.glb`. No dependencies. |
+| `tools/harness/` | The screenshot/test harness (see §6). **Use it — it is how changes get verified.** |
+| `HANDOFF.md` | This file. |
+| `PROCESS.md` | The owner's creative-process document: concept, what was rejected and why, the building as built. |
+| `CLAUDE.md` | The owner's working rules (also copied to the repo root so agents load them automatically). |
+| `The Gallery.dc.html`, `*.dc.html`, `doc-page.js`, `image-slot.js` | Earlier prototypes and design studies from a previous tool. **Not the live build.** Kept for reference. The entry page of `The Gallery.dc.html` is LOCKED (see `CLAUDE.md`). |
+| `screenshots/` | Old screenshots from the earlier prototyping phase. |
+
+### Running it
+
+The page loads a JavaScript module and image textures, which browsers block from `file://`.
+Serve the folder and open it over http:
+
+    cd "/Users/kellywheelis/Desktop/wedding website/Wedding website planning"
+    python3 -m http.server 8000 --bind 127.0.0.1
+    # then open  http://127.0.0.1:8000/The%20Gallery%203D.html
+
+After any change, hard-refresh the browser (Cmd+Shift+R). three.js loads from unpkg.com, so an
+internet connection is needed.
+
+## 3. The owner's working rules (from `CLAUDE.md`, plus what this session established)
+
+- **Change ONLY what is asked.** No unrequested improvements, moves or removals. When she says
+  "fix what you think needs fixing" that is permission for that one thing, not a standing licence.
+- **Verify before claiming.** Check the file or the rendered result. Never say a change worked
+  without confirming it. In practice: take a harness screenshot and look at it.
+- **If an instruction is ambiguous, ask ONE short question** rather than guessing.
+- **Small targeted edits.** Bulk scripted edits corrupted `The Gallery.dc.html` once.
+- **The entry page of `The Gallery.dc.html` is LOCKED.** For the live 3D page she lifted this:
+  the doors were rebuilt at her request, **but the names, the "and", both buttons and their
+  positions must stay exactly as they are.**
+- She often sends **annotated screenshots** with numbered circles. Treat each number as a task.
+- She likes to be told honestly what was NOT verified (e.g. "I can't see animation, only stills").
+- Report in plain language. Say what was wrong, what changed, and what she will see.
+
+## 4. What was built this session (all in `gallery3d.js` unless noted)
+
+**Building**
+- Groin vaults rebuilt from scratch (the old surface was upside-down *and* dome-shaped). Bays
+  follow the plan: 3 atrium bays, one square bay over the crossing, ending on the details-arch
+  wall. Every bay: diagonal ribs, an arch on every edge (wall rib or transverse arch), a carved
+  boss at the crown. Walls continue up into the arches as plaster "lunettes".
+- Wing doorways are thick walls set back *into* the wings (flush on the hall side).
+- Stone floor is drawn in code (`floorTexture`): staggered honed slabs. The old `tex-stone.jpg`
+  is unused.
+- **Details room**: 10 × 9 m, walls in the invitation burgundy (`BURGUNDY = #7A1A3C`, sampled
+  from the monogram; the paint value `BURGUNDY_PAINT = #6c1637` is darker so that it *renders*
+  close to the swatch under the warm lamps), pale dado, gilt cornice, **coved ceiling** with a
+  placeholder sky panel, 14-frame salon hang (`DETAIL_PICTURES`), centre table, three gilt
+  consoles, four Roman busts, two large statues flanking the principal picture.
+- **Atrium galleries**: three frames a side (`ATRIUM_PICTURES`) — Kelly on the LEFT wall,
+  Anthony on the RIGHT — each with an engraved brass name plaque (`GALLERY_NAMES`).
+- Gilt numerals **I** and **II** above the wing arches (solid bars, not text).
+- Architectural dressing: cornices, atrium pilasters, arch surrounds with keystones, bosses, the
+  inside face of the entrance doors on the atrium's back wall.
+- **Ornate frames** everywhere (`ornateFrame`): a moulded profile swept round the picture and
+  mitred, carved via a bump map (beads, frieze, leaf band, twisted ribbon), corner pieces, crests.
+- Brass bar picture lights with a soft wash (`pictureLight`).
+- Wing I objects: two urns of **cascading roses** built petal by petal (`roseCascade`,
+  `addRose`), Thorvaldsen's *Venus with the Apple* and *Cupid Playing the Lyre*.
+- Wing II objects: two **citrus trees** built leaf by leaf (`citrusTree`), Canova's
+  *Venus Italica*, a Laurana bust.
+
+**Real sculpture** — `SCULPTURE_SPOTS` (pedestals/plinths that register themselves) and
+`SCULPTURES` (which scan goes on which spot, its height, title and credit). Scans load in the
+background through a dynamically imported GLTFLoader; if one fails, the placeholder stays.
+No scans of Villa Cetinale's own sculpture exist online (searched). See `assets/sculpture/SOURCES.md`.
+
+**Entry page and motto** (`The Gallery 3D.html`)
+- Walnut frame-and-panel doors, brass KA monogram across the seam (CSS mask of
+  `assets/monogram-ka.png`), a mouse glow on the doors, buttons fade out when the doors open.
+- Motto: consistent dark gold, condensed to the centre, soft ivory haze behind it, no rule lines.
+- Credits panel (button at the right of the bottom bar) — built from `SCULPTURES`.
+
+**Navigation**
+- Stops (`STATIONS`) are referred to by **id**, never by index (`ST.w1`, `ST.detTable`, …).
+  `tour: false` marks stops reached only by clicking (skipped by Walk on / arrow keys).
+  Ids: atrium, kelly, kelly1, kelly2, anthony, anthony1, anthony2, w1, w1close, w1a, w1b, w2,
+  w2close, w2a, w2b, det, detL, detR, detLclose, detRclose, detClose, detTable, detFrontL, detFrontR.
+- Click **doorways** (invisible arch-shaped panes), **pictures/frames/plaques/the table**
+  (`userData.station`, and `userData.closer` for the two wing paintings' close-up).
+- **Step back** (top left) goes one level: a picture → the room's entry stop → the atrium.
+  **Walk on** (top right) advances the tour.
+- A stop may carry a `pitch` (camera tilt); the view levels out before walking.
+- `goTo()` plans routes: free movement inside the details room **round the centre table**
+  (`detWalk`, `TABLE_KEEPOUT`), moves inside a wing stay in the wing, everything else runs along
+  the hall's centre line through the crossing.
+- A warm point-light **glow** follows the mouse in the gallery.
+
+## 5. Known loose ends / ideas not yet done
+
+- `PROCESS.md` "Still to do": real artwork for the wing side paintings (currently colour
+  studies), all the placeholder pictures in the details room and atrium, the RSVP mechanism
+  (needs a service — a static page can't collect responses), real content for the info panel
+  texts marked "Placeholder", logistics beyond 24 April 2027.
+- The owner plans to put **interactive objects on the centre table** (the `detTable` stop and
+  camera tilt were built for this).
+- Offered, not done: petals drifting down in Wing I; pietra serena (grey stone) trim; compressing
+  the sculpture files further (they total ~14 MB); moving the details-room side-wall tour stops
+  to the room's middle; a level (non-tilted) end-wall close-up would need the table moved ~0.5 m.
+- Performance has only been checked on a desktop. Wing I carries ~300k triangles of roses.
+- Dead code that could be removed: `sign()` / `signTexture()` (the old WING I/II wall labels).
+- Two small test servers may be left running (ports 8000 and 8011). Harmless; `pkill -f http.server` stops them.
+
+## 6. How to verify changes — the harness (`tools/harness/`)
+
+You cannot see the owner's browser. The harness renders the real build in headless Chrome and
+saves a screenshot you can look at.
+
+    cd "Wedding website planning/tools/harness"
+    ./build.sh                                   # ALWAYS rebuild after editing the project
+    ./shot.sh myshot "x=-5.75&z=-7.5&yaw=1.5708" # -> tools/harness/.work/myshot.png
+
+`build.sh` copies the page with the doors/panel/bar/motto hidden and appends `extra.js` (test
+hooks) to a copy of `gallery3d.js`. Query parameters:
+
+| Parameter | Effect |
+|---|---|
+| `x`, `z`, `yaw`, `pitch` | Put the camera somewhere. yaw 0 looks down the hall (−z); π/2 looks left (−x); −π/2 right. |
+| `btn=w1` | Press a bottom-bar room button (`atrium`, `w1`, `w2`, `det`). |
+| `click=fx,fy` | One click at a fraction of the canvas, straight away. |
+| `click2=fx,fy;fx,fy` | Clicks one after another, after `btn`/`goto` have settled. Reports the planned steps. |
+| `goto=id,id,…` | Walk to stops by id in sequence; reports each route and end position. |
+| `back2=n`, `fwd=n` | Press Step back / Walk on n times. |
+| `hover=fx,fy` | Move the mouse (tests the glow and the pointer cursor). |
+| `gate=1`, `ajar=1`, `open=1`, `motto=1`, `credits=1` | Show the entry doors / part-open doors / click Open / the motto / the credits panel. |
+
+**Gotchas learned the hard way**
+- Headless Chrome's virtual clock **never plays animations or CSS transitions**. The hooks step
+  the walk animation by hand and jump transitions to their end state. So you can verify where a
+  move *ends* and what was *planned*, never the motion itself. Say so when reporting.
+- During the hooks the viewport is 1400×673 but the saved image is 1400×760, so horizontal click
+  fractions are ~0.885× closer to centre than they look in a saved image.
+- Kill headless Chrome after each shot (the script does) or the profile lock blocks the next one.
+- `const` declarations are not hoisted: code that runs at load must come after the things it uses
+  (this bit twice — `el` and the materials).
+
+## 7. Conventions in `gallery3d.js`
+
+- Units are metres. The hall runs along −z from `P.backZ` (12) to the details arch at
+  `P.wingFarZ` (−10); wings lie along ±x between z −5 and −10; the details room is z −10.145 to −19,
+  x ±5. `H` = 3.95 (wall height / vault springing). Eye height 1.62.
+- Sections are marked with `// ---------------- name` banners: plan, scene, details room,
+  architectural detail, objects in the wings, real sculpture, camera moves, ui, clickable doorways, loop.
+- Botanical pieces use `InstancedMesh` via the small `instancer()` helper.
+- Match the file's existing comment style: short, explains *why*.
+
+## 8. Version control
+
+The repo is local only (no remote). History so far:
+
+    146d569  prototyping
+    fd3b79b  Add empty txt file
+    1c55908  Rebuild the 3D gallery: true vaults, details room, galleries, navigation
+    (next)   the commit made together with this handoff
+
+Commit with `git add -A && git commit` from the repo root. The owner asks for commits explicitly;
+don't commit or push on your own initiative.

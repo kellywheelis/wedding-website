@@ -16,6 +16,7 @@ const P = {
   detX: 5             // details room half-width
 };
 
+const CLOSE_X = 10.0;         // where you stand for a close look at a wing's principal work, 2.4 m from it
 const GALLERY_Z = -2.6;      // centre of the two atrium mini galleries, along the hall
 
 const STATIONS = [
@@ -47,6 +48,10 @@ const STATIONS = [
     eyebrow: 'Wing I · principal work', title: 'The Birth of Venus',
     body: 'Botticelli gave a woman the entire centre of the canvas, in gold light, with flowers in the air and nobody hurrying her. That is the tone of the ceremony — femininity taken completely seriously.',
     meta: 'Sandro Botticelli, c. 1485 · Uffizi, Florence' },
+  { id: 'w1close', x: -CLOSE_X, z: -7.5, yaw: Math.PI / 2, room: 'w1', accent: '#93AEA2', tour: false,
+    eyebrow: 'Wing I · principal work · up close', title: 'The Birth of Venus',
+    body: 'Botticelli gave a woman the entire centre of the canvas, in gold light, with flowers in the air and nobody hurrying her. That is the tone of the ceremony — femininity taken completely seriously.',
+    meta: 'Sandro Botticelli, c. 1485 · Uffizi, Florence' },
   { id: 'w1a', x: -1500 * U, z: -7.5, yaw: 0, room: 'w1', accent: '#93AEA2',
     eyebrow: 'Wing I · complementary work', title: 'The Procession',
     body: 'Down the cypress avenue at four o’clock, in the part of the afternoon when the light does the work for you.',
@@ -58,6 +63,10 @@ const STATIONS = [
 
   { id: 'w2', x: 1150 * U, z: -7.5, yaw: -Math.PI / 2, room: 'w2', accent: '#D19A6E',
     eyebrow: 'Wing II · principal work', title: 'Primavera',
+    body: 'A hundred and ninety species of plant in one painting, and a garden that refuses to stop. The reception takes this as instruction rather than inspiration.',
+    meta: 'Sandro Botticelli, c. 1480 · Uffizi, Florence' },
+  { id: 'w2close', x: CLOSE_X, z: -7.5, yaw: -Math.PI / 2, room: 'w2', accent: '#D19A6E', tour: false,
+    eyebrow: 'Wing II · principal work · up close', title: 'Primavera',
     body: 'A hundred and ninety species of plant in one painting, and a garden that refuses to stop. The reception takes this as instruction rather than inspiration.',
     meta: 'Sandro Botticelli, c. 1480 · Uffizi, Florence' },
   { id: 'w2a', x: 1500 * U, z: -7.5, yaw: 0, room: 'w2', accent: '#D19A6E',
@@ -80,7 +89,30 @@ const STATIONS = [
   { id: 'detR', x: 0, z: -12.5, yaw: -Math.PI / 2, room: 'det', accent: '#C9A667',
     eyebrow: 'Exhibit details · RSVP', title: 'The exhibit is complete but for one element.',
     body: 'Invitations follow, and with them this frame gets a name in it.',
-    meta: 'RSVP opens with the invitation' }
+    meta: 'RSVP opens with the invitation' },
+  { id: 'detLclose', x: -2.2, z: -14.5725, yaw: Math.PI / 2, room: 'det', accent: '#A79C85', tour: false,
+    eyebrow: 'Exhibit details · permanent collection · up close', title: 'Everything we love, catalogued',
+    body: 'The dogs, the card table, the shared library, the plastic brick. Everything in this exhibit is something one of us loves.',
+    meta: 'Mixed media · ongoing' },
+  { id: 'detRclose', x: 2.2, z: -14.5725, yaw: -Math.PI / 2, room: 'det', accent: '#C9A667', tour: false,
+    eyebrow: 'Exhibit details · RSVP · up close', title: 'The exhibit is complete but for one element.',
+    body: 'Invitations follow, and with them this frame gets a name in it.',
+    meta: 'RSVP opens with the invitation' },
+  // beyond the centre table, close to the end wall, looking slightly up at its principal picture
+  { id: 'detClose', x: 0, z: -16.75, yaw: 0, pitch: 0.19, room: 'det', accent: '#C9A667', tour: false,
+    eyebrow: 'Exhibit details · visiting · up close', title: 'Getting to Sovicille',
+    body: 'Twenty minutes west of Siena, in the hills. Fly into Florence (FLR) or Pisa (PSA) and drive down through the Chianti — about ninety minutes. Rome (FCO) works too, at roughly three hours.',
+    meta: 'Lodging, transport and the five-day program are still being arranged' },
+  // standing at the near edge of the centre table, looking down onto it (pitch is in radians, negative = down)
+  { id: 'detTable', x: 0, z: -13.95, yaw: 0, pitch: -0.5, room: 'det', accent: '#C9A667', tour: false,
+    eyebrow: 'Exhibit details · the table', title: 'On the table',
+    body: 'Something to pick up is on its way.', meta: 'Placeholder' },
+  { id: 'detFrontL', x: -3.4, z: -12.75, yaw: Math.PI, room: 'det', accent: '#A79C85', tour: false,
+    eyebrow: 'Exhibit details · entrance wall', title: 'A picture to come',
+    body: 'This frame is waiting for its picture.', meta: 'Placeholder' },
+  { id: 'detFrontR', x: 3.4, z: -12.75, yaw: Math.PI, room: 'det', accent: '#A79C85', tour: false,
+    eyebrow: 'Exhibit details · entrance wall', title: 'A picture to come',
+    body: 'This frame is waiting for its picture.', meta: 'Placeholder' }
 ];
 // stops are referred to by id everywhere, never by position in the list
 const ST = {};
@@ -186,6 +218,118 @@ const ceilingMat = new THREE.MeshStandardMaterial({ color: '#e6ddc8', roughness:
 const skirt = new THREE.MeshStandardMaterial({ color: '#8d8578', roughness: 0.8 });
 const brass = new THREE.MeshStandardMaterial({ color: '#c9a45c', roughness: 0.32, metalness: 0.85 });
 const frameMat = new THREE.MeshStandardMaterial({ color: '#b3893f', roughness: 0.38, metalness: 0.6 });
+
+// ---- ornate gilt frames: a moulded profile swept round the picture and mitred at the corners,
+// carved (as a bump map) with a bead row, a plain frieze, a band of leaves and a twisted-ribbon
+// edge; carved corner pieces cover the mitres, and the larger frames carry a crest.
+function giltCarving() {
+  const W = 512, Hh = 256, c = document.createElement('canvas');
+  c.width = W; c.height = Hh;
+  const x = c.getContext('2d');
+  x.fillStyle = '#6e6e6e'; x.fillRect(0, 0, W, Hh);
+  const band = (v0, v1) => [Math.round((1 - v1) * Hh), Math.round((v1 - v0) * Hh)];   // v = 0 at the picture, 1 at the outer edge
+  let [y, h] = band(0.02, 0.13);                                   // bead row
+  for (let i = 0; i < 16; i++) {
+    const cx = 16 + i * 32, cy = y + h / 2, g = x.createRadialGradient(cx - 3, cy - 3, 1, cx, cy, h * 0.62);
+    g.addColorStop(0, '#ffffff'); g.addColorStop(0.7, '#8a8a8a'); g.addColorStop(1, '#1e1e1e');
+    x.fillStyle = g; x.fillRect(cx - 16, y, 32, h);
+  }
+  [y, h] = band(0.13, 0.3);                                        // frieze, lightly sanded, with a small flower per repeat
+  x.fillStyle = '#7c7c7c'; x.fillRect(0, y, W, h);
+  for (let i = 0; i < 900; i++) { x.fillStyle = Math.random() < 0.5 ? 'rgba(255,255,255,.10)' : 'rgba(0,0,0,.12)'; x.fillRect(Math.random() * W, y + Math.random() * h, 2, 2); }
+  for (let i = 0; i < 4; i++) {
+    const cx = 64 + i * 128, cy = y + h / 2;
+    for (let k = 0; k < 6; k++) { const a = k * Math.PI / 3; x.fillStyle = '#d8d8d8'; x.beginPath(); x.ellipse(cx + Math.cos(a) * 9, cy + Math.sin(a) * 9, 8, 5, a, 0, 6.3); x.fill(); }
+    x.fillStyle = '#ffffff'; x.beginPath(); x.arc(cx, cy, 5, 0, 6.3); x.fill();
+  }
+  [y, h] = band(0.3, 0.74);                                        // leaf band: leaves springing outwards, tips curling
+  x.fillStyle = '#2a2a2a'; x.fillRect(0, y, W, h);
+  for (let i = -1; i < 9; i++) {
+    [0, 32].forEach((shift, layer) => {
+      const x0 = i * 64 + shift, base = y + h, tip = y + (layer ? h * 0.3 : 0.02 * h);
+      const g = x.createLinearGradient(0, base, 0, tip);
+      g.addColorStop(0, layer ? '#5a5a5a' : '#777777'); g.addColorStop(1, '#ffffff');
+      x.fillStyle = g;
+      x.beginPath(); x.moveTo(x0, base); x.bezierCurveTo(x0 - 6, base - h * 0.5, x0 + 14, tip + 6, x0 + 32, tip);
+      x.bezierCurveTo(x0 + 50, tip + 6, x0 + 70, base - h * 0.5, x0 + 64, base); x.closePath(); x.fill();
+      x.strokeStyle = 'rgba(0,0,0,.55)'; x.lineWidth = 2; x.stroke();
+      x.strokeStyle = 'rgba(0,0,0,.4)'; x.lineWidth = 1.5;
+      x.beginPath(); x.moveTo(x0 + 32, base); x.lineTo(x0 + 32, tip + 8); x.stroke();
+      for (let k = 1; k < 4; k++) { x.beginPath(); x.moveTo(x0 + 32, base - k * h * 0.2); x.lineTo(x0 + 32 - 16, base - k * h * 0.2 - 12); x.moveTo(x0 + 32, base - k * h * 0.2); x.lineTo(x0 + 32 + 16, base - k * h * 0.2 - 12); x.stroke(); }
+    });
+  }
+  [y, h] = band(0.76, 0.94);                                       // twisted ribbon round the top moulding
+  for (let i = -1; i < 22; i++) {
+    const g = x.createLinearGradient(i * 26, 0, i * 26 + 26, 0);
+    g.addColorStop(0, '#2c2c2c'); g.addColorStop(0.5, '#f4f4f4'); g.addColorStop(1, '#2c2c2c');
+    x.fillStyle = g; x.beginPath(); x.moveTo(i * 26, y + h); x.lineTo(i * 26 + 18, y); x.lineTo(i * 26 + 44, y); x.lineTo(i * 26 + 26, y + h); x.closePath(); x.fill();
+  }
+  // colour: the same carving, read as old gilding — bright on the high points, bole-dark in the hollows
+  const img = x.getImageData(0, 0, W, Hh), c2 = document.createElement('canvas');
+  c2.width = W; c2.height = Hh;
+  const x2 = c2.getContext('2d'), out = x2.createImageData(W, Hh);
+  for (let i = 0; i < img.data.length; i += 4) {
+    const t = img.data[i] / 255, k = Math.pow(t, 0.8);
+    out.data[i] = 96 + 150 * k; out.data[i + 1] = 62 + 140 * k; out.data[i + 2] = 22 + 84 * k; out.data[i + 3] = 255;
+  }
+  x2.putImageData(out, 0, 0);
+  const mk = (cv, srgb) => { const t = new THREE.CanvasTexture(cv); if (srgb) t.colorSpace = THREE.SRGBColorSpace; t.wrapS = THREE.RepeatWrapping; t.anisotropy = 8; return t; };
+  return { bump: mk(c, false), color: mk(c2, true) };
+}
+const GILT = giltCarving();
+const giltMat = new THREE.MeshStandardMaterial({ map: GILT.color, bumpMap: GILT.bump, bumpScale: 5, color: '#ffe9b0', roughness: 0.4, metalness: 0.35 });
+const giltPlain = new THREE.MeshStandardMaterial({ color: '#d9ab4c', roughness: 0.38, metalness: 0.4 });
+// across the moulding: [distance out from the picture, height off the wall], both as fractions of the frame's width
+const FRAME_PROFILE = [[0, 0.1], [0, 0.22], [0.06, 0.27], [0.13, 0.22], [0.17, 0.18], [0.3, 0.2], [0.42, 0.3], [0.55, 0.46], [0.68, 0.56], [0.76, 0.6], [0.85, 0.62], [0.93, 0.56], [0.98, 0.42], [1, 0.26], [1, 0]];
+function ornateFrame(w, h) {
+  const fw = THREE.MathUtils.clamp(0.085 + 0.036 * Math.max(w, h), 0.12, 0.25), tile = 0.34;
+  const arc = [0];
+  for (let k = 1; k < FRAME_PROFILE.length; k++) arc.push(arc[k - 1] + Math.hypot(FRAME_PROFILE[k][0] - FRAME_PROFILE[k - 1][0], FRAME_PROFILE[k][1] - FRAME_PROFILE[k - 1][1]));
+  const verts = [], uvs = [], index = [];
+  // each side runs between two corners; every profile point pushes both corners outwards by the same amount, which is the mitre
+  [[-1, -1, 1, -1], [1, -1, 1, 1], [1, 1, -1, 1], [-1, 1, -1, -1]].forEach(([ax, ay, bx, by]) => {
+    const base = verts.length / 3, len = (ax !== bx ? w : h);
+    FRAME_PROFILE.forEach(([o, z], k) => {
+      const e = o * fw, v = arc[k] / arc[arc.length - 1];
+      verts.push(ax * (w / 2 + e), ay * (h / 2 + e), z * fw, bx * (w / 2 + e), by * (h / 2 + e), z * fw);
+      uvs.push(-(len / 2 + e) / tile, v, (len / 2 + e) / tile, v);
+    });
+    for (let k = 0; k < FRAME_PROFILE.length - 1; k++) { const q = base + k * 2; index.push(q, q + 2, q + 1, q + 1, q + 2, q + 3); }   // wound to face the room
+  });
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+  geo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+  geo.setIndex(index);
+  geo.computeVertexNormals();
+  const g = new THREE.Group(), moulding = new THREE.Mesh(geo, giltMat);
+  moulding.name = 'frame'; moulding.castShadow = true;
+  g.add(moulding);
+  const leaf = (px, py, ang, s) => {                                 // one carved leaf, lying on the frame
+    const m = new THREE.Mesh(new THREE.SphereGeometry(1, 12, 8), giltPlain);
+    m.scale.set(s * 0.95, s * 0.36, s * 0.26); m.rotation.z = ang; m.position.set(px + Math.cos(ang) * s * 0.7, py + Math.sin(ang) * s * 0.7, fw * 0.6);
+    g.add(m);
+  };
+  [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([sx, sy]) => {        // corner pieces over the mitres
+    const px = sx * (w / 2 + fw * 0.58), py = sy * (h / 2 + fw * 0.58), out = Math.atan2(sy, sx);
+    const boss = new THREE.Mesh(new THREE.SphereGeometry(fw * 0.2, 14, 10), giltPlain);
+    boss.scale.z = 0.6; boss.position.set(px, py, fw * 0.66);
+    g.add(boss);
+    [out, out + 2.2, out - 2.2, out + 0.75, out - 0.75].forEach((a, i) => leaf(px, py, a, fw * (i < 3 ? 0.36 : 0.27)));
+  });
+  if (Math.max(w, h) >= 1.1) {                                        // crest at the top centre, and its echo below
+    [1, -1].forEach((sy) => {
+      const py = sy * (h / 2 + fw * 0.62), s = fw * (sy > 0 ? 1 : 0.75);
+      const shell = new THREE.Mesh(new THREE.SphereGeometry(s * 0.34, 16, 10), giltPlain);
+      shell.scale.set(1.25, 0.95, 0.5); shell.position.set(0, py + sy * s * 0.12, fw * 0.66);
+      g.add(shell);
+      [0.5, 1.0, 2.14, 2.64].forEach((a) => leaf(0, py, sy > 0 ? a : -a, s * 0.4));
+      [-1, 1].forEach((sd) => leaf(sd * s * 0.2, py, sd > 0 ? 0.12 * sy : Math.PI - 0.12 * sy, s * 0.5));
+    });
+  }
+  g.userData.pictureZ = fw * 0.1 + 0.003;
+  return g;
+}
+
 
 // ---- shell
 const floor = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), stone);
@@ -484,34 +628,34 @@ function column(x, z) {
 [-1, 1].forEach((sx) => { column(sx * (P.corrX - 0.32), P.wingFarZ + 0.55); });
 
 // ---- artwork
-function painting(src, aspect, w, x, z, rotY, station) {
+function painting(src, aspect, w, x, z, rotY, station, closer) {
   const h = w / aspect;
   const grp = new THREE.Group();
-  const outer = new THREE.Mesh(new THREE.BoxGeometry(w + 0.22, h + 0.22, 0.09), frameMat);
-  outer.name = 'frame';
-  outer.castShadow = true;
-  grp.add(outer);
+  const frame = ornateFrame(w, h);
+  frame.position.z = -0.045;
+  grp.add(frame);
   const canvasMesh = new THREE.Mesh(
     new THREE.PlaneGeometry(w, h),
     new THREE.MeshStandardMaterial({ map: tex(src), roughness: 0.62 })
   );
   canvasMesh.name = 'canvas';
-  canvasMesh.position.z = 0.05;
+  canvasMesh.position.z = -0.045 + frame.userData.pictureZ;
   grp.add(canvasMesh);
   grp.position.set(x, 1.95, z);
   grp.rotation.y = rotY;
   grp.userData.station = station;   // the stop that faces this picture; clicking it takes you there
+  grp.userData.closer = closer;     // clicking again from that stop steps you up close
   scene.add(grp);
   return grp;
 }
 
-painting('assets/birth-of-venus.jpg', 278 / 172, 3.6, -P.wingEndX + 0.07, -7.5, Math.PI / 2, ST.w1);
-painting('assets/primavera.jpg', 314 / 203, 3.6, P.wingEndX - 0.07, -7.5, -Math.PI / 2, ST.w2);
+painting('assets/birth-of-venus.jpg', 278 / 172, 3.6, -P.wingEndX + 0.07, -7.5, Math.PI / 2, ST.w1, ST.w1close);
+painting('assets/primavera.jpg', 314 / 203, 3.6, P.wingEndX - 0.07, -7.5, -Math.PI / 2, ST.w2, ST.w2close);
 
 function plate(colorA, colorB, x, z, rotY, station) {
   const g = new THREE.Group();
-  const f = new THREE.Mesh(new THREE.BoxGeometry(1.06, 1.42, 0.08), frameMat);
-  f.castShadow = true;
+  const f = ornateFrame(0.94, 1.3);
+  f.position.z = -0.04;
   g.add(f);
   const c = document.createElement('canvas');
   c.width = 256; c.height = 340;
@@ -522,7 +666,7 @@ function plate(colorA, colorB, x, z, rotY, station) {
   const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.SRGBColorSpace;
   const p = new THREE.Mesh(new THREE.PlaneGeometry(0.94, 1.3), new THREE.MeshStandardMaterial({ map: t, roughness: 0.7 }));
-  p.position.z = 0.045;
+  p.position.z = -0.04 + f.userData.pictureZ;
   g.add(p);
   g.position.set(x, 1.95, z);
   g.rotation.y = rotY;
@@ -635,18 +779,16 @@ const paintedWood = new THREE.MeshStandardMaterial({ color: '#e7e1d2', roughness
 // Give an entry a `src` (an image in assets/) to hang a real picture; without one it shows a
 // placeholder study. `blank: true` is the empty frame waiting for a name (the RSVP station).
 const DETAIL_PICTURES = [
-  { wall: 'back', at: 0, y: 2.55, w: 3.4, h: 2.3 },                 // principal work, end wall
-  { wall: 'back', at: -2.85, y: 3.0, w: 1.1, h: 0.9 },
-  { wall: 'back', at: -2.85, y: 1.85, w: 1.0, h: 0.8 },
-  { wall: 'back', at: 2.85, y: 2.95, w: 1.3, h: 1.0 },
-  { wall: 'back', at: 2.52, y: 1.8, w: 0.55, h: 0.7 },
-  { wall: 'back', at: 3.2, y: 1.8, w: 0.55, h: 0.7 },
-  { wall: 'back', at: -4.2, y: 2.6, w: 0.9, h: 1.2 },
-  { wall: 'back', at: 4.2, y: 2.6, w: 0.9, h: 1.2 },
-  { wall: 'left', at: DET.zMid, y: 2.5, w: 3.0, h: 2.0 },           // "Everything we love, catalogued"
+  { wall: 'back', at: 0, y: 2.55, w: 3.4, h: 2.3, close: true },                 // principal work, end wall
+  { wall: 'back', at: -3.62, y: 3.0, w: 1.1, h: 0.9 },              // stacks stand clear of the statues
+  { wall: 'back', at: -3.62, y: 1.85, w: 1.0, h: 0.8 },
+  { wall: 'back', at: 3.62, y: 2.95, w: 1.3, h: 1.0 },
+  { wall: 'back', at: 3.27, y: 1.8, w: 0.55, h: 0.7 },
+  { wall: 'back', at: 3.97, y: 1.8, w: 0.55, h: 0.7 },
+  { wall: 'left', at: DET.zMid, y: 2.5, w: 3.0, h: 2.0, close: true },           // "Everything we love, catalogued"
   { wall: 'left', at: DET.zMid + 2.75, y: 2.5, w: 1.2, h: 1.5 },
   { wall: 'left', at: DET.zMid - 2.75, y: 2.5, w: 1.2, h: 1.5 },
-  { wall: 'right', at: DET.zMid, y: 2.5, w: 3.0, h: 2.0, blank: true },   // RSVP: the frame that gets a name in it
+  { wall: 'right', at: DET.zMid, y: 2.5, w: 3.0, h: 2.0, blank: true, close: true },   // RSVP: the frame that gets a name in it
   { wall: 'right', at: DET.zMid + 2.75, y: 2.5, w: 1.2, h: 1.5 },
   { wall: 'right', at: DET.zMid - 2.75, y: 2.5, w: 1.2, h: 1.5 },
   { wall: 'front', at: -3.4, y: 2.45, w: 1.3, h: 1.7 },
@@ -669,15 +811,15 @@ function studyTexture(i, aspect, blank) {
   t.colorSpace = THREE.SRGBColorSpace;
   return t;
 }
-// a gilt frame, stepped in towards the picture; `src` hangs an image, otherwise a placeholder
+// an ornate gilt frame round a picture; `src` hangs an image, otherwise a placeholder
 function framedPicture(p, i) {
   const grp = new THREE.Group();
-  const outer = new THREE.Mesh(new THREE.BoxGeometry(p.w + 0.28, p.h + 0.28, 0.08), frameMat);
-  const lip = new THREE.Mesh(new THREE.BoxGeometry(p.w + 0.12, p.h + 0.12, 0.13), frameMat);
+  const frame = ornateFrame(p.w, p.h);
+  frame.position.z = -0.07;
   const pic = new THREE.Mesh(new THREE.PlaneGeometry(p.w, p.h), new THREE.MeshStandardMaterial({ map: p.src ? tex(p.src) : studyTexture(i, p.w / p.h, p.blank), roughness: 0.62 }));
-  pic.position.z = 0.07;
+  pic.position.z = -0.07 + frame.userData.pictureZ;
   if (p.src) { pic.material.map.wrapS = pic.material.map.wrapT = THREE.ClampToEdgeWrapping; }
-  [outer, lip, pic].forEach((m) => grp.add(m));
+  [frame, pic].forEach((m) => grp.add(m));
   scene.add(grp);
   return grp;
 }
@@ -688,7 +830,9 @@ DETAIL_PICTURES.forEach((p, i) => {
   if (p.wall === 'front') { grp.position.set(p.at, p.y, DET.zF - off); grp.rotation.y = Math.PI; }
   if (p.wall === 'left') { grp.position.set(-DET.x + off, p.y, p.at); grp.rotation.y = Math.PI / 2; }
   if (p.wall === 'right') { grp.position.set(DET.x - off, p.y, p.at); grp.rotation.y = -Math.PI / 2; }
-  grp.userData.station = { back: ST.det, left: ST.detL, right: ST.detR }[p.wall];
+  grp.userData.station = p.wall === 'front' ? (p.at < 0 ? ST.detFrontL : ST.detFrontR)
+    : p.close ? { back: ST.detClose, left: ST.detLclose, right: ST.detRclose }[p.wall]
+    : { back: ST.det, left: ST.detL, right: ST.detR }[p.wall];
 });
 
 // ---- atrium mini galleries: three frames a side, Kelly on the left wall, Anthony on the right.
@@ -773,8 +917,13 @@ function numeral(count, sx) {
 numeral(1, -1);      // I, over the Wing I arch
 numeral(2, 1);       // II, over the Wing II arch
 
+// ---- sculpture spots. Every pedestal or plinth that can carry a real sculpture registers itself
+// here under an id, along with the placeholder it shows until a 3D scan is assigned to it
+// (see SCULPTURES, further down).
+const SCULPTURE_SPOTS = {};    // id -> { group, top: height of the surface it stands on, placeholder: [meshes] }
+
 // ---- furniture and sculpture, built from simple solids
-function bust(x, z, rotY) {
+function bust(x, z, rotY, id) {
   const g = new THREE.Group();
   [[0.52, 0.12, 0.52, 0.06], [0.4, 1.0, 0.4, 0.62], [0.5, 0.1, 0.5, 1.17]].forEach(([w, h, d, y]) => {   // pedestal
     const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), stoneMat);
@@ -792,6 +941,7 @@ function bust(x, z, rotY) {
   const hair = new THREE.Mesh(new THREE.SphereGeometry(0.122, 24, 14, 0, Math.PI * 2, 0, Math.PI * 0.52), marbleWhite);
   hair.scale.set(0.92, 1.12, 1.05); hair.position.set(0, 1.91, -0.012); hair.rotation.x = -0.35;
   [torso, head, nose, hair].forEach((m) => g.add(m));
+  if (id) SCULPTURE_SPOTS[id] = { group: g, top: 1.22, placeholder: [torso, head, nose, hair] };
   g.position.set(x, 0, z);
   g.rotation.y = rotY;
   scene.add(g);
@@ -813,12 +963,15 @@ function table(x, z, rotY, w, d, topMat, bodyMat, legs) {
   g.position.set(x, 0, z);
   g.rotation.y = rotY;
   scene.add(g);
+  return g;
 }
-bust(-3.6, DET.zB + 0.55, 0);                       // flanking the end-wall hang
-bust(3.6, DET.zB + 0.55, 0);
-bust(-2.15, DET.zF - 0.5, Math.PI);                 // flanking the entrance arch, facing into the room
-bust(2.15, DET.zF - 0.5, Math.PI);
-table(0, DET.zMid - 0.9, 0, 2.4, 1.2, marbleBlue, paintedWood, 6);           // centre table
+bust(-4.62, DET.zB + 0.5, 0, 'detEndL');                       // flanking the end-wall hang
+bust(4.62, DET.zB + 0.5, 0, 'detEndR');
+place(reservedPlinth('STATUE', 'detStatueL'), -2.5, DET.zB + 0.62, 0);   // large figures flanking the principal picture
+place(reservedPlinth('STATUE', 'detStatueR'), 2.5, DET.zB + 0.62, 0);
+bust(-2.15, DET.zF - 0.5, Math.PI, 'detEntryL');                 // flanking the entrance arch, facing into the room
+bust(2.15, DET.zF - 0.5, Math.PI, 'detEntryR');
+table(0, DET.zMid - 0.9, 0, 2.4, 1.2, marbleBlue, paintedWood, 6).userData.station = ST.detTable;           // centre table
 table(0, DET.zB + 0.36, 0, 2.6, 0.5, marbleRed, frameMat, 4);                // gilt consoles under the principal pictures
 table(-DET.x + 0.36, DET.zMid, Math.PI / 2, 2.0, 0.5, marbleRed, frameMat, 4);
 table(DET.x - 0.36, DET.zMid, Math.PI / 2, 2.0, 0.5, marbleRed, frameMat, 4);
@@ -955,86 +1108,309 @@ function urn(top) {                                   // a tall marble urn on it
   if (top) { top.position.y = 0.95 + 0.86; g.add(top); }
   return g;
 }
-function tazza(fill) {                                // a shallow marble bowl on a stem, on its pedestal
-  const g = pedestal(1.0);
-  const bowl = lathe([[0, 0], [0.13, 0], [0.13, 0.03], [0.05, 0.07], [0.045, 0.2], [0.1, 0.25], [0.3, 0.33], [0.36, 0.4], [0.34, 0.41], [0.28, 0.35], [0, 0.31]], marbleWhite);
-  bowl.position.y = 1.0;
-  g.add(bowl);
-  fill.position.y = 1.0 + 0.34; g.add(fill);
+// ---- botanical pieces are built leaf by leaf and petal by petal, as instanced meshes
+function leafGeometry() {                             // one leaf: pointed, folded along the midrib, drooping at the tip
+  const rows = 6, verts = [], index = [];
+  for (let i = 0; i <= rows; i++) {
+    const v = i / rows, w = 0.21 * Math.pow(Math.sin(Math.PI * (0.06 + 0.94 * v)), 0.85) * (1 - 0.35 * v);
+    const droop = -0.16 * v * v;
+    verts.push(-w, v, 0.3 * w + droop, 0, v, droop, w, v, 0.3 * w + droop);
+  }
+  for (let i = 0; i < rows; i++) {
+    const k = i * 3;
+    index.push(k, k + 1, k + 3, k + 1, k + 4, k + 3, k + 1, k + 2, k + 4, k + 2, k + 5, k + 4);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+  g.setIndex(index);
+  g.computeVertexNormals();
   return g;
 }
-function heap(colors, n, spread, rise, size, seed) {  // a mound of small round things: roses, fruit, blooms
-  const g = new THREE.Group(), rnd = seeded(seed), mats = colors.map(tint);
-  for (let i = 0; i < n; i++) {
-    const a = rnd() * Math.PI * 2, rr = Math.sqrt(rnd()) * spread, r = size * (0.8 + rnd() * 0.45);
-    const m = new THREE.Mesh(new THREE.SphereGeometry(r, 10, 8), mats[Math.floor(rnd() * mats.length)]);
-    m.position.set(Math.cos(a) * rr, rise * (1 - Math.pow(rr / spread, 2)) + r * 0.4, Math.sin(a) * rr);
-    g.add(m);
-  }
-  for (let i = 0; i < Math.round(n / 4); i++) {       // a few leaves tucked between
-    const a = rnd() * Math.PI * 2, rr = spread * (0.6 + rnd() * 0.45);
-    const leaf = new THREE.Mesh(new THREE.SphereGeometry(size * 1.1, 8, 6), leafMat);
-    leaf.scale.set(1.5, 0.35, 0.8); leaf.rotation.y = a;
-    leaf.position.set(Math.cos(a) * rr, rise * 0.25, Math.sin(a) * rr);
-    g.add(leaf);
-  }
-  return g;
-}
-function scallop() {                                  // Venus's shell, stood upright on a pedestal
-  const g = pedestal(1.0), R = 0.42, A = 1.32, NA = 56, NR = 14, verts = [], index = [];
-  for (let i = 0; i <= NA; i++) {
-    const th = -A + 2 * A * i / NA, flute = Math.cos(th * 15);
-    for (let j = 0; j <= NR; j++) {
-      const t = j / NR, rr = R * t * (1 + 0.035 * flute * t);
-      verts.push(rr * Math.sin(th), rr * Math.cos(th), 0.2 * R * Math.sin(Math.PI * Math.pow(t, 0.8)) * Math.cos(th * 0.85) + 0.016 * flute * t);
+function petalGeometry() {                            // one rose petal: cupped across, rolling back at the lip
+  const nu = 4, nv = 4, verts = [], index = [];
+  for (let j = 0; j <= nv; j++) {
+    const v = j / nv, w = 0.7 * Math.pow(Math.sin(Math.PI * (0.12 + 0.8 * v)), 0.7);
+    for (let i = 0; i <= nu; i++) {
+      const u = -1 + 2 * i / nu, x = u * w;
+      verts.push(x, v, -0.75 * x * x + 0.3 * v * v * v);
     }
   }
-  for (let i = 0; i < NA; i++) for (let j = 0; j < NR; j++) {
-    const a = i * (NR + 1) + j, b = a + 1, c = a + NR + 1, d = c + 1;
-    index.push(a, c, b, b, c, d);
+  for (let j = 0; j < nv; j++) for (let i = 0; i < nu; i++) {
+    const k = j * (nu + 1) + i;
+    index.push(k, k + 1, k + nu + 1, k + 1, k + nu + 2, k + nu + 1);
   }
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
-  geo.setIndex(index);
-  geo.computeVertexNormals();
-  const shell = new THREE.Mesh(geo, pearl);
-  shell.position.set(0, 1.08, -0.04); shell.rotation.x = -0.28;
-  const hinge = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.09, 0.08), pearl);
-  hinge.position.set(0, 1.05, -0.02);
-  g.add(shell, hinge);
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+  g.setIndex(index);
+  g.computeVertexNormals();
   return g;
 }
-function citrusTree(seed) {                           // an orange tree in a terracotta pot, as in the Primavera grove
-  const g = new THREE.Group(), rnd = seeded(seed);
-  g.add(lathe([[0, 0], [0.2, 0], [0.23, 0.05], [0.29, 0.42], [0.335, 0.46], [0.335, 0.53], [0.285, 0.53], [0.27, 0.5], [0, 0.5]], terracotta));
-  const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.04, 1.05, 10), tint('#5b4632'));
-  trunk.position.y = 1.0; g.add(trunk);
-  [[0, 1.8, 0, 0.4], [0.2, 1.68, 0.1, 0.3], [-0.2, 1.72, -0.08, 0.31], [0.04, 2.02, -0.1, 0.3], [-0.06, 1.66, 0.2, 0.28]].forEach(([x, y, z, r]) => {
-    const f = new THREE.Mesh(new THREE.IcosahedronGeometry(r, 2), leafMat);
-    f.position.set(x, y, z); g.add(f);
+const LEAF_GEO = leafGeometry(), PETAL_GEO = petalGeometry();
+const Y_AXIS = new THREE.Vector3(0, 1, 0);
+// collects instances (matrix + colour) and turns them into one InstancedMesh
+function instancer(geo, mat) {
+  const mats = [], cols = [];
+  return {
+    add(m, c) { mats.push(m.clone()); cols.push(c.clone()); },
+    build() {
+      const mesh = new THREE.InstancedMesh(geo, mat, mats.length);
+      mats.forEach((m, i) => { mesh.setMatrixAt(i, m); mesh.setColorAt(i, cols[i]); });
+      mesh.instanceMatrix.needsUpdate = true;
+      if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+      return mesh;
+    }
+  };
+}
+// a leaf at `pos`, its length pointing along `dir`, rolled at random about that direction
+function addLeaf(inst, pos, dir, size, color, rnd) {
+  const q = new THREE.Quaternion().setFromUnitVectors(Y_AXIS, dir.clone().normalize());
+  q.multiply(new THREE.Quaternion().setFromAxisAngle(Y_AXIS, rnd() * Math.PI * 2));
+  inst.add(new THREE.Matrix4().compose(pos, q, new THREE.Vector3(size, size, size)), color);
+}
+// a rose at `c` opening along `n`: a tight heart, then three rings of overlapping petals,
+// each ring wider, larger and more open than the last. `s` is roughly a third of the bloom's width.
+function addRose(inst, c, n, s, base, rnd, rings = 3) {
+  const frame = new THREE.Matrix4().compose(c, new THREE.Quaternion().setFromUnitVectors(Y_AXIS, n.clone().normalize()), new THREE.Vector3(1, 1, 1));
+  const heart = base.clone().multiplyScalar(0.68);
+  //            petals  radius  opening  size   lift
+  const RINGS = [[3, 0.03, 0.05, 0.5, 0.2], [5, 0.12, 0.22, 0.72, 0.14], [7, 0.3, 0.55, 0.95, 0.07], [9, 0.5, 0.95, 1.12, 0]];
+  RINGS.slice(0, rings + 1).forEach(([count, rad, open, size, lift], ri) => {
+    const spin = rnd() * 6.283;
+    for (let k = 0; k < count; k++) {
+      const phi = spin + k * 6.283 / count, tilt = open + (rnd() - 0.5) * 0.14, sz = s * size * (0.93 + rnd() * 0.14);
+      const d = new THREE.Vector3(Math.cos(phi), 0, Math.sin(phi));
+      const X = new THREE.Vector3(Math.sin(phi), 0, -Math.cos(phi));
+      const Y = new THREE.Vector3(0, Math.cos(tilt), 0).addScaledVector(d, Math.sin(tilt));
+      const Z = new THREE.Vector3().crossVectors(X, Y);
+      const m = new THREE.Matrix4().makeBasis(X.multiplyScalar(sz), Y.clone().multiplyScalar(sz), Z.multiplyScalar(sz));
+      m.setPosition(d.clone().multiplyScalar(s * rad).setY(s * lift));
+      inst.add(m.premultiply(frame), heart.clone().lerp(base, Math.min(1, 0.2 + ri * 0.3 + rnd() * 0.1)));
+    }
   });
-  const orange = tint('#e08a2c');
-  for (let i = 0; i < 14; i++) {
-    const a = rnd() * Math.PI * 2, e = (rnd() - 0.35) * 1.6, R = 0.43;
-    const o = new THREE.Mesh(new THREE.SphereGeometry(0.048, 10, 8), orange);
-    o.position.set(Math.cos(a) * Math.cos(e) * R, 1.8 + Math.sin(e) * R * 0.85, Math.sin(a) * Math.cos(e) * R);
-    g.add(o);
+}
+
+// roses massed on an urn and trailing down its pedestal on vines, for the urns beside The Birth of Venus
+function roseCascade(seed) {
+  const g = new THREE.Group(), rnd = seeded(seed);
+  const petals = instancer(PETAL_GEO, new THREE.MeshStandardMaterial({ roughness: 0.62, side: THREE.DoubleSide }));
+  const leaves = instancer(LEAF_GEO, new THREE.MeshStandardMaterial({ roughness: 0.5, side: THREE.DoubleSide }));
+  const ROSES = ['#e9a3ac', '#f2c6c8', '#d97f8e', '#f6e2dc', '#e58f9d', '#c9607a'].map((h) => new THREE.Color(h));
+  const GREENS = ['#2f4a26', '#3d5a2e', '#4d6b35'].map((h) => new THREE.Color(h));
+  const pick = (arr) => arr[Math.floor(rnd() * arr.length)];
+  // the mass on top: a full dome of open roses, leaves tucked underneath and between
+  for (let i = 0; i < 46; i++) {
+    const a = rnd() * 6.283, e = Math.acos(1 - rnd() * 1.05), R = 0.29 + rnd() * 0.06;
+    const n = new THREE.Vector3(Math.sin(e) * Math.cos(a), Math.cos(e), Math.sin(e) * Math.sin(a));
+    addRose(petals, n.clone().multiplyScalar(R).setY(n.y * R * 0.95 + 0.07), n, 0.048 + rnd() * 0.016, pick(ROSES), rnd);
   }
+  for (let i = 0; i < 44; i++) {
+    const a = rnd() * 6.283, e = 0.9 + rnd() * 0.9, R = 0.3 + rnd() * 0.1;
+    const n = new THREE.Vector3(Math.sin(e) * Math.cos(a), Math.cos(e) * 0.6, Math.sin(e) * Math.sin(a));
+    addLeaf(leaves, n.clone().multiplyScalar(R * 0.8), n, 0.1 + rnd() * 0.06, pick(GREENS), rnd);
+  }
+  // the cascades: vines leaving the rim, arcing out and falling, roses thinning to buds at the tips
+  const vineMat = tint('#3b4a26');
+  // every vine leaves towards the room (local +z), never back into the wall behind the urn
+  [[1.57, 1.6], [1.0, 1.2], [2.15, 1.3], [0.45, 0.85], [2.7, 0.9], [1.3, 0.7], [1.85, 0.6]].forEach(([ang, drop], vi) => {
+    const out = new THREE.Vector3(Math.cos(ang), 0, Math.sin(ang)), reach = 0.3 + rnd() * 0.12;
+    const side = new THREE.Vector3(-out.z, 0, out.x).multiplyScalar((rnd() - 0.5) * 0.35);
+    const pts = [0, 0.18, 0.4, 0.7, 1].map((t) => out.clone().multiplyScalar(0.2 + reach * Math.sin(Math.min(1, t * 1.6) * Math.PI / 2))
+      .addScaledVector(side, t * t).setY(0.1 + 0.16 * Math.sin(t * 2.4) - drop * t * t));
+    const curve = new THREE.CatmullRomCurve3(pts);
+    g.add(new THREE.Mesh(new THREE.TubeGeometry(curve, 24, 0.006, 5, false), vineMat));
+    const count = Math.round(12 + drop * 13);
+    for (let i = 0; i < count; i++) {
+      const t = (i + 0.5 + (rnd() - 0.5) * 0.6) / count, pt = curve.getPoint(t), tan = curve.getTangent(t);
+      const outward = pt.clone().setY(0).normalize().multiplyScalar(0.8).add(new THREE.Vector3(0, 0.55 - t * 0.5, 0)).addScaledVector(tan, -0.2);
+      const size = (0.052 - 0.026 * t) * (0.85 + rnd() * 0.3);
+      const across = new THREE.Vector3(-tan.z, 0, tan.x).multiplyScalar((rnd() - 0.5) * 0.3 * (1 - 0.8 * t));
+      addRose(petals, pt.clone().add(across).addScaledVector(outward.clone().normalize(), size * 1.2), outward, size, pick(ROSES), rnd, t > 0.85 ? 1 : t > 0.6 ? 2 : 3);
+      for (let l = 0; l < (rnd() < 0.6 ? 1 : 2); l++) {
+        const ld = new THREE.Vector3(rnd() - 0.5, -0.2 - rnd() * 0.6, rnd() - 0.5).addScaledVector(outward, 0.5);
+        addLeaf(leaves, pt, ld, 0.055 + rnd() * 0.035, pick(GREENS), rnd);
+      }
+    }
+  });
+  g.add(petals.build(), leaves.build());
+  return g;
+}
+
+// an orange tree standard in a banded terracotta pot, as in the Primavera grove
+function citrusTree(seed) {
+  const g = new THREE.Group(), rnd = seeded(seed);
+  g.add(lathe([[0, 0], [0.2, 0], [0.225, 0.03], [0.235, 0.07], [0.29, 0.42], [0.31, 0.45], [0.345, 0.47], [0.35, 0.51], [0.335, 0.545], [0.295, 0.545], [0.28, 0.5], [0, 0.5]], terracotta, 48));
+  [[0.262, 0.2], [0.283, 0.36]].forEach(([r, y]) => {                 // raised bands, as on Impruneta pots
+    const band = new THREE.Mesh(new THREE.TorusGeometry(r, 0.012, 8, 48), terracotta);
+    band.rotation.x = Math.PI / 2; band.position.y = y; g.add(band);
+  });
+  const soil = new THREE.Mesh(new THREE.CircleGeometry(0.285, 32), tint('#3a2a1c'));
+  soil.rotation.x = -Math.PI / 2; soil.position.y = 0.505; g.add(soil);
+  const bark = tint('#5a4a38');
+  const top = new THREE.Vector3(0.015, 1.62, 0.0), centre = new THREE.Vector3(0, 2.0, 0);
+  g.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([new THREE.Vector3(0, 0.5, 0), new THREE.Vector3(0.025, 0.9, 0.012), new THREE.Vector3(-0.018, 1.3, -0.01), top]), 20, 0.028, 8, false), bark));
+  // the crown: leaves gathered in clumps around an ellipsoid, over a dark core so it never reads as hollow
+  const core = new THREE.Mesh(new THREE.SphereGeometry(0.29, 18, 14), tint('#2a4020'));
+  core.scale.set(1, 1.08, 1); core.position.copy(centre); g.add(core);
+  const leaves = instancer(LEAF_GEO, new THREE.MeshStandardMaterial({ roughness: 0.42, side: THREE.DoubleSide }));
+  const deep = new THREE.Color('#2c4722'), sunlit = new THREE.Color('#5d7f3c'), rad = new THREE.Vector3(0.47, 0.52, 0.47);
+  const clumps = [];
+  for (let i = 0; i < 24; i++) {
+    const a = rnd() * 6.283, e = Math.acos(1 - rnd() * 1.85), R = 0.72 + rnd() * 0.3;
+    const dir = new THREE.Vector3(Math.sin(e) * Math.cos(a), Math.cos(e), Math.sin(e) * Math.sin(a));
+    clumps.push(dir.clone().multiply(rad).multiplyScalar(R));
+    if (i < 5) g.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([top.clone().setY(1.5 + rnd() * 0.1), top.clone().lerp(centre.clone().add(clumps[i]), 0.5).add(new THREE.Vector3(0, -0.06, 0)), centre.clone().add(clumps[i])]), 8, 0.011, 5, false), bark));
+  }
+  for (let i = 0; i < 2100; i++) {
+    const c = clumps[Math.floor(rnd() * clumps.length)];
+    const p = c.clone().add(new THREE.Vector3(rnd() + rnd() + rnd() - 1.5, rnd() + rnd() + rnd() - 1.5, rnd() + rnd() + rnd() - 1.5).multiplyScalar(0.2));
+    const dir = p.clone().normalize().add(new THREE.Vector3(rnd() - 0.5, -0.35 + rnd() * 0.5, rnd() - 0.5).multiplyScalar(0.9));
+    const lit = THREE.MathUtils.clamp(0.5 + p.y / 1.0 + (rnd() - 0.5) * 0.5, 0, 1);
+    addLeaf(leaves, p.add(centre), dir, 0.085 + rnd() * 0.045, deep.clone().lerp(sunlit, lit), rnd);
+  }
+  g.add(leaves.build());
+  // fruit hangs mostly from the lower, outer crown; blossom is scattered over it
+  const rind = [tint('#e8902a'), tint('#de7f1f'), tint('#efa03a')], calyx = tint('#2d4220');
+  for (let i = 0; i < 18; i++) {
+    const a = rnd() * 6.283, e = 0.9 + rnd() * 1.5, r = 0.041 + rnd() * 0.011;
+    const p = new THREE.Vector3(Math.sin(e) * Math.cos(a), Math.cos(e), Math.sin(e) * Math.sin(a)).multiply(rad).multiplyScalar(0.98).add(centre);
+    const o = new THREE.Mesh(new THREE.SphereGeometry(r, 16, 12), rind[i % 3]);
+    o.scale.y = 0.94; o.position.copy(p);
+    const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.009, 0.006, 0.008, 6), calyx);
+    cap.position.copy(p).y += r * 0.93;
+    g.add(o, cap);
+  }
+  const bloom = tint('#f7f3e8');
+  for (let i = 0; i < 34; i++) {
+    const a = rnd() * 6.283, e = Math.acos(1 - rnd() * 1.6);
+    const b = new THREE.Mesh(new THREE.SphereGeometry(0.011, 6, 5), bloom);
+    b.position.set(Math.sin(e) * Math.cos(a), Math.cos(e), Math.sin(e) * Math.sin(a)).multiply(rad).multiplyScalar(1.02).add(centre);
+    g.add(b);
+  }
+  return g;
+}
+// a low plinth kept free for a statue that is still to come, marked with a small brass label
+// a plain pedestal that carries a sculpture scan
+function sculpturePedestal(id, h) {
+  const g = pedestal(h);
+  SCULPTURE_SPOTS[id] = { group: g, top: h, placeholder: [] };
+  return g;
+}
+function reservedPlinth(label, id) {
+  const g = new THREE.Group();
+  [[0.78, 0.1, 0.05], [0.66, 0.4, 0.3], [0.76, 0.1, 0.55]].forEach(([w, h, y]) => {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, w), stoneMat);
+    m.position.y = y; g.add(m);
+  });
+  const c = document.createElement('canvas');
+  c.width = 512; c.height = 128;
+  const x = c.getContext('2d');
+  x.fillStyle = '#b8934a'; x.fillRect(0, 0, 512, 128);
+  x.strokeStyle = 'rgba(58,40,10,.7)'; x.lineWidth = 4; x.strokeRect(8, 8, 496, 112);
+  x.fillStyle = '#34240a'; x.font = '600 50px Georgia'; x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.fillText(label, 256, 68);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  const plate = new THREE.Mesh(new THREE.PlaneGeometry(0.36, 0.09), new THREE.MeshStandardMaterial({ map: t, roughness: 0.45, metalness: 0.15 }));
+  plate.position.set(0, 0.3, 0.332);
+  g.add(plate);
+  if (id) SCULPTURE_SPOTS[id] = { group: g, top: 0.6, placeholder: [plate] };
   return g;
 }
 (function furnishWings() {
-  const endX = P.wingEndX - 0.4, sideX = 1830 * U, zFar = P.wingFarZ + 0.38, zNear = P.wingNearZ - 0.38, flank = 2.18;
-  // Wing I
-  place(urn(), -endX, -7.5 - flank, Math.PI / 2);
-  place(urn(), -endX, -7.5 + flank, Math.PI / 2);
-  place(scallop(), -sideX, zFar, 0);
-  place(tazza(heap(['#e7a9ad', '#f3d3d0', '#d98a93', '#f6e6df'], 30, 0.27, 0.12, 0.05, 7)), -sideX, zNear, Math.PI);
-  // Wing II
-  const blooms = ['#e9a0a8', '#f4efe4', '#e2725b', '#e8c45a', '#b9a3d0', '#d95f76'];
-  place(urn(heap(blooms, 46, 0.3, 0.3, 0.05, 11)), endX, -7.5 - flank, -Math.PI / 2);
-  place(urn(heap(blooms, 46, 0.3, 0.3, 0.05, 23)), endX, -7.5 + flank, -Math.PI / 2);
-  place(citrusTree(5), sideX, zFar + 0.05, 0);
-  place(citrusTree(9), sideX, zNear - 0.05, 0);
+  const endX = P.wingEndX - 0.45, sideX = 1830 * U, zFar = P.wingFarZ + 0.38, zNear = P.wingNearZ - 0.38;
+  // Wing I: rose cascades flank the Venus; Venus and her son Cupid stand on the side walls
+  place(urn(roseCascade(3)), -(P.wingEndX - 0.4), -7.5 - 2.18, Math.PI / 2);
+  place(urn(roseCascade(8)), -(P.wingEndX - 0.4), -7.5 + 2.18, Math.PI / 2);
+  place(reservedPlinth('STATUE', 'w1statue'), -sideX, zFar + 0.05, 0);
+  place(sculpturePedestal('w1small', 0.95), -sideX, zNear, Math.PI);
+  // Wing II: the orange grove flanks Primavera; the side walls are kept for a statue and a bust
+  place(citrusTree(5), endX, -7.5 - 2.12, 0);
+  place(citrusTree(9), endX, -7.5 + 2.12, 0);
+  place(reservedPlinth('STATUE', 'w2statue'), sideX, zFar + 0.05, 0);
+  bust(sideX, zNear, Math.PI, 'w2bust');
+})();
+
+// ---------------------------------------------------------------- real sculpture (3D scans)
+// Assign a scan to a spot and it replaces that spot's placeholder. Spots:
+//   w1statue / w1small      Wing I, the low plinth (far side wall) and the pedestal (near side wall)
+//   w2statue   Wing II, the low plinth on the far side wall (a medium full figure)
+//   detStatueL / detStatueR   details room, the two plinths flanking the principal picture
+//   w2bust     Wing II, the pedestal on the near side wall
+//   detEndL / detEndR       details room, flanking the end-wall hang
+//   detEntryL / detEntryR   details room, flanking the entrance arch
+// Models are .glb files in assets/sculpture/, made from raw museum scans with tools/convert_scan.py.
+//   src     the .glb
+//   height  how tall it should stand, in metres (a bust is about 0.7, a medium statue about 1.5)
+//   turn    optional, radians, to face it the right way on its spot
+//   keep    optional, true to keep the scan's own colour instead of the gallery's marble
+//   title / credit   what it is and who to thank; credits are listed in the page's Credits panel
+const SCULPTURES = {
+  w1statue: { src: 'assets/sculpture/venus-apple.glb', height: 1.5, title: 'Venus with the Apple, Bertel Thorvaldsen, 1809',
+    credit: '3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons' },
+  w1small: { src: 'assets/sculpture/amor-lyre.glb', height: 0.95, title: 'Cupid Playing the Lyre, Bertel Thorvaldsen',
+    credit: '3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons' },
+  detStatueL: { src: 'assets/sculpture/apollo-belvedere.glb', height: 2.0, title: 'Apollo Belvedere, after Leochares (cast of the Vatican marble)',
+    credit: '3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons' },
+  detStatueR: { src: 'assets/sculpture/diana.glb', height: 1.9, title: 'Diana of Villa Bartholoni',
+    credit: '3D scan by Rama, Musées d’art et d’histoire de Genève · public domain · via Wikimedia Commons' },
+  w2statue: { src: 'assets/sculpture/venus-italica.glb', height: 1.55, title: 'Venus Italica, Antonio Canova',
+    credit: '3D scan by Rama, Musées d’art et d’histoire de Genève · CC BY-SA 3.0 FR · via Wikimedia Commons' },
+  w2bust: { src: 'assets/sculpture/laurana.glb', height: 0.62, title: 'Bust of a woman, Francesco Laurana, c. 1472',
+    credit: '3D scan by ALoopingIcon, after a cast of the original in Berlin · CC BY-SA 4.0 · via Wikimedia Commons' },
+  detEndL: { src: 'assets/sculpture/woman-1.glb', height: 0.68, title: 'Roman portrait bust of a woman',
+    credit: '3D scan by Scan the World, Musée Saint-Raymond, Toulouse · free use with attribution · via Wikimedia Commons' },
+  detEndR: { src: 'assets/sculpture/young-man.glb', height: 0.68, title: 'Roman portrait bust of a young man',
+    credit: '3D scan by Scan the World, Musée Saint-Raymond, Toulouse · free use with attribution · via Wikimedia Commons' },
+  detEntryL: { src: 'assets/sculpture/augustus.glb', height: 0.72, title: 'Bust of Augustus',
+    credit: '3D scan by Rama, Musées d’art et d’histoire de Genève · CC BY-SA 3.0 FR · via Wikimedia Commons' },
+  detEntryR: { src: 'assets/sculpture/woman-2.glb', height: 0.68, title: 'Roman portrait bust of a woman',
+    credit: '3D scan by Scan the World, Musée Saint-Raymond, Toulouse · free use with attribution · via Wikimedia Commons' }
+};
+// the Credits panel: the paintings, then every sculpture scan with the attribution its licence asks for
+(function credits() {
+  const list = document.getElementById('creditsList');
+  if (!list) return;
+  const rows = [
+    ['The Birth of Venus and Primavera, Sandro Botticelli', 'Gallerie degli Uffizi, Florence · public domain'],
+    ...Object.values(SCULPTURES).map((c) => [c.title, c.credit + ' · simplified for the web, shared under the same licence'])
+  ];
+  rows.forEach(([what, who]) => {
+    const p = document.createElement('p');
+    p.style.cssText = 'margin:0 0 12px;font-size:14px;line-height:1.5;color:#BCB29B';
+    const b = document.createElement('span');
+    b.style.cssText = 'display:block;color:#F6F1E4;font-family:\'Cormorant Garamond\',Georgia,serif;font-size:17px';
+    b.textContent = what;
+    p.append(b, who);
+    list.appendChild(p);
+  });
+  const panel = document.getElementById('credits');
+  document.getElementById('creditsBtn').addEventListener('click', () => { panel.style.display = 'grid'; });
+  panel.addEventListener('click', (e) => { if (e.target === panel || e.target.id === 'creditsClose') panel.style.display = 'none'; });
+})();
+
+const marbleScan = new THREE.MeshStandardMaterial({ color: '#ece6d9', roughness: 0.55 });
+(function loadSculptures() {
+  const ids = Object.keys(SCULPTURES).filter((id) => SCULPTURE_SPOTS[id]);
+  if (!ids.length) return;
+  import('three/addons/loaders/GLTFLoader.js').then(({ GLTFLoader }) => {
+    const gltfLoader = new GLTFLoader();
+    ids.forEach((id) => {
+      const cfg = SCULPTURES[id], spot = SCULPTURE_SPOTS[id];
+      gltfLoader.load(cfg.src, (gltf) => {
+        const model = gltf.scene;
+        const box = new THREE.Box3().setFromObject(model), size = box.getSize(new THREE.Vector3()), c = box.getCenter(new THREE.Vector3());
+        const k = cfg.height / size.y;
+        model.scale.setScalar(k);
+        model.position.set(-c.x * k, spot.top - box.min.y * k, -c.z * k);     // stood on the spot, centred
+        if (!cfg.keep) model.traverse((o) => { if (o.isMesh) o.material = marbleScan; });
+        const holder = new THREE.Group();
+        holder.rotation.y = cfg.turn || 0;
+        holder.add(model);
+        spot.placeholder.forEach((m) => m.removeFromParent());
+        spot.group.add(holder);
+      }, undefined, () => console.warn('sculpture did not load, keeping the placeholder:', cfg.src));
+    });
+  }).catch(() => console.warn('sculpture loader unavailable, keeping the placeholders'));
 })();
 
 // ---- signage drawn to canvas, hung as brass lettering
@@ -1065,10 +1441,6 @@ function sign(lines, w, h, x, y, z, rotY) {
   scene.add(m);
   return m;
 }
-sign([{ t: '←', font: '600 74px Georgia' }, { t: 'WING I', font: '600 62px Georgia' }],
-  1.9, 0.95, -P.wingEndX + 0.06, 2.0, P.wingFarZ + 1.6, Math.PI / 2);
-sign([{ t: '→', font: '600 74px Georgia' }, { t: 'WING II', font: '600 62px Georgia' }],
-  1.9, 0.95, P.wingEndX - 0.06, 2.0, P.wingFarZ + 1.6, -Math.PI / 2);
 
 // directory plaque, mounted flat on the wall above the details arch;
 // lettering is sized to fill the plaque so it reads from the atrium
@@ -1113,30 +1485,61 @@ scene.add(new THREE.HemisphereLight('#fff4e0', '#8a8070', 1.25));
 const ambient = new THREE.AmbientLight('#fff1d8', 0.5);
 scene.add(ambient);
 
-function pictureLight(x, y, z, tx, ty, tz, shadow = true, power = 26) {
-  const housing = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.06, 0.12), brass);
-  housing.position.set(x, y, z);
-  scene.add(housing);
-  const sp = new THREE.SpotLight('#ffe7ba', power, 9, 0.62, 0.55, 1.6);
+// a brass picture light: a slim bar held off the wall on two arms just above the frame, glowing
+// underneath, with a wide soft-edged wash of light on the picture (the light itself hangs further
+// out than the fixture, so the wash falls evenly instead of burning the top of the canvas).
+//   (x, y, z)     where the light shines from        (tx, ty, tz)  the centre of the picture, on the wall
+//   topY, barW    top edge of the frame, and how long the bar should be
+const brassLit = new THREE.MeshStandardMaterial({ color: '#c9a45c', roughness: 0.34, metalness: 0.55 });
+const lampGlow = new THREE.MeshBasicMaterial({ color: '#ffe6b8' });
+function pictureLight(x, y, z, tx, ty, tz, shadow, power, topY, barW) {
+  const n = new THREE.Vector3(x - tx, 0, z - tz).normalize();          // out from the wall
+  const along = new THREE.Vector3(-n.z, 0, n.x);
+  const barY = Math.min(topY + 0.12, H - 0.32), reach = 0.24;
+  const fixture = new THREE.Group();
+  const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.024, 0.024, barW, 16), brassLit);
+  bar.quaternion.setFromUnitVectors(Y_AXIS, along);
+  bar.position.copy(n).multiplyScalar(reach).setY(barY);
+  const strip = new THREE.Mesh(new THREE.BoxGeometry(barW * 0.94, 0.006, 0.026), lampGlow);   // the lit underside
+  strip.rotation.y = Math.atan2(along.x, along.z) + Math.PI / 2;
+  strip.position.copy(bar.position).y -= 0.024;
+  fixture.add(bar, strip);
+  [-1, 1].forEach((sd) => {
+    const cap = new THREE.Mesh(new THREE.SphereGeometry(0.027, 12, 10), brassLit);
+    cap.position.copy(bar.position).addScaledVector(along, sd * barW / 2);
+    const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.009, 0.009, reach, 8), brassLit);
+    arm.quaternion.setFromUnitVectors(Y_AXIS, n);
+    arm.position.copy(n).multiplyScalar(reach / 2).addScaledVector(along, sd * barW * 0.3).setY(barY);
+    const rose = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.012, 14), brassLit);  // where the arm meets the wall
+    rose.quaternion.setFromUnitVectors(Y_AXIS, n);
+    rose.position.copy(n).multiplyScalar(0.006).addScaledVector(along, sd * barW * 0.3).setY(barY);
+    fixture.add(cap, arm, rose);
+  });
+  fixture.position.set(tx, 0, tz);
+  scene.add(fixture);
+
+  const sp = new THREE.SpotLight('#ffe3b3', power, 9, 0.88, 1.0, 1.5);
   sp.position.set(x, y, z);
   sp.target.position.set(tx, ty, tz);
   if (shadow) {
     sp.castShadow = true;
     sp.shadow.mapSize.set(1024, 1024);
+    sp.shadow.radius = 6;                                               // soft-edged shadows under the frames
+    sp.shadow.blurSamples = 16;
   }
   scene.add(sp);
   scene.add(sp.target);
 }
-pictureLight(-P.wingEndX + 0.6, H - 0.5, -7.5, -P.wingEndX, 1.95, -7.5);
-pictureLight(P.wingEndX - 0.6, H - 0.5, -7.5, P.wingEndX, 1.95, -7.5);
-pictureLight(-1500 * U, H - 0.5, P.wingFarZ + 0.6, -1500 * U, 1.95, P.wingFarZ);
-pictureLight(-1500 * U, H - 0.5, P.wingNearZ - 0.6, -1500 * U, 1.95, P.wingNearZ);
-pictureLight(1500 * U, H - 0.5, P.wingFarZ + 0.6, 1500 * U, 1.95, P.wingFarZ);
-pictureLight(1500 * U, H - 0.5, P.wingNearZ - 0.6, 1500 * U, 1.95, P.wingNearZ);
+pictureLight(-P.wingEndX + 0.6, H - 0.5, -7.5, -P.wingEndX, 1.95, -7.5, true, 15, 3.17, 1.9);
+pictureLight(P.wingEndX - 0.6, H - 0.5, -7.5, P.wingEndX, 1.95, -7.5, true, 15, 3.22, 1.9);
+pictureLight(-1500 * U, H - 0.5, P.wingFarZ + 0.6, -1500 * U, 1.95, P.wingFarZ, true, 13, 2.66, 0.62);
+pictureLight(-1500 * U, H - 0.5, P.wingNearZ - 0.6, -1500 * U, 1.95, P.wingNearZ, true, 13, 2.66, 0.62);
+pictureLight(1500 * U, H - 0.5, P.wingFarZ + 0.6, 1500 * U, 1.95, P.wingFarZ, true, 13, 2.66, 0.62);
+pictureLight(1500 * U, H - 0.5, P.wingNearZ - 0.6, 1500 * U, 1.95, P.wingNearZ, true, 13, 2.66, 0.62);
 
-pictureLight(0, H - 0.14, DET.zB + 1.0, 0, 2.55, DET.zB, false, 9);
-pictureLight(-DET.x + 1.0, H - 0.14, DET.zMid, -DET.x, 2.5, DET.zMid, false, 9);
-pictureLight(DET.x - 1.0, H - 0.14, DET.zMid, DET.x, 2.5, DET.zMid, false, 9);
+pictureLight(0, H - 0.14, DET.zB + 1.0, 0, 2.55, DET.zB, false, 7, 3.84, 1.9);
+pictureLight(-DET.x + 1.0, H - 0.14, DET.zMid, -DET.x, 2.5, DET.zMid, false, 7, 3.64, 1.7);
+pictureLight(DET.x - 1.0, H - 0.14, DET.zMid, DET.x, 2.5, DET.zMid, false, 7, 3.64, 1.7);
 
 // warm pools down the corridor so the space reads as lit
 [[0, 10], [0, 6.5], [0, 3], [0, -0.5], [0, -4], [0, -7.5]].forEach(([x, z]) => {
@@ -1153,7 +1556,8 @@ pictureLight(DET.x - 1.0, H - 0.14, DET.zMid, DET.x, 2.5, DET.zMid, false, 9);
 
 // ---------------------------------------------------------------- camera moves
 let idx = 0;
-const cam = { x: 0, z: 0, yaw: 0 };
+const cam = { x: 0, z: 0, yaw: 0, pitch: 0 };
+let wantPitch = 0;          // the tilt of the stop you are heading for; applied once you have arrived
 let queue = [];
 let leg = null;
 
@@ -1168,6 +1572,34 @@ const shortAngle = (from, to) => {
 function pushMove(x, z) { queue.push({ kind: 'move', x, z, ms: 1250 }); }
 function pushTurn(yaw) { queue.push({ kind: 'turn', yaw, ms: 1100 }); }
 
+// the centre table is the one thing standing in the open floor of the details room: walks go round it
+const TABLE_KEEPOUT = { x0: -1.5, x1: 1.5, z0: DET.zMid - 0.9 - 0.9, z1: DET.zMid - 0.9 + 0.9 };
+const DET_ENTRY = { x: 0, z: -12.5 };      // where the hall's centre line arrives in the details room
+function clearOfTable(ax, az, bx, bz) {
+  for (let i = 1; i < 24; i++) {
+    const k = i / 24, x = ax + (bx - ax) * k, z = az + (bz - az) * k;
+    if (x > TABLE_KEEPOUT.x0 && x < TABLE_KEEPOUT.x1 && z > TABLE_KEEPOUT.z0 && z < TABLE_KEEPOUT.z1) return false;
+  }
+  return true;
+}
+// plan a walk across the details room from `at` to (tx, tz): straight if the table is not in the way,
+// otherwise round one of its ends. Each leg: turn the way you are going, then walk. Updates `at`.
+function detWalk(at, tx, tz) {
+  let pts = [[tx, tz]];
+  if (!clearOfTable(at.x, at.z, tx, tz)) {
+    const X = ((at.x + tx) >= 0 ? 1 : -1) * (TABLE_KEEPOUT.x1 + 0.3);
+    const near = [X, TABLE_KEEPOUT.z1 + 0.05], far = [X, TABLE_KEEPOUT.z0 - 0.05];
+    const one = [near, far].find((w) => clearOfTable(at.x, at.z, w[0], w[1]) && clearOfTable(w[0], w[1], tx, tz));
+    pts = one ? [one, [tx, tz]] : (at.z > tz ? [near, far, [tx, tz]] : [far, near, [tx, tz]]);
+  }
+  pts.forEach(([x, z]) => {
+    if (Math.abs(x - at.x) < 0.01 && Math.abs(z - at.z) < 0.01) return;
+    pushTurn(Math.atan2(at.x - x, at.z - z));
+    pushMove(x, z);
+    at.x = x; at.z = z;
+  });
+}
+
 function goTo(n) {
   const i = Math.max(0, Math.min(STATIONS.length - 1, n));
   if (i === idx && queue.length === 0 && !leg) return;
@@ -1175,8 +1607,26 @@ function goTo(n) {
   idx = i;
   queue = []; leg = null;
   hideMotto();
+  paintLabel(t);
+  markRoom(t.room);
+  wantPitch = t.pitch || 0;
+  if (Math.abs(cam.pitch) > 0.001) queue.push({ kind: 'turn', yaw: cam.yaw, pitch: 0, ms: 700 });   // level out before moving off
 
-  if (t.x !== 0 && roomAt() === t.room) {
+  const at = { x: cam.x, z: cam.z };       // where the plan has got to so far
+  const here = roomAt();
+  const facing = (yaw) => Math.abs(shortAngle(cam.yaw, yaw) - cam.yaw) < 0.01;
+
+  if (here === 'det' && t.room === 'det') {
+    // inside the details room you cross the floor freely. A short move to a stop that faces the way
+    // you already face is a plain step (forwards, backwards or sideways); anything else is walked.
+    const d = Math.hypot(t.x - at.x, t.z - at.z);
+    if (d > 0.01 && d < 3 && facing(t.yaw) && clearOfTable(at.x, at.z, t.x, t.z)) pushMove(t.x, t.z);
+    else detWalk(at, t.x, t.z);
+    pushTurn(t.yaw);
+    return;
+  }
+
+  if (t.x !== 0 && t.room !== 'det' && here === t.room) {
     // already inside this wing: stay in it. Going deeper, walk facing the end wall and then
     // turn to the picture; coming back, turn to the picture first and step back from it.
     const moves = Math.abs(cam.x - t.x) > 0.01 || Math.abs(cam.z - t.z) > 0.01;
@@ -1188,44 +1638,49 @@ function goTo(n) {
       pushTurn(t.yaw);
       if (moves) pushMove(t.x, t.z);
     }
-    paintLabel(t);
-    markRoom(t.room);
     return;
   }
 
-  if (cam.x !== 0) {                       // step out of a wing onto the corridor line
-    pushTurn(cam.x < 0 ? -Math.PI / 2 : Math.PI / 2);
-    pushMove(0, cam.z);
+  // every other journey runs along the hall's centre line
+  if (here === 'det') detWalk(at, DET_ENTRY.x, DET_ENTRY.z);              // leaving the details room: back to its entry first
+  else if (at.x !== 0) {                                                   // leaving a wing: out onto the centre line
+    pushTurn(at.x < 0 ? -Math.PI / 2 : Math.PI / 2);
+    pushMove(0, at.z);
+    at.x = 0;
   }
-  if (t.x !== 0) {
-    if (Math.abs(cam.z - JUNCTION_Z) > 0.01) {
-      pushTurn(cam.z > JUNCTION_Z ? 0 : Math.PI);
+  const g = t.room === 'det' ? DET_ENTRY : t;                              // a details-room stop is reached through its entry
+  if (g.x !== 0) {                                                         // into a wing, through the crossing
+    if (Math.abs(at.z - JUNCTION_Z) > 0.01) {
+      pushTurn(at.z > JUNCTION_Z ? 0 : Math.PI);
       pushMove(0, JUNCTION_Z);
     }
     pushTurn(t.yaw);
-    pushMove(t.x, t.z);
+    pushMove(g.x, g.z);
   } else {
-    const dz = Math.abs(cam.z - t.z);
-    const facing = cam.x === 0 && Math.abs(shortAngle(cam.yaw, t.yaw) - cam.yaw) < 0.01;
-    if (dz > 0.01 && facing && dz < 3) {
-      pushMove(t.x, t.z);                  // a neighbouring frame on the wall you already face: sidestep along it
+    const dz = Math.abs(at.z - g.z), fresh = !queue.some((q) => q.kind === 'move');
+    if (dz > 0.01 && dz < 3 && fresh && cam.x === 0 && facing(t.yaw)) {
+      pushMove(g.x, g.z);                  // a neighbouring frame on the wall you already face: sidestep along it
     } else if (dz > 0.01) {
-      pushTurn(cam.z > t.z ? 0 : Math.PI);
-      pushMove(t.x, t.z);
+      pushTurn(at.z > g.z ? 0 : Math.PI);
+      pushMove(g.x, g.z);
     }
-    pushTurn(t.yaw);
+    at.x = g.x; at.z = g.z;
+    if (t.room === 'det') detWalk(at, t.x, t.z);
   }
-  paintLabel(t);
-  markRoom(t.room);
+  pushTurn(t.yaw);
 }
 
 function startLeg() {
   const step = queue.shift();
-  if (!step) { leg = null; return; }
+  if (!step) {
+    // arrived: tilt to the stop's own angle if it has one
+    leg = Math.abs(cam.pitch - wantPitch) > 0.001 ? { kind: 'turn', from: cam.yaw, to: cam.yaw, pf: cam.pitch, pt: wantPitch, t0: performance.now(), ms: 900 } : null;
+    return;
+  }
   if (step.kind === 'turn') {
-    const to = shortAngle(cam.yaw, step.yaw);
-    if (Math.abs(to - cam.yaw) < 0.001) return startLeg();
-    leg = { kind: 'turn', from: cam.yaw, to, t0: performance.now(), ms: step.ms };
+    const to = shortAngle(cam.yaw, step.yaw), pt = step.pitch === undefined ? cam.pitch : step.pitch;
+    if (Math.abs(to - cam.yaw) < 0.001 && Math.abs(pt - cam.pitch) < 0.001) return startLeg();
+    leg = { kind: 'turn', from: cam.yaw, to, pf: cam.pitch, pt, t0: performance.now(), ms: step.ms };
   } else {
     if (Math.abs(step.x - cam.x) < 0.001 && Math.abs(step.z - cam.z) < 0.001) return startLeg();
     leg = { kind: 'move', fx: cam.x, fz: cam.z, tx: step.x, tz: step.z, t0: performance.now(), ms: step.ms };
@@ -1321,7 +1776,7 @@ doorPane('w1', 2.6, 2.3, -P.corrX, -7.5, Math.PI / 2);
 doorPane('w2', 2.6, 2.3, P.corrX, -7.5, Math.PI / 2);
 doorPane('det', 2.7, 2.3, 0, P.wingFarZ, 0);
 
-const roomAt = () => (cam.x < -P.corrX ? 'w1' : cam.x > P.corrX ? 'w2' : cam.z < P.wingFarZ ? 'det' : 'atrium');
+const roomAt = () => (cam.z < P.wingFarZ ? 'det' : cam.x < -P.corrX ? 'w1' : cam.x > P.corrX ? 'w2' : 'atrium');
 const raycaster = new THREE.Raycaster();
 // what lies under a screen point: the room a click there leads to (null if it isn't on a
 // doorway) and the first solid surface along the line of sight
@@ -1329,12 +1784,12 @@ function probe(clientX, clientY) {
   const r = canvas.getBoundingClientRect();
   raycaster.setFromCamera(new THREE.Vector2(((clientX - r.left) / r.width) * 2 - 1, -((clientY - r.top) / r.height) * 2 + 1), camera);
   const here = roomAt();
-  let own = false, target = null, surface = null, station;
+  let own = false, target = null, surface = null, station, closer;
   for (const hit of raycaster.intersectObjects(scene.children, true)) {
     const room = hit.object.userData.room;
     if (!room) {                            // anything solid ends the line of sight
       surface = hit;
-      for (let o = hit.object; o && station === undefined; o = o.parent) station = o.userData.station;
+      for (let o = hit.object; o && station === undefined; o = o.parent) { station = o.userData.station; closer = o.userData.closer; }
       break;
     }
     if (room === here) own = true; else target = room;
@@ -1342,6 +1797,9 @@ function probe(clientX, clientY) {
   // the doorway of the room you are standing in leads back out to the atrium
   // a picture only counts from inside its own room, and not through a doorway
   if (station !== undefined && (own || target || STATIONS[station].room !== here)) station = undefined;
+  // already facing it: the next click is the step closer (and nothing once you are there)
+  if (station !== undefined && closer !== undefined && (idx === station || idx === closer)) station = closer;
+  if (station === idx) station = undefined;
   return { room: target || (own ? 'atrium' : null), surface, station };
 }
 const doorAt = (clientX, clientY) => probe(clientX, clientY).room;
@@ -1407,12 +1865,13 @@ window.addEventListener('resize', resize);
 resize();
 
 function frame(now) {
-  if (!leg && queue.length) startLeg();
+  if (!leg && (queue.length || Math.abs(cam.pitch - wantPitch) > 0.001)) startLeg();
   if (leg) {
     const k = Math.min(1, (now - leg.t0) / leg.ms);
     const e = easeInOut(k);
     if (leg.kind === 'turn') {
       cam.yaw = leg.from + (leg.to - leg.from) * e;
+      cam.pitch = leg.pf + (leg.pt - leg.pf) * e;
     } else {
       cam.x = leg.fx + (leg.tx - leg.fx) * e;
       cam.z = leg.fz + (leg.tz - leg.fz) * e;
@@ -1420,7 +1879,7 @@ function frame(now) {
     if (k >= 1) { leg = null; }
   }
   camera.position.set(cam.x, EYE, cam.z);
-  camera.rotation.set(0, cam.yaw, 0, 'YXZ');
+  camera.rotation.set(cam.pitch, cam.yaw, 0, 'YXZ');
   camera.updateMatrixWorld();
   updatePointer();
   renderer.render(scene, camera);

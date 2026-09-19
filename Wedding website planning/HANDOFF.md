@@ -118,7 +118,7 @@ No scans of Villa Cetinale's own sculpture exist online (searched). See `assets/
 - Stops (`STATIONS`) are referred to by **id**, never by index (`ST.w1`, `ST.detTable`, …).
   `tour: false` marks stops reached only by clicking (skipped by Walk on / arrow keys).
   Ids: atrium, kelly, kelly1, kelly2, anthony, anthony1, anthony2, w1, w1close, w1a, w1b, w2,
-  w2close, w2a, w2b, det, detL, detR, detLclose, detRclose, detClose, detTable, detFrontL, detFrontR.
+  w2close, w2a, w2b, det, detL, detR, detLclose, detRclose, detClose, detStackL, detStackR, detTable, detFrontL, detFrontR.
 - Click **doorways** (invisible arch-shaped panes), **pictures/frames/plaques/the table**
   (`userData.station`, and `userData.closer` for the two wing paintings' close-up).
 - **Step back** (top left) goes one level: a picture → the room's entry stop → the atrium.

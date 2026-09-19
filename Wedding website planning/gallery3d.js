@@ -103,6 +103,14 @@ const STATIONS = [
     eyebrow: 'Exhibit details · visiting · up close', title: 'Getting to Sovicille',
     body: 'Twenty minutes west of Siena, in the hills. Fly into Florence (FLR) or Pisa (PSA) and drive down through the Chianti — about ninety minutes. Rome (FCO) works too, at roughly three hours.',
     meta: 'Lodging, transport and the five-day program are still being arranged' },
+  // in front of each stack of smaller pictures on the end wall; stood a little to the outside of the
+  // stack so the large statue beside it stays out of the view
+  { id: 'detStackL', x: -4.05, z: -16.8, yaw: 0, eye: 2.4, room: 'det', accent: '#A79C85', tour: false,
+    eyebrow: 'Exhibit details · end wall', title: 'Pictures to come',
+    body: 'These frames are waiting for their pictures.', meta: 'Placeholder' },
+  { id: 'detStackR', x: 4.05, z: -16.8, yaw: 0, eye: 2.4, room: 'det', accent: '#A79C85', tour: false,
+    eyebrow: 'Exhibit details · end wall', title: 'Pictures to come',
+    body: 'These frames are waiting for their pictures.', meta: 'Placeholder' },
   // standing at the near edge of the centre table, looking down onto it (pitch is in radians, negative = down)
   { id: 'detTable', x: 0, z: -13.95, yaw: 0, pitch: -0.5, room: 'det', accent: '#C9A667', tour: false,
     eyebrow: 'Exhibit details · the table', title: 'On the table',
@@ -832,7 +840,8 @@ DETAIL_PICTURES.forEach((p, i) => {
   if (p.wall === 'right') { grp.position.set(DET.x - off, p.y, p.at); grp.rotation.y = -Math.PI / 2; }
   grp.userData.station = p.wall === 'front' ? (p.at < 0 ? ST.detFrontL : ST.detFrontR)
     : p.close ? { back: ST.detClose, left: ST.detLclose, right: ST.detRclose }[p.wall]
-    : { back: ST.det, left: ST.detL, right: ST.detR }[p.wall];
+    : p.wall === 'back' ? (p.at < 0 ? ST.detStackL : ST.detStackR)      // the stacks either side of the principal picture
+    : { left: ST.detL, right: ST.detR }[p.wall];
 });
 
 // ---- atrium mini galleries: three frames a side, Kelly on the left wall, Anthony on the right.

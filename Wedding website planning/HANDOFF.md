@@ -123,7 +123,9 @@ No scans of Villa Cetinale's own sculpture exist online (searched). See `assets/
   (`userData.station`, and `userData.closer` for the two wing paintings' close-up).
 - **Step back** (top left) goes one level: a picture → the room's entry stop → the atrium.
   **Walk on** (top right) advances the tour.
-- A stop may carry a `pitch` (camera tilt); the view levels out before walking.
+- A stop may carry a `pitch` (camera tilt, radians, negative = down) and an `eye` (viewing height in
+  metres; default 1.62). The close-up stops use `eye` to look at a picture square-on from its own
+  height instead of tilting up at it. The view levels out and returns to standing height before walking.
 - `goTo()` plans routes: free movement inside the details room **round the centre table**
   (`detWalk`, `TABLE_KEEPOUT`), moves inside a wing stay in the wing, everything else runs along
   the hall's centre line through the crossing.

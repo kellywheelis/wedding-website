@@ -48,7 +48,7 @@ const STATIONS = [
     eyebrow: 'Wing I · principal work', title: 'The Birth of Venus',
     body: 'Botticelli gave a woman the entire centre of the canvas, in gold light, with flowers in the air and nobody hurrying her. That is the tone of the ceremony — femininity taken completely seriously.',
     meta: 'Sandro Botticelli, c. 1485 · Uffizi, Florence' },
-  { id: 'w1close', x: -CLOSE_X, z: -7.5, yaw: Math.PI / 2, room: 'w1', accent: '#93AEA2', tour: false,
+  { id: 'w1close', x: -CLOSE_X, z: -7.5, yaw: Math.PI / 2, eye: 1.95, room: 'w1', accent: '#93AEA2', tour: false,
     eyebrow: 'Wing I · principal work · up close', title: 'The Birth of Venus',
     body: 'Botticelli gave a woman the entire centre of the canvas, in gold light, with flowers in the air and nobody hurrying her. That is the tone of the ceremony — femininity taken completely seriously.',
     meta: 'Sandro Botticelli, c. 1485 · Uffizi, Florence' },
@@ -65,7 +65,7 @@ const STATIONS = [
     eyebrow: 'Wing II · principal work', title: 'Primavera',
     body: 'A hundred and ninety species of plant in one painting, and a garden that refuses to stop. The reception takes this as instruction rather than inspiration.',
     meta: 'Sandro Botticelli, c. 1480 · Uffizi, Florence' },
-  { id: 'w2close', x: CLOSE_X, z: -7.5, yaw: -Math.PI / 2, room: 'w2', accent: '#D19A6E', tour: false,
+  { id: 'w2close', x: CLOSE_X, z: -7.5, yaw: -Math.PI / 2, eye: 1.95, room: 'w2', accent: '#D19A6E', tour: false,
     eyebrow: 'Wing II · principal work · up close', title: 'Primavera',
     body: 'A hundred and ninety species of plant in one painting, and a garden that refuses to stop. The reception takes this as instruction rather than inspiration.',
     meta: 'Sandro Botticelli, c. 1480 · Uffizi, Florence' },
@@ -90,16 +90,16 @@ const STATIONS = [
     eyebrow: 'Exhibit details · RSVP', title: 'The exhibit is complete but for one element.',
     body: 'Invitations follow, and with them this frame gets a name in it.',
     meta: 'RSVP opens with the invitation' },
-  { id: 'detLclose', x: -2.2, z: -14.5725, yaw: Math.PI / 2, room: 'det', accent: '#A79C85', tour: false,
+  { id: 'detLclose', x: -2.2, z: -14.5725, yaw: Math.PI / 2, eye: 2.4, room: 'det', accent: '#A79C85', tour: false,
     eyebrow: 'Exhibit details · permanent collection · up close', title: 'Everything we love, catalogued',
     body: 'The dogs, the card table, the shared library, the plastic brick. Everything in this exhibit is something one of us loves.',
     meta: 'Mixed media · ongoing' },
-  { id: 'detRclose', x: 2.2, z: -14.5725, yaw: -Math.PI / 2, room: 'det', accent: '#C9A667', tour: false,
+  { id: 'detRclose', x: 2.2, z: -14.5725, yaw: -Math.PI / 2, eye: 2.4, room: 'det', accent: '#C9A667', tour: false,
     eyebrow: 'Exhibit details · RSVP · up close', title: 'The exhibit is complete but for one element.',
     body: 'Invitations follow, and with them this frame gets a name in it.',
     meta: 'RSVP opens with the invitation' },
-  // beyond the centre table, close to the end wall, looking slightly up at its principal picture
-  { id: 'detClose', x: 0, z: -16.75, yaw: 0, pitch: 0.19, room: 'det', accent: '#C9A667', tour: false,
+  // beyond the centre table, close to the end wall, raised to the height of its principal picture (`eye`, in metres)
+  { id: 'detClose', x: 0, z: -16.75, yaw: 0, eye: 2.5, room: 'det', accent: '#C9A667', tour: false,
     eyebrow: 'Exhibit details · visiting · up close', title: 'Getting to Sovicille',
     body: 'Twenty minutes west of Siena, in the hills. Fly into Florence (FLR) or Pisa (PSA) and drive down through the Chianti — about ninety minutes. Rome (FCO) works too, at roughly three hours.',
     meta: 'Lodging, transport and the five-day program are still being arranged' },
@@ -1556,8 +1556,9 @@ pictureLight(DET.x - 1.0, H - 0.14, DET.zMid, DET.x, 2.5, DET.zMid, false, 7, 3.
 
 // ---------------------------------------------------------------- camera moves
 let idx = 0;
-const cam = { x: 0, z: 0, yaw: 0, pitch: 0 };
-let wantPitch = 0;          // the tilt of the stop you are heading for; applied once you have arrived
+const cam = { x: 0, z: 0, yaw: 0, pitch: 0, eye: EYE };
+let wantPitch = 0, wantEye = EYE;   // the tilt and viewing height of the stop you are heading for; applied once you have arrived
+const settled = () => Math.abs(cam.pitch - wantPitch) < 0.001 && Math.abs(cam.eye - wantEye) < 0.001;
 let queue = [];
 let leg = null;
 
@@ -1610,7 +1611,9 @@ function goTo(n) {
   paintLabel(t);
   markRoom(t.room);
   wantPitch = t.pitch || 0;
-  if (Math.abs(cam.pitch) > 0.001) queue.push({ kind: 'turn', yaw: cam.yaw, pitch: 0, ms: 700 });   // level out before moving off
+  wantEye = t.eye || EYE;
+  // level out and come back down to standing height before moving off
+  if (Math.abs(cam.pitch) > 0.001 || Math.abs(cam.eye - EYE) > 0.001) queue.push({ kind: 'turn', yaw: cam.yaw, pitch: 0, eye: EYE, ms: 800 });
 
   const at = { x: cam.x, z: cam.z };       // where the plan has got to so far
   const here = roomAt();
@@ -1673,14 +1676,14 @@ function goTo(n) {
 function startLeg() {
   const step = queue.shift();
   if (!step) {
-    // arrived: tilt to the stop's own angle if it has one
-    leg = Math.abs(cam.pitch - wantPitch) > 0.001 ? { kind: 'turn', from: cam.yaw, to: cam.yaw, pf: cam.pitch, pt: wantPitch, t0: performance.now(), ms: 900 } : null;
+    // arrived: take up the stop's own tilt and viewing height, if it has them
+    leg = settled() ? null : { kind: 'turn', from: cam.yaw, to: cam.yaw, pf: cam.pitch, pt: wantPitch, ef: cam.eye, et: wantEye, t0: performance.now(), ms: 1000 };
     return;
   }
   if (step.kind === 'turn') {
-    const to = shortAngle(cam.yaw, step.yaw), pt = step.pitch === undefined ? cam.pitch : step.pitch;
-    if (Math.abs(to - cam.yaw) < 0.001 && Math.abs(pt - cam.pitch) < 0.001) return startLeg();
-    leg = { kind: 'turn', from: cam.yaw, to, pf: cam.pitch, pt, t0: performance.now(), ms: step.ms };
+    const to = shortAngle(cam.yaw, step.yaw), pt = step.pitch === undefined ? cam.pitch : step.pitch, et = step.eye === undefined ? cam.eye : step.eye;
+    if (Math.abs(to - cam.yaw) < 0.001 && Math.abs(pt - cam.pitch) < 0.001 && Math.abs(et - cam.eye) < 0.001) return startLeg();
+    leg = { kind: 'turn', from: cam.yaw, to, pf: cam.pitch, pt, ef: cam.eye, et, t0: performance.now(), ms: step.ms };
   } else {
     if (Math.abs(step.x - cam.x) < 0.001 && Math.abs(step.z - cam.z) < 0.001) return startLeg();
     leg = { kind: 'move', fx: cam.x, fz: cam.z, tx: step.x, tz: step.z, t0: performance.now(), ms: step.ms };
@@ -1865,20 +1868,21 @@ window.addEventListener('resize', resize);
 resize();
 
 function frame(now) {
-  if (!leg && (queue.length || Math.abs(cam.pitch - wantPitch) > 0.001)) startLeg();
+  if (!leg && (queue.length || !settled())) startLeg();
   if (leg) {
     const k = Math.min(1, (now - leg.t0) / leg.ms);
     const e = easeInOut(k);
     if (leg.kind === 'turn') {
       cam.yaw = leg.from + (leg.to - leg.from) * e;
       cam.pitch = leg.pf + (leg.pt - leg.pf) * e;
+      cam.eye = leg.ef + (leg.et - leg.ef) * e;
     } else {
       cam.x = leg.fx + (leg.tx - leg.fx) * e;
       cam.z = leg.fz + (leg.tz - leg.fz) * e;
     }
     if (k >= 1) { leg = null; }
   }
-  camera.position.set(cam.x, EYE, cam.z);
+  camera.position.set(cam.x, cam.eye, cam.z);
   camera.rotation.set(cam.pitch, cam.yaw, 0, 'YXZ');
   camera.updateMatrixWorld();
   updatePointer();

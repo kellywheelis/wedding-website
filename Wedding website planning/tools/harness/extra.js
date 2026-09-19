@@ -7,7 +7,7 @@
     const raf = window.requestAnimationFrame, now = performance.now, draw = renderer.render;
     let fake = now.call(performance);
     window.requestAnimationFrame = () => 0; performance.now = () => fake; renderer.render = () => {};
-    for (let i = 0; i < 600 && (i < 2 || leg || queue.length || Math.abs(cam.pitch - wantPitch) > 0.001); i++) { fake += 40; frame(fake); }
+    for (let i = 0; i < 600 && (i < 2 || leg || queue.length || !settled()); i++) { fake += 40; frame(fake); }
     window.requestAnimationFrame = raf; performance.now = now; renderer.render = draw;
   };
   const tag = document.createElement('div');
@@ -18,7 +18,7 @@
     setTimeout(() => {
       const r = canvas.getBoundingClientRect();
       const cx = r.left + fx * r.width, cy = r.top + fy * r.height;
-      camera.position.set(cam.x, EYE, cam.z); camera.rotation.set(0, cam.yaw, 0, 'YXZ'); camera.updateMatrixWorld();
+      camera.position.set(cam.x, cam.eye, cam.z); camera.rotation.set(0, cam.yaw, 0, 'YXZ'); camera.updateMatrixWorld();
       const what = 'from ' + roomAt() + ' doorAt=' + doorAt(cx, cy);
       canvas.dispatchEvent(new MouseEvent('click', { clientX: cx, clientY: cy, bubbles: true }));
       report(what);
@@ -76,7 +76,7 @@
     const raf = window.requestAnimationFrame, now = performance.now, draw = renderer.render;
     let fake = now.call(performance);
     window.requestAnimationFrame = () => 0; performance.now = () => fake; renderer.render = () => {};
-    for (let i = 0; i < 600 && (i < 2 || leg || queue.length || Math.abs(cam.pitch - wantPitch) > 0.001); i++) { fake += 40; frame(fake); }
+    for (let i = 0; i < 600 && (i < 2 || leg || queue.length || !settled()); i++) { fake += 40; frame(fake); }
     window.requestAnimationFrame = raf; performance.now = now; renderer.render = draw;
     const tag = document.createElement('div');
     tag.style.cssText = 'position:fixed;left:8px;bottom:8px;z-index:99;background:#000;color:#ff0;font:16px monospace;padding:4px 8px';
@@ -90,14 +90,14 @@
     q.get('click2').split(';').forEach((pair) => {
       const [fx, fy] = pair.split(',').map(Number);
       const r = canvas.getBoundingClientRect(), cx = r.left + fx * r.width, cy = r.top + fy * r.height;
-      camera.position.set(cam.x, EYE, cam.z); camera.rotation.set(0, cam.yaw, 0, 'YXZ'); camera.updateMatrixWorld();
+      camera.position.set(cam.x, cam.eye, cam.z); camera.rotation.set(0, cam.yaw, 0, 'YXZ'); camera.updateMatrixWorld();
       const pr = probe(cx, cy);
       canvas.dispatchEvent(new MouseEvent('click', { clientX: cx, clientY: cy, bubbles: true }));
       const steps = queue.map((s) => s.kind === 'turn' ? 'turn' : 'move(' + s.x.toFixed(2) + ',' + s.z.toFixed(2) + ')').join(' > ');
       const raf = window.requestAnimationFrame, now = performance.now, draw = renderer.render;
       let fake = now.call(performance);
       window.requestAnimationFrame = () => 0; performance.now = () => fake; renderer.render = () => {};
-      for (let i = 0; i < 600 && (i < 2 || leg || queue.length || Math.abs(cam.pitch - wantPitch) > 0.001); i++) { fake += 40; frame(fake); }
+      for (let i = 0; i < 600 && (i < 2 || leg || queue.length || !settled()); i++) { fake += 40; frame(fake); }
       window.requestAnimationFrame = raf; performance.now = now; renderer.render = draw;
       out.push('click ' + pair + ': station=' + pr.station + ' room=' + pr.room + ' [' + steps + '] -> stop ' + idx + ' "' + STATIONS[idx].title + '" cam ' + cam.x.toFixed(2) + ',' + cam.z.toFixed(2) + ' yaw ' + cam.yaw.toFixed(2));
     });
@@ -117,7 +117,7 @@
       const raf = window.requestAnimationFrame, now = performance.now, draw = renderer.render;
       let fake = now.call(performance);
       window.requestAnimationFrame = () => 0; performance.now = () => fake; renderer.render = () => {};
-      for (let i = 0; i < 600 && (i < 2 || leg || queue.length || Math.abs(cam.pitch - wantPitch) > 0.001); i++) { fake += 40; frame(fake); }
+      for (let i = 0; i < 600 && (i < 2 || leg || queue.length || !settled()); i++) { fake += 40; frame(fake); }
       window.requestAnimationFrame = raf; performance.now = now; renderer.render = draw;
       out.push('step back from stop ' + from + ' [' + steps + '] -> stop ' + idx + ' "' + STATIONS[idx].title + '" cam ' + cam.x.toFixed(2) + ',' + cam.z.toFixed(2) + ' yaw ' + cam.yaw.toFixed(2) + ' button opacity=' + document.getElementById('back').style.opacity);
     }
@@ -134,7 +134,7 @@
       const raf = window.requestAnimationFrame, now = performance.now, draw = renderer.render;
       let fake = now.call(performance);
       window.requestAnimationFrame = () => 0; performance.now = () => fake; renderer.render = () => {};
-      for (let i = 0; i < 900 && (i < 2 || leg || queue.length || Math.abs(cam.pitch - wantPitch) > 0.001); i++) { fake += 40; frame(fake); }
+      for (let i = 0; i < 900 && (i < 2 || leg || queue.length || !settled()); i++) { fake += 40; frame(fake); }
       window.requestAnimationFrame = raf; performance.now = now; renderer.render = draw;
       out.push('walk on -> ' + STATIONS[idx].id);
     }
@@ -156,7 +156,7 @@
       const raf = window.requestAnimationFrame, now = performance.now, draw = renderer.render;
       let fake = now.call(performance);
       window.requestAnimationFrame = () => 0; performance.now = () => fake; renderer.render = () => {};
-      for (let i = 0; i < 900 && (i < 2 || leg || queue.length || Math.abs(cam.pitch - wantPitch) > 0.001); i++) { fake += 40; frame(fake); }
+      for (let i = 0; i < 900 && (i < 2 || leg || queue.length || !settled()); i++) { fake += 40; frame(fake); }
       window.requestAnimationFrame = raf; performance.now = now; renderer.render = draw;
       out.push('goto ' + id + ' [' + steps + '] -> cam ' + cam.x.toFixed(2) + ',' + cam.z.toFixed(2) + ' yaw ' + cam.yaw.toFixed(2) + ' pitch ' + cam.pitch.toFixed(2));
     });

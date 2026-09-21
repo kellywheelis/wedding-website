@@ -117,7 +117,8 @@ No scans of Villa Cetinale's own sculpture exist online (searched). See `assets/
 **The save-the-date volvelle** (section "on the table" in `gallery3d.js`)
 - A digital build of the owner's paper save-the-date. Her original build pack (print sheets, Cricut
   cut files, shopping list) lives OUTSIDE the project — it was removed on purpose so it is not
-  published with the site (it is still in git history at commit 6a39c04). What the gallery needs is in
+  published with the site. It was also scrubbed from the git history on 21 Sept 2026 (the seven commits
+  from the volvelle onwards were rewritten), so it is safe to push this repository. What the gallery needs is in
   `assets/volvelle/`: `front.png` (the front panel, cropped from the pack's BLANK print sheet),
   `wheel.png` (the wheel art, downsized) and `MEASUREMENTS.txt` (the numbers the build is made from).
 - The card front is a cut shape (window, pivot hole, thumb notch) with the print laid over it; the

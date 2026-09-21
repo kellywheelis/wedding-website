@@ -115,15 +115,18 @@ No scans of Villa Cetinale's own sculpture exist online (searched). See `assets/
 - Credits panel (button at the right of the bottom bar) — built from `SCULPTURES`.
 
 **The save-the-date volvelle** (section "on the table" in `gallery3d.js`)
-- A digital build of the owner's paper save-the-date, to the measurements in
-  `assets/SAVE-THE-DATE-PACK/READ ME FIRST.txt` (her original build pack: print sheets, Cricut cut
-  files, shopping list). The gallery only loads `assets/volvelle/front.png` (the front panel, cropped
-  from the pack's BLANK print sheet) and `assets/volvelle/wheel.png` (the wheel art, downsized).
+- A digital build of the owner's paper save-the-date. Her original build pack (print sheets, Cricut
+  cut files, shopping list) lives OUTSIDE the project — it was removed on purpose so it is not
+  published with the site (it is still in git history at commit 6a39c04). What the gallery needs is in
+  `assets/volvelle/`: `front.png` (the front panel, cropped from the pack's BLANK print sheet),
+  `wheel.png` (the wheel art, downsized) and `MEASUREMENTS.txt` (the numbers the build is made from).
 - The card front is a cut shape (window, pivot hole, thumb notch) with the print laid over it; the
   gold rails, white wainscot, two gilt oval rings with a pearl course, and the brass eyelet are real
   geometry. The wheel has five plates, 72 degrees apart.
-- It rests on the centre table beside a museum label on a brass wedge. Clicking either goes to the
-  `detVolvelle` stop, where the card lifts to face the camera (`VOL.lift`). There you drag to turn the
+- It stands propped on a walnut base (`volStand`) on the centre table, with an engraved brass plaque on
+  the base's sloped front (the owner rejected a paper-card label: "looks like a print-out"). Clicking
+  the card, the base or the plaque goes to the
+  `detVolvelle` stop, where the card lifts off its stand to face the camera (`VOL.lift`). There you drag to turn the
   wheel, or click to advance one plate; it settles plate by plate. Step back puts it down (`back: 'detTable'`).
 - The right half of the table is deliberately left free for the pop-up invitation. The invitation
   artwork is flagged in `PROCESS.md` as NOT licensed for web use — settle that before building it.

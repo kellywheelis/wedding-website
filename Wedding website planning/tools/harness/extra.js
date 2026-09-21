@@ -18,7 +18,7 @@
     setTimeout(() => {
       const r = canvas.getBoundingClientRect();
       const cx = r.left + fx * r.width, cy = r.top + fy * r.height;
-      camera.position.set(cam.x, cam.eye, cam.z); camera.rotation.set(0, cam.yaw, 0, 'YXZ'); camera.updateMatrixWorld();
+      camera.position.set(cam.x, cam.eye, cam.z); camera.rotation.set(cam.pitch, cam.yaw, 0, 'YXZ'); camera.updateMatrixWorld();
       const what = 'from ' + roomAt() + ' doorAt=' + doorAt(cx, cy);
       canvas.dispatchEvent(new MouseEvent('click', { clientX: cx, clientY: cy, bubbles: true }));
       report(what);
@@ -90,7 +90,7 @@
     q.get('click2').split(';').forEach((pair) => {
       const [fx, fy] = pair.split(',').map(Number);
       const r = canvas.getBoundingClientRect(), cx = r.left + fx * r.width, cy = r.top + fy * r.height;
-      camera.position.set(cam.x, cam.eye, cam.z); camera.rotation.set(0, cam.yaw, 0, 'YXZ'); camera.updateMatrixWorld();
+      camera.position.set(cam.x, cam.eye, cam.z); camera.rotation.set(cam.pitch, cam.yaw, 0, 'YXZ'); camera.updateMatrixWorld();
       const pr = probe(cx, cy);
       canvas.dispatchEvent(new MouseEvent('click', { clientX: cx, clientY: cy, bubbles: true }));
       const steps = queue.map((s) => s.kind === 'turn' ? 'turn' : 'move(' + s.x.toFixed(2) + ',' + s.z.toFixed(2) + ')').join(' > ');

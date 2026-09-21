@@ -1,0 +1,40 @@
+SAVE-THE-DATE VOLVELLE — the measurements the digital build in gallery3d.js is made from.
+Copied from the owner's build pack ("READ ME FIRST.txt"), which lives outside this project.
+front.png is the front panel cropped from the pack's BLANK print sheet (384 dpi);
+wheel.png is the pack's source/wheel-art.png, downsized. Five plates, 72 degrees apart;
+plate I (Save the Date) is in the window when numeral I is at the notch.
+
+  THE NUMBERS
+
+  Blank, flat                9.060 x 5.642 in
+  Folded card                4.521 in square
+  Centre fold                4.539 in from the monogram edge
+  Flap depth                 0.561 in — one monogram row
+  Flap corner radius         0.19 in
+  Wheel across the crests    4.354 in
+  Wheel across the valleys   4.298 in
+  Scallop depth              0.71 mm, forty of them
+  Clearance inside the case  2.12 mm
+  Window                     0.995 x 1.266 in, upright
+  Window to pivot            1.266 in
+  Wainscot band              4.521 x 0.900 in
+  Wainscot panel, outer line 0.804 x 0.760 in
+  Picture rails, TWO          4.521 x 0.077 in each
+    upper                     top edge 0.900 in from the
+                              card's top edge
+    lower                     bottom edge 0.900 in from the
+                              card's bottom edge, which lands
+                              it exactly on the wainscot's top
+                              edge
+  Notch                      1.580 x 0.564 in, outer edge
+  Pivot hole, panels         0.125 in (1/8 in), machine cut
+  Pivot hole, wheel          0.132 in — 0.17 mm running clearance
+  Eyelet                     1/8 in barrel, 3mm post
+  Stack at the pivot         about 1.3 mm — 1.7 mm of post
+                             left to roll over
+  Both PNGs                  384 dpi
+  Print Then Cut ceiling     9.94 x 7.44 in on letter
+
+  Gallery frame rings (outer / hole, inches)
+    ring A, back, pearled      1.411 x 1.691  /  1.030 x 1.301   59 pearls, 1.2 mm
+    ring B, front              1.245 x 1.525  /  0.916 x 1.187

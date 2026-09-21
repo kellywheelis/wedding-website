@@ -114,7 +114,7 @@ const STATIONS = [
   // standing at the near edge of the centre table, looking down onto it (pitch is in radians, negative = down)
   { id: 'detTable', x: 0, z: -13.95, yaw: 0, pitch: -0.5, room: 'det', accent: '#C9A667', tour: false,
     eyebrow: 'Exhibit details · the table', title: 'On the table',
-    body: 'The save-the-date is here to be handled. Click it to pick it up.', meta: 'Please touch' },
+    body: 'The save-the-date is here to be handled. Click it to pick it up and turn the wheel.', meta: 'Please touch' },
   // the save-the-date, picked up off the table: same standing spot, and Step back puts it down again
   { id: 'detVolvelle', x: 0, z: -13.95, yaw: 0, pitch: -0.5, room: 'det', accent: '#C9A667', tour: false, back: 'detTable',
     eyebrow: 'Exhibit details · on the table', title: 'Save the Date',
@@ -1993,18 +1993,18 @@ volStand.rotation.y = 0.2;
 scene.add(volStand);
 const VOL_REST = { pos: new THREE.Vector3(), quat: new THREE.Quaternion() };
 (function volvelleStand() {
-  const W = 0.5, LEAN = 0.21;                                     // base width; how far the card leans back, radians
+  const W = 0.5, LEAN = 0.21, BH = 0.135;                         // base width; how far the card leans back (radians); base height
   // side profile of the base, front towards +x here: a low block whose front slopes back at 45 degrees
-  const prof = [[-0.09, 0], [0.11, 0], [0.11, 0.015], [0.02, 0.105], [-0.09, 0.105]].map(([x, y]) => new THREE.Vector2(x, y));
+  const prof = [[-0.09, 0], [0.14, 0], [0.14, 0.015], [0.02, BH], [-0.09, BH]].map(([x, y]) => new THREE.Vector2(x, y));
   const base = new THREE.Mesh(new THREE.ExtrudeGeometry(new THREE.Shape(prof), { depth: W, bevelEnabled: false }),
     new THREE.MeshStandardMaterial({ map: tex('assets/door-walnut-rail.jpg'), color: '#d9b48c', roughness: 0.5 }));
   base.rotation.y = -Math.PI / 2;                                 // profile's front now faces the viewer, width along x
   base.position.x = W / 2;
   const ledge = new THREE.Mesh(new THREE.BoxGeometry(VOL.SIZE + 0.03, 0.012, 0.008), brass);   // the lip the card's foot sits behind
-  ledge.position.set(0, 0.111, 0.006);
+  ledge.position.set(0, BH + 0.006, 0.006);
   volStand.add(base, ledge);
   [-0.1, 0.1].forEach((x) => {                                    // two brass struts behind, holding the card's back
-    const foot = new THREE.Vector3(x, 0.105, -0.08), head = new THREE.Vector3(x, 0.105 + 0.22 * Math.cos(LEAN), -0.004 - 0.22 * Math.sin(LEAN) - 0.004);
+    const foot = new THREE.Vector3(x, BH, -0.08), head = new THREE.Vector3(x, BH + 0.22 * Math.cos(LEAN), -0.004 - 0.22 * Math.sin(LEAN) - 0.004);
     const strut = new THREE.Mesh(new THREE.CylinderGeometry(0.004, 0.004, foot.distanceTo(head), 8), brass);
     strut.position.copy(foot).add(head).multiplyScalar(0.5);
     strut.quaternion.setFromUnitVectors(Y_AXIS, head.clone().sub(foot).normalize());
@@ -2012,18 +2012,18 @@ const VOL_REST = { pos: new THREE.Vector3(), quat: new THREE.Quaternion() };
   });
 
   // the plaque: brushed brass, a fine engraved border, four screws, engraved lettering
-  const PW = 0.46, PH = 0.112, c = document.createElement('canvas');
+  const PW = 0.46, PH = 0.155, c = document.createElement('canvas');
   c.width = 2048; c.height = Math.round(2048 * PH / PW);
   const plaqueTex = new THREE.CanvasTexture(c);
   plaqueTex.colorSpace = THREE.SRGBColorSpace; plaqueTex.anisotropy = 8;
   const draw = (serif) => {
     const x = c.getContext('2d'), w = c.width, h = c.height;
     const g = x.createLinearGradient(0, 0, 0, h);
-    g.addColorStop(0, '#dcc07a'); g.addColorStop(0.45, '#bd984e'); g.addColorStop(1, '#93733a');
+    g.addColorStop(0, '#ecd596'); g.addColorStop(0.5, '#d6b56a'); g.addColorStop(1, '#b8954c');   // kept light, so the lettering has contrast
     x.fillStyle = g; x.fillRect(0, 0, w, h);
     const rnd = seeded(41);
-    for (let i = 0; i < 420; i++) {                               // brushing
-      x.fillStyle = 'rgba(' + (rnd() < 0.5 ? '255,244,210,' : '60,40,10,') + (0.03 + rnd() * 0.05) + ')';
+    for (let i = 0; i < 300; i++) {                               // a light brushing only: heavy grain eats small type
+      x.fillStyle = 'rgba(' + (rnd() < 0.5 ? '255,244,210,' : '60,40,10,') + (0.015 + rnd() * 0.025) + ')';
       x.fillRect(0, rnd() * h, w, 1 + rnd());
     }
     x.strokeStyle = 'rgba(58,40,10,.75)'; x.lineWidth = 4; x.strokeRect(24, 24, w - 48, h - 48);
@@ -2033,20 +2033,24 @@ const VOL_REST = { pos: new THREE.Vector3(), quat: new THREE.Quaternion() };
       x.strokeStyle = 'rgba(40,26,6,.85)'; x.lineWidth = 3; x.beginPath(); x.moveTo(sx - 9, sy - 4); x.lineTo(sx + 9, sy + 4); x.stroke();
     });
     // engraved text: a light lower lip under dark lettering. Each row is a list of [text, font, letter-spacing] runs, centred.
-    const row = (y, runs) => {
-      const widths = runs.map(([t, f, ls]) => { x.font = f; if ('letterSpacing' in x) x.letterSpacing = ls + 'px'; return x.measureText(t).width; });
-      let px = (w - widths.reduce((a, b) => a + b, 0)) / 2;
-      x.textAlign = 'left'; x.textBaseline = 'alphabetic';
-      runs.forEach(([t, f, ls], i) => {
-        x.font = f; if ('letterSpacing' in x) x.letterSpacing = ls + 'px';
-        x.fillStyle = 'rgba(255,243,208,.6)'; x.fillText(t, px, y + 3);
-        x.fillStyle = '#33230a'; x.fillText(t, px, y);
+    const row = (y, size, runs) => {                              // size in px; shrunk to fit if the row is too wide
+      const measure = (k) => runs.map(([t, style, ls]) => { x.font = style + ' ' + Math.round(size * k) + 'px ' + serif; if ('letterSpacing' in x) x.letterSpacing = Math.round(ls * k) + 'px'; return x.measureText(t).width; });
+      let k = 1, widths = measure(1);
+      const total = () => widths.reduce((a, b) => a + b, 0);
+      if (total() > w * 0.86) { k = w * 0.86 / total(); widths = measure(k); }
+      let px = (w - total()) / 2;
+      x.textAlign = 'left'; x.textBaseline = 'alphabetic'; x.lineJoin = 'round';
+      runs.forEach(([t, style, ls], i) => {
+        x.font = style + ' ' + Math.round(size * k) + 'px ' + serif; if ('letterSpacing' in x) x.letterSpacing = Math.round(ls * k) + 'px';
+        x.fillStyle = 'rgba(255,246,218,.7)'; x.fillText(t, px, y + 4);           // the cut's lower lip, catching light
+        x.fillStyle = '#1c1204'; x.strokeStyle = '#1c1204'; x.lineWidth = size * 0.035;
+        x.strokeText(t, px, y); x.fillText(t, px, y);                             // stroked as well as filled: a deeper, bolder cut
         px += widths[i];
       });
     };
-    row(h * 0.36, [['KELLY WHEELIS', '600 92px ' + serif, 14], ['   ·   ', '400 92px ' + serif, 0], ['Save the Date', 'italic 500 100px ' + serif, 2], [', 2026', '500 96px ' + serif, 2]]);
-    row(h * 0.62, [['MIXED MEDIA: PAPER, INK, GOLD FOIL & BRASS', '500 58px ' + serif, 9]]);
-    row(h * 0.83, [['Please touch — turn the wheel', 'italic 500 62px ' + serif, 3]]);
+    row(h * 0.34, 176, [['KELLY WHEELIS', '600', 22]]);
+    row(h * 0.62, 150, [['Save the Date', 'italic 500', 3], [', 2026', '500', 3]]);
+    row(h * 0.86, 84, [['MIXED MEDIA: PAPER, INK, GOLD FOIL & BRASS', '600', 8]]);
     plaqueTex.needsUpdate = true;
   };
   draw('Georgia, serif');
@@ -2055,18 +2059,19 @@ const VOL_REST = { pos: new THREE.Vector3(), quat: new THREE.Quaternion() };
       .then(() => draw("'EB Garamond', Georgia, serif")).catch(() => {});
   }
   const plate = new THREE.Mesh(new THREE.BoxGeometry(PW + 0.012, PH + 0.012, 0.004), brass);
-  const face = new THREE.Mesh(new THREE.PlaneGeometry(PW, PH), new THREE.MeshStandardMaterial({ map: plaqueTex, roughness: 0.42, metalness: 0.25 }));
+  // no metalness: without reflections a metal only darkens, and the engraving needs the plate bright
+  const face = new THREE.Mesh(new THREE.PlaneGeometry(PW, PH), new THREE.MeshStandardMaterial({ map: plaqueTex, roughness: 0.5, metalness: 0, emissive: '#ffffff', emissiveMap: plaqueTex, emissiveIntensity: 0.18 }));
   face.position.z = 0.0022;
   const plaque = new THREE.Group();
   plaque.add(plate, face);
-  plaque.position.set(0, 0.06 + 0.0025, 0.065 + 0.0025);          // centred on the base's sloped front
+  plaque.position.set(0, (0.015 + BH) / 2 + 0.0025, 0.08 + 0.0025);   // centred on the base's sloped front
   plaque.rotation.x = -Math.PI / 4;
   volStand.add(plaque);
   volStand.traverse((o) => { o.userData.station = ST.detVolvelle; });
 
   // where the card rests: foot behind the ledge, leaning back against the struts
   volStand.updateMatrixWorld(true);
-  VOL_REST.pos.set(0, 0.109 + VOL.SIZE / 2 * Math.cos(LEAN), -0.004 - VOL.SIZE / 2 * Math.sin(LEAN)).applyMatrix4(volStand.matrixWorld);
+  VOL_REST.pos.set(0, BH + 0.004 + VOL.SIZE / 2 * Math.cos(LEAN), -0.004 - VOL.SIZE / 2 * Math.sin(LEAN)).applyMatrix4(volStand.matrixWorld);
   VOL_REST.quat.copy(volStand.quaternion).multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(-LEAN, 0, 0)));
   volShadow.geometry = new THREE.PlaneGeometry(W * 1.35, 0.2 * 2.1);
   volShadow.rotation.set(-Math.PI / 2, 0, volStand.rotation.y);

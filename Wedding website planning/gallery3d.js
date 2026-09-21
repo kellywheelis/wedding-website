@@ -20,7 +20,7 @@ const CLOSE_X = 10.0;         // where you stand for a close look at a wing's pr
 const GALLERY_Z = -2.6;      // centre of the two atrium mini galleries, along the hall
 
 const STATIONS = [
-  { id: 'atrium', x: 0, z: 4.6, yaw: 0, room: 'atrium', accent: '#C9A667',
+  { id: 'atrium', x: 0, z: 0, yaw: 0, room: 'atrium', accent: '#C9A667',
     eyebrow: 'The atrium', title: 'Two collections, one exhibit',
     body: 'Villa Cetinale, in the hills outside Siena. Two wings and five days of open hours. Wing I is through the opening on your left, Wing II on your right; the hall straight ahead holds the exhibit details — travel, lodging, and the program.',
     meta: 'Turn and choose a wing' },
@@ -1565,7 +1565,7 @@ pictureLight(DET.x - 1.0, H - 0.14, DET.zMid, DET.x, 2.5, DET.zMid, false, 7, 3.
 
 // ---------------------------------------------------------------- camera moves
 let idx = 0;
-const cam = { x: 0, z: 0, yaw: 0, pitch: 0, eye: EYE };
+const cam = { x: STATIONS[0].x, z: STATIONS[0].z, yaw: STATIONS[0].yaw, pitch: 0, eye: EYE };   // the doors open onto the atrium stop itself
 let wantPitch = 0, wantEye = EYE;   // the tilt and viewing height of the stop you are heading for; applied once you have arrived
 const settled = () => Math.abs(cam.pitch - wantPitch) < 0.001 && Math.abs(cam.eye - wantEye) < 0.001;
 let queue = [];

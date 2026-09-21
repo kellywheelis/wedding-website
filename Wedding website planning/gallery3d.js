@@ -1833,8 +1833,8 @@ canvas.addEventListener('click', (e) => {
 });
 
 // pointer glow: a soft pool of warm light on whatever the mouse points at
-const GLOW = 0.7;
-const glow = new THREE.PointLight('#ffd9a0', 0, 3.2, 2);
+const GLOW = 0.62;
+const glow = new THREE.PointLight('#ffd9a0', 0, 4.4, 2);
 scene.add(glow);
 const glowAim = new THREE.Vector3();
 const pointer = { x: 0, y: 0, inside: false, moved: false };
@@ -1868,7 +1868,8 @@ function updatePointer() {
       // hold the light a little off the surface, on the side facing the viewer
       const n = p.surface.face.normal.clone().transformDirection(p.surface.object.matrixWorld);
       if (n.dot(raycaster.ray.direction) > 0) n.negate();
-      glowAim.copy(p.surface.point).addScaledVector(n, 0.7);
+      // held well off the surface: the further the lamp, the flatter the pool, so the centre does not burn out
+      glowAim.copy(p.surface.point).addScaledVector(n, 1.15);
       if (glow.intensity < 0.02) glow.position.copy(glowAim);
     }
   }

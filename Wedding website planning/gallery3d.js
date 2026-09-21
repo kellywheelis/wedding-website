@@ -1499,9 +1499,11 @@ scene.add(ambient);
 // out than the fixture, so the wash falls evenly instead of burning the top of the canvas).
 //   (x, y, z)     where the light shines from        (tx, ty, tz)  the centre of the picture, on the wall
 //   topY, barW    top edge of the frame, and how long the bar should be
+//   lamps         how many lamps sit along the bar. A wide picture needs several, or the wash reads as
+//                 one round spotlight pool instead of light falling from the whole length of the bar
 const brassLit = new THREE.MeshStandardMaterial({ color: '#c9a45c', roughness: 0.34, metalness: 0.55 });
 const lampGlow = new THREE.MeshBasicMaterial({ color: '#ffe6b8' });
-function pictureLight(x, y, z, tx, ty, tz, shadow, power, topY, barW) {
+function pictureLight(x, y, z, tx, ty, tz, shadow, power, topY, barW, lamps = 1) {
   const n = new THREE.Vector3(x - tx, 0, z - tz).normalize();          // out from the wall
   const along = new THREE.Vector3(-n.z, 0, n.x);
   const barY = Math.min(topY + 0.12, H - 0.32), reach = 0.24;
@@ -1527,20 +1529,23 @@ function pictureLight(x, y, z, tx, ty, tz, shadow, power, topY, barW) {
   fixture.position.set(tx, 0, tz);
   scene.add(fixture);
 
-  const sp = new THREE.SpotLight('#ffe3b3', power, 9, 0.88, 1.0, 1.5);
-  sp.position.set(x, y, z);
-  sp.target.position.set(tx, ty, tz);
-  if (shadow) {
-    sp.castShadow = true;
-    sp.shadow.mapSize.set(1024, 1024);
-    sp.shadow.radius = 6;                                               // soft-edged shadows under the frames
-    sp.shadow.blurSamples = 16;
+  for (let k = 0; k < lamps; k++) {
+    const off = lamps === 1 ? 0 : (k / (lamps - 1) - 0.5) * barW * 0.8;  // spaced along the bar, each aimed straight down its own strip
+    const sp = new THREE.SpotLight('#ffe3b3', power / lamps * (lamps > 1 ? 1.25 : 1), 9, 0.88, 1.0, 1.5);
+    sp.position.set(x + along.x * off, y, z + along.z * off);
+    sp.target.position.set(tx + along.x * off, ty, tz + along.z * off);
+    if (shadow && k === Math.floor(lamps / 2)) {                        // one shadow-caster is enough
+      sp.castShadow = true;
+      sp.shadow.mapSize.set(1024, 1024);
+      sp.shadow.radius = 6;                                             // soft-edged shadows under the frames
+      sp.shadow.blurSamples = 16;
+    }
+    scene.add(sp);
+    scene.add(sp.target);
   }
-  scene.add(sp);
-  scene.add(sp.target);
 }
-pictureLight(-P.wingEndX + 0.6, H - 0.5, -7.5, -P.wingEndX, 1.95, -7.5, true, 15, 3.17, 1.9);
-pictureLight(P.wingEndX - 0.6, H - 0.5, -7.5, P.wingEndX, 1.95, -7.5, true, 15, 3.22, 1.9);
+pictureLight(-P.wingEndX + 0.6, H - 0.5, -7.5, -P.wingEndX, 1.95, -7.5, true, 15, 3.17, 3.0, 3);
+pictureLight(P.wingEndX - 0.6, H - 0.5, -7.5, P.wingEndX, 1.95, -7.5, true, 15, 3.22, 3.0, 3);
 pictureLight(-1500 * U, H - 0.5, P.wingFarZ + 0.6, -1500 * U, 1.95, P.wingFarZ, true, 13, 2.66, 0.62);
 pictureLight(-1500 * U, H - 0.5, P.wingNearZ - 0.6, -1500 * U, 1.95, P.wingNearZ, true, 13, 2.66, 0.62);
 pictureLight(1500 * U, H - 0.5, P.wingFarZ + 0.6, 1500 * U, 1.95, P.wingFarZ, true, 13, 2.66, 0.62);

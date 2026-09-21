@@ -103,7 +103,9 @@ in the page's Credits panel. No scans of Villa Cetinale's own sculpture exist on
 
 ## Still to do
 
-- The four complementary plates in the wings are colour studies, not artwork
+- Wing I's two complementary plates are still colour studies, not artwork. (Wing II's side walls now
+  carry four paintings: van Utrecht's *Banquet Still Life* and Ruoppolo's *Still Life with Fruit* on "The Banquet"
+  wall; Mantegna's *Parnassus* and Botticelli's Nastagio wedding banquet on "The Dancing" wall.)
 - Every picture in the details room and both atrium galleries is a placeholder
   (`DETAIL_PICTURES` and `ATRIUM_PICTURES` in `gallery3d.js` — add `src: 'assets/…'` to hang one)
 - Info-panel text marked "Placeholder" (the atrium galleries, the table, two entrance-wall frames)

@@ -69,11 +69,11 @@ const STATIONS = [
     eyebrow: 'Wing II · principal work · up close', title: 'Primavera',
     body: 'A hundred and ninety species of plant in one painting, and a garden that refuses to stop. The reception takes this as instruction rather than inspiration.',
     meta: 'Sandro Botticelli, c. 1480 · Uffizi, Florence' },
-  { id: 'w2a', x: 1500 * U, z: -7.5, yaw: 0, room: 'w2', accent: '#D19A6E',
+  { id: 'w2a', x: 6.8, z: -7.5, yaw: 0, room: 'w2', accent: '#D19A6E',
     eyebrow: 'Wing II · complementary work', title: 'The Banquet',
     body: 'Tables dressed as banquet still life: figs, pomegranates, spilled candle wax, far too many flowers. We are attempting fewer than a hundred and ninety.',
     meta: 'Still life · perishable · hours undecided' },
-  { id: 'w2b', x: 1500 * U, z: -7.5, yaw: Math.PI, room: 'w2', accent: '#D19A6E',
+  { id: 'w2b', x: 6.8, z: -7.5, yaw: Math.PI, room: 'w2', accent: '#D19A6E',
     eyebrow: 'Wing II · complementary work', title: 'The Dancing',
     body: 'Three Graces, minimum. Participation is not optional but skill is not required.',
     meta: 'Performance · ongoing' },
@@ -646,7 +646,7 @@ function column(x, z) {
 [-1, 1].forEach((sx) => { column(sx * (P.corrX - 0.32), P.wingFarZ + 0.55); });
 
 // ---- artwork
-function painting(src, aspect, w, x, z, rotY, station, closer) {
+function painting(src, aspect, w, x, z, rotY, station, closer, y = 1.95) {
   const h = w / aspect;
   const grp = new THREE.Group();
   const frame = ornateFrame(w, h);
@@ -659,7 +659,7 @@ function painting(src, aspect, w, x, z, rotY, station, closer) {
   canvasMesh.name = 'canvas';
   canvasMesh.position.z = -0.045 + frame.userData.pictureZ;
   grp.add(canvasMesh);
-  grp.position.set(x, 1.95, z);
+  grp.position.set(x, y, z);
   grp.rotation.y = rotY;
   grp.userData.station = station;   // the stop that faces this picture; clicking it takes you there
   grp.userData.closer = closer;     // clicking again from that stop steps you up close
@@ -693,8 +693,20 @@ function plate(colorA, colorB, x, z, rotY, station) {
 }
 plate('#f3e4ce', '#3b4a45', -1500 * U, P.wingFarZ + 0.07, 0, ST.w1a);
 plate('#fbeedc', '#5a3a30', -1500 * U, P.wingNearZ - 0.07, Math.PI, ST.w1b);
-plate('#f0a86c', '#241612', 1500 * U, P.wingFarZ + 0.07, 0, ST.w2a);
-plate('#f7de9b', '#2e230c', 1500 * U, P.wingNearZ - 0.07, Math.PI, ST.w2b);
+
+// Wing II's side walls, a pair of pictures each: a larger one towards the entrance and a smaller one beside it,
+// clear of the statue and the bust further along. Both pictures on a wall lead to that wall's stop.
+//   far wall, "The Banquet": two still lifes            near wall, "The Dancing": the Muses dancing, and a wedding feast
+const W2_PICTURES = [
+  { src: 'assets/w2-banquet-still-life.jpg', aspect: 2048 / 1544, w: 1.85, x: 5.9, y: 2.0, wall: 'far' },
+  { src: 'assets/w2-watermelon-still-life.jpg', aspect: 2048 / 1425, w: 1.2, x: 7.85, y: 1.92, wall: 'far' },
+  { src: 'assets/w2-parnassus.jpg', aspect: 2048 / 1690, w: 1.6, x: 5.8, y: 2.0, wall: 'near' },
+  { src: 'assets/w2-nastagio-banquet.jpg', aspect: 1225 / 700, w: 1.45, x: 7.75, y: 1.92, wall: 'near' }
+];
+W2_PICTURES.forEach((p) => {
+  const far = p.wall === 'far';
+  painting(p.src, p.aspect, p.w, p.x, far ? P.wingFarZ + 0.07 : P.wingNearZ - 0.07, far ? 0 : Math.PI, far ? ST.w2a : ST.w2b, undefined, p.y);
+});
 
 // ---------------------------------------------------------------- details room
 // a salon-hung gallery room after the reference (assets/ref-terracotta.jpg): burgundy walls
@@ -1391,6 +1403,10 @@ const SCULPTURES = {
   if (!list) return;
   const rows = [
     ['The Birth of Venus and Primavera, Sandro Botticelli', 'Gallerie degli Uffizi, Florence · public domain'],
+    ['The Wedding Banquet (The Story of Nastagio degli Onesti, IV), Sandro Botticelli, 1483', 'Private collection, Florence · public domain'],
+    ['Parnassus, Andrea Mantegna, 1497', 'Musée du Louvre, Paris · public domain'],
+    ['Banquet Still Life, Adriaen van Utrecht, 1644', 'Rijksmuseum, Amsterdam · public domain'],
+    ['Still Life with Fruit, Giovan Battista Ruoppolo, 1650–1699', 'Public domain'],
     ['Pop-Up Invitation, Truong Hoai Vu', 'vuth.art · illustration and paper engineering, shown with the artist’s permission'],
     ...Object.values(SCULPTURES).map((c) => [c.title, c.credit + ' · simplified for the web, shared under the same licence'])
   ];
@@ -1559,8 +1575,11 @@ pictureLight(-P.wingEndX + 0.6, H - 0.5, -7.5, -P.wingEndX, 1.95, -7.5, true, 15
 pictureLight(P.wingEndX - 0.6, H - 0.5, -7.5, P.wingEndX, 1.95, -7.5, true, 15, 3.22, 3.0, 3);
 pictureLight(-1500 * U, H - 0.5, P.wingFarZ + 0.6, -1500 * U, 1.95, P.wingFarZ, true, 13, 2.66, 0.62);
 pictureLight(-1500 * U, H - 0.5, P.wingNearZ - 0.6, -1500 * U, 1.95, P.wingNearZ, true, 13, 2.66, 0.62);
-pictureLight(1500 * U, H - 0.5, P.wingFarZ + 0.6, 1500 * U, 1.95, P.wingFarZ, true, 13, 2.66, 0.62);
-pictureLight(1500 * U, H - 0.5, P.wingNearZ - 0.6, 1500 * U, 1.95, P.wingNearZ, true, 13, 2.66, 0.62);
+W2_PICTURES.forEach((p) => {
+  const far = p.wall === 'far', wallZ = far ? P.wingFarZ : P.wingNearZ, h = p.w / p.aspect, big = p.w > 1.5;
+  const fw = THREE.MathUtils.clamp(0.085 + 0.036 * Math.max(p.w, h), 0.12, 0.25);      // the frame's width, as ornateFrame works it out
+  pictureLight(p.x, H - 0.5, wallZ + (far ? 0.6 : -0.6), p.x, p.y, wallZ, big, big ? 13 : 10, p.y + h / 2 + fw, p.w * 0.62, big ? 2 : 1);
+});
 
 pictureLight(0, H - 0.14, DET.zB + 1.0, 0, 2.55, DET.zB, false, 7, 3.84, 1.9);
 pictureLight(-DET.x + 1.0, H - 0.14, DET.zMid, -DET.x, 2.5, DET.zMid, false, 7, 3.64, 1.7);

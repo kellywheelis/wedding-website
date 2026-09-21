@@ -102,6 +102,10 @@ internet connection is needed.
   `addRose`), Thorvaldsen's *Venus with the Apple* and *Cupid Playing the Lyre*.
 - Wing II objects: two **citrus trees** built leaf by leaf (`citrusTree`), Canova's
   *Venus Italica*, a Laurana bust.
+- Wing II side walls: four paintings in two pairs (`W2_PICTURES`), a larger one towards the entrance and a
+  smaller beside it, each with its own picture light; both pictures on a wall lead to that wall's stop
+  (`w2a` "The Banquet": van Utrecht and Ruoppolo still lifes; `w2b` "The Dancing": Mantegna's *Parnassus*
+  and Botticelli's Nastagio wedding banquet). Wing I's side walls still carry placeholder colour studies (`plate`).
 
 **Real sculpture** — `SCULPTURE_SPOTS` (pedestals/plinths that register themselves) and
 `SCULPTURES` (which scan goes on which spot, its height, title and credit). Scans load in the

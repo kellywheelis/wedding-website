@@ -104,7 +104,8 @@ in the page's Credits panel. No scans of Villa Cetinale's own sculpture exist on
 - Every picture in the details room and both atrium galleries is a placeholder
   (`DETAIL_PICTURES` and `ATRIUM_PICTURES` in `gallery3d.js` — add `src: 'assets/…'` to hang one)
 - Info-panel text marked "Placeholder" (the atrium galleries, the table, two entrance-wall frames)
-- Things to interact with on the details-room table (the close, tilted table view is ready)
+- The save-the-date volvelle is on the details-room table and can be picked up and turned.
+  Still to come beside it: the pop-up invitation (its artwork's web licence needs settling first)
 - RSVP mechanism (needs a service — a static page can't collect responses)
 - All dates/logistics beyond 24 April 2027 are placeholders pending decisions
 - Check performance on phones (so far only seen on a desktop)

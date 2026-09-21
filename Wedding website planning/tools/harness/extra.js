@@ -165,3 +165,34 @@
     tag.textContent = out.join('\n');
     document.body.appendChild(tag);
   }, 2000); }
+
+{ const q = new URLSearchParams(location.search);
+  // hold=1 : jump the save-the-date straight to its lifted pose (go to detVolvelle first); turn=n : n plates on
+  if (q.has('hold') || q.has('turn')) setTimeout(() => {
+    VOL.lift = q.has('hold') ? 1 : VOL.lift;
+    if (q.has('turn')) VOL.angle = VOL.target = -(+q.get('turn')) * VOL.STEP;
+  }, 3200); }
+
+{ const q = new URLSearchParams(location.search);
+  // press=fx,fy[;...] : pointer down+up (a plain click) on the held save-the-date; drag=fx,fy>fx,fy : a drag
+  const at = (pair) => { const [fx, fy] = pair.split(',').map(Number), r = canvas.getBoundingClientRect(); return { clientX: r.left + fx * r.width, clientY: r.top + fy * r.height, bubbles: true, pointerId: 1 }; };
+  if (q.has('press') || q.has('drag')) setTimeout(() => {
+    // headless Chrome does not tick the render loop on its own: run one frame so the lifted pose is applied
+    { const raf = window.requestAnimationFrame; window.requestAnimationFrame = () => 0; frame(performance.now()); window.requestAnimationFrame = raf; }
+    camera.updateMatrixWorld(); volvelle.updateMatrixWorld(true);
+    const out = [];
+    if (q.has('press')) q.get('press').split(';').forEach((pair) => {
+      canvas.dispatchEvent(new PointerEvent('pointerdown', at(pair))); canvas.dispatchEvent(new PointerEvent('pointerup', at(pair)));
+      out.push('press ' + pair + ' -> target ' + (VOL.target / VOL.STEP).toFixed(2) + ' plates');
+    });
+    if (q.has('drag')) { const [a, b] = q.get('drag').split('>');
+      canvas.dispatchEvent(new PointerEvent('pointerdown', at(a)));
+      for (let i = 1; i <= 10; i++) { const A = at(a), B = at(b); canvas.dispatchEvent(new PointerEvent('pointermove', { ...A, clientX: A.clientX + (B.clientX - A.clientX) * i / 10, clientY: A.clientY + (B.clientY - A.clientY) * i / 10 })); }
+      const mid = VOL.angle; canvas.dispatchEvent(new PointerEvent('pointerup', at(b)));
+      out.push('drag ' + q.get('drag') + ' -> turned ' + (mid / VOL.STEP).toFixed(2) + ' plates, settles on ' + (VOL.target / VOL.STEP).toFixed(2));
+    }
+    VOL.angle = VOL.target; volWheel.rotation.z = VOL.angle;
+    const tag = document.createElement('div');
+    tag.style.cssText = 'position:fixed;right:8px;top:8px;z-index:99;background:#000;color:#0ff;font:14px monospace;padding:4px 8px;white-space:pre';
+    tag.textContent = out.join('\n'); document.body.appendChild(tag);
+  }, 4200); }

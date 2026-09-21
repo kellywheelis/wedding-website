@@ -114,7 +114,12 @@ const STATIONS = [
   // standing at the near edge of the centre table, looking down onto it (pitch is in radians, negative = down)
   { id: 'detTable', x: 0, z: -13.95, yaw: 0, pitch: -0.5, room: 'det', accent: '#C9A667', tour: false,
     eyebrow: 'Exhibit details · the table', title: 'On the table',
-    body: 'Something to pick up is on its way.', meta: 'Placeholder' },
+    body: 'The save-the-date is here to be handled. Click it to pick it up.', meta: 'Please touch' },
+  // the save-the-date, picked up off the table: same standing spot, and Step back puts it down again
+  { id: 'detVolvelle', x: 0, z: -13.95, yaw: 0, pitch: -0.5, room: 'det', accent: '#C9A667', tour: false, back: 'detTable',
+    eyebrow: 'Exhibit details · on the table', title: 'Save the Date',
+    body: 'Kelly Wheelis, 2026. A volvelle: a wheel that turns behind a window. Drag the wheel round, or click the card, to change the picture in the frame.',
+    meta: 'Mixed media: paper, ink, gold foil & brass · edition of 100' },
   { id: 'detFrontL', x: -3.4, z: -12.75, yaw: Math.PI, room: 'det', accent: '#A79C85', tour: false,
     eyebrow: 'Exhibit details · entrance wall', title: 'A picture to come',
     body: 'This frame is waiting for its picture.', meta: 'Placeholder' },
@@ -1729,7 +1734,8 @@ function markRoom(room) {
 // are in view to click), and from the entry stop out to the atrium
 el('back').addEventListener('click', () => {
   const entry = ROOM_ENTRY[STATIONS[idx].room];
-  goTo(idx === entry ? ROOM_ENTRY.atrium : entry);
+  if (STATIONS[idx].back) goTo(ST[STATIONS[idx].back]);           // a stop can name where Step back leads
+  else goTo(idx === entry ? ROOM_ENTRY.atrium : entry);
 });
 document.querySelectorAll('[data-room]').forEach((b) => {
   b.addEventListener('click', () => goTo(ROOM_ENTRY[b.getAttribute('data-room')]));
@@ -1856,7 +1862,8 @@ function updatePointer() {
   if (pointer.inside && (pointer.moved || leg)) {
     pointer.moved = false;
     const p = probe(pointer.x, pointer.y);
-    canvas.style.cursor = p.room || p.station !== undefined ? 'pointer' : '';
+    canvas.style.cursor = volHeld() && p.surface && isVolvelle(p.surface.object) ? (volDrag ? 'grabbing' : 'grab')
+      : p.room || p.station !== undefined ? 'pointer' : '';
     if (p.surface) {
       // hold the light a little off the surface, on the side facing the viewer
       const n = p.surface.face.normal.clone().transformDirection(p.surface.object.matrixWorld);
@@ -1867,6 +1874,212 @@ function updatePointer() {
   }
   glow.position.lerp(glowAim, 0.22);
   glow.intensity += ((pointer.inside ? GLOW : 0) - glow.intensity) * 0.1;
+}
+
+// ---------------------------------------------------------------- on the table: the save-the-date volvelle
+// A digital build of the paper save-the-date (assets/SAVE-THE-DATE-PACK): a square card with an oval
+// window, a wheel of five plates turning on a brass eyelet behind it, and a thumb notch in the edge.
+// Built to the pack's measurements, in units of one card width (4.521 in), then scaled up for the table.
+// It lies on the centre table; clicking it takes you to the `detVolvelle` stop, where it lifts up to
+// face you and the wheel can be dragged round or clicked on to the next plate.
+const VOL = { lift: 0, angle: 0, target: 0, STEP: Math.PI * 2 / 5, SIZE: 0.34, HOLD: 0.39 };
+const volvelle = new THREE.Group();
+const volWheel = new THREE.Group();
+let volFront = null, volShadow = null;
+(function buildVolvelle() {
+  const IN = 1 / 4.521;                                           // one inch, in card widths
+  const clampTex = (src) => { const t = tex(src); t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; t.anisotropy = 8; return t; };
+  // printed paper carries a little of its own light, so it stays readable in the hand whatever the room is doing
+  const printed = (src, extra) => { const t = clampTex(src); return new THREE.MeshStandardMaterial({ map: t, emissive: '#ffffff', emissiveMap: t, emissiveIntensity: 0.2, ...extra }); };
+  const outline = () => {                                         // the square, with the thumb notch in its right edge
+    const chord = 1.580 * IN / 2, depth = 0.564 * IN, R = (chord * chord + depth * depth) / (2 * depth), cx = 0.5 + R - depth;
+    const a = Math.atan2(chord, 0.5 - cx);
+    const sh = new THREE.Shape();
+    sh.moveTo(-0.5, -0.5); sh.lineTo(0.5, -0.5); sh.lineTo(0.5, -chord);
+    sh.absarc(cx, 0, R, -a, a, true);
+    sh.lineTo(0.5, 0.5); sh.lineTo(-0.5, 0.5); sh.lineTo(-0.5, -0.5);
+    return sh;
+  };
+  const WINDOW_X = -1.266 * IN;                                   // window centre, left of the pivot
+  const ellipse = (x, rx, ry) => new THREE.Path().absellipse(x, 0, rx, ry, 0, Math.PI * 2, false, 0);
+  const planeUV = (geo) => {                                      // lay the printed artwork over a cut shape
+    const pos = geo.attributes.position, uv = [];
+    for (let i = 0; i < pos.count; i++) uv.push(pos.getX(i) + 0.5, pos.getY(i) + 0.5);
+    geo.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+    return geo;
+  };
+  const PAPER = '#f3ecdf';                                        // the beige cotton rag the card is printed on
+
+  const back = new THREE.Mesh(new THREE.ShapeGeometry(outline(), 24), new THREE.MeshStandardMaterial({ color: PAPER, roughness: 0.9 }));
+  const wheelArt = new THREE.Mesh(new THREE.PlaneGeometry(4.354 * IN, 4.354 * IN),
+    printed('assets/volvelle/wheel.png', { alphaTest: 0.5, roughness: 0.5 }));
+  volWheel.add(wheelArt);
+  volWheel.position.z = 0.003;
+
+  const face = outline();
+  face.holes.push(ellipse(WINDOW_X, 0.995 * IN / 2, 1.266 * IN / 2), ellipse(0, 0.0625 * IN, 0.0625 * IN));
+  volFront = new THREE.Mesh(planeUV(new THREE.ShapeGeometry(face, 48)),
+    printed('assets/volvelle/front.png', { color: PAPER, roughness: 0.9 }));
+  volFront.position.z = 0.006;
+
+  // the pieces laid on by hand: two gold rails, the white panelled wainscot, the two stacked gilt rings
+  const relief = new THREE.Group();
+  relief.position.z = 0.0062;
+  const edge = 0.900 * IN, railH = 0.077 * IN;
+  [0.5 - edge - railH / 2, -0.5 + edge + railH / 2].forEach((y) => {
+    const rail = new THREE.Mesh(new THREE.BoxGeometry(1, railH, 0.004), giltPlain);
+    rail.position.set(0, y, 0.002);
+    relief.add(rail);
+  });
+  const wc = document.createElement('canvas');
+  wc.width = 1024; wc.height = Math.round(1024 * 0.900 / 4.521);
+  const wx = wc.getContext('2d'), ppi = 1024 / 4.521;
+  wx.fillStyle = '#fbfaf5'; wx.fillRect(0, 0, wc.width, wc.height);
+  for (let i = 0; i < 5; i++) {                                   // five panels, three debossed outlines each
+    const cx = (i + 0.5) * 1024 / 5, cy = wc.height / 2;
+    [[0.804, 0.760], [0.724, 0.680], [0.644, 0.600]].forEach(([w, h]) => {
+      wx.lineWidth = 1.4;
+      wx.strokeStyle = 'rgba(255,255,255,.95)'; wx.strokeRect(cx - w * ppi / 2 + 1, cy - h * ppi / 2 + 1.2, w * ppi, h * ppi);
+      wx.strokeStyle = 'rgba(118,110,98,.62)'; wx.strokeRect(cx - w * ppi / 2, cy - h * ppi / 2, w * ppi, h * ppi);
+    });
+  }
+  const wainTex = new THREE.CanvasTexture(wc);
+  wainTex.colorSpace = THREE.SRGBColorSpace; wainTex.anisotropy = 8;
+  const wainscot = new THREE.Mesh(new THREE.BoxGeometry(1, edge, 0.003), [0, 1, 2, 3, 4, 5].map((k) =>
+    new THREE.MeshStandardMaterial(k === 4 ? { map: wainTex, roughness: 0.85 } : { color: '#fbfaf5', roughness: 0.85 })));
+  wainscot.position.set(0, -0.5 + edge / 2, 0.0015);
+  relief.add(wainscot);
+  const ring = (ow, oh, iw, ih, z) => {
+    const sh = new THREE.Shape().absellipse(0, 0, ow * IN / 2, oh * IN / 2, 0, Math.PI * 2, false, 0);
+    sh.holes.push(new THREE.Path().absellipse(0, 0, iw * IN / 2, ih * IN / 2, 0, Math.PI * 2, true, 0));
+    const m = new THREE.Mesh(new THREE.ExtrudeGeometry(sh, { depth: 0.004, bevelEnabled: false, curveSegments: 64 }), giltPlain);
+    m.position.set(WINDOW_X, 0, z);
+    relief.add(m);
+  };
+  ring(1.411, 1.691, 1.030, 1.301, 0);                            // ring A, the larger, underneath
+  ring(1.245, 1.525, 0.916, 1.187, 0.004);                        // ring B on top, lapping the window's cut edge
+  const pearls = new THREE.InstancedMesh(new THREE.SphereGeometry(0.6 / 25.4 * IN, 8, 6), giltPlain, 59);   // ring A's pearl course
+  for (let i = 0; i < 59; i++) {
+    const t = i / 59 * Math.PI * 2;
+    pearls.setMatrixAt(i, new THREE.Matrix4().makeTranslation(WINDOW_X + Math.cos(t) * 1.328 * IN / 2, Math.sin(t) * 1.608 * IN / 2, 0.0042));
+  }
+  relief.add(pearls);
+  const eyelet = new THREE.Mesh(new THREE.TorusGeometry(0.085 * IN, 0.03 * IN, 10, 28), brass);
+  eyelet.position.z = 0.0085;
+
+  volvelle.add(back, volWheel, volFront, relief, eyelet);
+  volvelle.traverse((o) => { o.userData.volvelle = true; });
+  volvelle.userData.station = ST.detVolvelle;
+  scene.add(volvelle);
+
+  // a soft contact shadow on the table, which fades as the card is lifted
+  const sc = document.createElement('canvas');
+  sc.width = sc.height = 128;
+  const sx = sc.getContext('2d'), sg = sx.createRadialGradient(64, 64, 30, 64, 64, 64);
+  sg.addColorStop(0, 'rgba(40,30,15,.5)'); sg.addColorStop(1, 'rgba(40,30,15,0)');
+  sx.fillStyle = sg; sx.fillRect(0, 0, 128, 128);
+  volShadow = new THREE.Mesh(new THREE.PlaneGeometry(VOL.SIZE * 1.35, VOL.SIZE * 1.35),
+    new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(sc), transparent: true, depthWrite: false }));
+  scene.add(volShadow);
+})();
+
+// where the card rests on the table (near half, left of centre; the right is kept for the invitation)
+const TABLE_TOP = 0.9;
+const VOL_REST = { pos: new THREE.Vector3(-0.5, TABLE_TOP + 0.004, DET.zMid - 0.9 + 0.3),
+  quat: new THREE.Quaternion().setFromEuler(new THREE.Euler(-Math.PI / 2, 0, 0.1, 'YXZ')) };
+volShadow.rotation.x = -Math.PI / 2;
+volShadow.position.set(VOL_REST.pos.x, TABLE_TOP + 0.002, VOL_REST.pos.z);
+
+// ---- its museum label, on a small brass wedge beside it
+(function volvelleLabel() {
+  const W = 0.3, FACE = 0.19, tilt = 0.61, D = FACE * Math.cos(tilt), Hh = FACE * Math.sin(tilt);
+  const x0 = VOL_REST.pos.x + VOL.SIZE / 2 + 0.06, z0 = DET.zMid - 0.9 + 0.5;
+  const wedge = new THREE.Mesh(new THREE.ExtrudeGeometry(new THREE.Shape([new THREE.Vector2(0, 0), new THREE.Vector2(D, 0), new THREE.Vector2(D, Hh)]), { depth: W, bevelEnabled: false }), brass);
+  wedge.rotation.y = Math.PI / 2;                                 // profile runs away from the viewer, width along x
+  wedge.position.set(x0, TABLE_TOP, z0);
+  const c = document.createElement('canvas');
+  c.width = 1024; c.height = Math.round(1024 * FACE / W);
+  const cardTex = new THREE.CanvasTexture(c);
+  cardTex.colorSpace = THREE.SRGBColorSpace; cardTex.anisotropy = 8;
+  const draw = (serif) => {
+    const x = c.getContext('2d');
+    x.fillStyle = '#f5f0e4'; x.fillRect(0, 0, c.width, c.height);
+    x.fillStyle = '#2b2520'; x.textBaseline = 'alphabetic';
+    if ('letterSpacing' in x) x.letterSpacing = '7px';
+    x.font = '500 50px ' + serif; x.fillText('KELLY WHEELIS', 70, 130);
+    if ('letterSpacing' in x) x.letterSpacing = '0px';
+    x.font = 'italic 62px ' + serif; x.fillText('Save the Date', 70, 232);
+    x.font = '400 62px ' + serif; x.fillText(', 2026', 70 + x.measureText('Save the Date').width * 1.02, 232);
+    x.font = '400 40px ' + serif;
+    x.fillText('Mixed media: paper, ink, gold foil & brass', 70, 330);
+    x.fillText('Volvelle · edition of 100', 70, 390);
+    x.fillStyle = BURGUNDY; x.font = 'italic 40px ' + serif;
+    x.fillText('Please touch. Turn the wheel.', 70, 540);
+    cardTex.needsUpdate = true;
+  };
+  draw('Georgia, serif');
+  if (document.fonts && document.fonts.load) {                    // redraw in the site's own face once it has loaded
+    Promise.all([document.fonts.load("italic 40px 'EB Garamond'"), document.fonts.load("500 40px 'EB Garamond'")])
+      .then(() => draw("'EB Garamond', Georgia, serif")).catch(() => {});
+  }
+  const card = new THREE.Mesh(new THREE.PlaneGeometry(W - 0.02, FACE - 0.014), new THREE.MeshStandardMaterial({ map: cardTex, roughness: 0.8 }));
+  card.rotation.x = -(Math.PI / 2 - tilt);
+  card.position.set(x0 + W / 2, TABLE_TOP + Hh / 2 + 0.0012, z0 - D / 2 + 0.0008);
+  [wedge, card].forEach((m) => { m.userData.station = ST.detVolvelle; scene.add(m); });
+})();
+
+// ---- handling it: lift to the viewer at its stop, drag the wheel round, click to advance one plate
+const volHeld = () => VOL.lift > 0.97;
+const isVolvelle = (o) => !!(o && o.userData.volvelle);
+function volAngleAt(clientX, clientY) {                           // the pointer's angle about the pivot, in the card's own plane
+  const r = canvas.getBoundingClientRect();
+  raycaster.setFromCamera(new THREE.Vector2(((clientX - r.left) / r.width) * 2 - 1, -((clientY - r.top) / r.height) * 2 + 1), camera);
+  const hit = raycaster.intersectObject(volFront, false)[0] || raycaster.intersectObject(volWheel, true)[0];
+  if (!hit) return null;
+  const p = volvelle.worldToLocal(hit.point.clone());
+  return Math.atan2(p.y, p.x);
+}
+let volDrag = null;
+canvas.style.touchAction = 'none';
+canvas.addEventListener('pointerdown', (e) => {
+  if (!volHeld()) return;
+  const a = volAngleAt(e.clientX, e.clientY);
+  if (a === null) return;
+  volDrag = { a, moved: 0 };
+  try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* not a live pointer */ }
+});
+canvas.addEventListener('pointermove', (e) => {
+  if (!volDrag) return;
+  const a = volAngleAt(e.clientX, e.clientY);
+  if (a === null) return;
+  let d = a - volDrag.a;
+  if (d > Math.PI) d -= Math.PI * 2;
+  if (d < -Math.PI) d += Math.PI * 2;
+  VOL.angle += d; VOL.target = VOL.angle;
+  volDrag.a = a; volDrag.moved += Math.abs(d);
+});
+const volRelease = () => {
+  if (!volDrag) return;
+  // a plain click turns on to the next plate (counted from where the wheel is heading, so quick clicks
+  // each count); a drag settles on whichever plate is nearest
+  VOL.target = volDrag.moved < 0.04 ? Math.round(VOL.target / VOL.STEP) * VOL.STEP - VOL.STEP : Math.round(VOL.angle / VOL.STEP) * VOL.STEP;
+  volDrag = null;
+};
+canvas.addEventListener('pointerup', volRelease);
+canvas.addEventListener('pointercancel', volRelease);
+function updateVolvelle() {
+  const want = idx === ST.detVolvelle && !leg && !queue.length && settled() ? 1 : 0;
+  VOL.lift += (want - VOL.lift) * 0.09;
+  if (Math.abs(want - VOL.lift) < 0.002) VOL.lift = want;
+  const k = easeInOut(VOL.lift);
+  const held = camera.getWorldDirection(new THREE.Vector3()).multiplyScalar(VOL.HOLD).add(camera.position);
+  volvelle.position.lerpVectors(VOL_REST.pos, held, k);
+  volvelle.position.y += Math.sin(k * Math.PI) * 0.06;            // a little arc on the way up
+  volvelle.quaternion.slerpQuaternions(VOL_REST.quat, camera.quaternion, k);
+  volvelle.scale.setScalar(VOL.SIZE);
+  volShadow.material.opacity = 1 - k;
+  if (!volDrag) VOL.angle += (VOL.target - VOL.angle) * 0.16;
+  volWheel.rotation.z = VOL.angle;
 }
 
 // ---------------------------------------------------------------- loop
@@ -1899,6 +2112,7 @@ function frame(now) {
   camera.position.set(cam.x, cam.eye, cam.z);
   camera.rotation.set(cam.pitch, cam.yaw, 0, 'YXZ');
   camera.updateMatrixWorld();
+  updateVolvelle();
   updatePointer();
   renderer.render(scene, camera);
   requestAnimationFrame(frame);

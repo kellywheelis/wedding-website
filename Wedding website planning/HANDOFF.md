@@ -114,11 +114,26 @@ No scans of Villa Cetinale's own sculpture exist online (searched). See `assets/
 - Motto: consistent dark gold, condensed to the centre, soft ivory haze behind it, no rule lines.
 - Credits panel (button at the right of the bottom bar) — built from `SCULPTURES`.
 
+**The save-the-date volvelle** (section "on the table" in `gallery3d.js`)
+- A digital build of the owner's paper save-the-date, to the measurements in
+  `assets/SAVE-THE-DATE-PACK/READ ME FIRST.txt` (her original build pack: print sheets, Cricut cut
+  files, shopping list). The gallery only loads `assets/volvelle/front.png` (the front panel, cropped
+  from the pack's BLANK print sheet) and `assets/volvelle/wheel.png` (the wheel art, downsized).
+- The card front is a cut shape (window, pivot hole, thumb notch) with the print laid over it; the
+  gold rails, white wainscot, two gilt oval rings with a pearl course, and the brass eyelet are real
+  geometry. The wheel has five plates, 72 degrees apart.
+- It rests on the centre table beside a museum label on a brass wedge. Clicking either goes to the
+  `detVolvelle` stop, where the card lifts to face the camera (`VOL.lift`). There you drag to turn the
+  wheel, or click to advance one plate; it settles plate by plate. Step back puts it down (`back: 'detTable'`).
+- The right half of the table is deliberately left free for the pop-up invitation. The invitation
+  artwork is flagged in `PROCESS.md` as NOT licensed for web use — settle that before building it.
+
 **Navigation**
 - Stops (`STATIONS`) are referred to by **id**, never by index (`ST.w1`, `ST.detTable`, …).
   `tour: false` marks stops reached only by clicking (skipped by Walk on / arrow keys).
   Ids: atrium, kelly, kelly1, kelly2, anthony, anthony1, anthony2, w1, w1close, w1a, w1b, w2,
-  w2close, w2a, w2b, det, detL, detR, detLclose, detRclose, detClose, detStackL, detStackR, detTable, detFrontL, detFrontR.
+  w2close, w2a, w2b, det, detL, detR, detLclose, detRclose, detClose, detStackL, detStackR, detTable, detVolvelle, detFrontL, detFrontR.
+- A stop may name where Step back leads (`back: 'detTable'`); otherwise Step back goes to the room's entry stop, then the atrium.
 - Click **doorways** (invisible arch-shaped panes), **pictures/frames/plaques/the table**
   (`userData.station`, and `userData.closer` for the two wing paintings' close-up).
 - **Step back** (top left) goes one level: a picture → the room's entry stop → the atrium.
@@ -167,6 +182,8 @@ hooks) to a copy of `gallery3d.js`. Query parameters:
 | `goto=id,id,…` | Walk to stops by id in sequence; reports each route and end position. |
 | `back2=n`, `fwd=n` | Press Step back / Walk on n times. |
 | `hover=fx,fy` | Move the mouse (tests the glow and the pointer cursor). |
+| `hold=1`, `turn=n` | Save-the-date: jump to the lifted pose (go to `detVolvelle` first); show plate n. |
+| `press=fx,fy;…`, `drag=fx,fy>fx,fy` | Save-the-date: simulated clicks / a drag on the held card; reports the plates turned. |
 | `gate=1`, `ajar=1`, `open=1`, `motto=1`, `credits=1` | Show the entry doors / part-open doors / click Open / the motto / the credits panel. |
 
 **Gotchas learned the hard way**
@@ -175,6 +192,8 @@ hooks) to a copy of `gallery3d.js`. Query parameters:
   move *ends* and what was *planned*, never the motion itself. Say so when reporting.
 - During the hooks the viewport is 1400×673 but the saved image is 1400×760, so horizontal click
   fractions are ~0.885× closer to centre than they look in a saved image.
+- Headless Chrome does not tick `requestAnimationFrame` on its own either: a hook that changes state must
+  run `frame()` once itself before measuring anything (see the save-the-date hooks in `extra.js`).
 - Kill headless Chrome after each shot (the script does) or the profile lock blocks the next one.
 - `const` declarations are not hoisted: code that runs at load must come after the things it uses
   (this bit twice — `el` and the materials).

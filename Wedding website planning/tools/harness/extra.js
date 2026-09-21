@@ -260,3 +260,48 @@
     tag.style.cssText = 'position:fixed;left:8px;top:60px;z-index:99;background:#000;color:#0f0;font:14px monospace;padding:6px 10px;white-space:pre';
     tag.textContent = out.join('\n'); document.body.appendChild(tag);
   }, 2600); }
+{ const q = new URLSearchParams(location.search);
+  // turn=n : press Turn around n times after earlier actions settle, reporting the view each time
+  if (q.has('turns')) setTimeout(() => {
+    const out = [];
+    for (let k = 0; k < +q.get('turns'); k++) {
+      document.getElementById('turn').click();
+      const raf = window.requestAnimationFrame, now = performance.now, draw = renderer.render;
+      let fake = now.call(performance);
+      window.requestAnimationFrame = () => 0; performance.now = () => fake; renderer.render = () => {};
+      for (let i = 0; i < 900 && (i < 2 || leg || queue.length || !settled()); i++) { fake += 40; frame(fake); }
+      window.requestAnimationFrame = raf; performance.now = now; renderer.render = draw;
+      out.push('turn ' + (k + 1) + ' at ' + STATIONS[idx].id + ' -> cam ' + cam.x.toFixed(2) + ',' + cam.z.toFixed(2) + ' yaw ' + (cam.yaw / Math.PI).toFixed(2) + 'pi pitch ' + cam.pitch.toFixed(2) + ' eye ' + cam.eye.toFixed(2));
+    }
+    const tag = document.createElement('div');
+    tag.style.cssText = 'position:fixed;right:8px;top:70px;z-index:99;background:#000;color:#0ff;font:14px monospace;padding:4px 8px;white-space:pre';
+    tag.textContent = out.join('\n'); document.body.appendChild(tag);
+  }, 4600); }
+{ const q = new URLSearchParams(location.search);
+  // noteclick=fx,fy;... : after earlier actions, click each point and report what the panel shows and whether you moved
+  if (q.has('noteclick')) setTimeout(() => {
+    const out = [];
+    q.get('noteclick').split(';').forEach((pair) => {
+      const [fx, fy] = pair.split(',').map(Number), r = canvas.getBoundingClientRect();
+      camera.position.set(cam.x, cam.eye, cam.z); camera.rotation.set(cam.pitch, cam.yaw, 0, 'YXZ'); camera.updateMatrixWorld();
+      canvas.dispatchEvent(new MouseEvent('click', { clientX: r.left + fx * r.width, clientY: r.top + fy * r.height, bubbles: true }));
+      out.push('click ' + pair + ' -> panel "' + document.getElementById('title').textContent.slice(0, 46) + '"  moved=' + (queue.length > 0) + ' cam ' + cam.x.toFixed(1) + ',' + cam.z.toFixed(1));
+    });
+    const tag = document.createElement('div');
+    tag.style.cssText = 'position:fixed;right:8px;top:110px;z-index:99;background:#000;color:#0f0;font:14px monospace;padding:4px 8px;white-space:pre';
+    tag.textContent = out.join('\n'); document.body.appendChild(tag);
+  }, 6500); }
+{ const q = new URLSearchParams(location.search);
+  if (q.has('probeat')) setTimeout(() => {
+    const out = [];
+    q.get('probeat').split(';').forEach((pair) => {
+      const [fx, fy] = pair.split(',').map(Number), r = canvas.getBoundingClientRect();
+      camera.position.set(cam.x, cam.eye, cam.z); camera.rotation.set(cam.pitch, cam.yaw, 0, 'YXZ'); camera.updateMatrixWorld();
+      const p = probe(r.left + fx * r.width, r.top + fy * r.height);
+      const chain = []; for (let o = p.surface && p.surface.object; o; o = o.parent) chain.push((o.type || '?') + (o.userData.note ? '[NOTE]' : '') + (o.userData.station !== undefined ? '[st]' : ''));
+      out.push(pair + ' note=' + (p.note ? p.note.title : p.note) + ' dist=' + (p.surface ? p.surface.distance.toFixed(2) : '-') + ' chain=' + chain.join('<'));
+    });
+    const tag = document.createElement('div');
+    tag.style.cssText = 'position:fixed;left:8px;top:150px;z-index:99;background:#000;color:#ff0;font:13px monospace;padding:4px 8px;white-space:pre';
+    tag.textContent = out.join('\n'); document.body.appendChild(tag);
+  }, 6500); }

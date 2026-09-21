@@ -172,6 +172,19 @@ const STATIONS = [
 // stops are referred to by id everywhere, never by position in the list
 const ST = {};
 STATIONS.forEach((st, i) => { ST[st.id] = i; });
+// Write-ups for things in the entrance hall that you look at from the atrium without walking up to them:
+// clicking one only changes the panel at the bottom. (Set as `userData.note` on the object.)
+const NOTES = {
+  pair: { accent: '#C9A667', eyebrow: 'The atrium · a pair', title: 'Venus and Mars',
+    body: 'Love and War, just across the hall from each other. She is the Capitoline Venus, surprised on her way out of the bath; he is the Ludovisi Mars, sword still in hand but sitting down, with Cupid playing at his feet. Veronese, in Wing I, shows how that story ends. Love wins, and Mars does not seem to mind.',
+    meta: 'Roman marbles after Greek originals · casts at Statens Museum for Kunst, Copenhagen' },
+  frescoBride: { accent: '#C9A667', eyebrow: 'The atrium · a wedding fresco', title: 'Venus and the Three Graces Presenting Gifts to a Young Woman',
+    body: 'Painted on the wall of a villa outside Florence, most likely for a wedding in the 1480s, and found under whitewash four hundred years later. Venus and the Graces arrive with presents for the bride. The original wedding guests, and they set the bar rather high.',
+    meta: 'Sandro Botticelli, c. 1483–86 · fresco from Villa Lemmi · Musée du Louvre, Paris' },
+  frescoGroom: { accent: '#C9A667', eyebrow: 'The atrium · a wedding fresco', title: 'A Young Man Being Introduced to the Seven Liberal Arts',
+    body: 'The groom’s half of the pair. He is led by the hand to meet Grammar, Rhetoric, Logic, Arithmetic, Geometry, Astronomy and Music, all seven at once, which is a lot of new in-laws for one afternoon.',
+    meta: 'Sandro Botticelli, c. 1483–86 · fresco from Villa Lemmi · Musée du Louvre, Paris' }
+};
 const ROOM_ENTRY = { atrium: ST.atrium, w1: ST.w1, w2: ST.w2, det: ST.det };
 const JUNCTION_Z = -7.5;
 
@@ -1145,10 +1158,10 @@ const pearl = new THREE.MeshStandardMaterial({ color: '#f4eadb', roughness: 0.32
 const tint = (hex) => new THREE.MeshStandardMaterial({ color: hex, roughness: 0.75 });
 const lathe = (pts, mat, seg = 36) => new THREE.Mesh(new THREE.LatheGeometry(pts.map(([r, y]) => new THREE.Vector2(r, y)), seg), mat);
 const seeded = (seed) => () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
-function pedestal(h) {
+function pedestal(h, W = 0.5, D = W) {                             // W x D: its footprint (a seated or reclining figure needs a deeper one)
   const g = new THREE.Group();
-  [[0.5, 0.1, 0.05], [0.38, h - 0.2, h / 2], [0.48, 0.1, h - 0.05]].forEach(([w, bh, y]) => {
-    const m = new THREE.Mesh(new THREE.BoxGeometry(w, bh, w), stoneMat);
+  [[0, 0.1, 0.05], [-0.12, h - 0.2, h / 2], [-0.02, 0.1, h - 0.05]].forEach(([inset, bh, y]) => {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(W + inset, bh, D + inset), stoneMat);
     m.position.y = y; g.add(m);
   });
   return g;
@@ -1386,15 +1399,25 @@ function citrusTree(seed) {
 }
 // a low plinth kept free for a statue that is still to come, marked with a small brass label
 // a plain pedestal that carries a sculpture scan
-function sculpturePedestal(id, h) {
-  const g = pedestal(h);
+function sculpturePedestal(id, h, W, D) {
+  const g = pedestal(h, W, D);
   SCULPTURE_SPOTS[id] = { group: g, top: h, placeholder: [] };
   return g;
 }
-function reservedPlinth(label, id) {
+function reservedPlinth(label, id, W = 0.78, D = W, rounded = 0) {    // W x D: the plinth's footprint; rounded: corner radius, to hug a statue's own base
   const g = new THREE.Group();
-  [[0.78, 0.1, 0.05], [0.66, 0.4, 0.3], [0.76, 0.1, 0.55]].forEach(([w, h, y]) => {
-    const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, w), stoneMat);
+  [[0, 0.1, 0.05], [-0.12, 0.4, 0.3], [-0.02, 0.1, 0.55]].forEach(([inset, h, y]) => {
+    let geo = new THREE.BoxGeometry(W + inset, h, D + inset);
+    if (rounded) {                                                   // a rounded rectangle, extruded upwards
+      const a = (W + inset) / 2, b = (D + inset) / 2, r = rounded + inset / 2, sh = new THREE.Shape();
+      sh.moveTo(-a + r, -b); sh.lineTo(a - r, -b); sh.absarc(a - r, -b + r, r, -Math.PI / 2, 0, false);
+      sh.lineTo(a, b - r); sh.absarc(a - r, b - r, r, 0, Math.PI / 2, false);
+      sh.lineTo(-a + r, b); sh.absarc(-a + r, b - r, r, Math.PI / 2, Math.PI, false);
+      sh.lineTo(-a, -b + r); sh.absarc(-a + r, -b + r, r, Math.PI, Math.PI * 1.5, false);
+      geo = new THREE.ExtrudeGeometry(sh, { depth: h, bevelEnabled: false, curveSegments: 14 });
+      geo.rotateX(-Math.PI / 2); geo.translate(0, -h / 2, 0);
+    }
+    const m = new THREE.Mesh(geo, stoneMat);
     m.position.y = y; g.add(m);
   });
   const c = document.createElement('canvas');
@@ -1407,7 +1430,7 @@ function reservedPlinth(label, id) {
   const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.SRGBColorSpace;
   const plate = new THREE.Mesh(new THREE.PlaneGeometry(0.36, 0.09), new THREE.MeshStandardMaterial({ map: t, roughness: 0.45, metalness: 0.15 }));
-  plate.position.set(0, 0.3, 0.332);
+  plate.position.set(0, 0.3, (D - 0.12) / 2 + 0.002);
   g.add(plate);
   if (id) SCULPTURE_SPOTS[id] = { group: g, top: 0.6, placeholder: [plate] };
   return g;
@@ -1418,7 +1441,8 @@ function reservedPlinth(label, id) {
   place(urn(roseCascade(3)), -(P.wingEndX - 0.4), -7.5 - 2.18, Math.PI / 2);
   place(urn(roseCascade(8)), -(P.wingEndX - 0.4), -7.5 + 2.18, Math.PI / 2);
   place(reservedPlinth('STATUE', 'w1statue'), -sideX, zFar + 0.05, 0);
-  place(sculpturePedestal('w1small', 0.95), -sideX, zNear, Math.PI);
+  // Cupid sits with his legs out: about 0.53 wide and 0.94 deep, so his pedestal is long, and stands further off the wall
+  place(sculpturePedestal('w1small', 0.95, 0.64, 1.06), -sideX, zNear - 0.22, Math.PI);
   // Wing II: the orange grove flanks Primavera; the side walls are kept for a statue and a bust
   place(citrusTree(5), endX, -7.5 - 2.12, 0);
   place(citrusTree(9), endX, -7.5 + 2.12, 0);
@@ -1426,9 +1450,125 @@ function reservedPlinth(label, id) {
   bust(sideX, zNear, Math.PI, 'w2bust');
 })();
 
+// ---- the entrance end of the atrium: Venus and Mars flank the doors (the couple of the Veronese in Wing I), so the long look back down the hall
+// (which you get for a moment whenever you walk back to the atrium) has something to land on
+(function atriumStatues() {
+  // Half way down the entrance hall, against the side walls and turned in towards the centre line: near enough to the
+  // atrium's standing spot (z 0) to read at a glance. Nobody walks beyond z 0, so they are never in the way.
+  const Z = 4.6;
+  [[-1, 'atriumStatueL'], [1, 'atriumStatueR']].forEach(([sx, id]) => {
+    // Mars sits, on a base 0.90 x 1.30 m: his plinth is that plus a finger's width, turned only slightly so it stays tight to the wall
+    const seated = id === 'atriumStatueR';
+    const g = place(seated ? reservedPlinth('STATUE', id, 0.96, 1.36) : reservedPlinth('STATUE', id), sx * (seated ? 1.9 : 1.85), Z, Math.PI + sx * (seated ? 0.1 : 0.55));
+    g.userData.note = NOTES.pair;                                                   // the two share one write-up
+    const sp = new THREE.SpotLight('#ffe3b3', 15, 8, 0.55, 0.9, 1.4);              // a soft wash each, no shadows
+    sp.position.set(sx * 0.5, H - 0.2, Z - 2.4);
+    sp.target.position.set(sx * 1.75, 1.8, Z);
+    scene.add(sp, sp.target);
+  });
+})();
+
+// ---- a burgundy banner with the KA monogram in gold, hung from a brass rod in the lunette above the entrance doors
+// (plain gilt lettering on the cream wall was tried first, and was too faint to read from the atrium)
+(function doorBanner() {
+  const img = new Image();
+  img.onload = () => {
+    const CW = 768, CH = 1024, c = document.createElement('canvas');
+    c.width = CW; c.height = CH;
+    const x = c.getContext('2d');
+    const outline = (inset) => {                                     // a swallow-tailed pennant
+      x.beginPath();
+      x.moveTo(inset, inset); x.lineTo(CW - inset, inset); x.lineTo(CW - inset, CH - inset * 1.6);
+      x.lineTo(CW / 2, CH * 0.8 - inset * 0.4); x.lineTo(inset, CH - inset * 1.6); x.closePath();
+    };
+    outline(0); x.save(); x.clip();
+    x.fillStyle = '#5e1230'; x.fillRect(0, 0, CW, CH);             // mixed darker than the swatch: lit, and carrying a little of its own light, it lands on the invitation burgundy
+    const rnd = seeded(77);
+    for (let i = 0; i < 2600; i++) {                                 // a woven grain
+      x.fillStyle = rnd() < 0.5 ? 'rgba(255,220,200,.05)' : 'rgba(0,0,0,.07)';
+      if (rnd() < 0.5) x.fillRect(rnd() * CW, rnd() * CH, 1, 14 + rnd() * 30); else x.fillRect(rnd() * CW, rnd() * CH, 14 + rnd() * 30, 1);
+    }
+    x.restore();
+    x.strokeStyle = '#d9ab4c'; x.lineJoin = 'miter';
+    x.lineWidth = 9; outline(26); x.stroke();                        // gold braid: a broad line and a fine one inside it
+    x.lineWidth = 3; outline(46); x.stroke();
+    const m = document.createElement('canvas');                       // the monogram, recoloured gold
+    m.width = m.height = 640;
+    const mx = m.getContext('2d');
+    mx.drawImage(img, 0, 0, 640, 640);
+    mx.globalCompositeOperation = 'source-in';
+    const g = mx.createLinearGradient(0, 0, 640, 640);
+    g.addColorStop(0, '#f6dc94'); g.addColorStop(0.5, '#e0b557'); g.addColorStop(1, '#c1953b');
+    mx.fillStyle = g; mx.fillRect(0, 0, 640, 640);
+    x.shadowColor = 'rgba(30,0,10,.55)'; x.shadowBlur = 6; x.shadowOffsetY = 3;
+    x.drawImage(m, (CW - 640) / 2, CH * 0.07);
+    const t = new THREE.CanvasTexture(c);
+    t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
+
+    const W = 1.4, Hh = W * CH / CW, topY = VAULT.spring + 1.98, z = P.backZ - 0.09;
+    const geo = new THREE.PlaneGeometry(W, Hh, 28, 1), pos = geo.attributes.position;
+    for (let i = 0; i < pos.count; i++) pos.setZ(i, 0.022 * Math.sin(pos.getX(i) * 13));   // soft vertical folds
+    geo.computeVertexNormals();
+    const cloth = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ map: t, alphaTest: 0.5, roughness: 1, side: THREE.DoubleSide, emissive: '#ffffff', emissiveMap: t, emissiveIntensity: 0.14 }));
+    cloth.position.set(0, topY - Hh / 2, z);
+    cloth.rotation.y = Math.PI;
+    const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, W + 0.3, 12), brass);
+    rod.rotation.z = Math.PI / 2;
+    rod.position.set(0, topY + 0.01, z);
+    scene.add(cloth, rod);
+    [-1, 1].forEach((sd) => {
+      const finial = new THREE.Mesh(new THREE.SphereGeometry(0.045, 14, 10), brass);
+      finial.position.set(sd * (W / 2 + 0.17), topY + 0.01, z);
+      const bracket = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.09, 8), brass);
+      bracket.rotation.x = Math.PI / 2;
+      bracket.position.set(sd * (W / 2 + 0.06), topY + 0.01, z + 0.045);
+      scene.add(finial, bracket);
+    });
+  };
+  img.src = 'assets/monogram-ka.png';
+})();
+
+// ---- two frescoes on the entrance hall's bare walls, by the statues: Botticelli's pair from Villa Lemmi, painted for
+// a wedding in the 1480s. The bride receiving gifts from Venus and the Graces goes on Venus's side; the groom being
+// presented to the Liberal Arts, on Mars's. Set in plain stone mouldings, as wall paintings are, not in gilt frames.
+[{ src: 'assets/fresco-venus-and-graces.jpg', aspect: 2048 / 1521, sx: -1, zc: 2.65, note: NOTES.frescoBride }, { src: 'assets/fresco-liberal-arts.jpg', aspect: 2048 / 1822, sx: 1, zc: 2.38, note: NOTES.frescoGroom }].forEach((f) => {
+  // placed so each surround clears the pilaster on one side and its statue's plinth on the other
+  const h = 1.95, w = h * f.aspect, zc = f.zc, y = 2.12, x = f.sx * (P.corrX - 0.012);
+  const t = tex(f.src);
+  t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; t.anisotropy = 8;
+  const paint = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({ map: t, roughness: 1 }));
+  paint.position.set(x, y, zc);
+  paint.rotation.y = f.sx < 0 ? Math.PI / 2 : -Math.PI / 2;
+  paint.userData.note = f.note;
+  scene.add(paint);
+  // its stone surround, as a wall painting is set in a palazzo: a fine inner fillet, a broad architrave round it, a
+  // plain frieze and a projecting cornice above, and below, a sill carried on two small corbels
+  const slab = (len, tall, deep, yc, zc2) => {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(deep, tall, len), trimMat);
+    m.position.set(f.sx * (P.corrX - deep / 2), yc, zc2);
+    m.userData.note = f.note;
+    scene.add(m);
+  };
+  const ring = (inner, bw, deep) => {                                // a rectangular band, `inner` out from the painting's edge
+    const W = w + 2 * inner, Hh = h + 2 * inner;
+    slab(W + 2 * bw, bw, deep, y + Hh / 2 + bw / 2, zc); slab(W + 2 * bw, bw, deep, y - Hh / 2 - bw / 2, zc);
+    slab(bw, Hh, deep, y, zc - W / 2 - bw / 2); slab(bw, Hh, deep, y, zc + W / 2 + bw / 2);
+  };
+  ring(0, 0.035, 0.035);
+  ring(0.035, 0.13, 0.075);
+  const out = 0.165, top = y + h / 2 + out, bottom = y - h / 2 - out, full = w + 2 * out;
+  slab(full, 0.13, 0.06, top + 0.065, zc);                           // frieze
+  slab(full + 0.26, 0.05, 0.12, top + 0.155, zc);                    // cornice, in two steps
+  slab(full + 0.36, 0.06, 0.18, top + 0.21, zc);
+  slab(full + 0.3, 0.07, 0.2, bottom - 0.035, zc);                   // sill
+  slab(full + 0.16, 0.04, 0.13, bottom - 0.09, zc);
+  [-1, 1].forEach((sd) => slab(0.13, 0.2, 0.12, bottom - 0.21, zc + sd * (full / 2 - 0.14)));   // corbels
+});
+
 // ---------------------------------------------------------------- real sculpture (3D scans)
 // Assign a scan to a spot and it replaces that spot's placeholder. Spots:
 //   w1statue / w1small      Wing I, the low plinth (far side wall) and the pedestal (near side wall)
+//   atriumStatueL / atriumStatueR   the entrance hall, half way down, either side (large full figures)
 //   w2statue   Wing II, the low plinth on the far side wall (a medium full figure)
 //   detStatueL / detStatueR   details room, the two plinths flanking the principal picture
 //   w2bust     Wing II, the pedestal on the near side wall
@@ -1438,9 +1578,15 @@ function reservedPlinth(label, id) {
 //   src     the .glb
 //   height  how tall it should stand, in metres (a bust is about 0.7, a medium statue about 1.5)
 //   turn    optional, radians, to face it the right way on its spot
+//   nudge   optional, [x, z] in metres, when the statue's own base is off-centre under it
 //   keep    optional, true to keep the scan's own colour instead of the gallery's marble
 //   title / credit   what it is and who to thank; credits are listed in the page's Credits panel
 const SCULPTURES = {
+  atriumStatueL: { src: 'assets/sculpture/venus-capitoline.glb', height: 2.25, title: 'The Capitoline Venus (cast of the marble in the Capitoline Museums, Rome)',
+    credit: '3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons' },
+  atriumStatueR: { src: 'assets/sculpture/mars-ludovisi.glb', height: 1.85, nudge: [-0.02, -0.065],   // his base is not centred under him
+    title: 'The Ludovisi Mars, with Cupid at his feet (cast of the marble in Palazzo Altemps, Rome)',
+    credit: '3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons' },
   w1statue: { src: 'assets/sculpture/venus-apple.glb', height: 1.5, title: 'Venus with the Apple, Bertel Thorvaldsen, 1809',
     credit: '3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons' },
   w1small: { src: 'assets/sculpture/amor-lyre.glb', height: 0.95, title: 'Cupid Playing the Lyre, Bertel Thorvaldsen',
@@ -1468,6 +1614,7 @@ const SCULPTURES = {
   if (!list) return;
   const rows = [
     ['The Birth of Venus and Primavera, Sandro Botticelli', 'Gallerie degli Uffizi, Florence · public domain'],
+    ['Venus and the Three Graces Presenting Gifts to a Young Woman; A Young Man Being Introduced to the Seven Liberal Arts (frescoes from Villa Lemmi), Sandro Botticelli, c. 1483–86', 'Musée du Louvre, Paris · public domain'],
     ['Happy Union (Allegory of Love, IV), Paolo Veronese, c. 1575', 'National Gallery, London · public domain'],
     ['Mars and Venus United by Love, Paolo Veronese, 1570s', 'The Metropolitan Museum of Art, New York · public domain'],
     ['The Three Graces, Francesco Furini, c. 1633', 'State Hermitage Museum, St Petersburg · public domain'],
@@ -1506,7 +1653,8 @@ const marbleScan = new THREE.MeshStandardMaterial({ color: '#ece6d9', roughness:
         const box = new THREE.Box3().setFromObject(model), size = box.getSize(new THREE.Vector3()), c = box.getCenter(new THREE.Vector3());
         const k = cfg.height / size.y;
         model.scale.setScalar(k);
-        model.position.set(-c.x * k, spot.top - box.min.y * k, -c.z * k);     // stood on the spot, centred
+        const [nx, nz] = cfg.nudge || [0, 0];                                    // metres, to centre the statue's own base on its plinth
+        model.position.set(-c.x * k + nx, spot.top - box.min.y * k, -c.z * k + nz);   // stood on the spot, centred
         if (!cfg.keep) model.traverse((o) => { if (o.isMesh) o.material = marbleScan; });
         const holder = new THREE.Group();
         holder.rotation.y = cfg.turn || 0;
@@ -1714,7 +1862,8 @@ function detWalk(at, tx, tz) {
 
 function goTo(n) {
   const i = Math.max(0, Math.min(STATIONS.length - 1, n));
-  if (i === idx && queue.length === 0 && !leg) return;
+  // already there: nothing to do, unless you have turned round on the spot and should face it again
+  if (i === idx && queue.length === 0 && !leg && Math.abs(shortAngle(cam.yaw, STATIONS[i].yaw) - cam.yaw) < 0.01) return;
   const t = STATIONS[i];
   idx = i;
   queue = []; leg = null;
@@ -1801,7 +1950,7 @@ function startLeg() {
     return;
   }
   if (step.kind === 'turn') {
-    const to = shortAngle(cam.yaw, step.yaw), pt = step.pitch === undefined ? cam.pitch : step.pitch, et = step.eye === undefined ? cam.eye : step.eye;
+    const to = Math.abs(Math.abs(step.yaw - cam.yaw) - Math.PI) < 0.001 ? step.yaw : shortAngle(cam.yaw, step.yaw), pt = step.pitch === undefined ? cam.pitch : step.pitch, et = step.eye === undefined ? cam.eye : step.eye;
     if (Math.abs(to - cam.yaw) < 0.001 && Math.abs(pt - cam.pitch) < 0.001 && Math.abs(et - cam.eye) < 0.001) return startLeg();
     leg = { kind: 'turn', from: cam.yaw, to, pf: cam.pitch, pt, ef: cam.eye, et, t0: performance.now(), ms: step.ms };
   } else {
@@ -1835,9 +1984,26 @@ function markRoom(room) {
   });
   // the step-back button shows everywhere except the atrium's own stop
   const home = idx === ROOM_ENTRY.atrium;
-  el('back').style.opacity = home ? '0' : '1';
-  el('back').style.pointerEvents = home ? 'none' : 'auto';
+  const back = el('back');
+  if (home) { back.style.opacity = '0'; back.style.pointerEvents = 'none'; back.style.display = 'none'; }   // gone, so Turn around takes the corner
+  else { back.style.display = ''; back.style.pointerEvents = 'auto'; requestAnimationFrame(() => { back.style.opacity = '1'; }); }
+  // no turning round with the save-the-date or the invitation in your hands
+  const holding = STATIONS[idx].back === 'detTable';
+  el('turn').style.opacity = holding ? '0' : '1';
+  el('turn').style.pointerEvents = holding ? 'none' : 'auto';
 }
+// turn around on the spot: a half turn, with the view levelled and back at standing height. Turning again faces the
+// stop once more and takes up its own tilt and height.
+el('turn').addEventListener('click', () => {
+  if (leg || queue.length) return;
+  const t = STATIONS[idx], yaw = cam.yaw + Math.PI;
+  const facingStop = Math.abs(Math.sin((yaw - t.yaw) / 2)) < 0.01;
+  wantPitch = facingStop ? t.pitch || 0 : 0;
+  wantEye = facingStop ? t.eye || EYE : EYE;
+  hideMotto();
+  paintLabel(t);                                         // back to the stop's own write-up, if a statue's or fresco's was showing
+  queue.push({ kind: 'turn', yaw, pitch: 0, eye: EYE, ms: 1500 });
+});
 // step back one level: from a side picture to the room's entry stop (where the other pictures
 // are in view to click), and from the entry stop out to the atrium
 el('back').addEventListener('click', () => {
@@ -1915,12 +2081,12 @@ function probe(clientX, clientY) {
   const r = canvas.getBoundingClientRect();
   raycaster.setFromCamera(new THREE.Vector2(((clientX - r.left) / r.width) * 2 - 1, -((clientY - r.top) / r.height) * 2 + 1), camera);
   const here = roomAt();
-  let own = false, target = null, surface = null, station, closer;
+  let own = false, target = null, surface = null, station, closer, note;
   for (const hit of raycaster.intersectObjects(scene.children, true)) {
     const room = hit.object.userData.room;
     if (!room) {                            // anything solid ends the line of sight
       surface = hit;
-      for (let o = hit.object; o && station === undefined; o = o.parent) { station = o.userData.station; closer = o.userData.closer; }
+      for (let o = hit.object; o && station === undefined && !note; o = o.parent) { station = o.userData.station; closer = o.userData.closer; note = o.userData.note; }
       break;
     }
     if (room === here) own = true; else target = room;
@@ -1931,12 +2097,15 @@ function probe(clientX, clientY) {
   // already facing it: the next click is the step closer (and nothing once you are there)
   if (station !== undefined && closer !== undefined && (idx === station || idx === closer || STATIONS[idx].back === STATIONS[station].id)) station = closer;
   if (station === idx) station = undefined;
-  return { room: target || (own ? 'atrium' : null), surface, station };
+  // a write-up-only object counts from the atrium, in plain view, and not while its write-up is already showing
+  if (note && (own || target || here !== 'atrium' || el('title').textContent === note.title)) note = undefined;
+  return { room: target || (own ? 'atrium' : null), surface, station, note };
 }
 const doorAt = (clientX, clientY) => probe(clientX, clientY).room;
 canvas.addEventListener('click', (e) => {
   const p = probe(e.clientX, e.clientY);
   if (p.room) goTo(ROOM_ENTRY[p.room]);
+  else if (p.note) paintLabel(p.note);                  // no walking: only the panel changes
   else if (p.station !== undefined) goTo(p.station);    // a picture in this room: go and face it
 });
 
@@ -1974,7 +2143,7 @@ function updatePointer() {
     pointer.moved = false;
     const p = probe(pointer.x, pointer.y);
     canvas.style.cursor = volHeld() && p.surface && isVolvelle(p.surface.object) ? (volDrag ? 'grabbing' : 'grab')
-      : p.room || p.station !== undefined || (invHeld() && p.surface && p.surface.object.userData.invite) ? 'var(--cur-on)' : '';
+      : p.room || p.station !== undefined || p.note || (invHeld() && p.surface && p.surface.object.userData.invite) ? 'var(--cur-on)' : '';
     if (p.surface) {
       // hold the light a little off the surface, on the side facing the viewer
       const n = p.surface.face.normal.clone().transformDirection(p.surface.object.matrixWorld);

@@ -19,6 +19,8 @@ Searched and not found: any 3D scan of the sculpture at Villa Cetinale itself.
 | `amor-lyre.glb` | Cupid Playing the Lyre, Bertel Thorvaldsen | Statens Museum for Kunst | Public domain | https://upload.wikimedia.org/wikipedia/commons/4/48/Bertel_Thorvaldsen%2C_Den_lyrespillende_Amor%2C_%2C_KMS5680%2C_Statens_Museum_for_Kunst%2C_3D_model.stl | `--up z --tris 60000` |
 | `apollo-belvedere.glb` | Apollo Belvedere (cast of the Vatican marble) | Statens Museum for Kunst | CC0 | https://upload.wikimedia.org/wikipedia/commons/6/61/Apollo_Belvedere_-_KAS353.stl | `--up y --tris 110000`  (this one is Y-up; with `--up z` it lies on its back) |
 | `diana.glb` | Diana of Villa Bartholoni | Rama · MAH Genève | Public domain | https://upload.wikimedia.org/wikipedia/commons/d/da/Diana_of_Villa_Bartholoni-High_poly-001.stl | `--up z --tris 100000` |
+| `venus-capitoline.glb` | The Capitoline Venus (cast of the marble in the Capitoline Museums, Rome) | Statens Museum for Kunst, KAS493 | Public domain | https://upload.wikimedia.org/wikipedia/commons/9/9c/Ubekendt%2C_Afrodite%2C_Den_Capitolinske_Venus%2C_%2C_KAS493%2C_Statens_Museum_for_Kunst%2C_3D_model.stl | `--up z --tris 110000` |
+| `mars-ludovisi.glb` | The Ludovisi Mars (Ares Ludovisi), with Eros at his feet (cast of the marble in Palazzo Altemps, Rome) | Statens Museum for Kunst, KAS250 | Public domain | https://upload.wikimedia.org/wikipedia/commons/3/3f/Ubekendt%2C_Siddende_ung_mand%2C_Ares_Ludovisi%2C_Jason_%2C_%2C_KAS250%2C_Statens_Museum_for_Kunst%2C_3D_model.stl | `--up z --tris 120000` |
 
 Notes
 - The share-alike (BY-SA) and "Attribution" files need crediting; the page's Credits panel does

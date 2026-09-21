@@ -171,7 +171,22 @@ No scans of Villa Cetinale's own sculpture exist online (searched). See `assets/
   top: the card draws out and comes forward; any click puts it back. Moving the mouse tilts it so you can
   look into the box. Putting it down shuts the doors and stows the card.
 
+**The entrance hall** (the half of the atrium behind you as you enter; seen by pressing Turn around)
+- Nobody walks there, so nothing in it is a stop. The Capitoline Venus and the Ludovisi Mars stand half way
+  down it (`atriumStatues`; Mars sits, so his plinth is sized to his own base and he takes a `nudge`), lit by a
+  soft spot each. The owner did not want David: she wanted the Venus-and-Mars theme of the wings.
+- Two Botticelli wedding frescoes from Villa Lemmi hang on the walls nearest the atrium spot, each in a stone
+  surround (fillet, architrave, frieze, cornice, sill on corbels), placed to clear the pilaster and the plinth.
+- A burgundy swallow-tailed banner with the gold KA monogram hangs over the doors (`doorBanner`). Plain gilt
+  lettering on the wall was tried first and was too faint from the atrium.
+- `NOTES` / `userData.note`: a write-up-only click. It changes the bottom panel and does not move you. The two
+  statues share one note on purpose (the owner wants them as a pair). Turning round restores the stop's text.
+- `pedestal()` and `reservedPlinth()` take a footprint, for seated figures (Mars here, Cupid in Wing I).
+
 **Page chrome** (`The Gallery 3D.html`)
+- Turn around (`#turn`, in `#topLeft` with Step back): a half turn on the spot, levelling the view; turning again
+  restores the stop's tilt and height. Hidden while the save-the-date or invitation is held. In the atrium Step
+  back is `display:none`, so Turn around takes the top-left corner, mirroring Walk on.
 - One themed cursor everywhere: Cupid's arrow, as two SVG data-URIs in `:root` (`--cur`, and `--cur-on` for
   anything clickable: rose heart, gold glow). `gallery3d.js` sets `canvas.style.cursor = 'var(--cur-on)'` and
   keeps re-probing for ~100 frames after a move ends, so the cursor is never stale. The save-the-date's wheel

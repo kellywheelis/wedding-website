@@ -196,3 +196,48 @@
     tag.style.cssText = 'position:fixed;right:8px;top:8px;z-index:99;background:#000;color:#0ff;font:14px monospace;padding:4px 8px;white-space:pre';
     tag.textContent = out.join('\n'); document.body.appendChild(tag);
   }, 4200); }
+
+{ const q = new URLSearchParams(location.search);
+  // the invitation: ihold=1 lifted pose (go to detInvite first); idoors=1 doors open; icard=1 card drawn; itilt=x,y look-in tilt
+  if (q.has('ihold') || q.has('idoors') || q.has('icard')) setTimeout(() => {
+    if (q.has('ihold')) INV.lift = 1;
+    if (q.has('idoors')) INV.doors = INV.doorsTarget = 1;
+    if (q.has('icard')) INV.card = INV.cardTarget = 1;
+    if (q.has('itilt')) { const [tx, ty] = q.get('itilt').split(',').map(Number); const r = canvas.getBoundingClientRect(); pointer.inside = true; pointer.x = r.left + (tx + 1) / 2 * r.width; pointer.y = r.top + (ty + 1) / 2 * r.height; INV.tiltY = tx * 0.14; INV.tiltX = ty * 0.09; }
+  }, 3200); }
+{ const q = new URLSearchParams(location.search);
+  // iclick=fx,fy;fx,fy : real click events on the held invitation (use with ihold=1); reports what each did
+  if (q.has('iclick')) setTimeout(() => {
+    const step = () => { const raf = window.requestAnimationFrame; window.requestAnimationFrame = () => 0; frame(performance.now()); window.requestAnimationFrame = raf; camera.updateMatrixWorld(); invite.updateMatrixWorld(true); };
+    const out = [];
+    q.get('iclick').split(';').forEach((pair) => {
+      step();
+      const [fx, fy] = pair.split(',').map(Number), r = canvas.getBoundingClientRect();
+      canvas.dispatchEvent(new MouseEvent('click', { clientX: r.left + fx * r.width, clientY: r.top + fy * r.height, bubbles: true }));
+      out.push('click ' + pair + ' -> doors ' + INV.doorsTarget + ', card ' + INV.cardTarget + ', stop ' + STATIONS[idx].id);
+      INV.doors = INV.doorsTarget; INV.card = INV.cardTarget;
+    });
+    step();
+    const tag = document.createElement('div');
+    tag.style.cssText = 'position:fixed;right:8px;top:8px;z-index:99;background:#000;color:#0ff;font:14px monospace;padding:4px 8px;white-space:pre';
+    tag.textContent = out.join('\n'); document.body.appendChild(tag);
+  }, 4200); }
+{ const q = new URLSearchParams(location.search);
+  // plan=id,id,... : go to each stop in turn and report the steps queued for it and how far the view tilted on the way
+  if (q.has('plan')) setTimeout(() => {
+    const out = [];
+    q.get('plan').split(',').forEach((id) => {
+      goTo(ST[id]);
+      const steps = queue.map((s) => s.kind === 'turn' ? 'turn' + (s.pitch === 0 ? '(level)' : '') : 'move').join(' > ') || '(none)';
+      let lo = cam.pitch, hi = cam.pitch;
+      const raf = window.requestAnimationFrame, now = performance.now, draw = renderer.render;
+      let fake = now.call(performance);
+      window.requestAnimationFrame = () => 0; performance.now = () => fake; renderer.render = () => {};
+      for (let i = 0; i < 900 && (i < 2 || leg || queue.length || !settled()); i++) { fake += 40; frame(fake); lo = Math.min(lo, cam.pitch); hi = Math.max(hi, cam.pitch); }
+      window.requestAnimationFrame = raf; performance.now = now; renderer.render = draw;
+      out.push(id.padEnd(12) + ' steps: ' + steps.padEnd(40) + ' tilt ranged ' + lo.toFixed(2) + ' to ' + hi.toFixed(2) + ', ends ' + cam.pitch.toFixed(2));
+    });
+    const tag = document.createElement('div');
+    tag.style.cssText = 'position:fixed;left:8px;top:60px;z-index:99;background:#000;color:#0f0;font:14px monospace;padding:6px 10px;white-space:pre';
+    tag.textContent = out.join('\n'); document.body.appendChild(tag);
+  }, 1500); }

@@ -29,6 +29,9 @@ as well as reference.
 
 ### Rejected, and why
 - **Invitation artwork** — not licensed for web use. The site borrows nothing from it.
+  _Update, 20 Sept 2026: the illustrator has since agreed to the invitation itself being shown as
+  an exhibit in the details room, credited to him on a plaque. The site's own design still borrows
+  nothing from his artwork._
 - **Restyled imitations of it** — worse than not using it at all.
 - **Dutch still life, Veronese's *Cana*** — magnificent, wrong world; would have made
   the exhibit look assembled rather than curated.
@@ -105,7 +108,8 @@ in the page's Credits panel. No scans of Villa Cetinale's own sculpture exist on
   (`DETAIL_PICTURES` and `ATRIUM_PICTURES` in `gallery3d.js` — add `src: 'assets/…'` to hang one)
 - Info-panel text marked "Placeholder" (the atrium galleries, the table, two entrance-wall frames)
 - The save-the-date volvelle is on the details-room table and can be picked up and turned.
-  Still to come beside it: the pop-up invitation (its artwork's web licence needs settling first)
+  The pop-up invitation stands beside it and opens, credited to its illustrator, Truong Hoai Vu
+  (vuth.art), on a brass plaque: the condition of his permission to show it
 - RSVP mechanism (needs a service — a static page can't collect responses)
 - All dates/logistics beyond 24 April 2027 are placeholders pending decisions
 - Check performance on phones (so far only seen on a desktop)

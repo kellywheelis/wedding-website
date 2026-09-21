@@ -14,7 +14,9 @@ The live build is `Wedding website planning/The Gallery 3D.html` + `gallery3d.js
 - If an instruction is ambiguous, ask one short question rather than guessing.
 - Prefer small targeted edits; bulk scripted edits have corrupted a file before.
 - The owner is not a developer: explain in plain language, and say honestly what was not verified.
-- Commit only when asked. The repo is local only (no remote).
+- Do NOT commit a change until the owner has looked at it in her browser and approved it. Make the
+  change, verify it, report it, and leave it uncommitted; commit only on her explicit yes. If she
+  rejects it, undo the edit rather than making a revert commit. The repo is local only (no remote).
 
 ## Locked
 - `The Gallery.dc.html` — the entrance overlay is LOCKED (see `Wedding website planning/CLAUDE.md`).

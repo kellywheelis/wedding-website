@@ -128,19 +128,47 @@ No scans of Villa Cetinale's own sculpture exist online (searched). See `assets/
   the card, the base or the plaque goes to the
   `detVolvelle` stop, where the card lifts off its stand to face the camera (`VOL.lift`). There you drag to turn the
   wheel, or click to advance one plate; it settles plate by plate. Step back puts it down (`back: 'detTable'`).
-- The right half of the table is deliberately left free for the pop-up invitation. The invitation
-  artwork is flagged in `PROCESS.md` as NOT licensed for web use — settle that before building it.
+
+**The pop-up invitation** (section "on the table: the pop-up invitation" in `gallery3d.js`)
+- The invitation is a commissioned illustrator's work. On 20 Sept 2026 the owner confirmed he permits
+  showing it on the site **provided he is credited on a plaque, as the save-the-date credits her**. He
+  is credited as she specified: "Truong Hoai Vu · vuth.art", medium "Paper and ink" — on the stand's brass
+  plaque, in the info panel and in the Credits panel. Keep all three if the piece is ever reworked.
+- His source files and her video live OUTSIDE the project (`~/Desktop/POPUP-INVITATION/invite/`).
+  `tools/make_invitation_assets.py <that folder>` makes everything in `assets/invitation/`: it straightens
+  the frame from a screenshot and re-draws its ink on clean cream (dividing out the photo's lighting),
+  separates the gold-foil lettering, and cuts the three interior layers to paper silhouettes with a white
+  margin (ink dilated, holes filled, a ground strip added), moving layer 1's clouds to the back wall.
+  Pure Python + ffmpeg (`pip install --user imageio-ffmpeg`, which is how ffmpeg got onto this Mac).
+- The frame comes from ONE video screenshot of the closed card held in two hands, so the script does a lot:
+  the video crops off the card's left 2-4% and fingers cover both thumb notches, so the scrollwork (a
+  mirror image left to right) is completed from the opposite side, with the little neither side shows taken
+  from a second photograph (`opendoors.png`, straightened by its window corners). The notches are clean
+  semicircles half way up; the ribbon's two tails overhang the window; every cut edge gets a fine shadow
+  line. The owner checked this closely over several rounds: re-run the script and compare before changing it.
+  A flat, hands-free photograph or the artist's frame file would replace all of that.
+- The doors show only the middle of the door drawing (`ART` in `buildInvitation`), centred on the hill path,
+  which the seam runs through, as on the real card.
+- Built as a real box diorama, in units of one card width (`INV.SIZE` scales it): frame and foil planes, two
+  door halves sharing one texture with the KA monogram across the seam, three layers and a sky back wall
+  at different depths, a pull-out card (illustrated side only: the owner does not want the wording side
+  shown), one unseen pick pane. It stands on its own walnut stand on the table's right half.
+- At the `detInvite` stop it lifts to the camera. Click the front: doors slide apart. Click the tab at the
+  top: the card draws out and comes forward; any click puts it back. Moving the mouse tilts it so you can
+  look into the box. Putting it down shuts the doors and stows the card.
 
 **Navigation**
 - Stops (`STATIONS`) are referred to by **id**, never by index (`ST.w1`, `ST.detTable`, …).
   `tour: false` marks stops reached only by clicking (skipped by Walk on / arrow keys).
   Ids: atrium, kelly, kelly1, kelly2, anthony, anthony1, anthony2, w1, w1close, w1a, w1b, w2,
-  w2close, w2a, w2b, det, detL, detR, detLclose, detRclose, detClose, detStackL, detStackR, detTable, detVolvelle, detFrontL, detFrontR.
+  w2close, w2a, w2b, det, detL, detR, detLclose, detRclose, detClose, detStackL, detStackR, detTable, detVolvelle, detInvite, detFrontL, detFrontR.
 - A stop may name where Step back leads (`back: 'detTable'`); otherwise Step back goes to the room's entry stop, then the atrium.
 - Click **doorways** (invisible arch-shaped panes), **pictures/frames/plaques/the table**
   (`userData.station`, and `userData.closer` for the two wing paintings' close-up).
 - **Step back** (top left) goes one level: a picture → the room's entry stop → the atrium.
   **Walk on** (top right) advances the tour.
+- Going to a stop on the very spot you stand on, facing the same way (the table and the two things on it),
+  skips the levelling-out, so the view does not nod up and back down.
 - A stop may carry a `pitch` (camera tilt, radians, negative = down) and an `eye` (viewing height in
   metres; default 1.62). The close-up stops use `eye` to look at a picture square-on from its own
   height instead of tilting up at it. The view levels out and returns to standing height before walking.
@@ -187,6 +215,7 @@ hooks) to a copy of `gallery3d.js`. Query parameters:
 | `hover=fx,fy` | Move the mouse (tests the glow and the pointer cursor). |
 | `hold=1`, `turn=n` | Save-the-date: jump to the lifted pose (go to `detVolvelle` first); show plate n. |
 | `press=fx,fy;…`, `drag=fx,fy>fx,fy` | Save-the-date: simulated clicks / a drag on the held card; reports the plates turned. |
+| `ihold=1`, `idoors=1`, `icard=1`, `itilt=x,y`, `iclick=fx,fy;…` | Invitation (go to `detInvite` first): lifted pose, doors open, card drawn, look-in tilt (-1..1), real clicks with a report. |
 | `gate=1`, `ajar=1`, `open=1`, `motto=1`, `credits=1` | Show the entry doors / part-open doors / click Open / the motto / the credits panel. |
 
 **Gotchas learned the hard way**

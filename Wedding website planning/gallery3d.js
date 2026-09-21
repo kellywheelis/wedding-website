@@ -120,6 +120,11 @@ const STATIONS = [
     eyebrow: 'Exhibit details · on the table', title: 'Save the Date',
     body: 'Kelly Wheelis, 2026. A volvelle: a wheel that turns behind a window. Drag the wheel round, or click the card, to change the picture in the frame.',
     meta: 'Paper, ink, gold foil and brass · edition of 100' },
+  // the pop-up invitation, picked up off the table: same standing spot as the save-the-date
+  { id: 'detInvite', x: 0, z: -13.95, yaw: 0, pitch: -0.5, room: 'det', accent: '#C9A667', tour: false, back: 'detTable',
+    eyebrow: 'Exhibit details · on the table', title: 'The Invitation',
+    body: 'Illustrated by Truong Hoai Vu. A pop-up diorama of Villa Cetinale: click the doors to open them, move the mouse to look inside, and click the tab at the top to draw out the card.',
+    meta: 'Truong Hoai Vu · vuth.art · Paper and ink' },
   { id: 'detFrontL', x: -3.4, z: -12.75, yaw: Math.PI, room: 'det', accent: '#A79C85', tour: false,
     eyebrow: 'Exhibit details · entrance wall', title: 'A picture to come',
     body: 'This frame is waiting for its picture.', meta: 'Placeholder' },
@@ -1386,6 +1391,7 @@ const SCULPTURES = {
   if (!list) return;
   const rows = [
     ['The Birth of Venus and Primavera, Sandro Botticelli', 'Gallerie degli Uffizi, Florence · public domain'],
+    ['Pop-Up Invitation, Truong Hoai Vu', 'vuth.art · illustration and paper engineering, shown with the artist’s permission'],
     ...Object.values(SCULPTURES).map((c) => [c.title, c.credit + ' · simplified for the web, shared under the same licence'])
   ];
   rows.forEach(([what, who]) => {
@@ -1631,8 +1637,11 @@ function goTo(n) {
   markRoom(t.room);
   wantPitch = t.pitch || 0;
   wantEye = t.eye || EYE;
-  // level out and come back down to standing height before moving off
-  if (Math.abs(cam.pitch) > 0.001 || Math.abs(cam.eye - EYE) > 0.001) queue.push({ kind: 'turn', yaw: cam.yaw, pitch: 0, eye: EYE, ms: 800 });
+  // level out and come back down to standing height before moving off. Not when the next stop is the very spot you
+  // are standing on, facing the same way (the table and the things on it): there the view goes straight from one
+  // tilt to the other, or simply stays put, instead of nodding up and back down
+  const staying = Math.hypot(t.x - cam.x, t.z - cam.z) < 0.01 && Math.abs(shortAngle(cam.yaw, t.yaw) - cam.yaw) < 0.01;
+  if (!staying && (Math.abs(cam.pitch) > 0.001 || Math.abs(cam.eye - EYE) > 0.001)) queue.push({ kind: 'turn', yaw: cam.yaw, pitch: 0, eye: EYE, ms: 800 });
 
   const at = { x: cam.x, z: cam.z };       // where the plan has got to so far
   const here = roomAt();
@@ -1863,7 +1872,7 @@ function updatePointer() {
     pointer.moved = false;
     const p = probe(pointer.x, pointer.y);
     canvas.style.cursor = volHeld() && p.surface && isVolvelle(p.surface.object) ? (volDrag ? 'grabbing' : 'grab')
-      : p.room || p.station !== undefined ? 'pointer' : '';
+      : p.room || p.station !== undefined || (invHeld() && p.surface && p.surface.object.userData.invite) ? 'pointer' : '';
     if (p.surface) {
       // hold the light a little off the surface, on the side facing the viewer
       const n = p.surface.face.normal.clone().transformDirection(p.surface.object.matrixWorld);
@@ -1983,37 +1992,12 @@ let volFront = null, volShadow = null;
   scene.add(volShadow);
 })();
 
-// ---- its stand: a walnut base that props the card up, with an engraved brass plaque on the base's
-// sloped front. It stands on the table's left half (the right is kept for the invitation), turned a
-// little towards the middle of the room.
-const TABLE_TOP = 0.9;
-const volStand = new THREE.Group();
-volStand.position.set(-0.47, TABLE_TOP, DET.zMid - 0.9 + 0.26);
-volStand.rotation.y = 0.2;
-scene.add(volStand);
-const VOL_REST = { pos: new THREE.Vector3(), quat: new THREE.Quaternion() };
-(function volvelleStand() {
-  const W = 0.5, LEAN = 0.21, BH = 0.135;                         // base width; how far the card leans back (radians); base height
-  // side profile of the base, front towards +x here: a low block whose front slopes back at 45 degrees
-  const prof = [[-0.09, 0], [0.14, 0], [0.14, 0.015], [0.02, BH], [-0.09, BH]].map(([x, y]) => new THREE.Vector2(x, y));
-  const base = new THREE.Mesh(new THREE.ExtrudeGeometry(new THREE.Shape(prof), { depth: W, bevelEnabled: false }),
-    new THREE.MeshStandardMaterial({ map: tex('assets/door-walnut-rail.jpg'), color: '#d9b48c', roughness: 0.5 }));
-  base.rotation.y = -Math.PI / 2;                                 // profile's front now faces the viewer, width along x
-  base.position.x = W / 2;
-  const ledge = new THREE.Mesh(new THREE.BoxGeometry(VOL.SIZE + 0.03, 0.012, 0.008), brass);   // the lip the card's foot sits behind
-  ledge.position.set(0, BH + 0.006, 0.006);
-  volStand.add(base, ledge);
-  [-0.1, 0.1].forEach((x) => {                                    // two brass struts behind, holding the card's back
-    const foot = new THREE.Vector3(x, BH, -0.08), head = new THREE.Vector3(x, BH + 0.22 * Math.cos(LEAN), -0.004 - 0.22 * Math.sin(LEAN) - 0.004);
-    const strut = new THREE.Mesh(new THREE.CylinderGeometry(0.004, 0.004, foot.distanceTo(head), 8), brass);
-    strut.position.copy(foot).add(head).multiplyScalar(0.5);
-    strut.quaternion.setFromUnitVectors(Y_AXIS, head.clone().sub(foot).normalize());
-    volStand.add(strut);
-  });
-
-  // the plaque: brushed brass, a fine engraved border, four screws, engraved lettering
-  const PW = 0.46, PH = 0.155, c = document.createElement('canvas');
-  c.width = 2048; c.height = Math.round(2048 * PH / PW);
+// ---- an engraved brass plaque: brushed brass, a fine engraved border, four screws, engraved lettering.
+// rows: [height down the plate (0..1), lettering size in px, [[text, font style, letter-spacing], ...]], each row centred.
+// Set out as a museum "tombstone" label: artist, then the title in italics with its date, then the materials.
+function engravedPlaque(PW, PH, rows) {
+  const c = document.createElement('canvas');
+  c.width = Math.round(2048 * PW / 0.46); c.height = Math.round(c.width * PH / PW);   // the same pixels per metre on every plaque, so lettering sizes match
   const plaqueTex = new THREE.CanvasTexture(c);
   plaqueTex.colorSpace = THREE.SRGBColorSpace; plaqueTex.anisotropy = 8;
   const draw = (serif) => {
@@ -2048,10 +2032,7 @@ const VOL_REST = { pos: new THREE.Vector3(), quat: new THREE.Quaternion() };
         px += widths[i];
       });
     };
-    // a museum "tombstone" label: artist, then the title in italics with its date, then the materials in sentence case
-    row(h * 0.33, 176, [['KELLY WHEELIS', '600', 22]]);
-    row(h * 0.60, 150, [['Save the Date', 'italic 500', 3], [', 2026', '500', 3]]);
-    row(h * 0.85, 128, [['Paper, ink, gold foil and brass', '500', 4]]);
+    rows.forEach(([v, size, runs]) => row(h * v, size, runs));
     plaqueTex.needsUpdate = true;
   };
   draw('Georgia, serif');
@@ -2065,6 +2046,42 @@ const VOL_REST = { pos: new THREE.Vector3(), quat: new THREE.Quaternion() };
   face.position.z = 0.0022;
   const plaque = new THREE.Group();
   plaque.add(plate, face);
+  return plaque;
+}
+
+// ---- its stand: a walnut base that props the card up, with an engraved brass plaque on the base's
+// sloped front. It stands on the table's left half (the right is kept for the invitation), turned a
+// little towards the middle of the room.
+const TABLE_TOP = 0.9;
+const volStand = new THREE.Group();
+volStand.position.set(-0.47, TABLE_TOP, DET.zMid - 0.9 + 0.26);
+volStand.rotation.y = 0.2;
+scene.add(volStand);
+const VOL_REST = { pos: new THREE.Vector3(), quat: new THREE.Quaternion() };
+(function volvelleStand() {
+  const W = 0.5, LEAN = 0.21, BH = 0.135;                         // base width; how far the card leans back (radians); base height
+  // side profile of the base, front towards +x here: a low block whose front slopes back at 45 degrees
+  const prof = [[-0.09, 0], [0.14, 0], [0.14, 0.015], [0.02, BH], [-0.09, BH]].map(([x, y]) => new THREE.Vector2(x, y));
+  const base = new THREE.Mesh(new THREE.ExtrudeGeometry(new THREE.Shape(prof), { depth: W, bevelEnabled: false }),
+    new THREE.MeshStandardMaterial({ map: tex('assets/door-walnut-rail.jpg'), color: '#d9b48c', roughness: 0.5 }));
+  base.rotation.y = -Math.PI / 2;                                 // profile's front now faces the viewer, width along x
+  base.position.x = W / 2;
+  const ledge = new THREE.Mesh(new THREE.BoxGeometry(VOL.SIZE + 0.03, 0.012, 0.008), brass);   // the lip the card's foot sits behind
+  ledge.position.set(0, BH + 0.006, 0.006);
+  volStand.add(base, ledge);
+  [-0.1, 0.1].forEach((x) => {                                    // two brass struts behind, holding the card's back
+    const foot = new THREE.Vector3(x, BH, -0.08), head = new THREE.Vector3(x, BH + 0.22 * Math.cos(LEAN), -0.004 - 0.22 * Math.sin(LEAN) - 0.004);
+    const strut = new THREE.Mesh(new THREE.CylinderGeometry(0.004, 0.004, foot.distanceTo(head), 8), brass);
+    strut.position.copy(foot).add(head).multiplyScalar(0.5);
+    strut.quaternion.setFromUnitVectors(Y_AXIS, head.clone().sub(foot).normalize());
+    volStand.add(strut);
+  });
+
+  const plaque = engravedPlaque(0.46, 0.155, [
+    [0.33, 176, [['KELLY WHEELIS', '600', 22]]],
+    [0.60, 150, [['Save the Date', 'italic 500', 3], [', 2026', '500', 3]]],
+    [0.85, 128, [['Paper, ink, gold foil and brass', '500', 4]]]
+  ]);
   plaque.position.set(0, (0.015 + BH) / 2 + 0.0025, 0.08 + 0.0025);   // centred on the base's sloped front
   plaque.rotation.x = -Math.PI / 4;
   volStand.add(plaque);
@@ -2132,6 +2149,212 @@ function updateVolvelle() {
   volWheel.rotation.z = VOL.angle;
 }
 
+// ---------------------------------------------------------------- on the table: the pop-up invitation
+// A digital build of the paper invitation (artwork by its illustrator, used with his permission and to be
+// credited on a plaque; images made by tools/make_invitation_assets.py). It is a box diorama: a cream frame
+// with a window, two door panels that slide apart behind it, and inside, a box with three cut-paper layers
+// (busts and the couple, cypresses and guests, the villa) in front of a sky printed on the back wall. A
+// square card draws out of the top by its tab. Units: one card width; scaled up by INV.SIZE for the table.
+const INV = { lift: 0, doors: 0, doorsTarget: 0, card: 0, cardTarget: 0, tiltX: 0, tiltY: 0, SIZE: 0.46, HOLD: 0.5 };
+const invite = new THREE.Group();
+let invPick = null, invDoorL = null, invDoorR = null, invCard = null;
+const INV_CARD = { s: 0.76, h: 0.76 / (1280 / 1232), stowZ: -0.012 };
+(function buildInvitation() {
+  const CH = 0.784, D = 0.15;                                       // card height; box depth
+  // the window, from the straightened photograph: x 0.132-0.862 and y 0.174-0.833 of the card, measured from its top left
+  const WIN = { x0: -0.5 + 0.132, x1: -0.5 + 0.862, y0: CH / 2 - 0.833 * CH, y1: CH / 2 - 0.174 * CH };
+  const ww = WIN.x1 - WIN.x0, wh = WIN.y1 - WIN.y0, wx = (WIN.x0 + WIN.x1) / 2, wy = (WIN.y0 + WIN.y1) / 2;
+  const load = (src) => { const t = tex('assets/invitation/' + src); t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; t.anisotropy = 8; return t; };
+  // printed paper carries a little of its own light, so it stays readable in the hand whatever the room is doing
+  const printed = (t, extra) => new THREE.MeshStandardMaterial({ map: t, emissive: '#ffffff', emissiveMap: t, emissiveIntensity: 0.22, roughness: 0.9, ...extra });
+  const INSIDE = '#fbf8f1', CREAM = '#f3ecdc';
+  const inside = new THREE.MeshStandardMaterial({ color: INSIDE, roughness: 0.95, side: THREE.DoubleSide });
+
+  // the box: back wall with the sky printed on it, four walls, and a cover on the back of the card
+  const bw = ww + 0.05, bh = wh + 0.05, floorY = WIN.y0 - 0.012;
+  const wall = (w, h, x, y, z, rx, ry) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), inside); m.position.set(x, y, z); m.rotation.set(rx, ry, 0); invite.add(m); };
+  wall(bw, D, wx, wy + bh / 2, D / 2, Math.PI / 2, 0); wall(bw, D, wx, wy - bh / 2, D / 2, -Math.PI / 2, 0);
+  wall(D, bh, wx - bw / 2, wy, D / 2, 0, Math.PI / 2); wall(D, bh, wx + bw / 2, wy, D / 2, 0, -Math.PI / 2);
+  const cover = new THREE.Mesh(new THREE.PlaneGeometry(1, CH), new THREE.MeshStandardMaterial({ color: CREAM, roughness: 0.9, side: THREE.DoubleSide }));
+  cover.position.z = -0.002;
+  invite.add(cover);
+  // the layers stand on the box floor, bottom edges together; [image, pixel aspect, width, lift off the floor, depth]
+  const sky = load('back.jpg'), skyW = 0.80, skyH = skyW / (1280 / 760);
+  sky.repeat.set(bw / skyW, bh / skyH);
+  sky.offset.set((1 - bw / skyW) / 2, 1 - bh / skyH);              // the picture's top edge on the wall's top edge: clouds sit just over the villa's roof
+  const backWall = new THREE.Mesh(new THREE.PlaneGeometry(bw, bh), printed(sky, { color: INSIDE }));
+  backWall.position.set(wx, wy, 0.002);
+  invite.add(backWall);
+  [['layer3.png', 1280 / 814, 0.435, 0.08, 0.03, true],
+    ['layer2.png', 1280 / 816, 0.78, 0, 0.075, true], ['layer1.png', 1280 / 760, 0.80, 0, 0.12, true]].forEach(([src, aspect, w, up, z, cut]) => {
+    const h = w / aspect;
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), printed(load(src), cut ? { alphaTest: 0.5, side: THREE.DoubleSide } : { color: INSIDE }));
+    m.position.set(wx, floorY + up + h / 2, z);
+    invite.add(m);
+  });
+
+  // two doors meeting on the centre line, the monogram printed across the seam; they slide apart
+  const doorTex = load('doors.jpg'), mono = tex('assets/monogram-ka.png');
+  const NOTCH_Y = 0;                                                // the frame's two semicircular thumb notches sit level, half way up
+  const half = (side) => {                                          // side: -1 left, 1 right
+    const g = new THREE.Group(), homeX = wx + side * ww / 4;
+    // the panel runs on outwards under the frame; its picture is pinned to the window, so the two halves meet exactly
+    const geo = new THREE.PlaneGeometry(ww / 2 + 0.03, wh + 0.03);
+    geo.translate(side * 0.015, 0, 0);
+    const pos = geo.attributes.position, uvs = geo.attributes.uv;
+    // the window shows only the middle of the door drawing, as on the real card (measured from a photograph of it:
+    // the busts' and niches' places in the window against their places in the artwork)
+    // (centred on the hill path, which the seam runs through; the path lies at 0.5058 of the artwork's width, not 0.5)
+    const ART = { u0: 0.5058 - 0.385, u1: 0.5058 + 0.385, vTop: 0.0845, vBottom: 0.857 };
+    for (let i = 0; i < pos.count; i++) {
+      const fx = (homeX + pos.getX(i) - WIN.x0) / ww, fy = (wy + pos.getY(i) - WIN.y0) / wh;
+      uvs.setXY(i, ART.u0 + fx * (ART.u1 - ART.u0), (1 - ART.vBottom) + fy * (ART.vBottom - ART.vTop));
+    }
+    const panel = new THREE.Mesh(geo, printed(doorTex, { color: INSIDE }));
+    const kaGeo = new THREE.PlaneGeometry(0.085, 0.17), kaUv = kaGeo.attributes.uv;
+    for (let i = 0; i < kaUv.count; i++) kaUv.setX(i, kaUv.getX(i) * 0.5 + (side > 0 ? 0.5 : 0));
+    const ka = new THREE.Mesh(kaGeo, new THREE.MeshStandardMaterial({ map: mono, transparent: true, alphaTest: 0.35, roughness: 0.8 }));
+    ka.position.set(-side * (ww / 4 - 0.0425), wh * 0.235, 0.001);
+    // the thumb tab: the door's own edge, seen through the notch in the frame, and what you would push to slide it
+    const outer = side * 0.5, inner = homeX + side * (ww / 4 + 0.03);
+    const tabM = new THREE.Mesh(new THREE.PlaneGeometry(Math.abs(outer - inner), 0.17), new THREE.MeshStandardMaterial({ color: INSIDE, roughness: 0.9, emissive: INSIDE, emissiveIntensity: 0.2 }));
+    tabM.position.set((outer + inner) / 2 - homeX, NOTCH_Y - wy, 0);
+    g.add(panel, ka, tabM);
+    if (side < 0) {                                                 // the seam: the shadowed gap where the two doors meet
+      const seam = new THREE.Mesh(new THREE.PlaneGeometry(0.0032, wh + 0.03), new THREE.MeshBasicMaterial({ color: '#3a2a26', transparent: true, opacity: 0.55 }));
+      seam.position.set(ww / 4, 0, 0.0015);
+      g.add(seam);
+    }
+    g.userData.homeX = homeX;
+    g.position.set(homeX, wy, D + 0.003);
+    invite.add(g);
+    return g;
+  };
+  invDoorL = half(-1); invDoorR = half(1);
+
+  // the frame, and its gold-foil lettering as a separate leaf so it can shine
+  const frame = new THREE.Mesh(new THREE.PlaneGeometry(1, CH), printed(load('frame.png'), { alphaTest: 0.5 }));
+  frame.position.z = D + 0.008;
+  const foil = new THREE.Mesh(new THREE.PlaneGeometry(1, CH), new THREE.MeshStandardMaterial({ map: load('foil.png'), color: '#d9a93f', transparent: true, alphaTest: 0.3, roughness: 0.3, metalness: 0.35, emissive: '#7a5a14', emissiveIntensity: 0.55 }));
+  foil.position.z = D + 0.0088;
+  invite.add(frame, foil);
+
+  // the pull-out card: the illustrated side only, with its thumb tab showing above the frame
+  invCard = new THREE.Group();
+  const face = new THREE.Mesh(new THREE.PlaneGeometry(INV_CARD.s, INV_CARD.h), printed(load('card.jpg'), { color: CREAM, side: THREE.DoubleSide }));
+  const tab = new THREE.Mesh(new THREE.CircleGeometry(0.056, 32, 0, Math.PI), new THREE.MeshStandardMaterial({ color: CREAM, roughness: 0.9, side: THREE.DoubleSide }));
+  tab.position.set(0, INV_CARD.h / 2, -0.0005);
+  invCard.add(face, tab);
+  invite.add(invCard);
+
+  // one unseen pane over the whole front takes the clicks
+  invPick = new THREE.Mesh(new THREE.PlaneGeometry(1.0, CH + 0.14), new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false }));
+  invPick.position.set(0, 0.07, D + 0.012);
+  invite.add(invPick);
+  invite.traverse((o) => { o.userData.invite = true; });
+  invite.userData.station = ST.detInvite;
+  invite.userData.D = D; invite.userData.CH = CH;
+  scene.add(invite);
+})();
+
+// ---- its stand, the partner of the save-the-date's on the other half of the table
+const invStand = new THREE.Group();
+invStand.position.set(0.5, TABLE_TOP, DET.zMid - 0.9 + 0.26);
+invStand.rotation.y = -0.2;
+scene.add(invStand);
+const INV_REST = { pos: new THREE.Vector3(), quat: new THREE.Quaternion() };
+(function invitationStand() {
+  const W = 0.62, LEAN = 0.21, BH = 0.135, S = INV.SIZE, D = invite.userData.D * S, CHh = invite.userData.CH * S;
+  const prof = [[-0.12, 0], [0.14, 0], [0.14, 0.015], [0.02, BH], [-0.12, BH]].map(([x, y]) => new THREE.Vector2(x, y));
+  const base = new THREE.Mesh(new THREE.ExtrudeGeometry(new THREE.Shape(prof), { depth: W, bevelEnabled: false }),
+    new THREE.MeshStandardMaterial({ map: tex('assets/door-walnut-rail.jpg'), color: '#d9b48c', roughness: 0.5 }));
+  base.rotation.y = -Math.PI / 2;
+  base.position.x = W / 2;
+  const ledge = new THREE.Mesh(new THREE.BoxGeometry(S + 0.03, 0.012, 0.008), brass);
+  ledge.position.set(0, BH + 0.006, 0.006);
+  invStand.add(base, ledge);
+  // the card leans back with its front foot behind the ledge; the struts meet its back
+  const lean = new THREE.Quaternion().setFromEuler(new THREE.Euler(-LEAN, 0, 0));
+  const foot = new THREE.Vector3(0, BH + 0.004, -0.004);
+  const onBack = (x, h) => new THREE.Vector3(x, h, -D).applyQuaternion(lean).add(foot);
+  [-0.13, 0.13].forEach((x) => {
+    const a = new THREE.Vector3(x, BH, -0.112), b = onBack(x, 0.25);
+    const strut = new THREE.Mesh(new THREE.CylinderGeometry(0.004, 0.004, a.distanceTo(b), 8), brass);
+    strut.position.copy(a).add(b).multiplyScalar(0.5);
+    strut.quaternion.setFromUnitVectors(Y_AXIS, b.clone().sub(a).normalize());
+    invStand.add(strut);
+  });
+  // the illustrator's credit, which is the condition of his permission to show the piece
+  const plaque = engravedPlaque(0.58, 0.155, [
+    [0.33, 176, [['TRUONG HOAI VU', '600', 22]]],
+    [0.60, 150, [['Pop-Up Invitation', 'italic 500', 3], [', 2026', '500', 3]]],
+    [0.85, 128, [['Paper and ink', '500', 4], ['    ·    ', '500', 0], ['vuth.art', '500', 5]]]
+  ]);
+  plaque.position.set(0, (0.015 + BH) / 2 + 0.0025, 0.08 + 0.0025);
+  plaque.rotation.x = -Math.PI / 4;
+  invStand.add(plaque);
+  invStand.traverse((o) => { o.userData.station = ST.detInvite; });
+  invStand.updateMatrixWorld(true);
+  INV_REST.quat.copy(invStand.quaternion).multiply(lean);
+  // the group's origin is the centre of the box's back; put its bottom-front edge on the foot
+  INV_REST.pos.copy(foot).applyMatrix4(invStand.matrixWorld).sub(new THREE.Vector3(0, -CHh / 2, D).applyQuaternion(INV_REST.quat));
+  const sc = document.createElement('canvas');
+  sc.width = sc.height = 128;
+  const sx = sc.getContext('2d'), sg = sx.createRadialGradient(64, 64, 30, 64, 64, 64);
+  sg.addColorStop(0, 'rgba(40,30,15,.5)'); sg.addColorStop(1, 'rgba(40,30,15,0)');
+  sx.fillStyle = sg; sx.fillRect(0, 0, 128, 128);
+  const shadow = new THREE.Mesh(new THREE.PlaneGeometry(W * 1.35, 0.26 * 2), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(sc), transparent: true, depthWrite: false }));
+  shadow.rotation.set(-Math.PI / 2, 0, invStand.rotation.y);
+  shadow.position.set(invStand.position.x, TABLE_TOP + 0.002, invStand.position.z - 0.01);
+  scene.add(shadow);
+})();
+
+// ---- handling it: click the front to slide the doors, click the tab to draw the card, move the mouse to look inside
+const invHeld = () => INV.lift > 0.97;
+canvas.addEventListener('click', (e) => {
+  if (!invHeld()) return;
+  const r = canvas.getBoundingClientRect();
+  raycaster.setFromCamera(new THREE.Vector2(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1), camera);
+  const hit = raycaster.intersectObjects([invPick, invCard], true)[0];
+  if (!hit) return;
+  if (INV.cardTarget) { INV.cardTarget = 0; return; }               // the card is out: any click puts it back
+  const p = invite.worldToLocal(hit.point.clone());
+  if (Math.abs(p.x) < 0.08 && p.y > invite.userData.CH / 2 - 0.02) INV.cardTarget = 1;   // the tab
+  else INV.doorsTarget = 1 - INV.doorsTarget;
+});
+function updateInvitation() {
+  const want = idx === ST.detInvite && !leg && !queue.length && settled() ? 1 : 0;
+  if (!want) { INV.doorsTarget = 0; INV.cardTarget = 0; }           // put down: doors shut, card away
+  INV.lift += (want - INV.lift) * 0.09;
+  if (Math.abs(want - INV.lift) < 0.002) INV.lift = want;
+  INV.doors += (INV.doorsTarget - INV.doors) * 0.1;
+  INV.card += (INV.cardTarget - INV.card) * 0.085;
+  const k = easeInOut(INV.lift);
+  // in the hand it turns a little with the mouse, so you can look into the box; square-on while the card is out
+  const r = canvas.getBoundingClientRect(), calm = invHeld() && pointer.inside && !INV.cardTarget ? 1 : 0;
+  const nx = ((pointer.x - r.left) / r.width) * 2 - 1, ny = ((pointer.y - r.top) / r.height) * 2 - 1;
+  INV.tiltY += (calm * nx * 0.14 - INV.tiltY) * 0.08;
+  INV.tiltX += (calm * ny * 0.09 - INV.tiltX) * 0.08;
+  const held = camera.getWorldDirection(new THREE.Vector3()).multiplyScalar(INV.HOLD).add(camera.position);
+  const heldQuat = camera.quaternion.clone().multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(INV.tiltX, INV.tiltY, 0)));
+  invite.position.lerpVectors(INV_REST.pos, held, k);
+  invite.position.y += Math.sin(k * Math.PI) * 0.06;
+  invite.quaternion.slerpQuaternions(INV_REST.quat, heldQuat, k);
+  invite.scale.setScalar(INV.SIZE);
+  const slide = easeInOut(Math.min(1, Math.max(0, INV.doors))) * 0.405;
+  invDoorL.position.x = invDoorL.userData.homeX - slide;
+  invDoorR.position.x = invDoorR.userData.homeX + slide;
+  // the card: up out of its pocket, then forward and down to the middle, a little larger
+  const c = easeInOut(Math.min(1, Math.max(0, INV.card))), D = invite.userData.D;
+  const a = Math.min(1, c / 0.5), b = Math.max(0, (c - 0.5) / 0.5);
+  // stowed, only the tab shows over the frame. Held close, the frame's top edge would hide a tab at the back of
+  // so deep a box, so in the hand the card rides a little higher in its pocket (still out of sight behind the frame)
+  const stowY = invite.userData.CH / 2 + 0.05 * k - INV_CARD.h / 2, topY = stowY + 0.76;
+  invCard.position.set(0, b > 0 ? topY + (0.0 - topY) * Math.max(0, (b - 0.35) / 0.65) : stowY + 0.76 * a,
+    INV_CARD.stowZ + (D + 0.14 - INV_CARD.stowZ) * Math.min(1, b / 0.5));
+  invCard.scale.setScalar(1 + 0.12 * b);
+}
+
 // ---------------------------------------------------------------- loop
 function resize() {
   const stage = el('stage');
@@ -2163,6 +2386,7 @@ function frame(now) {
   camera.rotation.set(cam.pitch, cam.yaw, 0, 'YXZ');
   camera.updateMatrixWorld();
   updateVolvelle();
+  updateInvitation();
   updatePointer();
   renderer.render(scene, camera);
   requestAnimationFrame(frame);

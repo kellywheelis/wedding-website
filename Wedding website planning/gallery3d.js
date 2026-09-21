@@ -119,7 +119,7 @@ const STATIONS = [
   { id: 'detVolvelle', x: 0, z: -13.95, yaw: 0, pitch: -0.5, room: 'det', accent: '#C9A667', tour: false, back: 'detTable',
     eyebrow: 'Exhibit details · on the table', title: 'Save the Date',
     body: 'Kelly Wheelis, 2026. A volvelle: a wheel that turns behind a window. Drag the wheel round, or click the card, to change the picture in the frame.',
-    meta: 'Mixed media: paper, ink, gold foil & brass · edition of 100' },
+    meta: 'Paper, ink, gold foil and brass · edition of 100' },
   { id: 'detFrontL', x: -3.4, z: -12.75, yaw: Math.PI, room: 'det', accent: '#A79C85', tour: false,
     eyebrow: 'Exhibit details · entrance wall', title: 'A picture to come',
     body: 'This frame is waiting for its picture.', meta: 'Placeholder' },
@@ -2048,9 +2048,10 @@ const VOL_REST = { pos: new THREE.Vector3(), quat: new THREE.Quaternion() };
         px += widths[i];
       });
     };
-    row(h * 0.34, 176, [['KELLY WHEELIS', '600', 22]]);
-    row(h * 0.62, 150, [['Save the Date', 'italic 500', 3], [', 2026', '500', 3]]);
-    row(h * 0.86, 84, [['MIXED MEDIA: PAPER, INK, GOLD FOIL & BRASS', '600', 8]]);
+    // a museum "tombstone" label: artist, then the title in italics with its date, then the materials in sentence case
+    row(h * 0.33, 176, [['KELLY WHEELIS', '600', 22]]);
+    row(h * 0.60, 150, [['Save the Date', 'italic 500', 3], [', 2026', '500', 3]]);
+    row(h * 0.85, 128, [['Paper, ink, gold foil and brass', '500', 4]]);
     plaqueTex.needsUpdate = true;
   };
   draw('Georgia, serif');

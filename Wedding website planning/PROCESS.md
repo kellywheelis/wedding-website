@@ -103,7 +103,9 @@ in the page's Credits panel. No scans of Villa Cetinale's own sculpture exist on
 
 ## Still to do
 
-- Wing I's two complementary plates are still colour studies, not artwork. (Wing II's side walls now
+- (Done: Wing I's side walls carry Furini's *Three Graces* and van Dyck's *Amaryllis and Mirtillo* on
+  "The Procession" wall, and Veronese's *Happy Union* and *Mars and Venus United by Love* on "The Vows"
+  wall, each with its own close-up and wall text. Wing II's side walls
   carry four paintings: van Utrecht's *Banquet Still Life* and Ruoppolo's *Still Life with Fruit* on "The Banquet"
   wall; Mantegna's *Parnassus* and Botticelli's Nastagio wedding banquet on "The Dancing" wall.)
 - Every picture in the details room and both atrium galleries is a placeholder

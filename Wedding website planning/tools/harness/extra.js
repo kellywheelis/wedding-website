@@ -241,3 +241,22 @@
     tag.style.cssText = 'position:fixed;left:8px;top:60px;z-index:99;background:#000;color:#0f0;font:14px monospace;padding:6px 10px;white-space:pre';
     tag.textContent = out.join('\n'); document.body.appendChild(tag);
   }, 1500); }
+{ const q = new URLSearchParams(location.search);
+  // panel=1 : show the info panel and bottom bar as the visitor sees them (the harness hides them by default)
+  if (q.has('panel')) setTimeout(() => { ['label', 'nav'].forEach((id) => { const n = document.getElementById(id); n.style.setProperty('display', 'block', 'important'); n.style.opacity = '1'; });
+    const st = document.createElement('style'); st.textContent = '#label .fresh{animation:none !important}'; document.head.appendChild(st); window.dispatchEvent(new Event('resize')); }, 300); }
+{ const q = new URLSearchParams(location.search);
+  // curs=fx,fy;fx,fy : move the mouse to each point and report the cursor the canvas resolves to there
+  if (q.has('curs')) setTimeout(() => {
+    const out = ['page default: ' + getComputedStyle(document.body).cursor.slice(0, 34) + '...'];
+    q.get('curs').split(';').forEach((pair) => {
+      const [fx, fy] = pair.split(',').map(Number), r = canvas.getBoundingClientRect();
+      window.dispatchEvent(new PointerEvent('pointermove', { clientX: r.left + fx * r.width, clientY: r.top + fy * r.height, bubbles: true }));
+      const raf = window.requestAnimationFrame; window.requestAnimationFrame = () => 0; frame(performance.now()); window.requestAnimationFrame = raf;
+      const c = getComputedStyle(canvas).cursor;
+      out.push(pair + ' -> ' + (canvas.style.cursor || '(default arrow)') + '  | lit=' + (c.includes('E0486E') ? 'yes' : 'no') + ' themed=' + (c.startsWith('url(') ? 'yes' : 'NO'));
+    });
+    const tag = document.createElement('div');
+    tag.style.cssText = 'position:fixed;left:8px;top:60px;z-index:99;background:#000;color:#0f0;font:14px monospace;padding:6px 10px;white-space:pre';
+    tag.textContent = out.join('\n'); document.body.appendChild(tag);
+  }, 2600); }

@@ -36,6 +36,15 @@
   @keyframes drawRule { from { transform: scaleX(0); } to { transform: scaleX(1); } }
   @keyframes riseIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  /* one themed cursor everywhere: Cupid's arrow. Over anything you can click, the same arrow lights up
+     (rose heart, gold glow). The hot spot is the tip of the heart. */
+  :root { --cur: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22 viewBox=%220 0 32 32%22%3E%3Cg stroke-linecap=%22round%22 fill=%22none%22%3E%3Cpath d=%22M11 11L27 27M21.5 21.5v5.5M21.5 21.5h5.5M25 25v4M25 25h4%22 stroke=%22%232a1c0a%22 stroke-width=%224%22/%3E%3Cpath d=%22M21.5 21.5v5.5M21.5 21.5h5.5M25 25v4M25 25h4%22 stroke=%22%23D9AB4C%22 stroke-width=%221.9%22/%3E%3Cpath d=%22M11 11L27 27%22 stroke=%22%23F7EFDC%22 stroke-width=%221.9%22/%3E%3C/g%3E%3Cpath transform=%22translate%288.4 8.4%29 rotate%28135%29 scale%28.8%29%22 d=%22M0 10C-14 1 -7 -11 0 -1.5C7 -11 14 1 0 10Z%22 fill=%22%23D9AB4C%22 stroke=%22%232a1c0a%22 stroke-width=%221.9%22 stroke-linejoin=%22round%22/%3E%3C/svg%3E") 3 3, auto; --cur-on: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22 viewBox=%220 0 32 32%22%3E%3Ccircle cx=%228.6%22 cy=%228.6%22 r=%228.4%22 fill=%22%23F6D98A%22 opacity=%22.45%22/%3E%3Cg stroke-linecap=%22round%22 fill=%22none%22%3E%3Cpath d=%22M11 11L27 27M21.5 21.5v5.5M21.5 21.5h5.5M25 25v4M25 25h4%22 stroke=%22%232a1c0a%22 stroke-width=%224%22/%3E%3Cpath d=%22M21.5 21.5v5.5M21.5 21.5h5.5M25 25v4M25 25h4%22 stroke=%22%23F6D98A%22 stroke-width=%221.9%22/%3E%3Cpath d=%22M11 11L27 27%22 stroke=%22%23F7EFDC%22 stroke-width=%221.9%22/%3E%3C/g%3E%3Cpath transform=%22translate%288.4 8.4%29 rotate%28135%29 scale%28.8%29%22 d=%22M0 10C-14 1 -7 -11 0 -1.5C7 -11 14 1 0 10Z%22 fill=%22%23E0486E%22 stroke=%22%232a1c0a%22 stroke-width=%221.9%22 stroke-linejoin=%22round%22/%3E%3C/svg%3E") 3 3, pointer; }
+  html, body, #view { cursor: var(--cur); }
+  button { cursor: var(--cur-on) !important; }
+  /* the info panel's text eases in afresh each time it changes, so a new write-up catches the eye */
+  @keyframes labelIn { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: none; } }
+  #label .fresh { animation: labelIn 900ms ease both; }
+  #label .fresh + * , #label div + div .fresh { animation-delay: 140ms; }
 </style>
 </head>
 <body>
@@ -43,17 +52,18 @@
   <div id="stage"><canvas id="view"></canvas>
     <button id="back" aria-label="Step back" style="position:absolute;left:clamp(12px,2vw,24px);top:clamp(12px,2vw,24px);z-index:12;height:42px;padding:0 clamp(14px,2vw,20px);border-radius:22px;background:rgba(26,18,8,.55);backdrop-filter:blur(2px);border:1px solid rgba(232,192,122,.7);color:#F2E6C9;font-size:11px;letter-spacing:.24em;text-transform:uppercase;cursor:pointer;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity 500ms ease">&larr;&nbsp; Step back</button>
     <button data-fwd="1" aria-label="Walk forward" style="position:absolute;right:clamp(12px,2vw,24px);top:clamp(12px,2vw,24px);z-index:12;height:42px;padding:0 clamp(14px,2vw,20px);border-radius:22px;background:rgba(26,18,8,.55);backdrop-filter:blur(2px);border:1px solid rgba(232,192,122,.7);color:#F2E6C9;font-size:11px;letter-spacing:.24em;text-transform:uppercase;cursor:pointer;white-space:nowrap">Walk on &nbsp;&rarr;</button>
+    <p id="hint" style="position:absolute;left:50%;bottom:clamp(10px,1.6vw,18px);transform:translateX(-50%);z-index:12;margin:0;padding:6px 18px;border-radius:18px;background:rgba(26,18,8,.5);backdrop-filter:blur(2px);font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:clamp(15px,1.3vw,18px);color:#F2DFA8;white-space:nowrap;pointer-events:none">Go ahead &ndash; touch the art</p>
   </div>
 
   <div id="label" style="position:relative;z-index:12;flex:none;padding:0 clamp(14px,3vw,34px);opacity:0;transition:opacity 700ms ease">
-    <div style="max-width:1040px;margin:0 auto;border-top:1px solid rgba(201,166,103,.32);padding:clamp(13px,1.8vw,20px) 0 clamp(6px,1vw,10px);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:8px clamp(20px,3vw,40px);align-items:start">
+    <div style="max-width:1040px;margin:0 auto;border-top:1px solid rgba(201,166,103,.6);padding:clamp(15px,2vw,22px) 0 clamp(8px,1.2vw,12px);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:8px clamp(20px,3vw,40px);align-items:start">
       <div>
-        <p id="eyebrow" style="margin:0 0 7px;font-size:10px;letter-spacing:.34em;text-transform:uppercase;color:#C9A667;transition:color 700ms ease"></p>
-        <h2 id="title" style="margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-weight:400;font-size:clamp(20px,2.6vw,28px);line-height:1.2;color:#F6F1E4"></h2>
+        <p id="eyebrow" style="margin:0 0 8px;font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:#C9A667;transition:color 700ms ease"></p>
+        <h2 id="title" style="margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-weight:400;font-size:clamp(23px,3vw,33px);line-height:1.18;color:#F6F1E4"></h2>
       </div>
       <div>
-        <p id="body" style="margin:0 0 8px;font-size:15px;line-height:1.7;color:#BCB29B"></p>
-        <p id="meta" style="margin:0;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#988E7C"></p>
+        <p id="body" style="margin:0 0 9px;font-size:clamp(16px,1.35vw,18.5px);line-height:1.62;color:#E6DCC4"></p>
+        <p id="meta" style="margin:0;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#B5A88C"></p>
       </div>
     </div>
   </div>

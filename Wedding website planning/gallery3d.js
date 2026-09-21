@@ -52,14 +52,32 @@ const STATIONS = [
     eyebrow: 'Wing I · principal work · up close', title: 'The Birth of Venus',
     body: 'Botticelli gave a woman the entire centre of the canvas, in gold light, with flowers in the air and nobody hurrying her. That is the tone of the ceremony — femininity taken completely seriously.',
     meta: 'Sandro Botticelli, c. 1485 · Uffizi, Florence' },
-  { id: 'w1a', x: -1500 * U, z: -7.5, yaw: 0, room: 'w1', accent: '#93AEA2',
+  { id: 'w1a', x: -6.8, z: -7.5, yaw: 0, room: 'w1', accent: '#93AEA2',
     eyebrow: 'Wing I · complementary work', title: 'The Procession',
     body: 'Down the cypress avenue at four o’clock, in the part of the afternoon when the light does the work for you.',
     meta: 'Live performance · approx. 30 minutes' },
-  { id: 'w1b', x: -1500 * U, z: -7.5, yaw: Math.PI, room: 'w1', accent: '#93AEA2',
+  { id: 'w1b', x: -6.8, z: -7.5, yaw: Math.PI, room: 'w1', accent: '#93AEA2',
     eyebrow: 'Wing I · complementary work', title: 'The Vows',
     body: 'Written by both of us, read once, never rehearsed. Anthony maintains he will not cry.',
     meta: 'Ink on paper · 2027' },
+
+  // Wing I's four side pictures, up close: reached by clicking a picture from its wall's stop; Step back returns there
+  { id: 'w1graces', x: -7.8, z: -8.1, yaw: 0, eye: 2.0, room: 'w1', accent: '#93AEA2', tour: false, back: 'w1a',
+    eyebrow: 'Wing I · The Procession · the bridal party', title: 'The Three Graces',
+    body: 'Every girl needs her squad. The Graces have attended Venus since antiquity: they do the hair, carry the flowers and keep the secrets. The original bridal party.',
+    meta: 'Francesco Furini, c. 1633 · Hermitage, St Petersburg · #girlgang' },
+  { id: 'w1amaryllis', x: -5.9, z: -8.1, yaw: 0, eye: 2.0, room: 'w1', accent: '#93AEA2', tour: false, back: 'w1a',
+    eyebrow: 'Wing I · The Procession', title: 'Amaryllis and Mirtillo',
+    body: 'A kissing contest, judged by nymphs, and the winner is crowned with flowers. We are not holding a contest. There will be a kiss.',
+    meta: 'Anthony van Dyck, c. 1631–32 · Gothenburg Museum of Art' },
+  { id: 'w1union', x: -5.9, z: -6.9, yaw: Math.PI, eye: 2.0, room: 'w1', accent: '#93AEA2', tour: false, back: 'w1b',
+    eyebrow: 'Wing I · The Vows', title: 'Happy Union',
+    body: 'Veronese’s recipe for a happy union: an olive branch, a crown of myrtle, and a dog at your feet for fidelity. We have the dogs covered.',
+    meta: 'Paolo Veronese, c. 1575 · National Gallery, London' },
+  { id: 'w1mars', x: -7.75, z: -6.9, yaw: Math.PI, eye: 2.0, room: 'w1', accent: '#93AEA2', tour: false, back: 'w1b',
+    eyebrow: 'Wing I · The Vows', title: 'Mars and Venus United by Love',
+    body: 'Cupid is tying their legs together with a ribbon. The vows do much the same job, with fewer knots.',
+    meta: 'Paolo Veronese, 1570s · The Metropolitan Museum of Art, New York' },
 
   { id: 'w2', x: 1150 * U, z: -7.5, yaw: -Math.PI / 2, room: 'w2', accent: '#D19A6E',
     eyebrow: 'Wing II · principal work', title: 'Primavera',
@@ -670,43 +688,29 @@ function painting(src, aspect, w, x, z, rotY, station, closer, y = 1.95) {
 painting('assets/birth-of-venus.jpg', 278 / 172, 3.6, -P.wingEndX + 0.07, -7.5, Math.PI / 2, ST.w1, ST.w1close);
 painting('assets/primavera.jpg', 314 / 203, 3.6, P.wingEndX - 0.07, -7.5, -Math.PI / 2, ST.w2, ST.w2close);
 
-function plate(colorA, colorB, x, z, rotY, station) {
-  const g = new THREE.Group();
-  const f = ornateFrame(0.94, 1.3);
-  f.position.z = -0.04;
-  g.add(f);
-  const c = document.createElement('canvas');
-  c.width = 256; c.height = 340;
-  const cx = c.getContext('2d');
-  const grad = cx.createLinearGradient(0, 0, 256, 340);
-  grad.addColorStop(0, colorA); grad.addColorStop(1, colorB);
-  cx.fillStyle = grad; cx.fillRect(0, 0, 256, 340);
-  const t = new THREE.CanvasTexture(c);
-  t.colorSpace = THREE.SRGBColorSpace;
-  const p = new THREE.Mesh(new THREE.PlaneGeometry(0.94, 1.3), new THREE.MeshStandardMaterial({ map: t, roughness: 0.7 }));
-  p.position.z = -0.04 + f.userData.pictureZ;
-  g.add(p);
-  g.position.set(x, 1.95, z);
-  g.rotation.y = rotY;
-  g.userData.station = station;
-  scene.add(g);
-}
-plate('#f3e4ce', '#3b4a45', -1500 * U, P.wingFarZ + 0.07, 0, ST.w1a);
-plate('#fbeedc', '#5a3a30', -1500 * U, P.wingNearZ - 0.07, Math.PI, ST.w1b);
-
-// Wing II's side walls, a pair of pictures each: a larger one towards the entrance and a smaller one beside it,
-// clear of the statue and the bust further along. Both pictures on a wall lead to that wall's stop.
-//   far wall, "The Banquet": two still lifes            near wall, "The Dancing": the Muses dancing, and a wedding feast
+// The wings' side walls carry a pair of pictures each: a larger one towards the entrance and a smaller one beside it,
+// clear of the statues further along. A picture leads to its wall's stop, and from there (if it has one) to its own
+// close-up stop. `x` is how far into the wing it hangs; Wing I is the mirror of Wing II.
+//   Wing I far wall, "The Procession": the bridal party, and a crowning        near wall, "The Vows": two unions
+const W1_PICTURES = [
+  { src: 'assets/w1-amaryllis-and-mirtillo.jpg', aspect: 2048 / 1739, w: 1.6, x: -5.9, y: 2.0, wall: 'far', close: 'w1amaryllis' },
+  { src: 'assets/w1-three-graces.jpg', aspect: 1617 / 2048, w: 1.25, x: -7.8, y: 2.0, wall: 'far', close: 'w1graces' },
+  { src: 'assets/w1-happy-union.jpg', aspect: 2048 / 1959, w: 1.5, x: -5.9, y: 2.0, wall: 'near', close: 'w1union' },
+  { src: 'assets/w1-mars-and-venus.jpg', aspect: 1594 / 2048, w: 1.2, x: -7.75, y: 2.0, wall: 'near', close: 'w1mars' }
+];
+//   Wing II far wall, "The Banquet": two still lifes            near wall, "The Dancing": the Muses dancing, and a wedding feast
 const W2_PICTURES = [
   { src: 'assets/w2-banquet-still-life.jpg', aspect: 2048 / 1544, w: 1.85, x: 5.9, y: 2.0, wall: 'far' },
   { src: 'assets/w2-watermelon-still-life.jpg', aspect: 2048 / 1425, w: 1.2, x: 7.85, y: 1.92, wall: 'far' },
   { src: 'assets/w2-parnassus.jpg', aspect: 2048 / 1690, w: 1.6, x: 5.8, y: 2.0, wall: 'near' },
   { src: 'assets/w2-nastagio-banquet.jpg', aspect: 1225 / 700, w: 1.45, x: 7.75, y: 1.92, wall: 'near' }
 ];
-W2_PICTURES.forEach((p) => {
+const hangSideWalls = (list, farStop, nearStop) => list.forEach((p) => {
   const far = p.wall === 'far';
-  painting(p.src, p.aspect, p.w, p.x, far ? P.wingFarZ + 0.07 : P.wingNearZ - 0.07, far ? 0 : Math.PI, far ? ST.w2a : ST.w2b, undefined, p.y);
+  painting(p.src, p.aspect, p.w, p.x, far ? P.wingFarZ + 0.07 : P.wingNearZ - 0.07, far ? 0 : Math.PI, far ? farStop : nearStop, p.close ? ST[p.close] : undefined, p.y);
 });
+hangSideWalls(W1_PICTURES, ST.w1a, ST.w1b);
+hangSideWalls(W2_PICTURES, ST.w2a, ST.w2b);
 
 // ---------------------------------------------------------------- details room
 // a salon-hung gallery room after the reference (assets/ref-terracotta.jpg): burgundy walls
@@ -1403,6 +1407,10 @@ const SCULPTURES = {
   if (!list) return;
   const rows = [
     ['The Birth of Venus and Primavera, Sandro Botticelli', 'Gallerie degli Uffizi, Florence · public domain'],
+    ['Happy Union (Allegory of Love, IV), Paolo Veronese, c. 1575', 'National Gallery, London · public domain'],
+    ['Mars and Venus United by Love, Paolo Veronese, 1570s', 'The Metropolitan Museum of Art, New York · public domain'],
+    ['The Three Graces, Francesco Furini, c. 1633', 'State Hermitage Museum, St Petersburg · public domain'],
+    ['Amaryllis and Mirtillo, Anthony van Dyck, c. 1631–32', 'Gothenburg Museum of Art · public domain'],
     ['The Wedding Banquet (The Story of Nastagio degli Onesti, IV), Sandro Botticelli, 1483', 'Private collection, Florence · public domain'],
     ['Parnassus, Andrea Mantegna, 1497', 'Musée du Louvre, Paris · public domain'],
     ['Banquet Still Life, Adriaen van Utrecht, 1644', 'Rijksmuseum, Amsterdam · public domain'],
@@ -1573,9 +1581,7 @@ function pictureLight(x, y, z, tx, ty, tz, shadow, power, topY, barW, lamps = 1)
 }
 pictureLight(-P.wingEndX + 0.6, H - 0.5, -7.5, -P.wingEndX, 1.95, -7.5, true, 15, 3.17, 3.0, 3);
 pictureLight(P.wingEndX - 0.6, H - 0.5, -7.5, P.wingEndX, 1.95, -7.5, true, 15, 3.22, 3.0, 3);
-pictureLight(-1500 * U, H - 0.5, P.wingFarZ + 0.6, -1500 * U, 1.95, P.wingFarZ, true, 13, 2.66, 0.62);
-pictureLight(-1500 * U, H - 0.5, P.wingNearZ - 0.6, -1500 * U, 1.95, P.wingNearZ, true, 13, 2.66, 0.62);
-W2_PICTURES.forEach((p) => {
+[...W1_PICTURES, ...W2_PICTURES].forEach((p) => {
   const far = p.wall === 'far', wallZ = far ? P.wingFarZ : P.wingNearZ, h = p.w / p.aspect, big = p.w > 1.5;
   const fw = THREE.MathUtils.clamp(0.085 + 0.036 * Math.max(p.w, h), 0.12, 0.25);      // the frame's width, as ornateFrame works it out
   pictureLight(p.x, H - 0.5, wallZ + (far ? 0.6 : -0.6), p.x, p.y, wallZ, big, big ? 13 : 10, p.y + h / 2 + fw, p.w * 0.62, big ? 2 : 1);
@@ -1659,7 +1665,10 @@ function goTo(n) {
   // level out and come back down to standing height before moving off. Not when the next stop is the very spot you
   // are standing on, facing the same way (the table and the things on it): there the view goes straight from one
   // tilt to the other, or simply stays put, instead of nodding up and back down
-  const staying = Math.hypot(t.x - cam.x, t.z - cam.z) < 0.01 && Math.abs(shortAngle(cam.yaw, t.yaw) - cam.yaw) < 0.01;
+  const sameView = Math.abs(shortAngle(cam.yaw, t.yaw) - cam.yaw) < 0.01;
+  // ...nor when sidestepping along a wall between two close-ups held at the same height and tilt
+  const alongWall = sameView && Math.hypot(t.x - cam.x, t.z - cam.z) < 3 && Math.abs(cam.eye - (t.eye || EYE)) < 0.001 && Math.abs(cam.pitch - (t.pitch || 0)) < 0.001;
+  const staying = (Math.hypot(t.x - cam.x, t.z - cam.z) < 0.01 && sameView) || alongWall;
   if (!staying && (Math.abs(cam.pitch) > 0.001 || Math.abs(cam.eye - EYE) > 0.001)) queue.push({ kind: 'turn', yaw: cam.yaw, pitch: 0, eye: EYE, ms: 800 });
 
   const at = { x: cam.x, z: cam.z };       // where the plan has got to so far
@@ -1680,7 +1689,10 @@ function goTo(n) {
     // already inside this wing: stay in it. Going deeper, walk facing the end wall and then
     // turn to the picture; coming back, turn to the picture first and step back from it.
     const moves = Math.abs(cam.x - t.x) > 0.01 || Math.abs(cam.z - t.z) > 0.01;
-    if (moves && Math.abs(t.x) > Math.abs(cam.x)) {
+    const wallFacing = Math.abs(Math.sin(t.yaw)) < 0.01;          // facing a side wall, not the wing's end wall
+    if (moves && wallFacing && facing(t.yaw) && Math.hypot(t.x - cam.x, t.z - cam.z) < 3) {
+      pushMove(t.x, t.z);                  // up to a picture on the wall you face, along to its neighbour, or back from it
+    } else if (moves && Math.abs(t.x) > Math.abs(cam.x)) {
       pushTurn(t.x < 0 ? Math.PI / 2 : -Math.PI / 2);
       pushMove(t.x, t.z);
       pushTurn(t.yaw);
@@ -1745,6 +1757,13 @@ function paintLabel(st) {
   el('title').textContent = st.title;
   el('body').textContent = st.body;
   el('meta').textContent = st.meta;
+  // ease the new text in, so a change of write-up catches the eye (restarts the CSS animation)
+  ['eyebrow', 'title', 'body', 'meta'].forEach((id) => {
+    const n = el(id);
+    n.classList.remove('fresh');
+    void n.offsetWidth;
+    n.classList.add('fresh');
+  });
 }
 function markRoom(room) {
   document.querySelectorAll('[data-room]').forEach((b) => {
@@ -1849,7 +1868,7 @@ function probe(clientX, clientY) {
   // a picture only counts from inside its own room, and not through a doorway
   if (station !== undefined && (own || target || STATIONS[station].room !== here)) station = undefined;
   // already facing it: the next click is the step closer (and nothing once you are there)
-  if (station !== undefined && closer !== undefined && (idx === station || idx === closer)) station = closer;
+  if (station !== undefined && closer !== undefined && (idx === station || idx === closer || STATIONS[idx].back === STATIONS[station].id)) station = closer;
   if (station === idx) station = undefined;
   return { room: target || (own ? 'atrium' : null), surface, station };
 }
@@ -1887,11 +1906,14 @@ document.documentElement.addEventListener('pointerleave', () => {
 });
 function updatePointer() {
   // re-read what is under the mouse when it moves, and while the camera is moving under it
-  if (pointer.inside && (pointer.moved || leg)) {
+  const busy = !!leg || queue.length > 0 || !settled();
+  if (busy) pointer.recheck = 100;                                  // frames to keep looking after a move ends (things are still lifting into the hand)
+  else if (pointer.recheck) pointer.recheck--;
+  if (pointer.inside && (pointer.moved || busy || pointer.recheck)) {
     pointer.moved = false;
     const p = probe(pointer.x, pointer.y);
     canvas.style.cursor = volHeld() && p.surface && isVolvelle(p.surface.object) ? (volDrag ? 'grabbing' : 'grab')
-      : p.room || p.station !== undefined || (invHeld() && p.surface && p.surface.object.userData.invite) ? 'pointer' : '';
+      : p.room || p.station !== undefined || (invHeld() && p.surface && p.surface.object.userData.invite) ? 'var(--cur-on)' : '';
     if (p.surface) {
       // hold the light a little off the surface, on the side facing the viewer
       const n = p.surface.face.normal.clone().transformDirection(p.surface.object.matrixWorld);

@@ -105,7 +105,11 @@ internet connection is needed.
 - Wing II side walls: four paintings in two pairs (`W2_PICTURES`), a larger one towards the entrance and a
   smaller beside it, each with its own picture light; both pictures on a wall lead to that wall's stop
   (`w2a` "The Banquet": van Utrecht and Ruoppolo still lifes; `w2b` "The Dancing": Mantegna's *Parnassus*
-  and Botticelli's Nastagio wedding banquet). Wing I's side walls still carry placeholder colour studies (`plate`).
+  and Botticelli's Nastagio wedding banquet). Wing I is hung the same way (`W1_PICTURES`, shared helper
+  `hangSideWalls`), and its four pictures each have their own close-up stop with its own wall text
+  (`close:` on the picture; `w1graces`, `w1amaryllis`, `w1union`, `w1mars`, each with `back:` its wall's stop).
+  From a wall's stop, or from a neighbouring close-up, clicking a picture goes to its close-up. The owner
+  asked for the Graces' text to be bridal-party themed ("every girl needs her squad", #girlgang).
 
 **Real sculpture** — `SCULPTURE_SPOTS` (pedestals/plinths that register themselves) and
 `SCULPTURES` (which scan goes on which spot, its height, title and credit). Scans load in the
@@ -162,11 +166,21 @@ No scans of Villa Cetinale's own sculpture exist online (searched). See `assets/
   top: the card draws out and comes forward; any click puts it back. Moving the mouse tilts it so you can
   look into the box. Putting it down shuts the doors and stows the card.
 
+**Page chrome** (`The Gallery 3D.html`)
+- One themed cursor everywhere: Cupid's arrow, as two SVG data-URIs in `:root` (`--cur`, and `--cur-on` for
+  anything clickable: rose heart, gold glow). `gallery3d.js` sets `canvas.style.cursor = 'var(--cur-on)'` and
+  keeps re-probing for ~100 frames after a move ends, so the cursor is never stale. The save-the-date's wheel
+  keeps the ordinary grab hand on purpose.
+- The info panel's text is large and bright, and eases in afresh (`.fresh`) whenever `paintLabel` changes it:
+  the owner found the write-ups too easy to miss.
+- "Go ahead – touch the art": a small pill at the bottom centre of the stage (`#hint`), pointer-events none.
+  The owner chose the wording and the place; she did not want an icon beside it.
+
 **Navigation**
 - Stops (`STATIONS`) are referred to by **id**, never by index (`ST.w1`, `ST.detTable`, …).
   `tour: false` marks stops reached only by clicking (skipped by Walk on / arrow keys).
   Ids: atrium, kelly, kelly1, kelly2, anthony, anthony1, anthony2, w1, w1close, w1a, w1b, w2,
-  w2close, w2a, w2b, det, detL, detR, detLclose, detRclose, detClose, detStackL, detStackR, detTable, detVolvelle, detInvite, detFrontL, detFrontR.
+  w1graces, w1amaryllis, w1union, w1mars, w2close, w2a, w2b, det, detL, detR, detLclose, detRclose, detClose, detStackL, detStackR, detTable, detVolvelle, detInvite, detFrontL, detFrontR.
 - A stop may name where Step back leads (`back: 'detTable'`); otherwise Step back goes to the room's entry stop, then the atrium.
 - Click **doorways** (invisible arch-shaped panes), **pictures/frames/plaques/the table**
   (`userData.station`, and `userData.closer` for the two wing paintings' close-up).

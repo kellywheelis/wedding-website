@@ -102,12 +102,17 @@ internet connection is needed.
   `addRose`), Thorvaldsen's *Venus with the Apple* and *Cupid Playing the Lyre*.
 - Wing II objects: two **citrus trees** built leaf by leaf (`citrusTree`), Canova's
   *Venus Italica*, a Laurana bust.
+  The crowns have no solid core: an inner layer of dark leaves instead (a smooth dark ball showed through as a
+  ball). Orange blossom is ~50 five-petalled flowers per tree on a jittered grid over the room-facing side only;
+  the owner asked for more, spread evenly rather than clustered.
 - Wing II side walls: four paintings in two pairs (`W2_PICTURES`), a larger one towards the entrance and a
   smaller beside it, each with its own picture light; both pictures on a wall lead to that wall's stop
   (`w2a` "The Banquet": van Utrecht and Ruoppolo still lifes; `w2b` "The Dancing": Mantegna's *Parnassus*
   and Botticelli's Nastagio wedding banquet). Wing I is hung the same way (`W1_PICTURES`, shared helper
   `hangSideWalls`), and its four pictures each have their own close-up stop with its own wall text
   (`close:` on the picture; `w1graces`, `w1amaryllis`, `w1union`, `w1mars`, each with `back:` its wall's stop).
+  Wing II's four have them too (`w2utrecht`, `w2ruoppolo`, `w2parnassus`, `w2nastagio`). Close-ups on one wall share
+  the same `eye` height on purpose: that is what lets the sidestep between them skip the levelling-out.
   From a wall's stop, or from a neighbouring close-up, clicking a picture goes to its close-up. The owner
   asked for the Graces' text to be bridal-party themed ("every girl needs her squad", #girlgang).
 
@@ -180,7 +185,7 @@ No scans of Villa Cetinale's own sculpture exist online (searched). See `assets/
 - Stops (`STATIONS`) are referred to by **id**, never by index (`ST.w1`, `ST.detTable`, …).
   `tour: false` marks stops reached only by clicking (skipped by Walk on / arrow keys).
   Ids: atrium, kelly, kelly1, kelly2, anthony, anthony1, anthony2, w1, w1close, w1a, w1b, w2,
-  w1graces, w1amaryllis, w1union, w1mars, w2close, w2a, w2b, det, detL, detR, detLclose, detRclose, detClose, detStackL, detStackR, detTable, detVolvelle, detInvite, detFrontL, detFrontR.
+  w1graces, w1amaryllis, w1union, w1mars, w2close, w2a, w2b, w2utrecht, w2ruoppolo, w2parnassus, w2nastagio, det, detL, detR, detLclose, detRclose, detClose, detStackL, detStackR, detTable, detVolvelle, detInvite, detFrontL, detFrontR.
 - A stop may name where Step back leads (`back: 'detTable'`); otherwise Step back goes to the room's entry stop, then the atrium.
 - Click **doorways** (invisible arch-shaped panes), **pictures/frames/plaques/the table**
   (`userData.station`, and `userData.closer` for the two wing paintings' close-up).

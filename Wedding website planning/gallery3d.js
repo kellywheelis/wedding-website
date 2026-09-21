@@ -46,11 +46,11 @@ const STATIONS = [
 
   { id: 'w1', x: -1150 * U, z: -7.5, yaw: Math.PI / 2, room: 'w1', accent: '#93AEA2',
     eyebrow: 'Wing I · principal work', title: 'The Birth of Venus',
-    body: 'Botticelli gave a woman the entire centre of the canvas, in gold light, with flowers in the air and nobody hurrying her. That is the tone of the ceremony — femininity taken completely seriously.',
+    body: 'Botticelli gave a woman the entire centre of the canvas, in gold light, with flowers in the air and nobody hurrying her. That is the tone we want for the ceremony: golden, unhurried, and every head turned her way.',
     meta: 'Sandro Botticelli, c. 1485 · Uffizi, Florence' },
   { id: 'w1close', x: -CLOSE_X, z: -7.5, yaw: Math.PI / 2, eye: 1.95, room: 'w1', accent: '#93AEA2', tour: false,
     eyebrow: 'Wing I · principal work · up close', title: 'The Birth of Venus',
-    body: 'Botticelli gave a woman the entire centre of the canvas, in gold light, with flowers in the air and nobody hurrying her. That is the tone of the ceremony — femininity taken completely seriously.',
+    body: 'Botticelli gave a woman the entire centre of the canvas, in gold light, with flowers in the air and nobody hurrying her. That is the tone we want for the ceremony: golden, unhurried, and every head turned her way.',
     meta: 'Sandro Botticelli, c. 1485 · Uffizi, Florence' },
   { id: 'w1a', x: -6.8, z: -7.5, yaw: 0, room: 'w1', accent: '#93AEA2',
     eyebrow: 'Wing I · complementary work', title: 'The Procession',
@@ -76,7 +76,7 @@ const STATIONS = [
     meta: 'Paolo Veronese, c. 1575 · National Gallery, London' },
   { id: 'w1mars', x: -7.75, z: -6.9, yaw: Math.PI, eye: 2.0, room: 'w1', accent: '#93AEA2', tour: false, back: 'w1b',
     eyebrow: 'Wing I · The Vows', title: 'Mars and Venus United by Love',
-    body: 'Cupid is tying their legs together with a ribbon. The vows do much the same job, with fewer knots.',
+    body: 'Cupid is tying their legs together with a ribbon. The vows do pretty much the same job, with fewer knots.',
     meta: 'Paolo Veronese, 1570s · The Metropolitan Museum of Art, New York' },
 
   { id: 'w2', x: 1150 * U, z: -7.5, yaw: -Math.PI / 2, room: 'w2', accent: '#D19A6E',
@@ -89,12 +89,31 @@ const STATIONS = [
     meta: 'Sandro Botticelli, c. 1480 · Uffizi, Florence' },
   { id: 'w2a', x: 6.8, z: -7.5, yaw: 0, room: 'w2', accent: '#D19A6E',
     eyebrow: 'Wing II · complementary work', title: 'The Banquet',
-    body: 'Tables dressed as banquet still life: figs, pomegranates, spilled candle wax, far too many flowers. We are attempting fewer than a hundred and ninety.',
+    body: 'Tables dressed as banquet still life: figs, pomegranates, spilled candle wax, far too many flowers. We do plan on fewer than a hundred and ninety varieties, though; our commitment to floral design is not nearly as strong as Botticelli’s.',
     meta: 'Still life · perishable · hours undecided' },
   { id: 'w2b', x: 6.8, z: -7.5, yaw: Math.PI, room: 'w2', accent: '#D19A6E',
     eyebrow: 'Wing II · complementary work', title: 'The Dancing',
     body: 'Three Graces, minimum. Participation is not optional but skill is not required.',
     meta: 'Performance · ongoing' },
+
+  // "The Banquet" wall's two still lifes, up close
+  { id: 'w2utrecht', x: 5.9, z: -8.1, yaw: 0, eye: 2.0, room: 'w2', accent: '#D19A6E', tour: false, back: 'w2a',
+    eyebrow: 'Wing II · The Banquet', title: 'Banquet Still Life',
+    body: 'A lobster, a game pie, a lute, a macaw, a monkey helping himself to the cherries, and a small white dog pretending not to watch. Our seating plan is slightly more orderly. The dog situation is about the same.',
+    meta: 'Adriaen van Utrecht, 1644 · Rijksmuseum, Amsterdam' },
+  { id: 'w2ruoppolo', x: 7.85, z: -8.1, yaw: 0, eye: 2.0, room: 'w2', accent: '#D19A6E', tour: false, back: 'w2a',
+    eyebrow: 'Wing II · The Banquet', title: 'Still Life with Fruit',
+    body: 'A watermelon split open on a blue-and-white plate, figs, peaches, and a melon nobody has got round to yet. Neapolitan still life is mostly an argument for dessert. We agree with it.',
+    meta: 'Giovan Battista Ruoppolo, 1650–1699' },
+  // "The Dancing" wall's two pictures, up close (as Wing I's): click a picture from the wall's stop; Step back returns there
+  { id: 'w2parnassus', x: 5.8, z: -6.9, yaw: Math.PI, eye: 2.0, room: 'w2', accent: '#D19A6E', tour: false, back: 'w2b',
+    eyebrow: 'Wing II · The Dancing', title: 'Parnassus',
+    body: 'Apollo is on the lyre, the nine Muses have formed a circle, and nobody needed to be asked twice. This is the dance floor we are aiming for. Pegasus is optional.',
+    meta: 'Andrea Mantegna, 1497 · Musée du Louvre, Paris' },
+  { id: 'w2nastagio', x: 7.75, z: -6.9, yaw: Math.PI, eye: 2.0, room: 'w2', accent: '#D19A6E', tour: false, back: 'w2b',
+    eyebrow: 'Wing II · The Dancing', title: 'The Wedding Banquet',
+    body: 'Painted as a wedding present in 1483: long tables, a loggia open to the hills, and the waiters arriving in formation. The story that leads up to this feast is best not told at a wedding. The catering, however, is exactly right.',
+    meta: 'Sandro Botticelli, 1483 · The Story of Nastagio degli Onesti, IV' },
 
   { id: 'det', x: 0, z: -12.5, yaw: 0, room: 'det', accent: '#C9A667',
     eyebrow: 'Exhibit details · visiting', title: 'Getting to Sovicille',
@@ -700,10 +719,10 @@ const W1_PICTURES = [
 ];
 //   Wing II far wall, "The Banquet": two still lifes            near wall, "The Dancing": the Muses dancing, and a wedding feast
 const W2_PICTURES = [
-  { src: 'assets/w2-banquet-still-life.jpg', aspect: 2048 / 1544, w: 1.85, x: 5.9, y: 2.0, wall: 'far' },
-  { src: 'assets/w2-watermelon-still-life.jpg', aspect: 2048 / 1425, w: 1.2, x: 7.85, y: 1.92, wall: 'far' },
-  { src: 'assets/w2-parnassus.jpg', aspect: 2048 / 1690, w: 1.6, x: 5.8, y: 2.0, wall: 'near' },
-  { src: 'assets/w2-nastagio-banquet.jpg', aspect: 1225 / 700, w: 1.45, x: 7.75, y: 1.92, wall: 'near' }
+  { src: 'assets/w2-banquet-still-life.jpg', aspect: 2048 / 1544, w: 1.85, x: 5.9, y: 2.0, wall: 'far', close: 'w2utrecht' },
+  { src: 'assets/w2-watermelon-still-life.jpg', aspect: 2048 / 1425, w: 1.2, x: 7.85, y: 1.92, wall: 'far', close: 'w2ruoppolo' },
+  { src: 'assets/w2-parnassus.jpg', aspect: 2048 / 1690, w: 1.6, x: 5.8, y: 2.0, wall: 'near', close: 'w2parnassus' },
+  { src: 'assets/w2-nastagio-banquet.jpg', aspect: 1225 / 700, w: 1.45, x: 7.75, y: 1.92, wall: 'near', close: 'w2nastagio' }
 ];
 const hangSideWalls = (list, farStop, nearStop) => list.forEach((p) => {
   const far = p.wall === 'far';
@@ -1283,9 +1302,8 @@ function citrusTree(seed) {
   const bark = tint('#5a4a38');
   const top = new THREE.Vector3(0.015, 1.62, 0.0), centre = new THREE.Vector3(0, 2.0, 0);
   g.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([new THREE.Vector3(0, 0.5, 0), new THREE.Vector3(0.025, 0.9, 0.012), new THREE.Vector3(-0.018, 1.3, -0.01), top]), 20, 0.028, 8, false), bark));
-  // the crown: leaves gathered in clumps around an ellipsoid, over a dark core so it never reads as hollow
-  const core = new THREE.Mesh(new THREE.SphereGeometry(0.29, 18, 14), tint('#2a4020'));
-  core.scale.set(1, 1.08, 1); core.position.copy(centre); g.add(core);
+  // the crown: leaves gathered in clumps around an ellipsoid. Inside it, a looser layer of dark leaves, so that a
+  // thin patch shows more foliage behind it (a smooth dark ball was tried first, and showed through as a ball)
   const leaves = instancer(LEAF_GEO, new THREE.MeshStandardMaterial({ roughness: 0.42, side: THREE.DoubleSide }));
   const deep = new THREE.Color('#2c4722'), sunlit = new THREE.Color('#5d7f3c'), rad = new THREE.Vector3(0.47, 0.52, 0.47);
   const clumps = [];
@@ -1294,6 +1312,17 @@ function citrusTree(seed) {
     const dir = new THREE.Vector3(Math.sin(e) * Math.cos(a), Math.cos(e), Math.sin(e) * Math.sin(a));
     clumps.push(dir.clone().multiply(rad).multiplyScalar(R));
     if (i < 5) g.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([top.clone().setY(1.5 + rnd() * 0.1), top.clone().lerp(centre.clone().add(clumps[i]), 0.5).add(new THREE.Vector3(0, -0.06, 0)), centre.clone().add(clumps[i])]), 8, 0.011, 5, false), bark));
+  }
+  const onCrown = () => { const a = rnd() * 6.283, e = Math.acos(1 - rnd() * 1.9); return new THREE.Vector3(Math.sin(e) * Math.cos(a), Math.cos(e), Math.sin(e) * Math.sin(a)); };
+  const shade = new THREE.Color('#1c2f17');
+  for (let i = 0; i < 800; i++) {                                  // the inner layer, all round
+    const d = onCrown(), p = d.clone().multiply(rad).multiplyScalar(0.42 + rnd() * 0.3);
+    addLeaf(leaves, p.add(centre), d.add(new THREE.Vector3(rnd() - 0.5, rnd() - 0.5, rnd() - 0.5)), 0.1 + rnd() * 0.05, shade.clone().lerp(deep, rnd() * 0.7), rnd);
+  }
+  for (let i = 0; i < 500; i++) {                                  // an even scatter over the outside, so no side is left thin
+    const d = onCrown(), p = d.clone().multiply(rad).multiplyScalar(0.82 + rnd() * 0.2);
+    const lit = THREE.MathUtils.clamp(0.5 + p.y / 1.0 + (rnd() - 0.5) * 0.5, 0, 1);
+    addLeaf(leaves, p.add(centre), d.add(new THREE.Vector3(rnd() - 0.5, -0.35 + rnd() * 0.5, rnd() - 0.5).multiplyScalar(0.9)), 0.085 + rnd() * 0.045, deep.clone().lerp(sunlit, lit), rnd);
   }
   for (let i = 0; i < 2100; i++) {
     const c = clumps[Math.floor(rnd() * clumps.length)];
@@ -1314,13 +1343,45 @@ function citrusTree(seed) {
     cap.position.copy(p).y += r * 0.93;
     g.add(o, cap);
   }
-  const bloom = tint('#f7f3e8');
-  for (let i = 0; i < 34; i++) {
-    const a = rnd() * 6.283, e = Math.acos(1 - rnd() * 1.6);
-    const b = new THREE.Mesh(new THREE.SphereGeometry(0.011, 6, 5), bloom);
-    b.position.set(Math.sin(e) * Math.cos(a), Math.cos(e), Math.sin(e) * Math.sin(a)).multiply(rad).multiplyScalar(1.02).add(centre);
-    g.add(b);
+  // orange blossom: small five-petalled white flowers with a yellow heart, scattered evenly over the crown (singly,
+  // now and then a pair, here and there a bud), standing just proud of the leaves. Each petal is the leaf shape, laid so its edges cup towards the flower's
+  // axis and its tip curls back, as citrus petals do.
+  const petals = instancer(LEAF_GEO, new THREE.MeshStandardMaterial({ roughness: 0.45, side: THREE.DoubleSide, emissive: '#ffffff', emissiveIntensity: 0.14 }));
+  const white = new THREE.Color('#fbf8ee'), heartGeo = new THREE.SphereGeometry(0.0085, 8, 6), heartMat = tint('#e8c24a'), budMat = tint('#f6f1e2');
+  // The trees stand against the wing's end wall, so the blossom goes on the side that faces the room (-x), at the heights
+  // you see. One flower per cell of a jittered grid over that side, which spreads them evenly instead of in clumps.
+  const COLS = 8, ROWS = 5;
+  for (let i = 0; i < COLS * ROWS; i++) {
+    const col = i % COLS, row = Math.floor(i / COLS);
+    const n = (() => { const a = Math.PI + ((col + rnd()) / COLS - 0.5) * 3.0, e = 0.5 + (row + rnd()) / ROWS * 1.35; return new THREE.Vector3(Math.sin(e) * Math.cos(a), Math.cos(e), Math.sin(e) * Math.sin(a)); })();
+    const at = n.clone().multiply(rad).multiplyScalar(1.24).add(centre);      // out past the leaf tips, or they are lost in the foliage
+    const side = new THREE.Vector3().crossVectors(n, Y_AXIS).normalize(), up = new THREE.Vector3().crossVectors(side, n).normalize();
+    const flowers = rnd() < 0.25 ? 2 : 1;
+    for (let f = 0; f < flowers; f++) {
+      const pos = at.clone().addScaledVector(side, f * 0.07).addScaledVector(up, f * (rnd() - 0.5) * 0.08);
+      const axis = n.clone().addScaledVector(side, (rnd() - 0.5) * 0.7).addScaledVector(up, (rnd() - 0.5) * 0.7).normalize();
+      const u = new THREE.Vector3().crossVectors(axis, Math.abs(axis.y) < 0.9 ? Y_AXIS : new THREE.Vector3(1, 0, 0)).normalize(), v = new THREE.Vector3().crossVectors(axis, u);
+      const len = 0.033 + rnd() * 0.007, open = 1.05 + rnd() * 0.25, spin = rnd() * 6.283;
+      for (let k = 0; k < 5; k++) {
+        const phi = spin + k * 6.283 / 5;
+        const radial = u.clone().multiplyScalar(Math.cos(phi)).addScaledVector(v, Math.sin(phi));
+        const Y = axis.clone().multiplyScalar(Math.cos(open)).addScaledVector(radial, Math.sin(open));     // along the petal
+        const Z = axis.clone().addScaledVector(Y, -axis.dot(Y)).normalize();                                // the petal's face, towards the axis
+        const X = new THREE.Vector3().crossVectors(Y, Z);
+        const m = new THREE.Matrix4().makeBasis(X.multiplyScalar(len * 1.25), Y.clone().multiplyScalar(len), Z.multiplyScalar(len));
+        petals.add(m.setPosition(pos), white);
+      }
+      const heart = new THREE.Mesh(heartGeo, heartMat);
+      heart.position.copy(pos).addScaledVector(axis, 0.004);
+      g.add(heart);
+    }
+    if (i % 3) continue;                                             // a closed bud beside every third
+    const bud = new THREE.Mesh(heartGeo, budMat);
+    bud.scale.set(1, 1.7, 1);
+    bud.position.copy(at).addScaledVector(side, 0.06).addScaledVector(up, -0.05);
+    g.add(bud);
   }
+  g.add(petals.build());
   return g;
 }
 // a low plinth kept free for a statue that is still to come, marked with a small brass label

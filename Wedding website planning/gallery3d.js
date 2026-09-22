@@ -2580,7 +2580,11 @@ let volFront = null, volShadow = null;
   };
   const PAPER = '#f3ecdf';                                        // the beige cotton rag the card is printed on
 
-  const back = new THREE.Mesh(new THREE.ShapeGeometry(outline(), 24), new THREE.MeshStandardMaterial({ color: PAPER, roughness: 0.9 }));
+  // the back panel, printed with the monogram pattern; two-sided, and its artwork flipped so that, seen from
+  // behind (which is how a card back is seen), the monograms read the right way round
+  const backMat = printed('assets/volvelle/back.png', { color: PAPER, roughness: 0.9, side: THREE.DoubleSide });
+  backMat.map.wrapS = THREE.RepeatWrapping; backMat.map.repeat.x = -1; backMat.map.offset.x = 1;
+  const back = new THREE.Mesh(planeUV(new THREE.ShapeGeometry(outline(), 24)), backMat);
   const wheelArt = new THREE.Mesh(new THREE.PlaneGeometry(4.354 * IN, 4.354 * IN),
     printed('assets/volvelle/wheel.png', { alphaTest: 0.5, roughness: 0.5 }));
   volWheel.add(wheelArt);

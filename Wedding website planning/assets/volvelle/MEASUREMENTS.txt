@@ -1,7 +1,9 @@
 SAVE-THE-DATE VOLVELLE — the measurements the digital build in gallery3d.js is made from.
 Copied from the owner's build pack ("READ ME FIRST.txt"), which lives outside this project.
 front.png is the front panel cropped from the pack's BLANK print sheet (384 dpi);
-wheel.png is the pack's source/wheel-art.png, downsized. Five plates, 72 degrees apart;
+wheel.png is the pack's source/wheel-art.png, downsized.
+back.png is the back panel (the monogram pattern) cropped from the same BLANK sheet: the left
+4.521 in, between the two flaps; the build flips it so it reads correctly from behind. Five plates, 72 degrees apart;
 plate I (Save the Date) is in the window when numeral I is at the notch.
 
   THE NUMBERS

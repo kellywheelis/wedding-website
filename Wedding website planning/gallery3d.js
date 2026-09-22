@@ -2020,43 +2020,63 @@ function sign(lines, w, h, x, y, z, rotY) {
   return m;
 }
 
-// directory plaque, mounted flat on the wall above the details arch;
-// lettering is sized to fill the plaque so it reads from the atrium
+// directory sign, mounted flat on the wall above the details arch: a burgundy panel (the invitation
+// burgundy, like the monogram banner) in a stepped gilt frame, gold lettering in the site's Garamond,
+// a double hairline border and a small ornament between the two lines. Lettering is sized to fill the
+// panel so it reads from the atrium.
 function directoryTexture(lines, aspect) {
   const c = document.createElement('canvas');
   c.width = 2048; c.height = Math.round(2048 / aspect);
-  const x = c.getContext('2d');
-  let px = 180;
-  const widest = () => { x.font = '500 ' + px + 'px Georgia'; return Math.max(...lines.map((t) => x.measureText(t).width)); };
-  while (px > 40 && widest() > c.width * 0.94) px -= 2;
-  x.fillStyle = '#f2dfae';
-  x.textAlign = 'center';
-  x.textBaseline = 'middle';
-  lines.forEach((t, i) => x.fillText(t, c.width / 2, c.height / 2 + (i - (lines.length - 1) / 2) * px * 1.22));
   const t = new THREE.CanvasTexture(c);
-  t.colorSpace = THREE.SRGBColorSpace;
-  t.anisotropy = 8;
+  t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
+  const draw = (face) => {
+    const x = c.getContext('2d'), W = c.width, H = c.height;
+    x.fillStyle = '#5e1230'; x.fillRect(0, 0, W, H);                  // the banner's burgundy
+    let seed = 77; const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+    for (let i = 0; i < 6000; i++) { x.fillStyle = rnd() < 0.5 ? 'rgba(255,220,200,.05)' : 'rgba(0,0,0,.07)'; x.fillRect(rnd() * W, rnd() * H, 3, 3); }
+    x.strokeStyle = '#d9b565'; x.lineWidth = 6; x.strokeRect(44, 44, W - 88, H - 88);   // double hairline border
+    x.lineWidth = 2.5; x.strokeRect(66, 66, W - 132, H - 132);
+    x.fillStyle = '#e9c97a'; x.textAlign = 'center'; x.textBaseline = 'middle';
+    if ('letterSpacing' in x) x.letterSpacing = '14px';
+    let px = 300;
+    const widest = () => { x.font = '500 ' + px + 'px ' + face; return Math.max(...lines.map((l) => x.measureText(l).width)); };
+    while (px > 40 && widest() > W * 0.9) px -= 2;
+    const gap = px * 1.55, y0 = H / 2 - (lines.length - 1) * gap / 2;
+    lines.forEach((l, i) => x.fillText(l, W / 2, y0 + i * gap + px * 0.04));
+    for (let i = 1; i < lines.length; i++) {                             // a fine rule with a diamond, between the lines
+      const y = y0 + (i - 0.5) * gap, r = W * 0.13;
+      x.strokeStyle = '#d9b565'; x.lineWidth = 3;
+      x.beginPath(); x.moveTo(W / 2 - r, y); x.lineTo(W / 2 - 34, y); x.moveTo(W / 2 + 34, y); x.lineTo(W / 2 + r, y); x.stroke();
+      x.fillStyle = '#d9b565'; x.beginPath(); x.moveTo(W / 2, y - 14); x.lineTo(W / 2 + 14, y); x.lineTo(W / 2, y + 14); x.lineTo(W / 2 - 14, y); x.closePath(); x.fill();
+    }
+    t.needsUpdate = true;
+  };
+  draw('Georgia, serif');
+  if (document.fonts && document.fonts.load) document.fonts.load("500 40px 'EB Garamond'").then(() => draw("'EB Garamond', Georgia, serif")).catch(() => {});
   return t;
 }
 const PLAQUE_W = 2.9, PLAQUE_H = 1.15;              // overhangs the 2.7 m arch opening by 10 cm a side
 const PLAQUE_Y = 2.3 + 1.35 + 0.2 + PLAQUE_H / 2;   // bottom edge just clear of the arch band
 const PLAQUE_Z = P.wingFarZ + 0.14 + 0.035;         // back of the plaque on the wall face
-const plaque = new THREE.Mesh(
-  new THREE.BoxGeometry(PLAQUE_W, PLAQUE_H, 0.07),
-  new THREE.MeshStandardMaterial({ color: '#5b4a25', roughness: 0.5, metalness: 0.35 })
-);
+const plaque = new THREE.Group();
+{
+  const panel = new THREE.Mesh(new THREE.BoxGeometry(PLAQUE_W, PLAQUE_H, 0.05),
+    new THREE.MeshStandardMaterial({ map: directoryTexture(['←  WING I  ·  WING II  →', 'EXHIBIT DETAILS  ↑'], PLAQUE_W / PLAQUE_H), roughness: 0.75 }));
+  panel.position.z = 0.025;
+  plaque.add(panel);
+  // a stepped gilt frame round it: a broad outer moulding and a fine inner fillet, both standing proud of the panel
+  const F = 0.075, f = 0.018, D = 0.075, d = 0.062;
+  [[PLAQUE_W + 2 * F, F, D, 0, PLAQUE_H / 2 + F / 2], [PLAQUE_W + 2 * F, F, D, 0, -PLAQUE_H / 2 - F / 2],
+   [F, PLAQUE_H, D, -PLAQUE_W / 2 - F / 2, 0], [F, PLAQUE_H, D, PLAQUE_W / 2 + F / 2, 0],
+   [PLAQUE_W, f, d, 0, PLAQUE_H / 2 - f / 2], [PLAQUE_W, f, d, 0, -PLAQUE_H / 2 + f / 2],
+   [f, PLAQUE_H - 2 * f, d, -PLAQUE_W / 2 + f / 2, 0], [f, PLAQUE_H - 2 * f, d, PLAQUE_W / 2 - f / 2, 0]].forEach(([w, h, dp, px, py]) => {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, dp), frameMat);
+    m.position.set(px, py, dp / 2); m.castShadow = true;
+    plaque.add(m);
+  });
+}
 plaque.position.set(0, PLAQUE_Y, PLAQUE_Z);
-plaque.castShadow = true;
 scene.add(plaque);
-const plaqueFace = new THREE.Mesh(
-  new THREE.PlaneGeometry(PLAQUE_W - 0.2, PLAQUE_H - 0.2),
-  new THREE.MeshStandardMaterial({
-    map: directoryTexture(['←  WING I  ·  WING II  →', 'EXHIBIT DETAILS  ↑'], (PLAQUE_W - 0.2) / (PLAQUE_H - 0.2)),
-    transparent: true, roughness: 0.5
-  })
-);
-plaqueFace.position.set(0, PLAQUE_Y, PLAQUE_Z + 0.05);
-scene.add(plaqueFace);
 
 // ---- lighting
 scene.add(new THREE.HemisphereLight('#fff4e0', '#8a8070', 1.25));

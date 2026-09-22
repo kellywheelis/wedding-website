@@ -241,7 +241,7 @@ renderer.toneMappingExposure = 1.15;
 const scene = new THREE.Scene();
 scene.background = new THREE.Color('#d8cdb2');
 
-const camera = new THREE.PerspectiveCamera(70, 1, 0.08, 120);
+const camera = new THREE.PerspectiveCamera(70, 1, 0.22, 120);   // near 0.22: the held card is at 0.39; a nearer plane wastes depth precision and lets distant surfaces flicker
 camera.position.set(0, EYE, 0);
 
 const loader = new THREE.TextureLoader();
@@ -677,11 +677,10 @@ function wall(x1, z1, x2, z2, mat) {
   return m;
 }
 
-// corridor runs unbroken from the entrance to the details hall, with a doorway per wing
-const DOOR_A = -6.2, DOOR_B = -8.8;   // wing doorway, 2.6 m
+// corridor runs from the entrance to the details hall; across each wing's band the hall face is the
+// portal's own (wingPortal below), so the walls stop where it starts and nothing lies over it
 [-P.corrX, P.corrX].forEach((sx) => {
-  wall(sx, P.backZ, sx, DOOR_A, plasterWide);
-  wall(sx, DOOR_B, sx, P.wingFarZ, plasterWide);
+  wall(sx, P.backZ, sx, P.wingNearZ, plasterWide);
 });
 wall(-P.corrX, P.backZ, P.corrX, P.backZ);
 
@@ -712,21 +711,25 @@ function wingPortal(sx, z, openW, springs) {
   const r = openW / 2, T = 0.26;
   const half = (P.wingNearZ - P.wingFarZ) / 2 - 0.005;
   // a touch taller than the wall so its top tucks in behind the lunette with no slit between
-  const outer = archedWallShape(half, H + 0.02, r, springs);
+  // ...and sunk 2 cm, so its underside (plaster is drawn two-sided) lies below the floor instead of on it
+  const outer = archedWallShape(half, H + 0.04, r, springs);
   const m = new THREE.Mesh(new THREE.ExtrudeGeometry(outer, { depth: T, bevelEnabled: false }), plaster);
-  m.position.set(sx * (P.corrX + 0.004), 0, z);
+  m.position.set(sx * (P.corrX + 0.004), -0.02, z);
   m.rotation.y = Math.PI / 2;
   if (sx < 0) m.translateZ(-T);
   m.receiveShadow = true;
   scene.add(m);
 
-  // skirting on the wing face, either side of the opening
+  // skirting on the wing face and on the hall face, either side of the opening. It stops just inside the
+  // moulded surround's leg (0.17 wide) rather than at the opening, so its end face never lies on the jamb
   [-1, 1].forEach((sz) => {
-    const len = half - r;
-    const base = new THREE.Mesh(new THREE.BoxGeometry(len, 0.16, 0.05), skirt);
-    base.position.set(sx * (P.corrX + 0.004 + T), 0.08, z + sz * (r + len / 2));
-    base.rotation.y = Math.PI / 2;
-    scene.add(base);
+    const stop = r + 0.16, len = half - stop;
+    [P.corrX + 0.004 + T, P.corrX + 0.004].forEach((fx) => {
+      const base = new THREE.Mesh(new THREE.BoxGeometry(len, 0.16, 0.05), skirt);
+      base.position.set(sx * fx, 0.08, z + sz * (stop + len / 2));
+      base.rotation.y = Math.PI / 2;
+      scene.add(base);
+    });
   });
 }
 
@@ -738,9 +741,9 @@ wingPortal(1, -7.5, 2.6, 2.3);
 (function detailsArch() {
   const z = P.wingFarZ, openW = 2.7, springs = 2.3, r = openW / 2;
   // one solid wall with the arch cut out of it, so nothing is left open above the curve
-  const face = archedWallShape(P.corrX, H, r, springs);
+  const face = archedWallShape(P.corrX, H + 0.02, r, springs);
   const wallMesh = new THREE.Mesh(new THREE.ExtrudeGeometry(face, { depth: 0.28, bevelEnabled: false }), plaster);
-  wallMesh.position.set(0, 0, z - 0.14);
+  wallMesh.position.set(0, -0.02, z - 0.14);                          // sunk 2 cm: its underside below the floor, not on it
   wallMesh.receiveShadow = true;
   scene.add(wallMesh);
   // the band's foot and the opening's foot both sit below the floor: otherwise a sliver of band is left across
@@ -754,8 +757,8 @@ wingPortal(1, -7.5, 2.6, 2.3);
   cut.absarc(0, springs, r + 0.16, Math.PI, 0, true);
   cut.lineTo(r + 0.16, -0.1); cut.lineTo(-r - 0.16, -0.1);
   cut.holes.push(new THREE.Path(shape.getPoints(48)));
-  const band = new THREE.Mesh(new THREE.ExtrudeGeometry(cut, { depth: 0.3, bevelEnabled: false }), plaster);
-  band.position.set(0, 0, z - 0.15);
+  const band = new THREE.Mesh(new THREE.ExtrudeGeometry(cut, { depth: 0.34, bevelEnabled: false }), plaster);   // 3 cm proud of the wall on both faces
+  band.position.set(0, 0, z - 0.17);
   scene.add(band);
 })();
 
@@ -884,6 +887,7 @@ const marbleWhite = new THREE.MeshStandardMaterial({ color: '#efebe2', roughness
 const marbleBlue = new THREE.MeshStandardMaterial({ color: '#b3bec4', roughness: 0.3, metalness: 0.02 });
 const marbleRed = new THREE.MeshStandardMaterial({ color: '#6d3b35', roughness: 0.3, metalness: 0.02 });
 const paintedWood = new THREE.MeshStandardMaterial({ color: '#e7e1d2', roughness: 0.7 });
+const walnutTable = new THREE.MeshStandardMaterial({ map: tex('assets/door-walnut-rail.jpg'), color: '#d9b48c', roughness: 0.5 });   // the same walnut as the card stands
 
 (function detailsShell() {
   wall(-DET.x, DET.zF, -DET.x, DET.zB, burgundy);
@@ -1287,7 +1291,7 @@ place(reservedPlinth('STATUE', 'detStatueL'), -2.5, DET.zB + 0.62, 0);   // larg
 place(reservedPlinth('STATUE', 'detStatueR', 0.96, 0.74), 2.5, DET.zB + 0.62, 0);   // Diana's base is 0.88 x 0.65
 place(sculpturePedestal('detEntryL', 1.1, 0.5, 0.5), -2.15, DET.zF - 0.5, Math.PI);   // flanking the entrance arch, facing into the room
 place(sculpturePedestal('detEntryR', 1.1, 0.5, 0.5), 2.15, DET.zF - 0.5, Math.PI);
-table(0, DET.zMid - 0.9, 0, 2.4, 1.2, marbleStatuary, paintedWood, 6).userData.station = ST.detTable;           // centre table
+table(0, DET.zMid - 0.9, 0, 2.4, 1.2, marbleStatuary, walnutTable, 6).userData.station = ST.detTable;           // centre table
 // gilt consoles under the side walls' principal pictures (the end wall's place is taken by the gift-shop stand)
 
 // ---- room lighting: four warm pools, and an unshadowed picture light on each principal work
@@ -1368,8 +1372,9 @@ function archSurround(x, z, rotY, openW, springs, legs) {
 });
 (function keystones() {                                                // the details arch already has its band
   [[P.wingFarZ + 0.15, 1], [P.wingFarZ - 0.15, -1]].forEach(([z, dir]) => {
-    const key = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.4, 0.09), trimMat);
-    key.position.set(0, 2.3 + 1.35 + 0.1, z + dir * 0.03);
+    // 3.53 to 3.83: it must stop under the directory sign (bottom edge 3.85), whose panel face it would otherwise share a plane with
+    const key = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.3, 0.09), trimMat);
+    key.position.set(0, 2.3 + 1.35 + 0.03, z + dir * 0.03);
     scene.add(key);
   });
 })();
@@ -2044,8 +2049,8 @@ function directoryTexture(lines, aspect) {
     x.fillStyle = '#5e1230'; x.fillRect(0, 0, W, H);                  // the banner's burgundy
     let seed = 77; const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
     for (let i = 0; i < 6000; i++) { x.fillStyle = rnd() < 0.5 ? 'rgba(255,220,200,.05)' : 'rgba(0,0,0,.07)'; x.fillRect(rnd() * W, rnd() * H, 3, 3); }
-    x.strokeStyle = '#d9b565'; x.lineWidth = 6; x.strokeRect(44, 44, W - 88, H - 88);   // double hairline border
-    x.lineWidth = 2.5; x.strokeRect(66, 66, W - 132, H - 132);
+    x.strokeStyle = '#d9b565'; x.lineWidth = 12; x.strokeRect(44, 44, W - 88, H - 88);   // double rule border (thick enough not to shimmer from across the hall)
+    x.lineWidth = 6; x.strokeRect(70, 70, W - 140, H - 140);
     x.fillStyle = '#e9c97a'; x.textAlign = 'center'; x.textBaseline = 'middle';
     if ('letterSpacing' in x) x.letterSpacing = '14px';
     let px = 300;
@@ -2055,7 +2060,7 @@ function directoryTexture(lines, aspect) {
     lines.forEach((l, i) => x.fillText(l, W / 2, y0 + i * gap + px * 0.04));
     for (let i = 1; i < lines.length; i++) {                             // a fine rule with a diamond, between the lines
       const y = y0 + (i - 0.5) * gap, r = W * 0.13;
-      x.strokeStyle = '#d9b565'; x.lineWidth = 3;
+      x.strokeStyle = '#d9b565'; x.lineWidth = 6;
       x.beginPath(); x.moveTo(W / 2 - r, y); x.lineTo(W / 2 - 34, y); x.moveTo(W / 2 + 34, y); x.lineTo(W / 2 + r, y); x.stroke();
       x.fillStyle = '#d9b565'; x.beginPath(); x.moveTo(W / 2, y - 14); x.lineTo(W / 2 + 14, y); x.lineTo(W / 2, y + 14); x.lineTo(W / 2 - 14, y); x.closePath(); x.fill();
     }
@@ -2075,13 +2080,13 @@ const plaque = new THREE.Group();
   panel.position.z = 0.025;
   plaque.add(panel);
   // a stepped gilt frame round it: a broad outer moulding and a fine inner fillet, both standing proud of the panel
-  const F = 0.075, f = 0.018, D = 0.075, d = 0.062;
+  const F = 0.075, f = 0.018, D = 0.075, d = 0.02, PZ = 0.05;         // PZ: the panel's front; the fillets stand on it
   [[PLAQUE_W + 2 * F, F, D, 0, PLAQUE_H / 2 + F / 2], [PLAQUE_W + 2 * F, F, D, 0, -PLAQUE_H / 2 - F / 2],
    [F, PLAQUE_H, D, -PLAQUE_W / 2 - F / 2, 0], [F, PLAQUE_H, D, PLAQUE_W / 2 + F / 2, 0],
    [PLAQUE_W, f, d, 0, PLAQUE_H / 2 - f / 2], [PLAQUE_W, f, d, 0, -PLAQUE_H / 2 + f / 2],
    [f, PLAQUE_H - 2 * f, d, -PLAQUE_W / 2 + f / 2, 0], [f, PLAQUE_H - 2 * f, d, PLAQUE_W / 2 - f / 2, 0]].forEach(([w, h, dp, px, py]) => {
     const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, dp), frameMat);
-    m.position.set(px, py, dp / 2); m.castShadow = true;
+    m.position.set(px, py, dp === d ? PZ + dp / 2 : dp / 2); m.castShadow = true;
     plaque.add(m);
   });
 }
@@ -3314,6 +3319,18 @@ function resize() {
 window.addEventListener('resize', resize);
 resize();
 
+// a gentle look-round: the view leans a few degrees towards wherever the cursor is on the screen, and settles
+// back to the stop's own framing when the cursor leaves. Applied only when drawing, so the stops, the routes
+// and where you end up are untouched. Off while the save-the-date or the invitation is in the hand (they tilt
+// with the cursor themselves).
+const LOOK = { yaw: 0.1, pitch: 0.055, ease: 0.06, x: 0, y: 0 };    // radians at the edge of the screen
+function updateLook() {
+  const r = canvas.getBoundingClientRect(), on = pointer.inside && !volHeld() && !invHeld() && r.width > 0;
+  const tx = on ? -((pointer.x - r.left) / r.width * 2 - 1) * LOOK.yaw : 0;
+  const ty = on ? -((pointer.y - r.top) / r.height * 2 - 1) * LOOK.pitch : 0;
+  LOOK.x += (tx - LOOK.x) * LOOK.ease;
+  LOOK.y += (ty - LOOK.y) * LOOK.ease;
+}
 function frame(now) {
   if (!leg && (queue.length || !settled())) startLeg();
   if (leg && leg.kind === 'path') {
@@ -3331,8 +3348,9 @@ function frame(now) {
     }
     if (k >= 1) { leg = null; }
   }
+  updateLook();
   camera.position.set(cam.x, cam.eye, cam.z);
-  camera.rotation.set(cam.pitch, cam.yaw, 0, 'YXZ');
+  camera.rotation.set(cam.pitch + LOOK.y, cam.yaw + LOOK.x, 0, 'YXZ');
   camera.updateMatrixWorld();
   updateVolvelle();
   updateInvitation();

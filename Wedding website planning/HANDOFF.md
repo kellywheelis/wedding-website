@@ -269,6 +269,10 @@ No scans of Villa Cetinale's own sculpture exist online (searched). See `assets/
   turn taken on the spot first, the final turn to face the stop given more of the path the bigger it is, the
   view levelling and the stop's own tilt/height folded into the same motion, and the view never swinging faster
   than ~125 deg/s. A route with no walking (Turn around) still runs as a plain turn step.
+- Mouse-look (`LOOK`, `updateLook()`): the view leans up to ~6 deg sideways and ~3 deg up/down towards the
+  cursor, easing back when it leaves the canvas; applied only at draw time (`camera.rotation` = cam + LOOK), so
+  nothing about stops or routes sees it. Off while the save-the-date or invitation is held. The harness's
+  `build.sh` rewrites that camera.rotation line to add its `pitch=` offset, so keep the line's text in step.
 - Frame rate while walking: the cursor's ray is tested against the scene every frame of a walk, so the sculpture
   scans (55k-118k triangles each) are left OUT of the ray test (`raycast = () => {}`) and each carries an
   invisible box (`colorWrite: false`) that the cursor and clicks meet instead.

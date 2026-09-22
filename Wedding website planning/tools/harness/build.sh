@@ -5,6 +5,6 @@
 H="$(cd "$(dirname "$0")" && pwd)"; P="$(cd "$H/../.." && pwd)"; W="$H/.work"
 mkdir -p "$W" && ln -sfn "$P/assets" "$W/assets"
 sed -e 's#</head>#<style>\#gate,\#label,\#nav,\#motto{display:none !important}</style></head>#' -e 's#gallery3d.js?v=[0-9]*#gallery3d.js#' "$P/The Gallery 3D.html" > "$W/index.html"
-sed -e "s#camera.rotation.set(cam.pitch, cam.yaw, 0, 'YXZ')#camera.rotation.set(cam.pitch + +(new URLSearchParams(location.search).get('pitch')||0), cam.yaw, 0, 'YXZ')#" "$P/gallery3d.js" > "$W/gallery3d.js"
+sed -e "s#camera.rotation.set(cam.pitch + LOOK.y, cam.yaw + LOOK.x, 0, 'YXZ')#camera.rotation.set(cam.pitch + LOOK.y + +(new URLSearchParams(location.search).get('pitch')||0), cam.yaw + LOOK.x, 0, 'YXZ')#" "$P/gallery3d.js" > "$W/gallery3d.js"
 cat "$H/extra.js" >> "$W/gallery3d.js"
 echo "harness rebuilt in $W"

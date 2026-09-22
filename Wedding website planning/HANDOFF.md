@@ -260,9 +260,20 @@ No scans of Villa Cetinale's own sculpture exist online (searched). See `assets/
 - A stop may carry a `pitch` (camera tilt, radians, negative = down) and an `eye` (viewing height in
   metres; default 1.62). The close-up stops use `eye` to look at a picture square-on from its own
   height instead of tilting up at it. The view levels out and returns to standing height before walking.
-- `goTo()` plans routes: free movement inside the details room **round the centre table**
-  (`detWalk`, `TABLE_KEEPOUT`), moves inside a wing stay in the wing, everything else runs along
-  the hall's centre line through the crossing.
+- `planRoute()` plans routes as steps (turn, walk, turn): free movement inside the details room **round
+  the centre table** (`detWalk` finds the shortest route round the corners of `TABLE_KEEPOUT`), moves
+  inside a wing stay in the wing, everything else runs along the hall's centre line through the crossing.
+- `goTo()` = plan, then `compileWalk()` (21 Sept 2026): the steps become ONE continuous walk (`WALK` settings):
+  the same points with rounded corners, a steady 2.5 m/s that eases off through corners and at both ends (a
+  pace table every 2 cm), the heading read off a smoothed curve and followed with a little lag, a big initial
+  turn taken on the spot first, the final turn to face the stop given more of the path the bigger it is, the
+  view levelling and the stop's own tilt/height folded into the same motion, and the view never swinging faster
+  than ~125 deg/s. A route with no walking (Turn around) still runs as a plain turn step.
+- Frame rate while walking: the cursor's ray is tested against the scene every frame of a walk, so the sculpture
+  scans (55k-118k triangles each) are left OUT of the ray test (`raycast = () => {}`) and each carries an
+  invisible box (`colorWrite: false`) that the cursor and clicks meet instead.
+  Harness: `trace=id,id,...` walks each and reports seconds, biggest per-frame step and turn, frames inside
+  the table keep-out (should be 0) and how far off the stop it ended (should be 0).
 - A warm point-light **glow** follows the mouse in the gallery.
 
 ## 5. Known loose ends / ideas not yet done

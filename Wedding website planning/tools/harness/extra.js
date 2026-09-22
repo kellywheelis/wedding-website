@@ -93,7 +93,7 @@
       camera.position.set(cam.x, cam.eye, cam.z); camera.rotation.set(cam.pitch, cam.yaw, 0, 'YXZ'); camera.updateMatrixWorld();
       const pr = probe(cx, cy);
       canvas.dispatchEvent(new MouseEvent('click', { clientX: cx, clientY: cy, bubbles: true }));
-      const steps = queue.map((s) => s.kind === 'turn' ? 'turn' : 'move(' + s.x.toFixed(2) + ',' + s.z.toFixed(2) + ')').join(' > ');
+      const steps = lastSteps.map((s) => s.kind === 'turn' ? 'turn' : 'move(' + s.x.toFixed(2) + ',' + s.z.toFixed(2) + ')').join(' > ');
       const raf = window.requestAnimationFrame, now = performance.now, draw = renderer.render;
       let fake = now.call(performance);
       window.requestAnimationFrame = () => 0; performance.now = () => fake; renderer.render = () => {};
@@ -113,7 +113,7 @@
     for (let k = 0; k < +q.get('back2'); k++) {
       const from = idx;
       document.getElementById('back').click();
-      const steps = queue.map((s) => s.kind === 'turn' ? 'turn' : 'move(' + s.x.toFixed(2) + ',' + s.z.toFixed(2) + ')').join(' > ');
+      const steps = lastSteps.map((s) => s.kind === 'turn' ? 'turn' : 'move(' + s.x.toFixed(2) + ',' + s.z.toFixed(2) + ')').join(' > ');
       const raf = window.requestAnimationFrame, now = performance.now, draw = renderer.render;
       let fake = now.call(performance);
       window.requestAnimationFrame = () => 0; performance.now = () => fake; renderer.render = () => {};
@@ -153,7 +153,7 @@
     const out = [];
     q.get('goto').split(',').forEach((id) => {
       goTo(ST[id]);
-      const steps = queue.map((s) => s.kind === 'turn' ? 'turn' : 'move(' + s.x.toFixed(2) + ',' + s.z.toFixed(2) + ')').join(' > ');
+      const steps = lastSteps.map((s) => s.kind === 'turn' ? 'turn' : 'move(' + s.x.toFixed(2) + ',' + s.z.toFixed(2) + ')').join(' > ');
       const raf = window.requestAnimationFrame, now = performance.now, draw = renderer.render;
       let fake = now.call(performance);
       window.requestAnimationFrame = () => 0; performance.now = () => fake; renderer.render = () => {};
@@ -224,12 +224,38 @@
     tag.textContent = out.join('\n'); document.body.appendChild(tag);
   }, 4200); }
 { const q = new URLSearchParams(location.search);
+  // trace=id,id,... : walk to each stop frame by frame (40 ms) and report how smooth the walk was: its length in
+  // seconds, the biggest jump in position and heading between frames, whether the table keep-out was crossed,
+  // and where it ended relative to the stop
+  if (q.has('trace')) setTimeout(() => {
+    const out = [];
+    q.get('trace').split(',').forEach((id) => { try {
+      goTo(ST[id]);
+      const steps = lastSteps.map((s) => s.kind === 'turn' ? 'turn' : 'move').join('>') || '(none)';
+      const raf = window.requestAnimationFrame, now = performance.now, draw = renderer.render;
+      let fake = now.call(performance), n = 0, jump = 0, spin = 0, tbl = 0, px = cam.x, pz = cam.z, py = cam.yaw;
+      window.requestAnimationFrame = () => 0; performance.now = () => fake; renderer.render = () => {};
+      for (let i = 0; i < 900 && (i < 2 || leg || queue.length || !settled()); i++) {
+        fake += 40; frame(fake); n++;
+        jump = Math.max(jump, Math.hypot(cam.x - px, cam.z - pz)); spin = Math.max(spin, Math.abs(shortAngle(py, cam.yaw) - py));
+        if (cam.x > TABLE_KEEPOUT.x0 && cam.x < TABLE_KEEPOUT.x1 && cam.z > TABLE_KEEPOUT.z0 && cam.z < TABLE_KEEPOUT.z1) tbl++;
+        px = cam.x; pz = cam.z; py = cam.yaw;
+      }
+      window.requestAnimationFrame = raf; performance.now = now; renderer.render = draw;
+      const t = STATIONS[ST[id]];
+      out.push(id.padEnd(12) + steps.padEnd(28) + (n * 0.04).toFixed(1) + 's  max step ' + (jump * 100).toFixed(1) + 'cm  max turn ' + (spin * 180 / Math.PI).toFixed(1) + 'deg/frame  table ' + tbl + '  off by ' + Math.hypot(cam.x - t.x, cam.z - t.z).toFixed(3) + 'm ' + (Math.abs(shortAngle(cam.yaw, t.yaw) - cam.yaw) * 180 / Math.PI).toFixed(1) + 'deg');
+    } catch (e) { out.push(id + ' ERROR ' + e.message + ' @ ' + (e.stack || '').split('\n')[1]); } });
+    const tag = document.createElement('div');
+    tag.style.cssText = 'position:fixed;left:8px;top:60px;z-index:99;background:#000;color:#0f0;font:13px monospace;padding:6px 10px;white-space:pre';
+    tag.textContent = out.join('\n'); document.body.appendChild(tag);
+  }, 1500); }
+{ const q = new URLSearchParams(location.search);
   // plan=id,id,... : go to each stop in turn and report the steps queued for it and how far the view tilted on the way
   if (q.has('plan')) setTimeout(() => {
     const out = [];
     q.get('plan').split(',').forEach((id) => {
       goTo(ST[id]);
-      const steps = queue.map((s) => s.kind === 'turn' ? 'turn' + (s.pitch === 0 ? '(level)' : '') : 'move').join(' > ') || '(none)';
+      const steps = lastSteps.map((s) => s.kind === 'turn' ? 'turn' + (s.pitch === 0 ? '(level)' : '') : 'move').join(' > ') || '(none)';
       let lo = cam.pitch, hi = cam.pitch;
       const raf = window.requestAnimationFrame, now = performance.now, draw = renderer.render;
       let fake = now.call(performance);
@@ -319,7 +345,26 @@
       const chain = []; for (let o = p.surface && p.surface.object; o; o = o.parent) chain.push((o.type || '?') + (o.userData.note ? '[NOTE]' : '') + (o.userData.station !== undefined ? '[st' + o.userData.station + ']' : ''));
       out.push(pair + ' -> note=' + (p.note ? p.note.title : p.note) + ' station=' + p.station + ' chain=' + chain.join('<'));
     });
+    Object.keys(SCULPTURE_SPOTS).forEach((k) => { SCULPTURE_SPOTS[k].group.traverse((o) => { if (o.isMesh && o.material && o.material.colorWrite === false) { const b = new THREE.Box3().setFromObject(o); out.push(k + ' proxy x ' + b.min.x.toFixed(2) + '..' + b.max.x.toFixed(2) + ' y ' + b.min.y.toFixed(2) + '..' + b.max.y.toFixed(2) + ' z ' + b.min.z.toFixed(2) + '..' + b.max.z.toFixed(2)); } }); });
     const tag = document.createElement('div');
     tag.style.cssText = 'position:fixed;left:8px;top:150px;z-index:99;background:#000;color:#ff0;font:13px monospace;padding:4px 8px;white-space:pre';
     tag.textContent = out.join('\n'); document.body.appendChild(tag);
   }, 14000); }
+{ const q = new URLSearchParams(location.search);
+  // probecost=1 : with x,z,yaw set, how long one pointer probe (the per-frame raycast) takes at this pose,
+  // with the cursor at the centre and at a few other points on screen; and which object it lands on
+  if (q.has('probecost')) setTimeout(() => {
+    const out = [], r = canvas.getBoundingClientRect();
+    [[0.5, 0.5], [0.5, 0.35], [0.3, 0.5], [0.7, 0.5], [0.5, 0.75]].forEach(([fx, fy]) => {
+      const cx = r.left + r.width * fx, cy = r.top + r.height * fy;
+      probe(cx, cy);
+      const t0 = performance.now(); let p; for (let i = 0; i < 20; i++) p = probe(cx, cy); const ms = (performance.now() - t0) / 20;
+      const o = p.surface && p.surface.object, tris = o && o.geometry && o.geometry.index ? o.geometry.index.count / 3 : (o && o.geometry ? o.geometry.attributes.position.count / 3 : 0);
+      out.push('cursor ' + fx + ',' + fy + ': ' + ms.toFixed(2) + ' ms/probe  hits ' + (o ? (o.name || o.type) + ' (' + Math.round(tris) + ' tris)' : 'nothing'));
+    });
+    let heavy = 0, list = []; scene.traverse((o) => { if (o.isMesh && o.geometry) { const n = o.geometry.index ? o.geometry.index.count / 3 : o.geometry.attributes.position.count / 3; if (n > 20000) { heavy++; list.push(Math.round(n / 1000) + 'k'); } } });
+    out.push('meshes over 20k tris: ' + heavy + ' (' + list.join(', ') + ')');
+    const tag = document.createElement('div');
+    tag.style.cssText = 'position:fixed;left:8px;top:60px;z-index:99;background:#000;color:#0f0;font:13px monospace;padding:6px 10px;white-space:pre';
+    tag.textContent = out.join('\n'); document.body.appendChild(tag);
+  }, 16000); }

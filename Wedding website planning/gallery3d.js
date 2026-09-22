@@ -743,14 +743,16 @@ wingPortal(1, -7.5, 2.6, 2.3);
   wallMesh.position.set(0, 0, z - 0.14);
   wallMesh.receiveShadow = true;
   scene.add(wallMesh);
+  // the band's foot and the opening's foot both sit below the floor: otherwise a sliver of band is left across
+  // the doorway with its top exactly on the floor plane, and the two flicker against each other as you walk in
   const shape = new THREE.Shape();
-  shape.moveTo(-r, 0); shape.lineTo(-r, springs);
+  shape.moveTo(-r, -0.05); shape.lineTo(-r, springs);
   shape.absarc(0, springs, r, Math.PI, 0, true);
-  shape.lineTo(r, 0); shape.lineTo(-r, 0);
+  shape.lineTo(r, -0.05); shape.lineTo(-r, -0.05);
   const cut = new THREE.Shape();
-  cut.moveTo(-r - 0.16, -0.02); cut.lineTo(-r - 0.16, springs);
+  cut.moveTo(-r - 0.16, -0.1); cut.lineTo(-r - 0.16, springs);
   cut.absarc(0, springs, r + 0.16, Math.PI, 0, true);
-  cut.lineTo(r + 0.16, -0.02); cut.lineTo(-r - 0.16, -0.02);
+  cut.lineTo(r + 0.16, -0.1); cut.lineTo(-r - 0.16, -0.1);
   cut.holes.push(new THREE.Path(shape.getPoints(48)));
   const band = new THREE.Mesh(new THREE.ExtrudeGeometry(cut, { depth: 0.3, bevelEnabled: false }), plaster);
   band.position.set(0, 0, z - 0.15);
@@ -1965,9 +1967,17 @@ function levelBase(model) {
         const [nx, nz] = cfg.nudge || [0, 0];                                    // metres, to centre the statue's own base on its plinth
         model.position.set(-c.x * k + nx, spot.top - box.min.y * k, -c.z * k + nz);   // stood on the spot, centred
         if (!cfg.keep) model.traverse((o) => { if (o.isMesh) o.material = marbleScan; });
+        // the scans run to 100,000 triangles each, and the cursor's ray is tested against the scene every frame
+        // of a walk; testing that many triangles drops frames. So the scan itself is left out of the ray test and
+        // a plain invisible box round it is what the cursor and clicks meet instead
+        model.traverse((o) => { if (o.isMesh) o.raycast = () => {}; });
+        const proxy = new THREE.Mesh(new THREE.BoxGeometry(size.x * k, size.y * k, size.z * k),
+          new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false }));
+        proxy.position.set(model.position.x + c.x * k, model.position.y + (c.y - box.min.y) * k, model.position.z + c.z * k);
+        proxy.renderOrder = -1;
         const holder = new THREE.Group();
         holder.rotation.y = cfg.turn || 0;
-        holder.add(model);
+        holder.add(model, proxy);
         spot.placeholder.forEach((m) => m.removeFromParent());
         spot.group.add(holder);
         if (SCULPTURE_NOTES[id]) {
@@ -2190,13 +2200,26 @@ function clearOfTable(ax, az, bx, bz) {
 // plan a walk across the details room from `at` to (tx, tz): straight if the table is not in the way,
 // otherwise round one of its ends. Each leg: turn the way you are going, then walk. Updates `at`.
 function detWalk(at, tx, tz) {
-  let pts = [[tx, tz]];
-  if (!clearOfTable(at.x, at.z, tx, tz)) {
-    const X = ((at.x + tx) >= 0 ? 1 : -1) * (TABLE_KEEPOUT.x1 + 0.3);
-    const near = [X, TABLE_KEEPOUT.z1 + 0.05], far = [X, TABLE_KEEPOUT.z0 - 0.05];
-    const one = [near, far].find((w) => clearOfTable(at.x, at.z, w[0], w[1]) && clearOfTable(w[0], w[1], tx, tz));
-    pts = one ? [one, [tx, tz]] : (at.z > tz ? [near, far, [tx, tz]] : [far, near, [tx, tz]]);
+  // the shortest route from here to there that never crosses the table: straight if it can be, otherwise
+  // by way of the corners of the table's keep-out (set a little wide, so the rounded corners of the walk clear it too)
+  const X = TABLE_KEEPOUT.x1 + 0.45, zN = TABLE_KEEPOUT.z1 + 0.05, zF = TABLE_KEEPOUT.z0 - 0.05;
+  const nodes = [[at.x, at.z], [-X, zN], [X, zN], [X, zF], [-X, zF], [tx, tz]], N = nodes.length;
+  const dist = Array(N).fill(Infinity), prev = Array(N).fill(-1), done = Array(N).fill(false);
+  dist[0] = 0;
+  for (let k = 0; k < N; k++) {
+    let u = -1;
+    for (let i = 0; i < N; i++) if (!done[i] && (u < 0 || dist[i] < dist[u])) u = i;
+    if (u < 0 || dist[u] === Infinity) break;
+    done[u] = true;
+    for (let v = 0; v < N; v++) {
+      if (done[v] || !clearOfTable(nodes[u][0], nodes[u][1], nodes[v][0], nodes[v][1])) continue;
+      const d = dist[u] + Math.hypot(nodes[v][0] - nodes[u][0], nodes[v][1] - nodes[u][1]);
+      if (d < dist[v]) { dist[v] = d; prev[v] = u; }
+    }
   }
+  let pts = [];
+  if (dist[N - 1] < Infinity) { for (let v = N - 1; v > 0; v = prev[v]) pts.unshift(nodes[v]); }
+  else pts = [[tx, tz]];
   pts.forEach(([x, z]) => {
     if (Math.abs(x - at.x) < 0.01 && Math.abs(z - at.z) < 0.01) return;
     pushTurn(Math.atan2(at.x - x, at.z - z));
@@ -2205,7 +2228,7 @@ function detWalk(at, tx, tz) {
   });
 }
 
-function goTo(n) {
+function planRoute(n) {
   const i = Math.max(0, Math.min(STATIONS.length - 1, n));
   // already there: nothing to do, unless you have turned round on the spot and should face it again
   if (i === idx && queue.length === 0 && !leg && Math.abs(shortAngle(cam.yaw, STATIONS[i].yaw) - cam.yaw) < 0.01) return;
@@ -2287,6 +2310,133 @@ function goTo(n) {
   pushTurn(t.yaw);
 }
 
+// ---- the walk itself. planRoute() thinks in steps (turn, walk, turn); a person does not move like that, so the
+// steps are compiled into one continuous walk: a path through the same points with rounded corners, walked at a
+// steady pace with a soft start and stop, the heading turning as the path bends, the initial turn taken on the
+// spot only when it is a big one, and the final turn to face the stop blended into the last stretch. The levelling
+// of the view and the stop's own tilt and height are folded into the same motion. Routes with no walking (a turn
+// on the spot) still run as plain turn steps.
+// speed m/s; ramp: metres to get up to pace and to stop; slow: how much a corner slows you (0.45 = to 55%);
+// corner: corner radius in metres; bigTurn: radians, a first turn larger than this is taken on the spot;
+// turnRate: radians per ms, the fastest the view ever swings (~125 deg/s); lag: ms, how far the view trails its heading
+const WALK = { speed: 2.5, ramp: 0.9, minMs: 900, corner: 0.9, slow: 0.4, bigTurn: 0.9, turnRate: 0.0022, lag: 110 };
+let lastSteps = [];                                    // the plan as steps, kept for the test harness to report
+function goTo(n) {
+  planRoute(n);
+  lastSteps = queue.slice();
+  compileWalk();
+}
+const smooth = (x) => { x = Math.min(1, Math.max(0, x)); return x * x * (3 - 2 * x); };
+const lerpAngle = (a, b, k) => a + (shortAngle(a, b) - a) * k;
+function compileWalk() {
+  if (!queue.some((q) => q.kind === 'move')) return;
+  // steps -> points. A move takes the heading of the turn before it; a move with no turn (a sidestep, a step
+  // back) holds the view where it is; a trailing turn is the facing to end on.
+  const pts = [{ x: cam.x, z: cam.z }];
+  let pending = null, level = false, endYaw = null;
+  queue.forEach((q) => {
+    if (q.kind === 'turn') { if (q.pitch === 0 && q.yaw === cam.yaw) level = true; else pending = q.yaw; return; }
+    const prev = pts[pts.length - 1], heading = Math.atan2(prev.x - q.x, prev.z - q.z);
+    const hold = pending === null || Math.abs(shortAngle(heading, pending) - heading) > 0.5;
+    pts.push({ x: q.x, z: q.z, hold: hold ? (pending === null ? (prev.yawHold ?? cam.yaw) : pending) : null });
+    pts[pts.length - 1].yawHold = pts[pts.length - 1].hold;
+    pending = null;
+  });
+  endYaw = pending !== null ? pending : (pts[pts.length - 1].hold ?? cam.yaw);
+  queue = [];
+  // round the corners: each interior point becomes a short curve from a little before it to a little after
+  const poly = [pts[0]];
+  for (let i = 1; i < pts.length - 1; i++) {
+    const P = pts[i], A = pts[i - 1], B = pts[i + 1];
+    const la = Math.hypot(P.x - A.x, P.z - A.z), lb = Math.hypot(B.x - P.x, B.z - P.z), r = Math.min(WALK.corner, la * 0.45, lb * 0.45);
+    const ax = (A.x - P.x) / la, az = (A.z - P.z) / la, bx = (B.x - P.x) / lb, bz = (B.z - P.z) / lb;
+    const p0 = { x: P.x + ax * r, z: P.z + az * r }, p2 = { x: P.x + bx * r, z: P.z + bz * r };
+    for (let k = 0; k <= 24; k++) {                                 // a quadratic curve through the corner
+      const u = k / 24, w0 = (1 - u) * (1 - u), w1 = 2 * u * (1 - u), w2 = u * u;
+      poly.push({ x: w0 * p0.x + w1 * P.x + w2 * p2.x, z: w0 * p0.z + w1 * P.z + w2 * p2.z, hold: P.hold, corner: true });
+    }
+  }
+  poly.push(pts[pts.length - 1]);
+  const cum = [0];
+  for (let i = 1; i < poly.length; i++) cum.push(cum[i - 1] + Math.hypot(poly[i].x - poly[i - 1].x, poly[i].z - poly[i - 1].z));
+  const L = cum[cum.length - 1];
+  if (L < 0.005) { queue.push({ kind: 'turn', yaw: endYaw, ms: 1100 }); return; }
+  const walk = { kind: 'path', poly, cum, L, endYaw, t0: 0, pf: cam.pitch, ef: cam.eye, pt: wantPitch, et: wantEye, level };
+  // pace: a steady walk that eases off through the corners and at both ends. Time is tabulated every 2 cm
+  // along the path, so that at any moment we know how far along it we are
+  const STEP = 0.02, n = Math.ceil(L / STEP), S = [], T = [];
+  let t = 0;
+  for (let i = 0; i <= n; i++) {
+    const sd = Math.min(L, i * STEP);
+    let bend = 0;                                                    // how much of the path within half a metre is corner
+    for (let d = -0.5; d <= 0.5; d += 0.1) { const q = alongPath(walk, Math.min(L, Math.max(0, sd + d))); bend += q.corner ? 1 : 0; }
+    const ends = 0.1 + 0.9 * smooth(Math.min(sd, L - sd) / WALK.ramp);
+    const v = WALK.speed * ends * (1 - WALK.slow * bend / 11);
+    if (i) t += STEP / v * 1000;
+    S.push(sd); T.push(t);
+  }
+  walk.S = S; walk.T = T; walk.ms = Math.max(WALK.minMs, t);
+  if (walk.ms > t) { const k = walk.ms / t; for (let i = 0; i < T.length; i++) T[i] *= k; }
+  // how far the view has to swing at the start and at the end, and how much of the path each gets. A big first
+  // turn is taken on the spot before setting off; a big last turn starts early so it is never a whip
+  const h0 = alongPath(walk, 0).yaw, h1 = alongPath(walk, L).yaw;
+  const turn0 = Math.abs(shortAngle(cam.yaw, h0) - cam.yaw), turn1 = Math.abs(shortAngle(h1, endYaw) - h1);
+  walk.lookIn = turn0 > WALK.bigTurn ? 0.3 : Math.min(L * 0.45, 0.5 + 1.6 * turn0 / (Math.PI / 2));
+  walk.lookOut = Math.min(L * 0.6, 0.6 + 2.2 * turn1 / (Math.PI / 2));
+  if (turn0 > WALK.bigTurn) queue.push({ kind: 'turn', yaw: h0, ms: 600 + turn0 / Math.PI * 1400 });
+  queue.push(walk);
+}
+// where along the path you are after `s` metres, and which way the walk itself faces there: a held view, or the
+// heading, read over a 30 cm stretch so it sweeps round the corners instead of stepping
+function alongPath(w, s) {
+  const at = (d) => {
+    d = Math.min(w.L, Math.max(0, d));
+    let i = 1;
+    while (i < w.cum.length - 1 && w.cum[i] < d) i++;
+    const a = w.poly[i - 1], b = w.poly[i], span = w.cum[i] - w.cum[i - 1], k = span > 1e-6 ? (d - w.cum[i - 1]) / span : 1;
+    return { x: a.x + (b.x - a.x) * k, z: a.z + (b.z - a.z) * k, a, b };
+  };
+  const p = at(s), hold = p.b.hold === undefined ? w.poly[w.poly.length - 1].hold : p.b.hold;
+  const q0 = at(s - 0.15), q1 = at(s + 0.15);
+  const yaw = hold ?? (Math.hypot(q1.x - q0.x, q1.z - q0.z) > 1e-4 ? Math.atan2(q0.x - q1.x, q0.z - q1.z) : Math.atan2(p.b.x - p.x, p.b.z - p.z));
+  return { x: p.x, z: p.z, yaw, corner: !!(p.b.corner && p.a.corner) };
+}
+// distance covered at time t, from the walk's pace table
+function paceDistance(w, t) {
+  const T = w.T, S = w.S;
+  let lo = 0, hi = T.length - 1;
+  while (hi - lo > 1) { const m = (lo + hi) >> 1; if (T[m] <= t) lo = m; else hi = m; }
+  const span = T[hi] - T[lo];
+  return span > 1e-6 ? S[lo] + (S[hi] - S[lo]) * Math.min(1, Math.max(0, (t - T[lo]) / span)) : S[lo];
+}
+function stepPath(w, now) {
+  if (!w.started) { w.started = true; w.t0 = now; w.last = now; w.from = cam.yaw; }
+  const dt = Math.min(100, now - w.last); w.last = now;
+  const t = Math.min(w.ms, now - w.t0), s = paceDistance(w, t), at = alongPath(w, s);
+  cam.x = at.x; cam.z = at.z;
+  // heading: from where you were facing into the walk's own heading, and out of it into the stop's facing
+  let yaw = at.yaw;
+  if (w.lookIn > 0 && s < w.lookIn) yaw = lerpAngle(w.from, yaw, smooth(s / w.lookIn));
+  if (s > w.L - w.lookOut) yaw = lerpAngle(yaw, w.endYaw, smooth((s - (w.L - w.lookOut)) / w.lookOut));
+  // the view follows that heading with a little lag, and never swings faster than a person turns
+  const swing = shortAngle(cam.yaw, yaw) - cam.yaw, most = WALK.turnRate * dt;
+  cam.yaw += Math.max(-most, Math.min(most, swing * (1 - Math.exp(-dt / WALK.lag))));
+  // view height and tilt: level out over the first stretch and take up the stop's own over the last; a short
+  // walk goes straight from one to the other
+  const k = t / w.ms;
+  if (!w.level || w.L < 2.5) { const e = smooth(k); cam.pitch = w.pf + (w.pt - w.pf) * e; cam.eye = w.ef + (w.et - w.ef) * e; }
+  else if (k < 0.35) { const e = smooth(k / 0.35); cam.pitch = w.pf * (1 - e); cam.eye = w.ef + (EYE - w.ef) * e; }
+  else if (k > 0.65) { const e = smooth((k - 0.65) / 0.35); cam.pitch = w.pt * e; cam.eye = EYE + (w.et - EYE) * e; }
+  else { cam.pitch = 0; cam.eye = EYE; }
+  if (t >= w.ms) {                                                  // arrived; finish any turn the lag and the cap left over
+    cam.x = w.poly[w.poly.length - 1].x; cam.z = w.poly[w.poly.length - 1].z; cam.pitch = w.pt; cam.eye = w.et;
+    const left = shortAngle(cam.yaw, w.endYaw) - cam.yaw;
+    if (Math.abs(left) > 0.002) { cam.yaw += Math.max(-most, Math.min(most, left * Math.max(0.35, 1 - Math.exp(-dt / WALK.lag)))); return false; }
+    cam.yaw = shortAngle(cam.yaw, w.endYaw); return true;
+  }
+  return false;
+}
+
 function startLeg() {
   const step = queue.shift();
   if (!step) {
@@ -2294,6 +2444,7 @@ function startLeg() {
     leg = settled() ? null : { kind: 'turn', from: cam.yaw, to: cam.yaw, pf: cam.pitch, pt: wantPitch, ef: cam.eye, et: wantEye, t0: performance.now(), ms: 1000 };
     return;
   }
+  if (step.kind === 'path') { leg = step; return; }
   if (step.kind === 'turn') {
     const to = Math.abs(Math.abs(step.yaw - cam.yaw) - Math.PI) < 0.001 ? step.yaw : shortAngle(cam.yaw, step.yaw), pt = step.pitch === undefined ? cam.pitch : step.pitch, et = step.eye === undefined ? cam.eye : step.eye;
     if (Math.abs(to - cam.yaw) < 0.001 && Math.abs(pt - cam.pitch) < 0.001 && Math.abs(et - cam.eye) < 0.001) return startLeg();
@@ -3165,7 +3316,9 @@ resize();
 
 function frame(now) {
   if (!leg && (queue.length || !settled())) startLeg();
-  if (leg) {
+  if (leg && leg.kind === 'path') {
+    if (stepPath(leg, now)) leg = null;
+  } else if (leg) {
     const k = Math.min(1, (now - leg.t0) / leg.ms);
     const e = easeInOut(k);
     if (leg.kind === 'turn') {

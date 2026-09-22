@@ -81,11 +81,11 @@ const STATIONS = [
 
   { id: 'w2', x: 1150 * U, z: -7.5, yaw: -Math.PI / 2, room: 'w2', accent: '#D19A6E',
     eyebrow: 'Wing II · principal work', title: 'Primavera',
-    body: 'A hundred and ninety species of plant in one painting, and a garden that refuses to stop. The reception takes this as instruction rather than inspiration.',
+    body: 'A hundred and ninety species of plant in one painting, and a garden that refuses to stop. The reception takes this as instruction as well as inspiration.',
     meta: 'Sandro Botticelli, c. 1480 · Uffizi, Florence' },
   { id: 'w2close', x: CLOSE_X, z: -7.5, yaw: -Math.PI / 2, eye: 1.95, room: 'w2', accent: '#D19A6E', tour: false,
     eyebrow: 'Wing II · principal work · up close', title: 'Primavera',
-    body: 'A hundred and ninety species of plant in one painting, and a garden that refuses to stop. The reception takes this as instruction rather than inspiration.',
+    body: 'A hundred and ninety species of plant in one painting, and a garden that refuses to stop. The reception takes this as instruction as well as inspiration.',
     meta: 'Sandro Botticelli, c. 1480 · Uffizi, Florence' },
   { id: 'w2a', x: 6.8, z: -7.5, yaw: 0, room: 'w2', accent: '#D19A6E',
     eyebrow: 'Wing II · complementary work', title: 'The Banquet',
@@ -103,7 +103,7 @@ const STATIONS = [
     meta: 'Adriaen van Utrecht, 1644 · Rijksmuseum, Amsterdam' },
   { id: 'w2ruoppolo', x: 7.85, z: -8.1, yaw: 0, eye: 2.0, room: 'w2', accent: '#D19A6E', tour: false, back: 'w2a',
     eyebrow: 'Wing II · The Banquet', title: 'Still Life with Fruit',
-    body: 'A watermelon split open on a blue-and-white plate, figs, peaches, and a melon nobody has got round to yet. Neapolitan still life is mostly an argument for dessert. We agree with it.',
+    body: 'A watermelon split open on a blue-and-white plate, figs, peaches, and a melon nobody has gotten around to yet. Neapolitan still life is mostly an argument for dessert. We agree with it.',
     meta: 'Giovan Battista Ruoppolo, 1650–1699' },
   // "The Dancing" wall's two pictures, up close (as Wing I's): click a picture from the wall's stop; Step back returns there
   { id: 'w2parnassus', x: 5.8, z: -6.9, yaw: Math.PI, eye: 2.0, room: 'w2', accent: '#D19A6E', tour: false, back: 'w2b',
@@ -134,8 +134,8 @@ const STATIONS = [
     meta: 'Placeholder text' },
   { id: 'detTravel', x: -2.2, z: -15.9225, yaw: Math.PI / 2, eye: 2.3, room: 'det', card: 'travel', accent: '#C9A667',
     eyebrow: 'Exhibit details · 3 · travel & transportation', title: 'Pegasus, Centaurs & Chariots',
-    body: 'Or, as the modern world insists on calling them: planes, trains and automobiles. Pegasus is quickest, the centaurs run roughly to timetable, and a chariot needs somewhere to park. Those arriving by sea should ask Galatea about her dolphins. Placeholder: the real travel details are in the wall text.',
-    meta: 'Placeholder text' },
+    body: 'Or, as the modern world insists on calling them: planes, trains and automobiles. Pegasus is quickest, the centaurs run roughly to timetable, and a chariot needs somewhere to park. Those arriving by sea should ask Galatea about her dolphins.',
+    meta: '' },
   { id: 'detStay', x: 2.4, z: -17.1925, yaw: -Math.PI / 2, eye: 2.3, room: 'det', card: 'stay', accent: '#C9A667',
     eyebrow: 'Exhibit details · 4', title: 'Accommodations',
     body: 'Placeholder. Lodgings, room blocks, group codes and cut-off dates are in the wall text.',
@@ -146,8 +146,8 @@ const STATIONS = [
     meta: 'Placeholder text' },
   { id: 'detFrontR', x: 3.4, z: -12.75, yaw: Math.PI, room: 'det', card: 'policies', accent: '#A79C85',
     eyebrow: 'Exhibit details · 6', title: 'Guest Policies',
-    body: 'Placeholder. RSVP deadline, plus-ones and children, and who to call on the day are in the wall text.',
-    meta: 'Placeholder text' },
+    body: 'Mantegna painted the Gonzaga household with everyone present and accounted for: the marquis, his wife, the children, the courtiers, a dwarf, and the dog under the chair. That is the policy in one picture: come as yourself, with the people named on your invitation. The dog, sadly, stays home.',
+    meta: 'After Andrea Mantegna, Camera degli Sposi, 1465–74 · Palazzo Ducale, Mantua' },
   // the gift-shop stand under the main frame on the end wall: postcards (the RSVP) and the registry note.
   // You reach it from the main frame's close-up (or by clicking it from anywhere in the room); Step back returns there.
   { id: 'detShop', x: 0, z: -17.35, yaw: 0, pitch: -0.36, room: 'det', card: 'registry', accent: '#C9A667', back: 'detClose',
@@ -985,11 +985,11 @@ const DETAIL_PICTURES = [
   { wall: 'back', at: -3.7, y: 2.7, w: 0.95, h: 1.25, sec: 'you', oval: true, blank: true },
   { wall: 'back', at: 3.7, y: 2.7, w: 0.95, h: 1.25, sec: 'you', oval: true, blank: true },
   // LEFT WALL, entrance side. 2 The schedule: April above; time and the feast beneath
-  { wall: 'left', at: DET.zMid + 2.85, y: 2.665, w: 2.0, h: 1.012, sec: 'schedule', src: 'assets/det-april-triumph-of-venus.jpg',
+  { wall: 'left', at: DET.zMid + 2.85, y: 2.745, w: 2.0, h: 1.012, sec: 'schedule', src: 'assets/det-april-triumph-of-venus.jpg',
     note: ['April (The Triumph of Venus)', 'From a room in Ferrara that paints the year month by month. April belongs to Venus: she arrives on a barge drawn by swans, lovers gather on the banks, and the three Graces look on. We took the hint about the month.', 'Francesco del Cossa, c. 1470 · Palazzo Schifanoia, Ferrara'] },
-  { wall: 'left', at: DET.zMid + 3.45, y: 1.56, w: 0.85, h: 0.607, sec: 'schedule', src: 'assets/det-dance-to-the-music-of-time.jpg', crop: [0.05, 0.09, 0.96, 0.89],       // trimmed inside its shaped edge
+  { wall: 'left', at: DET.zMid + 3.45, y: 1.64, w: 0.85, h: 0.607, sec: 'schedule', src: 'assets/det-dance-to-the-music-of-time.jpg', crop: [0.05, 0.09, 0.96, 0.89],       // trimmed inside its shaped edge
     note: ['A Dance to the Music of Time', 'Father Time plays the lyre and the Seasons dance to it. The small cupid in the corner is holding the hourglass, which makes him the one keeping us to schedule.', 'Follower of Laurent de La Hyre, 17th century'] },
-  { wall: 'left', at: DET.zMid + 2.26, y: 1.56, w: 0.95, h: 0.396, sec: 'schedule', src: 'assets/det-banquet-of-cupid-and-psyche.jpg', crop: [0.115, 0.255, 0.995, 0.7],   // the banquet panel alone, without the ceiling round it
+  { wall: 'left', at: DET.zMid + 2.26, y: 1.64, w: 0.95, h: 0.396, sec: 'schedule', src: 'assets/det-banquet-of-cupid-and-psyche.jpg', crop: [0.115, 0.255, 0.995, 0.7],   // the banquet panel alone, without the ceiling round it
     note: ['The Wedding Banquet of Cupid and Psyche', 'Every god on Olympus came to the wedding. It is painted on a ceiling as if it were a tapestry stretched overhead: Bacchus pours, the Graces see to the perfume, and the Hours scatter flowers. Even up there, dinner ran to a timetable.', 'Raphael and workshop, 1518 · Villa Farnesina, Rome'] },
   // LEFT WALL, far side. 3 Travel: "Pegasus, Centaurs & Chariots", with Galatea's dolphins in the middle
   { wall: 'left', at: DET.zMid - 0.03, y: 2.3, w: 0.8, h: 1.2, sec: 'travel', src: 'assets/det-pegasus-and-mercury.jpg',
@@ -999,19 +999,19 @@ const DETAIL_PICTURES = [
   { wall: 'left', at: DET.zMid - 2.695, y: 2.3, w: 0.85, h: 1.2, sec: 'travel', src: 'assets/det-pallas-and-the-centaur.jpg',
     note: ['Pallas and the Centaur', 'Pallas has the centaur by the hair, which is roughly how it feels to catch a connecting train. He looks sorry about the delay. They usually do.', 'Sandro Botticelli, c. 1482 · Gallerie degli Uffizi, Florence'] },
   // RIGHT WALL, entrance side. 1 The main details: a party in a villa garden, and one under a villa loggia
-  { wall: 'right', at: DET.zMid + 0.45, y: 2.15, w: 2.4, h: 1.735, sec: 'main', src: 'assets/det-pleasure-garden-with-a-maze.jpg',
-    note: ['Pleasure Garden with a Maze', 'A villa garden in full swing: a maze, musicians, boats on the water, a banquet in the middle and guests in every corner. Swap the maze for a cypress avenue and this is more or less the plan.', 'Lodewijk Toeput, called Pozzoserrato, c. 1579–84 · Royal Collection'] },
-  { wall: 'right', at: DET.zMid + 3.15, y: 2.15, w: 1.9, h: 0.866, sec: 'main', src: 'assets/det-dives-and-lazarus.jpg',
-    note: ['Dives and Lazarus', 'A party under a villa loggia, with musicians playing and the garden beyond. Strictly it is a parable about a rich man who ignored the beggar at his door. We have borrowed the setting, not the moral.', 'Bonifacio Veronese (Bonifacio de’ Pitati), c. 1540s · Gallerie dell’Accademia, Venice'] },
+  { wall: 'right', at: DET.zMid + 0.45, y: 2.23, w: 2.4, h: 1.735, sec: 'main', src: 'assets/det-pleasure-garden-with-a-maze.jpg',
+    note: ['Pleasure Garden with a Maze', 'A villa garden in full swing: a maze, musicians, boats on the water, a banquet in the middle and guests in every corner. Add a cypress avenue next to the maze and this is more or less the plan.', 'Lodewijk Toeput, called Pozzoserrato, c. 1579–84 · Royal Collection'] },
+  { wall: 'right', at: DET.zMid + 3.15, y: 2.23, w: 1.9, h: 0.866, sec: 'main', src: 'assets/det-dives-and-lazarus.jpg',
+    note: ['Dives and Lazarus', 'A party under a villa loggia, with musicians playing and the garden beyond. Strictly it is a parable about a rich man who ignored the beggar at his door. Lesson taken: everyone at our door gets a seat and a plate.', 'Bonifacio Veronese (Bonifacio de’ Pitati), c. 1540s · Gallerie dell’Accademia, Venice'] },
   // RIGHT WALL, far side. 4 Accommodations: one picture, a bedroom
   { wall: 'right', at: DET.zMid - 2.62, y: 2.3, w: 1.552, h: 1.6, sec: 'stay', src: 'assets/det-dream-of-st-ursula.jpg',
     note: ['The Dream of St Ursula', 'The best-kept bedroom in Venetian painting: slippers by the bed, a small dog on the floor, the window open, and an angel arriving quietly at dawn. We cannot promise the angel. We can help with the bed.', 'Vittore Carpaccio, 1495 · Gallerie dell’Accademia, Venice'] },
   // ENTRANCE WALL, left. 5 Advanced logistics: terrain above; weather and the seasons beneath. Kept left of x -2.2, clear of the bust
-  { wall: 'front', at: -3.5, y: 2.83, w: 2.1, h: 0.823, sec: 'logistics', src: 'assets/det-good-government-countryside.jpg',
+  { wall: 'front', at: -3.5, y: 2.85, w: 2.1, h: 0.823, sec: 'logistics', src: 'assets/det-good-government-countryside.jpg',
     note: ['The Effects of Good Government in the Countryside', 'The hills round Siena, painted a short drive from the villa nearly seven hundred years ago, and they have hardly changed: white roads, vineyards, and rather more slope than it looks. Pack shoes accordingly.', 'Ambrogio Lorenzetti, 1338–39 · Palazzo Pubblico, Siena'] },
-  { wall: 'front', at: -3.955, y: 1.66, w: 1.1, h: 0.848, sec: 'logistics', src: 'assets/det-storm-on-a-mediterranean-coast.jpg',
+  { wall: 'front', at: -3.955, y: 1.74, w: 1.1, h: 0.848, sec: 'logistics', src: 'assets/det-storm-on-a-mediterranean-coast.jpg',
     note: ['A Storm on a Mediterranean Coast', 'The weather forecast, worst case. Late April in Tuscany is usually gentle, but Vernet made a career out of what happens when it is not. Bring a layer.', 'Claude-Joseph Vernet, 1767 · J. Paul Getty Museum, Los Angeles'] },
-  { wall: 'front', at: -2.785, y: 1.66, w: 0.59, h: 0.869, sec: 'logistics', src: 'assets/det-four-seasons.jpg',
+  { wall: 'front', at: -2.785, y: 1.74, w: 0.59, h: 0.869, sec: 'logistics', src: 'assets/det-four-seasons.jpg',
     note: ['Allegory of the Four Seasons', 'Spring, Summer, Autumn and Winter, crowded into one frame. Late April can manage three of them in a day.', 'Bartolomeo Manfredi, c. 1610 · Dayton Art Institute'] },
   // ENTRANCE WALL, right. 6 Guest policies
   { wall: 'front', at: 3.4, y: 2.4, w: 1.75, h: 1.21, sec: 'policies', src: 'assets/det-court-of-gonzaga.jpg',
@@ -2200,8 +2200,6 @@ pictureLight(P.wingEndX - 0.6, H - 0.5, -7.5, P.wingEndX, 1.95, -7.5, true, 15, 
 });
 
 pictureLight(0, H - 0.14, DET.zB + 1.0, 0, 2.55, DET.zB, false, 7, 3.84, 1.9);
-pictureLight(-DET.x + 1.0, H - 0.14, DET.zMid - 1.35, -DET.x, 2.3, DET.zMid - 1.35, false, 7, 3.19, 0.8);   // the Galatea
-pictureLight(DET.x - 1.0, H - 0.14, DET.zMid + 0.45, DET.x, 2.15, DET.zMid + 0.45, false, 7, 3.19, 1.5);                 // the maze garden
 
 // warm pools down the corridor so the space reads as lit
 [[0, 10], [0, 6.5], [0, 3], [0, -0.5], [0, -4], [0, -7.5]].forEach(([x, z]) => {

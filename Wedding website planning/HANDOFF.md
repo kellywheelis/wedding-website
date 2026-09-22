@@ -276,6 +276,9 @@ No scans of Villa Cetinale's own sculpture exist online (searched). See `assets/
   cursor, easing back when it leaves the canvas; applied only at draw time (`camera.rotation` = cam + LOOK), so
   nothing about stops or routes sees it. Off while the save-the-date or invitation is held. The harness's
   `build.sh` rewrites that camera.rotation line to add its `pitch=` offset, so keep the line's text in step.
+- Free look in the details room: at stops marked `look: 'free'` (entry, table, the six section stops) the cursor
+  in the outer part of the screen (`LOOK.edge`) turns the view that way, up to `LOOK.spin` rad/s, folded into
+  `cam.yaw` so it persists and walks start from it. Off at close-ups, walk-ups, the stand, during walks and cards.
 - Frame rate while walking: the cursor's ray is tested against the scene every frame of a walk, so the sculpture
   scans (55k-118k triangles each) are left OUT of the ray test (`raycast = () => {}`) and each carries an
   invisible box (`colorWrite: false`) that the cursor and clicks meet instead.

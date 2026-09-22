@@ -115,36 +115,36 @@ const STATIONS = [
     body: 'Painted as a wedding present in 1483: long tables, a loggia open to the hills, and the waiters arriving in formation. The story that leads up to this feast is best not told at a wedding. The catering, however, is exactly right.',
     meta: 'Sandro Botticelli, 1483 · The Story of Nastagio degli Onesti, IV' },
 
-  { id: 'det', x: 0, z: -12.5, yaw: 0, room: 'det', accent: '#C9A667',
+  { id: 'det', look: 'free', x: 0, z: -12.5, yaw: 0, room: 'det', accent: '#C9A667',
     eyebrow: 'Exhibit details · the centrepiece', title: 'The only thing missing from this exhibit is you',
     body: 'Every other work in the building is already hung. This frame is kept for our guests: you are the last piece of the collection, and the one we built the rest around.',
     meta: 'Empty frame, gilt · on loan from the future' },
   // Walk on visits the room in this order: the centrepiece, the table, then sections 1 to 7
-  { id: 'detTable', x: 0, z: -13.95, yaw: 0, pitch: -0.5, room: 'det', accent: '#C9A667',
+  { id: 'detTable', look: 'free', x: 0, z: -13.95, yaw: 0, pitch: -0.5, room: 'det', accent: '#C9A667',
     eyebrow: 'Exhibit details · the table', title: 'On the table',
     body: 'The save-the-date is here to be handled. Click it to pick it up and turn the wheel.', meta: 'Please touch' },
   // the six sections on the walls: you stand before the group, raised to the height of its pictures (`eye`)
-  { id: 'detMain', x: 2.2, z: -12.77, yaw: -Math.PI / 2, eye: 2.3, room: 'det', card: 'main', accent: '#C9A667',
+  { id: 'detMain', look: 'free', x: 2.2, z: -12.77, yaw: -Math.PI / 2, eye: 2.3, room: 'det', card: 'main', accent: '#C9A667',
     eyebrow: 'Exhibit details · 1', title: 'The Main Details',
     body: 'Two garden parties, painted four and a half centuries before ours. Villa Cetinale, Sovicille, in the hills outside Siena, Saturday 24 April 2027, with the weekend around it. The maze is real. The cypress avenue is very real. Everything else is in the wall text.',
     meta: 'Villa Cetinale · Sovicille (Siena), Italy · 24 April 2027' },
-  { id: 'detSchedule', x: -2.4, z: -11.7225, yaw: Math.PI / 2, eye: 2.3, room: 'det', card: 'schedule', accent: '#C9A667',
+  { id: 'detSchedule', look: 'free', x: -2.4, z: -11.7225, yaw: Math.PI / 2, eye: 2.3, room: 'det', card: 'schedule', accent: '#C9A667',
     eyebrow: 'Exhibit details · 2', title: 'The Full Schedule',
     body: 'The month of April, as Ferrara painted it: Venus arriving in triumph, the Three Graces, and everyone in their best clothes, ready to dance. Four days in the same month, in the same spirit. Arrive on Thursday, leave on Monday, and dance in between.',
     meta: 'Francesco del Cossa, April (Triumph of Venus), c. 1470 · Palazzo Schifanoia, Ferrara' },
-  { id: 'detTravel', x: -2.2, z: -15.9225, yaw: Math.PI / 2, eye: 2.3, room: 'det', card: 'travel', accent: '#C9A667',
+  { id: 'detTravel', look: 'free', x: -2.2, z: -15.9225, yaw: Math.PI / 2, eye: 2.3, room: 'det', card: 'travel', accent: '#C9A667',
     eyebrow: 'Exhibit details · 3 · travel & transportation', title: 'Pegasus, Centaurs & Chariots',
     body: 'Or, as the modern world insists on calling them: planes, trains and automobiles. Pegasus is quickest, the centaurs run roughly to timetable, and a chariot needs somewhere to park. Those arriving by sea should ask Galatea about her dolphins.',
     meta: '' },
-  { id: 'detStay', x: 2.4, z: -17.1925, yaw: -Math.PI / 2, eye: 2.3, room: 'det', card: 'stay', accent: '#C9A667',
+  { id: 'detStay', look: 'free', x: 2.4, z: -17.1925, yaw: -Math.PI / 2, eye: 2.3, room: 'det', card: 'stay', accent: '#C9A667',
     eyebrow: 'Exhibit details · 4', title: 'Accommodations',
     body: 'The best-kept bedroom in Venetian painting: slippers by the bed, a small dog on the floor, the window open, and an angel arriving quietly at dawn. We cannot promise the angel. We can help with the bed.',
     meta: 'Vittore Carpaccio, The Dream of St Ursula, 1495 · Gallerie dell’Accademia, Venice' },
-  { id: 'detFrontL', x: -3.5, z: -12.75, yaw: Math.PI, eye: 2.2, room: 'det', card: 'logistics', accent: '#A79C85',
+  { id: 'detFrontL', look: 'free', x: -3.5, z: -12.75, yaw: Math.PI, eye: 2.2, room: 'det', card: 'logistics', accent: '#A79C85',
     eyebrow: 'Exhibit details · 5', title: 'Advanced Logistics',
     body: 'Lorenzetti painted the Sienese countryside seven hundred years ago: hills, vines, a road winding up to the gate, and everybody arriving safely. The hills have not moved. Pack some shoes that can manage them, and read the wall text for the rest.',
     meta: 'Ambrogio Lorenzetti, The Effects of Good Government in the Countryside, 1338–39 · Palazzo Pubblico, Siena' },
-  { id: 'detFrontR', x: 3.4, z: -12.75, yaw: Math.PI, room: 'det', card: 'policies', accent: '#A79C85',
+  { id: 'detFrontR', look: 'free', x: 3.4, z: -12.75, yaw: Math.PI, room: 'det', card: 'policies', accent: '#A79C85',
     eyebrow: 'Exhibit details · 6', title: 'Guest Policies',
     body: 'Mantegna painted the Gonzaga household with everyone present and accounted for: the marquis, his wife, the children, the courtiers, a little person, and the dog under the chair. That is the policy in one picture: come as yourself, with the people named on your invitation. The dog, sadly, stays home.',
     meta: 'After Andrea Mantegna, Camera degli Sposi, 1465–74 · Palazzo Ducale, Mantua' },
@@ -2732,7 +2732,8 @@ function updatePointer() {
     pointer.moved = false;
     const p = probe(pointer.x, pointer.y);
     canvas.style.cursor = volHeld() && p.surface && isVolvelle(p.surface.object) ? (volDrag ? 'grabbing' : 'grab')
-      : p.room || p.station !== undefined || p.note || p.cardKey || (invHeld() && p.surface && p.surface.object.userData.invite) ? 'var(--cur-on)' : '';
+      : p.room || p.station !== undefined || p.note || p.cardKey || (invHeld() && p.surface && p.surface.object.userData.invite) ? 'var(--cur-on)'
+      : LOOK.turning ? (LOOK.turning > 0 ? 'e-resize' : 'w-resize') : '';
     if (p.surface) {
       // hold the light a little off the surface, on the side facing the viewer
       const n = p.surface.face.normal.clone().transformDirection(p.surface.object.matrixWorld);
@@ -3366,13 +3367,23 @@ resize();
 // back to the stop's own framing when the cursor leaves. Applied only when drawing, so the stops, the routes
 // and where you end up are untouched. Off while the save-the-date or the invitation is in the hand (they tilt
 // with the cursor themselves).
-const LOOK = { yaw: 0.1, pitch: 0.055, ease: 0.06, x: 0, y: 0 };    // radians at the edge of the screen
-function updateLook() {
+// At the details room's overview stops (`look: 'free'`) you can also turn to look round: with the cursor in
+// the outer part of the screen the view turns that way, faster the further out it is, and stays turned until
+// you click something. That turn goes into the stop's own heading (cam.yaw), so a walk from there starts
+// from the way you are facing.
+const LOOK = { yaw: 0.1, pitch: 0.055, ease: 0.06, x: 0, y: 0, edge: 0.55, spin: 1.5, last: 0, turning: 0 };   // edge: where the turning zone starts (fraction of half the width); spin: rad/s at the very edge
+function updateLook(now) {
   const r = canvas.getBoundingClientRect(), on = pointer.inside && !volHeld() && !invHeld() && r.width > 0;
-  const tx = on ? -((pointer.x - r.left) / r.width * 2 - 1) * LOOK.yaw : 0;
+  const u = on ? (pointer.x - r.left) / r.width * 2 - 1 : 0;
+  const tx = -u * LOOK.yaw;
   const ty = on ? -((pointer.y - r.top) / r.height * 2 - 1) * LOOK.pitch : 0;
   LOOK.x += (tx - LOOK.x) * LOOK.ease;
   LOOK.y += (ty - LOOK.y) * LOOK.ease;
+  const dt = Math.min(0.1, (now - LOOK.last) / 1000); LOOK.last = now;
+  const free = on && STATIONS[idx].look === 'free' && !leg && !queue.length && el('card').style.display !== 'grid';
+  const k = free ? Math.max(0, (Math.abs(u) - LOOK.edge) / (1 - LOOK.edge)) : 0;
+  LOOK.turning = k > 0 ? Math.sign(u) : 0;
+  if (k > 0) { cam.yaw -= Math.sign(u) * k * k * LOOK.spin * dt; pointer.moved = true; }   // moved: keep reading what is under the cursor as the view turns
 }
 function frame(now) {
   if (!leg && (queue.length || !settled())) startLeg();
@@ -3391,7 +3402,7 @@ function frame(now) {
     }
     if (k >= 1) { leg = null; }
   }
-  updateLook();
+  updateLook(now);
   camera.position.set(cam.x, cam.eye, cam.z);
   camera.rotation.set(cam.pitch + LOOK.y, cam.yaw + LOOK.x, 0, 'YXZ');
   camera.updateMatrixWorld();

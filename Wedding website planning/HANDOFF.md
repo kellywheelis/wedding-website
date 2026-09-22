@@ -164,6 +164,9 @@ No scans of Villa Cetinale's own sculpture exist online (searched). See `assets/
   base (0.96 x 0.74). Rotated models are measured with the precise bounding box, otherwise they float.
 - Every plinth in the museum is Siena marble (`plinthMat`, drawn by `sienaMarble()`); the walls' dado keeps the
   plaster `stoneMat`, so the plinths stand off it. The one-line switch to white marble is the `plinthMat` colour/map.
+- The wing sculptures (Venus with the Apple, Cupid with the Lyre, Venus Italica, Costanza Bonarelli) have
+  walk-up stops and write-ups too (21 Sept 2026): `SCULPTURE_NOTES` entries make a stop for any spot; the loader
+  works out the room and the wall from the spot's position (`room`, `back`, accent and eyebrow follow the room).
 - The four corner pedestals hold bust-sized pieces: a Roman head of Ariadne (Musée Saint-Raymond, Toulouse, CC BY —
   the reclining Sleeping Ariadne cast was tried first and rejected as too big for a bust plinth), Antinous as Dionysus (the Bacchus reference: the owner does not drink and
   wants guests told to enjoy the wine anyway), Beatrice d'Este and Isabella of Aragon (two Renaissance brides, either

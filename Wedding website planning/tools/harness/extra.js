@@ -248,7 +248,7 @@
     const tag = document.createElement('div');
     tag.style.cssText = 'position:fixed;left:8px;top:60px;z-index:99;background:#000;color:#0f0;font:13px monospace;padding:6px 10px;white-space:pre';
     tag.textContent = out.join('\n'); document.body.appendChild(tag);
-  }, 1500); }
+  }, q.has('slow') ? 16000 : 1500); }
 { const q = new URLSearchParams(location.search);
   // plan=id,id,... : go to each stop in turn and report the steps queued for it and how far the view tilted on the way
   if (q.has('plan')) setTimeout(() => {

@@ -1508,6 +1508,20 @@ function addRose(inst, c, n, s, base, rnd, rings = 3) {
   });
 }
 
+// a stem that tapers along its length, from r0 at the start to r1 at the tip, slightly uneven, as stems are
+function taperedTube(curve, segs, r0, r1, rnd) {
+  const geo = new THREE.TubeGeometry(curve, segs, 1, 5, false), pos = geo.attributes.position, ring = 6;   // radius 1, then scaled ring by ring
+  const centre = new THREE.Vector3(), v = new THREE.Vector3(), wobble = 0.6 + rnd() * 3;
+  for (let i = 0; i < pos.count; i++) {
+    const j = Math.floor(i / ring), t = j / segs;
+    curve.getPoint(t, centre);
+    const r = (r0 + (r1 - r0) * Math.pow(t, 0.8)) * (1 + 0.12 * Math.sin(t * 9 + wobble));
+    v.fromBufferAttribute(pos, i).sub(centre).multiplyScalar(r).add(centre);
+    pos.setXYZ(i, v.x, v.y, v.z);
+  }
+  pos.needsUpdate = true;
+  return geo;
+}
 // roses massed on an urn and trailing down its pedestal on vines, for the urns beside The Birth of Venus
 function roseCascade(seed) {
   const g = new THREE.Group(), rnd = seeded(seed);
@@ -1516,11 +1530,29 @@ function roseCascade(seed) {
   const ROSES = ['#e9a3ac', '#f2c6c8', '#d97f8e', '#f6e2dc', '#e58f9d', '#c9607a'].map((h) => new THREE.Color(h));
   const GREENS = ['#2f4a26', '#3d5a2e', '#4d6b35'].map((h) => new THREE.Color(h));
   const pick = (arr) => arr[Math.floor(rnd() * arr.length)];
-  // the mass on top: a full dome of open roses, leaves tucked underneath and between
-  for (let i = 0; i < 46; i++) {
-    const a = rnd() * 6.283, e = Math.acos(1 - rnd() * 1.05), R = 0.29 + rnd() * 0.06;
+  // the mass on top: a full, tall dome of open roses, leaves tucked underneath and between
+  for (let i = 0; i < 52; i++) {
+    const a = rnd() * 6.283, e = Math.acos(1 - rnd() * 1.05), R = 0.3 + rnd() * 0.06;
     const n = new THREE.Vector3(Math.sin(e) * Math.cos(a), Math.cos(e), Math.sin(e) * Math.sin(a));
-    addRose(petals, n.clone().multiplyScalar(R).setY(n.y * R * 0.95 + 0.07), n, 0.048 + rnd() * 0.016, pick(ROSES), rnd);
+    addRose(petals, n.clone().multiplyScalar(R).setY(n.y * R * 1.35 + 0.1), n, 0.048 + rnd() * 0.016, pick(ROSES), rnd);
+  }
+  // the fountain: tall sprays rising out of the middle of the dome, arching over and out, roses along the
+  // arc thinning to buds at the tips
+  const stemMat = tint('#3b4a26');
+  for (let i = 0; i < 6; i++) {
+    const ang = 0.35 + i * (2.45 / 5) + (rnd() - 0.5) * 0.25;                   // fanned towards the room, never into the wall
+    const out = new THREE.Vector3(Math.cos(ang), 0, Math.sin(ang)), h = 0.5 + rnd() * 0.18, reach = 0.42 + rnd() * 0.16;
+    const pts = [[0, 0.15, 0], [0.07, 0.45 + h * 0.4, 0.0], [0.28, 0.2 + h, 0], [0.62, 0.05 + h * 0.75, 0], [1, 0.05 + h * 0.15, 0]]
+      .map(([k, y]) => out.clone().multiplyScalar(k * reach).setY(y));
+    const curve = new THREE.CatmullRomCurve3(pts);
+    g.add(new THREE.Mesh(taperedTube(curve, 20, 0.009, 0.0025, rnd), stemMat));
+    for (let j = 0; j < 9; j++) {
+      const t = 0.3 + (j + 0.5 + (rnd() - 0.5) * 0.5) / 9 * 0.7, pt = curve.getPoint(t), tan = curve.getTangent(t);
+      const outward = pt.clone().setY(0).normalize().multiplyScalar(0.7).add(new THREE.Vector3(0, 0.6 - t * 0.4, 0)).addScaledVector(tan, -0.15);
+      const size = (0.05 - 0.024 * t) * (0.85 + rnd() * 0.3);
+      addRose(petals, pt.clone().addScaledVector(outward.clone().normalize(), size * 1.1), outward, size, pick(ROSES), rnd, t > 0.9 ? 1 : t > 0.7 ? 2 : 3);
+      if (rnd() < 0.7) addLeaf(leaves, pt, new THREE.Vector3(rnd() - 0.5, -0.3 - rnd() * 0.5, rnd() - 0.5).addScaledVector(outward, 0.4), 0.05 + rnd() * 0.03, pick(GREENS), rnd);
+    }
   }
   for (let i = 0; i < 44; i++) {
     const a = rnd() * 6.283, e = 0.9 + rnd() * 0.9, R = 0.3 + rnd() * 0.1;
@@ -1531,12 +1563,13 @@ function roseCascade(seed) {
   const vineMat = tint('#3b4a26');
   // every vine leaves towards the room (local +z), never back into the wall behind the urn
   [[1.57, 1.6], [1.0, 1.2], [2.15, 1.3], [0.45, 0.85], [2.7, 0.9], [1.3, 0.7], [1.85, 0.6]].forEach(([ang, drop], vi) => {
-    const out = new THREE.Vector3(Math.cos(ang), 0, Math.sin(ang)), reach = 0.3 + rnd() * 0.12;
+    // each vine rises out of the dome first, arcs over, and only then falls: a fountain, not a drip
+    const out = new THREE.Vector3(Math.cos(ang), 0, Math.sin(ang)), reach = 0.4 + rnd() * 0.15, rise = 0.3 + rnd() * 0.18;
     const side = new THREE.Vector3(-out.z, 0, out.x).multiplyScalar((rnd() - 0.5) * 0.35);
-    const pts = [0, 0.18, 0.4, 0.7, 1].map((t) => out.clone().multiplyScalar(0.2 + reach * Math.sin(Math.min(1, t * 1.6) * Math.PI / 2))
-      .addScaledVector(side, t * t).setY(0.1 + 0.16 * Math.sin(t * 2.4) - drop * t * t));
+    const pts = [0, 0.15, 0.35, 0.6, 1].map((t) => out.clone().multiplyScalar(0.15 + reach * Math.sin(Math.min(1, t * 1.6) * Math.PI / 2))
+      .addScaledVector(side, t * t).setY(0.12 + rise * Math.sin(Math.min(1, t * 2) * Math.PI / 2) * Math.pow(1 - t, 0.7) - drop * t * t));
     const curve = new THREE.CatmullRomCurve3(pts);
-    g.add(new THREE.Mesh(new THREE.TubeGeometry(curve, 24, 0.006, 5, false), vineMat));
+    g.add(new THREE.Mesh(taperedTube(curve, 24, 0.011, 0.002, rnd), vineMat));
     const count = Math.round(12 + drop * 13);
     for (let i = 0; i < count; i++) {
       const t = (i + 0.5 + (rnd() - 0.5) * 0.6) / count, pt = curve.getPoint(t), tan = curve.getTangent(t);
@@ -1914,6 +1947,10 @@ const SCULPTURE_NOTES = {
   detEndL: ['Ariadne', 'Abandoned on an island by the man she had just saved, she lay down and slept. Bacchus found her there, married her, and set her wedding crown in the sky as a constellation. He is across the room, in the opposite corner, still wearing the ivy. Things turned out fine.', 'Roman, 2nd century · Musée Saint-Raymond, Toulouse'],
   detEndR: ['Antinous as Dionysus', 'Ivy and grapes in his hair: the god of wine, as the emperor Hadrian had his beloved Antinous portrayed. A confession: neither of us drinks. A request: please do not let that stop you. Tuscany makes some of the best wine on earth, and somebody has to enjoy it on our behalf.', 'Roman, c. 130–138 · Vatican Museums (cast at Statens Museum for Kunst, Copenhagen)'],
   detEntryL: ['Beatrice d’Este', 'Married at fifteen to the Duke of Milan, and by twenty running the most brilliant court in Italy: Leonardo worked for her husband, and the poets worked for her. A Renaissance bride, at the door to welcome you in.', 'After Gian Cristoforo Romano, c. 1490 · Musée du Louvre, Paris (cast at Statens Museum for Kunst, Copenhagen)'],
+  w1statue: ['Venus with the Apple', 'The apple is the prize from the Judgement of Paris: three goddesses, one young man, and a choice between power, wisdom and love. He chose love, and she has held on to the apple ever since. We are not saying he was right about everything. He was right about that.', 'Bertel Thorvaldsen, 1809 · Statens Museum for Kunst, Copenhagen'],
+  w1small: ['Cupid Playing the Lyre', 'Between assignments, Cupid has put the bow down and picked up a lyre. He is in the ceremony wing for a reason: he has offered to play. There will be real musicians as well. He asked first.', 'Bertel Thorvaldsen · Statens Museum for Kunst, Copenhagen'],
+  w2statue: ['Venus Italica', 'When Napoleon carried the Medici Venus off to Paris, Florence commissioned Canova to make a replacement. She was so loved that when the original came home, they kept both. She is stepping out of her bath and reaching for a towel, which is roughly the energy of getting ready for a party. This is the reception wing. Take your time.', 'Antonio Canova, 1804–12 · Galleria Palatina, Florence; this version Musée d’art et d’histoire, Geneva'],
+  w2bust: ['Costanza Bonarelli', 'Bernini carved the woman he loved the way nobody had carved anyone before: hair undone, collar open, halfway through saying something. No commission, no flattery, no goddess. Just a man looking at a woman. The rest of their story is not a wedding story. The look is.', 'Gian Lorenzo Bernini, c. 1636–38 · Museo Nazionale del Bargello, Florence (cast at Statens Museum for Kunst)'],
   detEntryR: ['Isabella of Aragon', 'Beatrice’s cousin by marriage and, for a few years, her rival for the same palace in Milan. The two of them are on either side of this door, which is the closest they have stood to each other in five hundred years. They are behaving.', 'Attributed to Francesco Laurana, c. 1490 (cast at Statens Museum for Kunst, Copenhagen)']
 };
 const marbleScan = new THREE.MeshStandardMaterial({ color: '#ece6d9', roughness: 0.55 });
@@ -1986,18 +2023,24 @@ function levelBase(model) {
         spot.placeholder.forEach((m) => m.removeFromParent());
         spot.group.add(holder);
         if (SCULPTURE_NOTES[id]) {
-          // a walk-up stop: stand 2.2 m in front of it on the room side, facing it, eyes near the figure's middle; Step back returns to the room's entry
+          // a walk-up stop: stand in front of it on the room side, facing it, eyes near the figure's middle; Step back returns to the room's entry
           const n = SCULPTURE_NOTES[id], g = spot.group, fx = g.position.x, fz = g.position.z;
-          // approach straight off the wall the figure stands against, at a distance that fills the view with it
-          const onEndWall = fz < DET.zB + 1.2, onFrontWall = fz > DET.zF - 1.2;
-          const toRoom = onEndWall ? new THREE.Vector3(0, 0, 1) : onFrontWall ? new THREE.Vector3(0, 0, -1) : new THREE.Vector3(-Math.sign(fx), 0, 0);
+          // which room it stands in, and which wall it stands against: the approach comes straight off that wall,
+          // at a distance that fills the view with it
+          const room = fz < DET.zF ? 'det' : fx < 0 ? 'w1' : 'w2';
+          let toRoom;
+          if (room === 'det') {
+            const onEndWall = fz < DET.zB + 1.2, onFrontWall = fz > DET.zF - 1.2;
+            toRoom = onEndWall ? new THREE.Vector3(0, 0, 1) : onFrontWall ? new THREE.Vector3(0, 0, -1) : new THREE.Vector3(-Math.sign(fx), 0, 0);
+          } else toRoom = new THREE.Vector3(0, 0, fz < JUNCTION_Z ? 1 : -1);      // a wing's far or near wall
           const dist = THREE.MathUtils.clamp(1.3 * cfg.height + 0.3, 1.0, 2.4);
           const sx = fx + toRoom.x * dist, sz = fz + toRoom.z * dist, yaw = Math.atan2(sx - fx, sz - fz);
           const sid = 'sc_' + id;
           // small pieces: look slightly down at them from close by, so they fill the view
           const mid = spot.top + cfg.height * 0.55, eye = THREE.MathUtils.clamp(mid + 0.15, 1.35, 2.2);
-          STATIONS.push({ id: sid, x: sx, z: sz, yaw, eye, pitch: -Math.atan2(eye - mid, dist) * 0.8, room: 'det', tour: false, back: 'det',
-            accent: '#C9A667', eyebrow: 'Exhibit details · sculpture', title: n[0], body: n[1], meta: n[2] });
+          const look = { det: ['#C9A667', 'Exhibit details · sculpture'], w1: ['#93AEA2', 'Wing I · sculpture'], w2: ['#D19A6E', 'Wing II · sculpture'] }[room];
+          STATIONS.push({ id: sid, x: sx, z: sz, yaw, eye, pitch: -Math.atan2(eye - mid, dist) * 0.8, room, tour: false, back: room,
+            accent: look[0], eyebrow: look[1], title: n[0], body: n[1], meta: n[2] });
           ST[sid] = STATIONS.length - 1;
           g.userData.station = ST[sid];
         }
@@ -2299,7 +2342,7 @@ function planRoute(n) {
       pushTurn(at.z > JUNCTION_Z ? 0 : Math.PI);
       pushMove(0, JUNCTION_Z);
     }
-    pushTurn(t.yaw);
+    pushTurn(Math.atan2(0 - g.x, JUNCTION_Z - g.z));                     // the way you are going; the stop's own facing comes last
     pushMove(g.x, g.z);
   } else {
     const dz = Math.abs(at.z - g.z), fresh = !queue.some((q) => q.kind === 'move');
@@ -2347,7 +2390,9 @@ function compileWalk() {
     pts[pts.length - 1].yawHold = pts[pts.length - 1].hold;
     pending = null;
   });
-  endYaw = pending !== null ? pending : (pts[pts.length - 1].hold ?? cam.yaw);
+  // a trailing turn says where to end up facing; otherwise it is the held view, or the way the last leg went
+  const last = pts[pts.length - 1], prevPt = pts[pts.length - 2];
+  endYaw = pending !== null ? pending : (last.hold ?? Math.atan2(prevPt.x - last.x, prevPt.z - last.z));
   queue = [];
   // round the corners: each interior point becomes a short curve from a little before it to a little after
   const poly = [pts[0]];

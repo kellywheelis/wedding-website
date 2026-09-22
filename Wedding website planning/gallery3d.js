@@ -116,42 +116,49 @@ const STATIONS = [
     meta: 'Sandro Botticelli, 1483 · The Story of Nastagio degli Onesti, IV' },
 
   { id: 'det', x: 0, z: -12.5, yaw: 0, room: 'det', accent: '#C9A667',
-    eyebrow: 'Exhibit details · visiting', title: 'Getting to Sovicille',
-    body: 'Twenty minutes west of Siena, in the hills. Fly into Florence (FLR) or Pisa (PSA) and drive down through the Chianti — about ninety minutes. Rome (FCO) works too, at roughly three hours.',
-    meta: 'Lodging, transport and the five-day program are still being arranged' },
-  { id: 'detL', x: 0, z: -12.5, yaw: Math.PI / 2, room: 'det', accent: '#A79C85',
-    eyebrow: 'Exhibit details · permanent collection', title: 'Everything we love, catalogued',
-    body: 'The dogs, the card table, the shared library, the plastic brick. Everything in this exhibit is something one of us loves.',
-    meta: 'Mixed media · ongoing' },
-  { id: 'detR', x: 0, z: -12.5, yaw: -Math.PI / 2, room: 'det', accent: '#C9A667',
-    eyebrow: 'Exhibit details · RSVP', title: 'The exhibit is complete but for one element.',
-    body: 'Invitations follow, and with them this frame gets a name in it.',
-    meta: 'RSVP opens with the invitation' },
-  { id: 'detLclose', x: -2.2, z: -14.5725, yaw: Math.PI / 2, eye: 2.4, room: 'det', accent: '#A79C85', tour: false,
-    eyebrow: 'Exhibit details · permanent collection · up close', title: 'Everything we love, catalogued',
-    body: 'The dogs, the card table, the shared library, the plastic brick. Everything in this exhibit is something one of us loves.',
-    meta: 'Mixed media · ongoing' },
-  { id: 'detRclose', x: 2.2, z: -14.5725, yaw: -Math.PI / 2, eye: 2.4, room: 'det', accent: '#C9A667', tour: false,
-    eyebrow: 'Exhibit details · RSVP · up close', title: 'The exhibit is complete but for one element.',
-    body: 'Invitations follow, and with them this frame gets a name in it.',
-    meta: 'RSVP opens with the invitation' },
-  // beyond the centre table, close to the end wall, raised to the height of its principal picture (`eye`, in metres)
-  { id: 'detClose', x: 0, z: -16.75, yaw: 0, eye: 2.5, room: 'det', accent: '#C9A667', tour: false,
-    eyebrow: 'Exhibit details · visiting · up close', title: 'Getting to Sovicille',
-    body: 'Twenty minutes west of Siena, in the hills. Fly into Florence (FLR) or Pisa (PSA) and drive down through the Chianti — about ninety minutes. Rome (FCO) works too, at roughly three hours.',
-    meta: 'Lodging, transport and the five-day program are still being arranged' },
-  // in front of each stack of smaller pictures on the end wall; stood a little to the outside of the
-  // stack so the large statue beside it stays out of the view
-  { id: 'detStackL', x: -4.05, z: -16.8, yaw: 0, eye: 2.4, room: 'det', accent: '#A79C85', tour: false,
-    eyebrow: 'Exhibit details · end wall', title: 'Pictures to come',
-    body: 'These frames are waiting for their pictures.', meta: 'Placeholder' },
-  { id: 'detStackR', x: 4.05, z: -16.8, yaw: 0, eye: 2.4, room: 'det', accent: '#A79C85', tour: false,
-    eyebrow: 'Exhibit details · end wall', title: 'Pictures to come',
-    body: 'These frames are waiting for their pictures.', meta: 'Placeholder' },
-  // standing at the near edge of the centre table, looking down onto it (pitch is in radians, negative = down)
-  { id: 'detTable', x: 0, z: -13.95, yaw: 0, pitch: -0.5, room: 'det', accent: '#C9A667', tour: false,
+    eyebrow: 'Exhibit details · the centrepiece', title: 'The only thing missing from this exhibit is you',
+    body: 'Placeholder. Every other work in the building is already hung. This frame is kept for our guests.',
+    meta: 'Placeholder text' },
+  // Walk on visits the room in this order: the centrepiece, the table, then sections 1 to 7
+  { id: 'detTable', x: 0, z: -13.95, yaw: 0, pitch: -0.5, room: 'det', accent: '#C9A667',
     eyebrow: 'Exhibit details · the table', title: 'On the table',
     body: 'The save-the-date is here to be handled. Click it to pick it up and turn the wheel.', meta: 'Please touch' },
+  // the six sections on the walls: you stand before the group, raised to the height of its pictures (`eye`)
+  { id: 'detMain', x: 2.2, z: -12.77, yaw: -Math.PI / 2, eye: 2.3, room: 'det', card: 'main', accent: '#C9A667',
+    eyebrow: 'Exhibit details · 1', title: 'The Main Details',
+    body: 'Placeholder. Villa Cetinale, Sovicille (SI), Italy · 24 April 2027. Date, address and the essentials are in the wall text.',
+    meta: 'Placeholder text' },
+  { id: 'detSchedule', x: -2.4, z: -11.7225, yaw: Math.PI / 2, eye: 2.3, room: 'det', card: 'schedule', accent: '#C9A667',
+    eyebrow: 'Exhibit details · 2', title: 'The Full Schedule',
+    body: 'Placeholder. Each event of the weekend with its time, place and dress code is in the wall text.',
+    meta: 'Placeholder text' },
+  { id: 'detTravel', x: -2.2, z: -15.9225, yaw: Math.PI / 2, eye: 2.3, room: 'det', card: 'travel', accent: '#C9A667',
+    eyebrow: 'Exhibit details · 3 · travel & transportation', title: 'Pegasus, Centaurs & Chariots',
+    body: 'Or, as the modern world insists on calling them: planes, trains and automobiles. Pegasus is quickest, the centaurs run roughly to timetable, and a chariot needs somewhere to park. Those arriving by sea should ask Galatea about her dolphins. Placeholder: the real travel details are in the wall text.',
+    meta: 'Placeholder text' },
+  { id: 'detStay', x: 2.4, z: -17.1925, yaw: -Math.PI / 2, eye: 2.3, room: 'det', card: 'stay', accent: '#C9A667',
+    eyebrow: 'Exhibit details · 4', title: 'Accommodations',
+    body: 'Placeholder. Lodgings, room blocks, group codes and cut-off dates are in the wall text.',
+    meta: 'Placeholder text' },
+  { id: 'detFrontL', x: -3.5, z: -12.75, yaw: Math.PI, eye: 2.2, room: 'det', card: 'logistics', accent: '#A79C85',
+    eyebrow: 'Exhibit details · 5', title: 'Advanced Logistics',
+    body: 'Placeholder. Terrain and footwear, weather, outlets and voltage, currency and tipping, mobile service, wifi and eSIMs are in the wall text.',
+    meta: 'Placeholder text' },
+  { id: 'detFrontR', x: 3.4, z: -12.75, yaw: Math.PI, room: 'det', card: 'policies', accent: '#A79C85',
+    eyebrow: 'Exhibit details · 6', title: 'Guest Policies',
+    body: 'Placeholder. RSVP deadline, plus-ones and children, and who to call on the day are in the wall text.',
+    meta: 'Placeholder text' },
+  // the gift-shop stand under the main frame on the end wall: postcards (the RSVP) and the registry note.
+  // You reach it from the main frame's close-up (or by clicking it from anywhere in the room); Step back returns there.
+  { id: 'detShop', x: 0, z: -17.35, yaw: 0, pitch: -0.36, room: 'det', card: 'registry', accent: '#C9A667', back: 'detClose',
+    eyebrow: 'Exhibit details · 7 · the gift shop', title: 'Registry, Extras & RSVP',
+    body: 'Placeholder. Postcards to send back to us, which is how you RSVP; our no-physical-gifts note; and a local guide to sights and food.',
+    meta: 'Placeholder text' },
+  // reached only by clicking
+  { id: 'detClose', x: 0, z: -16.75, yaw: 0, eye: 2.5, room: 'det', accent: '#C9A667', tour: false,
+    eyebrow: 'Exhibit details · the centrepiece · up close', title: 'The only thing missing from this exhibit is you',
+    body: 'Placeholder. Every other work in the building is already hung. This frame is kept for our guests.',
+    meta: 'Placeholder text' },
   // the save-the-date, picked up off the table: same standing spot, and Step back puts it down again
   { id: 'detVolvelle', x: 0, z: -13.95, yaw: 0, pitch: -0.5, room: 'det', accent: '#C9A667', tour: false, back: 'detTable',
     eyebrow: 'Exhibit details · on the table', title: 'Save the Date',
@@ -161,13 +168,7 @@ const STATIONS = [
   { id: 'detInvite', x: 0, z: -13.95, yaw: 0, pitch: -0.5, room: 'det', accent: '#C9A667', tour: false, back: 'detTable',
     eyebrow: 'Exhibit details · on the table', title: 'The Invitation',
     body: 'Illustrated by Truong Hoai Vu. A pop-up diorama of Villa Cetinale: click the doors to open them, move the mouse to look inside, and click the tab at the top to draw out the card.',
-    meta: 'Truong Hoai Vu · vuth.art · Paper and ink' },
-  { id: 'detFrontL', x: -3.4, z: -12.75, yaw: Math.PI, room: 'det', accent: '#A79C85', tour: false,
-    eyebrow: 'Exhibit details · entrance wall', title: 'A picture to come',
-    body: 'This frame is waiting for its picture.', meta: 'Placeholder' },
-  { id: 'detFrontR', x: 3.4, z: -12.75, yaw: Math.PI, room: 'det', accent: '#A79C85', tour: false,
-    eyebrow: 'Exhibit details · entrance wall', title: 'A picture to come',
-    body: 'This frame is waiting for its picture.', meta: 'Placeholder' }
+    meta: 'Truong Hoai Vu · vuth.art · Paper and ink' }
 ];
 // stops are referred to by id everywhere, never by position in the list
 const ST = {};
@@ -184,6 +185,47 @@ const NOTES = {
   frescoGroom: { accent: '#C9A667', eyebrow: 'The atrium · a wedding fresco', title: 'A Young Man Being Introduced to the Seven Liberal Arts',
     body: 'The groom’s half of the pair. He is led by the hand to meet Grammar, Rhetoric, Logic, Arithmetic, Geometry, Astronomy and Music, all seven at once, which is a lot of new in-laws for one afternoon.',
     meta: 'Sandro Botticelli, c. 1483–86 · fresco from Villa Lemmi · Musée du Louvre, Paris' }
+};
+// Wall texts: the long version of a details section, opened from the panel's "Read the full details" button.
+// A stop names its card with `card:`. Each card is a title and a list of sections: { h: heading, p: [paragraphs] }.
+// EVERYTHING BELOW IS PLACEHOLDER TEXT for the owner to replace.
+const TBC = 'To be confirmed.';
+const CARDS = {
+  main: { title: 'The Main Details', sections: [
+    { h: 'When', p: ['Saturday 24 April 2027. The weekend runs from 22 to 26 April. ' + TBC] },
+    { h: 'Where', p: ['Villa Cetinale, Sovicille (SI), Tuscany, Italy. Full address and a map link: ' + TBC] },
+    { h: 'The essentials', p: [TBC] } ] },
+  schedule: { title: 'The Full Schedule', sections: [
+    { h: 'Thursday 22 April', p: ['Event, time, place and dress code. ' + TBC] },
+    { h: 'Friday 23 April', p: [TBC] },
+    { h: 'Saturday 24 April · the wedding', p: [TBC] },
+    { h: 'Sunday 25 April', p: [TBC] },
+    { h: 'Monday 26 April', p: [TBC] },
+    { h: 'Dress codes', p: [TBC] } ] },
+  travel: { title: 'Travel & Transportation', sections: [
+    { h: 'By Pegasus (nearest airports)', p: [TBC] },
+    { h: 'By centaur (trains and transit hubs)', p: [TBC] },
+    { h: 'By chariot (car hire, driving and parking)', p: [TBC] },
+    { h: 'Airport transfers', p: [TBC] },
+    { h: 'Wedding shuttles', p: [TBC] } ] },
+  stay: { title: 'Accommodations', sections: [
+    { h: 'Where to stay', p: [TBC] },
+    { h: 'Room blocks and group codes', p: [TBC] },
+    { h: 'Booking deadlines', p: [TBC] } ] },
+  logistics: { title: 'Advanced Logistics', sections: [
+    { h: 'Terrain and footwear', p: [TBC] },
+    { h: 'Weather in late April', p: [TBC] },
+    { h: 'Outlets and voltage', p: [TBC] },
+    { h: 'Currency and tipping', p: [TBC] },
+    { h: 'Mobile service, wifi and eSIMs', p: [TBC] } ] },
+  policies: { title: 'Guest Policies', sections: [
+    { h: 'RSVP deadline', p: [TBC] },
+    { h: 'Plus-ones', p: [TBC] },
+    { h: 'Children', p: [TBC] },
+    { h: 'On the day: who to call', p: [TBC] } ] },
+  registry: { title: 'Registry & Extras', sections: [
+    { h: 'Gifts', p: ['Our no-physical-gifts note. ' + TBC] },
+    { h: 'A local guide', p: ['Sights, food and things to do nearby. ' + TBC] } ] }
 };
 const ROOM_ENTRY = { atrium: ST.atrium, w1: ST.w1, w2: ST.w2, det: ST.det };
 const JUNCTION_Z = -7.5;
@@ -349,6 +391,51 @@ const giltMat = new THREE.MeshStandardMaterial({ map: GILT.color, bumpMap: GILT.
 const giltPlain = new THREE.MeshStandardMaterial({ color: '#d9ab4c', roughness: 0.38, metalness: 0.4 });
 // across the moulding: [distance out from the picture, height off the wall], both as fractions of the frame's width
 const FRAME_PROFILE = [[0, 0.1], [0, 0.22], [0.06, 0.27], [0.13, 0.22], [0.17, 0.18], [0.3, 0.2], [0.42, 0.3], [0.55, 0.46], [0.68, 0.56], [0.76, 0.6], [0.85, 0.62], [0.93, 0.56], [0.98, 0.42], [1, 0.26], [1, 0]];
+// the same moulding swept round an oval, with a carved crest at the top and a smaller one below
+function ornateOvalFrame(w, h) {
+  const fw = THREE.MathUtils.clamp(0.085 + 0.036 * Math.max(w, h), 0.12, 0.25), tile = 0.34, N = 96, a = w / 2, b = h / 2;
+  const arc = [0];
+  for (let k = 1; k < FRAME_PROFILE.length; k++) arc.push(arc[k - 1] + Math.hypot(FRAME_PROFILE[k][0] - FRAME_PROFILE[k - 1][0], FRAME_PROFILE[k][1] - FRAME_PROFILE[k - 1][1]));
+  const verts = [], uvs = [], index = [];
+  let along = 0, px = a, py = 0;
+  for (let i = 0; i <= N; i++) {
+    const th = i / N * Math.PI * 2, ex = a * Math.cos(th), ey = b * Math.sin(th);
+    along += Math.hypot(ex - px, ey - py); px = ex; py = ey;
+    const n = new THREE.Vector2(Math.cos(th) / a, Math.sin(th) / b).normalize();      // outward from the ellipse
+    FRAME_PROFILE.forEach(([o, z], k) => {
+      verts.push(ex + n.x * o * fw, ey + n.y * o * fw, z * fw);
+      uvs.push(along / tile, arc[k] / arc[arc.length - 1]);
+    });
+  }
+  const P = FRAME_PROFILE.length;
+  for (let i = 0; i < N; i++) for (let k = 0; k < P - 1; k++) {
+    const q = i * P + k;
+    index.push(q, q + 1, q + P, q + 1, q + P + 1, q + P);          // wound to face the room
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+  geo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+  geo.setIndex(index);
+  geo.computeVertexNormals();
+  const g = new THREE.Group(), moulding = new THREE.Mesh(geo, giltMat);
+  moulding.name = 'frame'; moulding.castShadow = true;
+  g.add(moulding);
+  const leaf = (px, py, ang, sc) => {
+    const m = new THREE.Mesh(new THREE.SphereGeometry(1, 12, 8), giltPlain);
+    m.scale.set(sc * 0.95, sc * 0.36, sc * 0.26); m.rotation.z = ang; m.position.set(px + Math.cos(ang) * sc * 0.7, py + Math.sin(ang) * sc * 0.7, fw * 0.6);
+    g.add(m);
+  };
+  [1, -1].forEach((sy) => {
+    const py = sy * (b + fw * 0.62), sc = fw * (sy > 0 ? 1 : 0.75);
+    const shell = new THREE.Mesh(new THREE.SphereGeometry(sc * 0.34, 16, 10), giltPlain);
+    shell.scale.set(1.25, 0.95, 0.5); shell.position.set(0, py + sy * sc * 0.12, fw * 0.66);
+    g.add(shell);
+    [0.5, 1.0, 2.14, 2.64].forEach((ang) => leaf(0, py, sy > 0 ? ang : -ang, sc * 0.4));
+    [-1, 1].forEach((sd) => leaf(sd * sc * 0.2, py, sd > 0 ? 0.12 * sy : Math.PI - 0.12 * sy, sc * 0.5));
+  });
+  g.userData.pictureZ = fw * 0.1 + 0.003;
+  return g;
+}
 function ornateFrame(w, h) {
   const fw = THREE.MathUtils.clamp(0.085 + 0.036 * Math.max(w, h), 0.12, 0.25), tile = 0.34;
   const arc = [0];
@@ -672,6 +759,43 @@ wingPortal(1, -7.5, 2.6, 2.3);
 
 // ---- columns and dome
 const stoneMat = new THREE.MeshStandardMaterial({ map: tex('assets/tex-plaster.jpg', 1, 2), color: '#ded2b6', roughness: 0.92 });
+// a drawn marble: a ground colour, clouded with two tones, crossed by fine veins in two colours, and grained
+function marbleTexture(ground, cloud, veins, grain, seed0 = 4171) {
+  const W = 512, c = document.createElement('canvas');
+  c.width = W; c.height = W;
+  const x = c.getContext('2d');
+  let seed = seed0;
+  const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+  x.fillStyle = ground; x.fillRect(0, 0, W, W);
+  for (let i = 0; i < 320; i++) {                                     // cloudy variation in the ground
+    const cx = rnd() * W, cy = rnd() * W, r = 30 + rnd() * 120, g = x.createRadialGradient(cx, cy, 0, cx, cy, r);
+    const tone = rnd() < 0.5 ? cloud[0] : cloud[1];
+    g.addColorStop(0, `rgba(${tone},.28)`); g.addColorStop(1, `rgba(${tone},0)`);
+    x.fillStyle = g; x.fillRect(cx - r, cy - r, r * 2, r * 2);
+  }
+  x.lineCap = 'round';
+  for (let v = 0; v < 18; v++) {                                      // meandering veins
+    let px = rnd() * W, py = rnd() * W, a = rnd() * Math.PI * 2;
+    const pale = rnd() < 0.6;
+    x.strokeStyle = pale ? `rgba(${veins[0]},${0.3 + rnd() * 0.35})` : `rgba(${veins[1]},${0.2 + rnd() * 0.25})`;
+    x.lineWidth = pale ? 1 + rnd() * 2 : 0.8 + rnd() * 1.2;
+    x.beginPath(); x.moveTo(px, py);
+    for (let k = 0; k < 60; k++) { a += (rnd() - 0.5) * 0.9; px += Math.cos(a) * 9; py += Math.sin(a) * 9; x.lineTo(px, py); }
+    x.stroke();
+  }
+  for (let i = 0; i < 2600; i++) {                                    // fine grain
+    x.fillStyle = rnd() < 0.5 ? `rgba(${grain[0]},.14)` : `rgba(${grain[1]},.12)`;
+    x.fillRect(rnd() * W, rnd() * W, 1.5, 1.5);
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8;
+  return t;
+}
+// Siena marble (giallo di Siena, quarried a few miles from the villa) for every plinth in the museum:
+// a honey-gold ground, clouded lighter and darker, with fine pale and grey-violet veins
+const plinthMat = new THREE.MeshStandardMaterial({ map: marbleTexture('#cdaa66', ['226,196,124', '166,120,52'], ['246,236,214', '112,92,104'], ['255,245,220', '90,60,20']), color: '#f2e2bf', roughness: 0.42 });
+// white statuary marble with soft grey veins, for the centre table's top
+const marbleStatuary = new THREE.MeshStandardMaterial({ map: marbleTexture('#ece8e0', ['255,255,252', '196,192,184'], ['150,150,148', '120,118,120'], ['255,255,255', '110,110,110'], 9001), color: '#f6f3ec', roughness: 0.35 });
 
 function column(x, z) {
   const g = new THREE.Group();
@@ -844,21 +968,48 @@ const paintedWood = new THREE.MeshStandardMaterial({ color: '#e7e1d2', roughness
 // ---- the hang. Each entry is one picture: which wall, where along it, centre height, size.
 // Give an entry a `src` (an image in assets/) to hang a real picture; without one it shows a
 // placeholder study. `blank: true` is the empty frame waiting for a name (the RSVP station).
+// Each picture belongs to a section (`sec`), whose stop you walk to when you click it from elsewhere in the room. Once
+// you stand at that stop, clicking a picture puts its own write-up (`note`) in the bottom panel instead.
+const SECTION_STOP = { you: 'detClose', main: 'detMain', schedule: 'detSchedule', travel: 'detTravel', stay: 'detStay', logistics: 'detFrontL', policies: 'detFrontR' };
+const SECTION_LABEL = { main: 'the main details', schedule: 'the schedule', travel: 'travel & transportation', stay: 'accommodations', logistics: 'advanced logistics', policies: 'guest policies' };
 const DETAIL_PICTURES = [
-  { wall: 'back', at: 0, y: 2.55, w: 3.4, h: 2.3, close: true },                 // principal work, end wall
-  { wall: 'back', at: -3.62, y: 3.0, w: 1.1, h: 0.9 },              // stacks stand clear of the statues
-  { wall: 'back', at: -3.62, y: 1.85, w: 1.0, h: 0.8 },
-  { wall: 'back', at: 3.62, y: 2.95, w: 1.3, h: 1.0 },
-  { wall: 'back', at: 3.27, y: 1.8, w: 0.55, h: 0.7 },
-  { wall: 'back', at: 3.97, y: 1.8, w: 0.55, h: 0.7 },
-  { wall: 'left', at: DET.zMid, y: 2.5, w: 3.0, h: 2.0, close: true },           // "Everything we love, catalogued"
-  { wall: 'left', at: DET.zMid + 2.75, y: 2.5, w: 1.2, h: 1.5 },
-  { wall: 'left', at: DET.zMid - 2.75, y: 2.5, w: 1.2, h: 1.5 },
-  { wall: 'right', at: DET.zMid, y: 2.5, w: 3.0, h: 2.0, blank: true, close: true },   // RSVP: the frame that gets a name in it
-  { wall: 'right', at: DET.zMid + 2.75, y: 2.5, w: 1.2, h: 1.5 },
-  { wall: 'right', at: DET.zMid - 2.75, y: 2.5, w: 1.2, h: 1.5 },
-  { wall: 'front', at: -3.4, y: 2.45, w: 1.3, h: 1.7 },
-  { wall: 'front', at: 3.4, y: 2.45, w: 1.3, h: 1.7 }
+  // end wall: the centrepiece alone, kept for the guests ("the only thing missing from this exhibit is you")
+  { wall: 'back', at: 0, y: 2.55, w: 3.4, h: 2.3, sec: 'you' },
+  // an oval frame either side of it, above the statues, empty for now
+  { wall: 'back', at: -3.7, y: 2.7, w: 0.95, h: 1.25, sec: 'you', oval: true, blank: true },
+  { wall: 'back', at: 3.7, y: 2.7, w: 0.95, h: 1.25, sec: 'you', oval: true, blank: true },
+  // LEFT WALL, entrance side. 2 The schedule: April above; time and the feast beneath
+  { wall: 'left', at: DET.zMid + 2.85, y: 2.665, w: 2.0, h: 1.012, sec: 'schedule', src: 'assets/det-april-triumph-of-venus.jpg',
+    note: ['April (The Triumph of Venus)', 'From a room in Ferrara that paints the year month by month. April belongs to Venus: she arrives on a barge drawn by swans, lovers gather on the banks, and the three Graces look on. We took the hint about the month.', 'Francesco del Cossa, c. 1470 · Palazzo Schifanoia, Ferrara'] },
+  { wall: 'left', at: DET.zMid + 3.45, y: 1.56, w: 0.85, h: 0.607, sec: 'schedule', src: 'assets/det-dance-to-the-music-of-time.jpg', crop: [0.05, 0.09, 0.96, 0.89],       // trimmed inside its shaped edge
+    note: ['A Dance to the Music of Time', 'Father Time plays the lyre and the Seasons dance to it. The small cupid in the corner is holding the hourglass, which makes him the one keeping us to schedule.', 'Follower of Laurent de La Hyre, 17th century'] },
+  { wall: 'left', at: DET.zMid + 2.26, y: 1.56, w: 0.95, h: 0.396, sec: 'schedule', src: 'assets/det-banquet-of-cupid-and-psyche.jpg', crop: [0.115, 0.255, 0.995, 0.7],   // the banquet panel alone, without the ceiling round it
+    note: ['The Wedding Banquet of Cupid and Psyche', 'Every god on Olympus came to the wedding. It is painted on a ceiling as if it were a tapestry stretched overhead: Bacchus pours, the Graces see to the perfume, and the Hours scatter flowers. Even up there, dinner ran to a timetable.', 'Raphael and workshop, 1518 · Villa Farnesina, Rome'] },
+  // LEFT WALL, far side. 3 Travel: "Pegasus, Centaurs & Chariots", with Galatea's dolphins in the middle
+  { wall: 'left', at: DET.zMid - 0.03, y: 2.3, w: 0.8, h: 1.2, sec: 'travel', src: 'assets/det-pegasus-and-mercury.jpg',
+    note: ['Pegasus with Mercury', 'Mercury is the god of travellers, and Pegasus is the only flight that has never lost a bag. The rest of this painting, Mantegna’s Parnassus, hangs in Wing II.', 'Andrea Mantegna, 1497 (detail) · Musée du Louvre, Paris'] },
+  { wall: 'left', at: DET.zMid - 1.35, y: 2.3, w: 1.14, h: 1.5, sec: 'travel', src: 'assets/det-triumph-of-galatea.jpg',
+    note: ['The Triumph of Galatea', 'Galatea travels by shell, drawn by two dolphins, steering one-handed and ignoring three cupids who are taking aim at her. The only guest who will not need an airport transfer.', 'Raphael, c. 1512 · Villa Farnesina, Rome'] },
+  { wall: 'left', at: DET.zMid - 2.695, y: 2.3, w: 0.85, h: 1.2, sec: 'travel', src: 'assets/det-pallas-and-the-centaur.jpg',
+    note: ['Pallas and the Centaur', 'Pallas has the centaur by the hair, which is roughly how it feels to catch a connecting train. He looks sorry about the delay. They usually do.', 'Sandro Botticelli, c. 1482 · Gallerie degli Uffizi, Florence'] },
+  // RIGHT WALL, entrance side. 1 The main details: a party in a villa garden, and one under a villa loggia
+  { wall: 'right', at: DET.zMid + 0.45, y: 2.15, w: 2.4, h: 1.735, sec: 'main', src: 'assets/det-pleasure-garden-with-a-maze.jpg',
+    note: ['Pleasure Garden with a Maze', 'A villa garden in full swing: a maze, musicians, boats on the water, a banquet in the middle and guests in every corner. Swap the maze for a cypress avenue and this is more or less the plan.', 'Lodewijk Toeput, called Pozzoserrato, c. 1579–84 · Royal Collection'] },
+  { wall: 'right', at: DET.zMid + 3.15, y: 2.15, w: 1.9, h: 0.866, sec: 'main', src: 'assets/det-dives-and-lazarus.jpg',
+    note: ['Dives and Lazarus', 'A party under a villa loggia, with musicians playing and the garden beyond. Strictly it is a parable about a rich man who ignored the beggar at his door. We have borrowed the setting, not the moral.', 'Bonifacio Veronese (Bonifacio de’ Pitati), c. 1540s · Gallerie dell’Accademia, Venice'] },
+  // RIGHT WALL, far side. 4 Accommodations: one picture, a bedroom
+  { wall: 'right', at: DET.zMid - 2.62, y: 2.3, w: 1.552, h: 1.6, sec: 'stay', src: 'assets/det-dream-of-st-ursula.jpg',
+    note: ['The Dream of St Ursula', 'The best-kept bedroom in Venetian painting: slippers by the bed, a small dog on the floor, the window open, and an angel arriving quietly at dawn. We cannot promise the angel. We can help with the bed.', 'Vittore Carpaccio, 1495 · Gallerie dell’Accademia, Venice'] },
+  // ENTRANCE WALL, left. 5 Advanced logistics: terrain above; weather and the seasons beneath. Kept left of x -2.2, clear of the bust
+  { wall: 'front', at: -3.5, y: 2.83, w: 2.1, h: 0.823, sec: 'logistics', src: 'assets/det-good-government-countryside.jpg',
+    note: ['The Effects of Good Government in the Countryside', 'The hills round Siena, painted a short drive from the villa nearly seven hundred years ago, and they have hardly changed: white roads, vineyards, and rather more slope than it looks. Pack shoes accordingly.', 'Ambrogio Lorenzetti, 1338–39 · Palazzo Pubblico, Siena'] },
+  { wall: 'front', at: -3.955, y: 1.66, w: 1.1, h: 0.848, sec: 'logistics', src: 'assets/det-storm-on-a-mediterranean-coast.jpg',
+    note: ['A Storm on a Mediterranean Coast', 'The weather forecast, worst case. Late April in Tuscany is usually gentle, but Vernet made a career out of what happens when it is not. Bring a layer.', 'Claude-Joseph Vernet, 1767 · J. Paul Getty Museum, Los Angeles'] },
+  { wall: 'front', at: -2.785, y: 1.66, w: 0.59, h: 0.869, sec: 'logistics', src: 'assets/det-four-seasons.jpg',
+    note: ['Allegory of the Four Seasons', 'Spring, Summer, Autumn and Winter, crowded into one frame. Late April can manage three of them in a day.', 'Bartolomeo Manfredi, c. 1610 · Dayton Art Institute'] },
+  // ENTRANCE WALL, right. 6 Guest policies
+  { wall: 'front', at: 3.4, y: 2.4, w: 1.75, h: 1.21, sec: 'policies', src: 'assets/det-court-of-gonzaga.jpg',
+    note: ['The Court of Gonzaga', 'A letter has just arrived, and the Marquis is conferring with his secretary while the whole household waits to hear: the family, the children, and the dog under his chair. The room is called the Camera degli Sposi, the bridal chamber. Please answer your letter faster than he did.', 'Andrea Mantegna, 1465–74 · Palazzo Ducale, Mantua'] }
 ];
 const STUDY_TONES = [['#c9b28a', '#3a2a1a'], ['#9fb0a6', '#1f2a2a'], ['#d6a77a', '#3b1e14'], ['#b9c0cf', '#252a3a'], ['#c8c08a', '#2e2c12'], ['#c7a0a0', '#351a1e']];
 function studyTexture(i, aspect, blank) {
@@ -880,11 +1031,22 @@ function studyTexture(i, aspect, blank) {
 // an ornate gilt frame round a picture; `src` hangs an image, otherwise a placeholder
 function framedPicture(p, i) {
   const grp = new THREE.Group();
-  const frame = ornateFrame(p.w, p.h);
+  const frame = p.oval ? ornateOvalFrame(p.w, p.h) : ornateFrame(p.w, p.h);
   frame.position.z = -0.07;
-  const pic = new THREE.Mesh(new THREE.PlaneGeometry(p.w, p.h), new THREE.MeshStandardMaterial({ map: p.src ? tex(p.src) : studyTexture(i, p.w / p.h, p.blank), roughness: 0.62 }));
+  let picGeo = new THREE.PlaneGeometry(p.w, p.h);
+  if (p.oval) {                                                      // an elliptical canvas, its picture mapped as if it were the full rectangle
+    picGeo = new THREE.ShapeGeometry(new THREE.Shape().absellipse(0, 0, p.w / 2, p.h / 2, 0, Math.PI * 2, false, 0), 48);
+    const pos = picGeo.attributes.position, uv = [];
+    for (let k = 0; k < pos.count; k++) uv.push(pos.getX(k) / p.w + 0.5, pos.getY(k) / p.h + 0.5);
+    picGeo.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  }
+  const pic = new THREE.Mesh(picGeo, new THREE.MeshStandardMaterial({ map: p.src ? tex(p.src) : studyTexture(i, p.w / p.h, p.blank), roughness: 0.62 }));
   pic.position.z = -0.07 + frame.userData.pictureZ;
-  if (p.src) { pic.material.map.wrapS = pic.material.map.wrapT = THREE.ClampToEdgeWrapping; }
+  if (p.src) {
+    const t = pic.material.map;
+    t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
+    if (p.crop) { const [l, tp, r, b] = p.crop; t.repeat.set(r - l, b - tp); t.offset.set(l, 1 - b); }   // show only a detail of the image
+  }
   [frame, pic].forEach((m) => grp.add(m));
   scene.add(grp);
   return grp;
@@ -896,11 +1058,95 @@ DETAIL_PICTURES.forEach((p, i) => {
   if (p.wall === 'front') { grp.position.set(p.at, p.y, DET.zF - off); grp.rotation.y = Math.PI; }
   if (p.wall === 'left') { grp.position.set(-DET.x + off, p.y, p.at); grp.rotation.y = Math.PI / 2; }
   if (p.wall === 'right') { grp.position.set(DET.x - off, p.y, p.at); grp.rotation.y = -Math.PI / 2; }
-  grp.userData.station = p.wall === 'front' ? (p.at < 0 ? ST.detFrontL : ST.detFrontR)
-    : p.close ? { back: ST.detClose, left: ST.detLclose, right: ST.detRclose }[p.wall]
-    : p.wall === 'back' ? (p.at < 0 ? ST.detStackL : ST.detStackR)      // the stacks either side of the principal picture
-    : { left: ST.detL, right: ST.detR }[p.wall];
+  const secStop = STATIONS[ST[SECTION_STOP[p.sec]]];
+  grp.userData.station = ST[SECTION_STOP[p.sec]];
+  if (p.note && p.src) {
+    // a close-up stop in front of the picture, at its own height, as near as its size allows; Step back returns to the section
+    const d = THREE.MathUtils.clamp(Math.max(1.25 * p.h, 0.72 * p.w), 1.2, 3.0);
+    const at = { left: [-DET.x + d, p.at, Math.PI / 2], right: [DET.x - d, p.at, -Math.PI / 2], front: [p.at, DET.zF - d, Math.PI], back: [p.at, DET.zB + d, 0] }[p.wall];
+    const id = 'pic' + i;
+    STATIONS.push({ id, x: at[0], z: at[1], yaw: at[2], eye: THREE.MathUtils.clamp(p.y, 1.3, 2.6), room: 'det', card: secStop.card, tour: false, back: secStop.id,
+      accent: '#C9A667', eyebrow: 'Exhibit details · ' + SECTION_LABEL[p.sec], title: p.note[0], body: p.note[1], meta: p.note[2] });
+    ST[id] = STATIONS.length - 1;
+    grp.userData.closer = ST[id];
+  }
 });
+
+// ---- a gold title on the wall above each section, large enough to read from the room's entrance.
+// Clicking it walks you to the section; clicking it once you are there puts the section's own write-up back in the panel.
+function sectionTitle(text, wall, at, stopId, maxW) {
+  const PH = 0.31, c = document.createElement('canvas');
+  c.height = 256; c.width = Math.round(256 * maxW / PH);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
+  const draw = (face) => {
+    const x = c.getContext('2d');
+    x.clearRect(0, 0, c.width, c.height);
+    let px = 196;
+    const fit = () => { x.font = '600 ' + px + 'px ' + face; if ('letterSpacing' in x) x.letterSpacing = Math.round(px * 0.09) + 'px'; return x.measureText(text).width; };
+    while (fit() > c.width * 0.97 && px > 60) px -= 4;
+    x.textAlign = 'center'; x.textBaseline = 'alphabetic';
+    x.fillStyle = 'rgba(30,4,12,.55)'; x.fillText(text, c.width / 2 + 3, 196 + 4);
+    x.fillStyle = '#ecc873'; x.fillText(text, c.width / 2, 196);
+    const tw = Math.min(c.width * 0.97, x.measureText(text).width);
+    x.fillRect(c.width / 2 - tw / 2, 226, tw, 5);                      // a fine rule beneath
+    t.needsUpdate = true;
+  };
+  draw('Georgia, serif');
+  if (document.fonts && document.fonts.load) document.fonts.load("600 40px 'Cormorant Garamond'").then(() => draw("'Cormorant Garamond', Georgia, serif")).catch(() => {});
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(maxW * 0.86, PH), new THREE.MeshBasicMaterial({ map: t, transparent: true, alphaTest: 0.35, toneMapped: false }));
+  const Y = 3.62, off = 0.014;
+  if (wall === 'front') { m.position.set(at, Y, DET.zF - off); m.rotation.y = Math.PI; }
+  if (wall === 'left') { m.position.set(-DET.x + off, Y, at); m.rotation.y = Math.PI / 2; }
+  if (wall === 'right') { m.position.set(DET.x - off, Y, at); m.rotation.y = -Math.PI / 2; }
+  m.userData.station = ST[stopId];
+  m.userData.note = STATIONS[ST[stopId]];
+  scene.add(m);
+}
+// ---- a small gold-edged button on the wall beneath each section: click it for the section's wall text
+function detailsButton(wall, at, cardKey) {
+  const W = 1.3, Hh = 0.14, c = document.createElement('canvas');
+  c.width = 1300; c.height = Math.round(1300 * Hh / W);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
+  const draw = (face) => {
+    const x = c.getContext('2d'), w = c.width, h = c.height;
+    x.clearRect(0, 0, w, h);
+    x.fillStyle = 'rgba(40,6,18,.85)'; x.fillRect(0, 0, w, h);
+    x.strokeStyle = '#e0bc68'; x.lineWidth = 5; x.strokeRect(6, 6, w - 12, h - 12);
+    x.lineWidth = 2; x.strokeRect(14, 14, w - 28, h - 28);
+    x.fillStyle = '#f0d48a'; x.textAlign = 'center'; x.textBaseline = 'middle';
+    x.font = '600 58px ' + face; if ('letterSpacing' in x) x.letterSpacing = '10px';
+    x.fillText('CLICK HERE FOR DETAILS', w / 2, h / 2 + 3);
+    t.needsUpdate = true;
+  };
+  draw('Georgia, serif');
+  if (document.fonts && document.fonts.load) document.fonts.load("600 40px 'EB Garamond'").then(() => draw("'EB Garamond', Georgia, serif")).catch(() => {});
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(W, Hh), new THREE.MeshBasicMaterial({ map: t, transparent: true, toneMapped: false }));
+  // centred between the dado's cap rail (top at 0.97) and the lowest frame edge of this section's pictures,
+  // but never lower than just above the rail (the sections with small pictures hung low have no room to spare)
+  const RAIL = 0.97, low = Math.min(...DETAIL_PICTURES.filter((p) => p.sec === cardKey)
+    .map((p) => p.y - p.h / 2 - THREE.MathUtils.clamp(0.085 + 0.036 * Math.max(p.w, p.h), 0.12, 0.25)));
+  const Y = Math.max(1.03, (RAIL + low) / 2), off = 0.014;
+  if (wall === 'front') { m.position.set(at, Y, DET.zF - off); m.rotation.y = Math.PI; }
+  if (wall === 'left') { m.position.set(-DET.x + off, Y, at); m.rotation.y = Math.PI / 2; }
+  if (wall === 'right') { m.position.set(DET.x - off, Y, at); m.rotation.y = -Math.PI / 2; }
+  m.userData.cardKey = cardKey;
+  scene.add(m);
+}
+detailsButton('right', DET.zMid + 1.8, 'main');
+detailsButton('left', DET.zMid + 2.85, 'schedule');
+detailsButton('left', DET.zMid - 1.35, 'travel');
+detailsButton('right', DET.zMid - 2.62, 'stay');
+detailsButton('front', -3.45, 'logistics');
+detailsButton('front', 3.4, 'policies');
+
+sectionTitle('THE MAIN DETAILS', 'right', DET.zMid + 1.8, 'detMain', 3.0);
+sectionTitle('THE SCHEDULE', 'left', DET.zMid + 2.85, 'detSchedule', 2.5);
+sectionTitle('TRAVEL & TRANSPORTATION', 'left', DET.zMid - 1.35, 'detTravel', 3.7);
+sectionTitle('ACCOMMODATIONS', 'right', DET.zMid - 2.62, 'detStay', 2.6);
+sectionTitle('ADVANCED LOGISTICS', 'front', -3.45, 'detFrontL', 2.9);
+sectionTitle('GUEST POLICIES', 'front', 3.4, 'detFrontR', 2.4);
 
 // ---- atrium mini galleries: three frames a side, Kelly on the left wall, Anthony on the right.
 // Each frame has its own stop directly in front of it. Give a frame a `src` (an image in
@@ -993,7 +1239,7 @@ const SCULPTURE_SPOTS = {};    // id -> { group, top: height of the surface it s
 function bust(x, z, rotY, id) {
   const g = new THREE.Group();
   [[0.52, 0.12, 0.52, 0.06], [0.4, 1.0, 0.4, 0.62], [0.5, 0.1, 0.5, 1.17]].forEach(([w, h, d, y]) => {   // pedestal
-    const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), stoneMat);
+    const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), plinthMat);
     m.position.y = y; g.add(m);
   });
   // socle, chest and shoulders turned as one profile, then flattened front to back like a carved bust
@@ -1032,16 +1278,15 @@ function table(x, z, rotY, w, d, topMat, bodyMat, legs) {
   scene.add(g);
   return g;
 }
-bust(-4.62, DET.zB + 0.5, 0, 'detEndL');                       // flanking the end-wall hang
-bust(4.62, DET.zB + 0.5, 0, 'detEndR');
+// the room's four smaller sculptures, on the pedestals in the corners: Ariadne reclines, so hers is a long low plinth
+place(sculpturePedestal('detEndL', 1.1, 0.5, 0.5), -4.55, DET.zB + 0.55, 0);
+place(sculpturePedestal('detEndR', 1.1, 0.5, 0.5), 4.55, DET.zB + 0.55, 0);
 place(reservedPlinth('STATUE', 'detStatueL'), -2.5, DET.zB + 0.62, 0);   // large figures flanking the principal picture
-place(reservedPlinth('STATUE', 'detStatueR'), 2.5, DET.zB + 0.62, 0);
-bust(-2.15, DET.zF - 0.5, Math.PI, 'detEntryL');                 // flanking the entrance arch, facing into the room
-bust(2.15, DET.zF - 0.5, Math.PI, 'detEntryR');
-table(0, DET.zMid - 0.9, 0, 2.4, 1.2, marbleBlue, paintedWood, 6).userData.station = ST.detTable;           // centre table
-table(0, DET.zB + 0.36, 0, 2.6, 0.5, marbleRed, frameMat, 4);                // gilt consoles under the principal pictures
-table(-DET.x + 0.36, DET.zMid, Math.PI / 2, 2.0, 0.5, marbleRed, frameMat, 4);
-table(DET.x - 0.36, DET.zMid, Math.PI / 2, 2.0, 0.5, marbleRed, frameMat, 4);
+place(reservedPlinth('STATUE', 'detStatueR', 0.96, 0.74), 2.5, DET.zB + 0.62, 0);   // Diana's base is 0.88 x 0.65
+place(sculpturePedestal('detEntryL', 1.1, 0.5, 0.5), -2.15, DET.zF - 0.5, Math.PI);   // flanking the entrance arch, facing into the room
+place(sculpturePedestal('detEntryR', 1.1, 0.5, 0.5), 2.15, DET.zF - 0.5, Math.PI);
+table(0, DET.zMid - 0.9, 0, 2.4, 1.2, marbleStatuary, paintedWood, 6).userData.station = ST.detTable;           // centre table
+// gilt consoles under the side walls' principal pictures (the end wall's place is taken by the gift-shop stand)
 
 // ---- room lighting: four warm pools, and an unshadowed picture light on each principal work
 [[-2.4, DET.zF - 2.2], [2.4, DET.zF - 2.2], [-2.4, DET.zB + 2.2], [2.4, DET.zB + 2.2]].forEach(([x, z]) => {
@@ -1158,10 +1403,10 @@ const pearl = new THREE.MeshStandardMaterial({ color: '#f4eadb', roughness: 0.32
 const tint = (hex) => new THREE.MeshStandardMaterial({ color: hex, roughness: 0.75 });
 const lathe = (pts, mat, seg = 36) => new THREE.Mesh(new THREE.LatheGeometry(pts.map(([r, y]) => new THREE.Vector2(r, y)), seg), mat);
 const seeded = (seed) => () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
-function pedestal(h, W = 0.5, D = W) {                             // W x D: its footprint (a seated or reclining figure needs a deeper one)
+function pedestal(h, W = 0.5, D = W, mat = plinthMat) {             // W x D: its footprint (a seated or reclining figure needs a deeper one)
   const g = new THREE.Group();
   [[0, 0.1, 0.05], [-0.12, h - 0.2, h / 2], [-0.02, 0.1, h - 0.05]].forEach(([inset, bh, y]) => {
-    const m = new THREE.Mesh(new THREE.BoxGeometry(W + inset, bh, D + inset), stoneMat);
+    const m = new THREE.Mesh(new THREE.BoxGeometry(W + inset, bh, D + inset), mat);
     m.position.y = y; g.add(m);
   });
   return g;
@@ -1399,12 +1644,12 @@ function citrusTree(seed) {
 }
 // a low plinth kept free for a statue that is still to come, marked with a small brass label
 // a plain pedestal that carries a sculpture scan
-function sculpturePedestal(id, h, W, D) {
-  const g = pedestal(h, W, D);
+function sculpturePedestal(id, h, W, D, mat) {
+  const g = pedestal(h, W, D, mat);
   SCULPTURE_SPOTS[id] = { group: g, top: h, placeholder: [] };
   return g;
 }
-function reservedPlinth(label, id, W = 0.78, D = W, rounded = 0) {    // W x D: the plinth's footprint; rounded: corner radius, to hug a statue's own base
+function reservedPlinth(label, id, W = 0.78, D = W, rounded = 0, mat = plinthMat) {    // W x D: the plinth's footprint; rounded: corner radius, to hug a statue's own base
   const g = new THREE.Group();
   [[0, 0.1, 0.05], [-0.12, 0.4, 0.3], [-0.02, 0.1, 0.55]].forEach(([inset, h, y]) => {
     let geo = new THREE.BoxGeometry(W + inset, h, D + inset);
@@ -1417,7 +1662,7 @@ function reservedPlinth(label, id, W = 0.78, D = W, rounded = 0) {    // W x D: 
       geo = new THREE.ExtrudeGeometry(sh, { depth: h, bevelEnabled: false, curveSegments: 14 });
       geo.rotateX(-Math.PI / 2); geo.translate(0, -h / 2, 0);
     }
-    const m = new THREE.Mesh(geo, stoneMat);
+    const m = new THREE.Mesh(geo, mat);
     m.position.y = y; g.add(m);
   });
   const c = document.createElement('canvas');
@@ -1578,6 +1823,8 @@ function reservedPlinth(label, id, W = 0.78, D = W, rounded = 0) {    // W x D: 
 //   src     the .glb
 //   height  how tall it should stand, in metres (a bust is about 0.7, a medium statue about 1.5)
 //   turn    optional, radians, to face it the right way on its spot
+//   tilt    optional, [x, z] in degrees, to straighten a scan whose base was captured off level
+//   level   optional, true to straighten it automatically, by fitting a plane to the underside of its base
 //   nudge   optional, [x, z] in metres, when the statue's own base is off-centre under it
 //   keep    optional, true to keep the scan's own colour instead of the gallery's marble
 //   title / credit   what it is and who to thank; credits are listed in the page's Credits panel
@@ -1591,22 +1838,23 @@ const SCULPTURES = {
     credit: '3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons' },
   w1small: { src: 'assets/sculpture/amor-lyre.glb', height: 0.95, title: 'Cupid Playing the Lyre, Bertel Thorvaldsen',
     credit: '3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons' },
-  detStatueL: { src: 'assets/sculpture/apollo-belvedere.glb', height: 2.0, title: 'Apollo Belvedere, after Leochares (cast of the Vatican marble)',
+  detStatueL: { src: 'assets/sculpture/apollo-belvedere.glb', height: 2.0, level: true,   // the scan was captured off level: stood flat and centred by its base
+    title: 'Apollo Belvedere, after Leochares (cast of the Vatican marble)',
     credit: '3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons' },
-  detStatueR: { src: 'assets/sculpture/diana.glb', height: 1.9, title: 'Diana of Villa Bartholoni',
+  detStatueR: { src: 'assets/sculpture/diana.glb', height: 1.9, nudge: [0.11, 0.13], title: 'Diana of Villa Bartholoni',
     credit: '3D scan by Rama, Musées d’art et d’histoire de Genève · public domain · via Wikimedia Commons' },
   w2statue: { src: 'assets/sculpture/venus-italica.glb', height: 1.55, title: 'Venus Italica, Antonio Canova',
     credit: '3D scan by Rama, Musées d’art et d’histoire de Genève · CC BY-SA 3.0 FR · via Wikimedia Commons' },
-  w2bust: { src: 'assets/sculpture/laurana.glb', height: 0.62, title: 'Bust of a woman, Francesco Laurana, c. 1472',
-    credit: '3D scan by ALoopingIcon, after a cast of the original in Berlin · CC BY-SA 4.0 · via Wikimedia Commons' },
-  detEndL: { src: 'assets/sculpture/woman-1.glb', height: 0.68, title: 'Roman portrait bust of a woman',
-    credit: '3D scan by Scan the World, Musée Saint-Raymond, Toulouse · free use with attribution · via Wikimedia Commons' },
-  detEndR: { src: 'assets/sculpture/young-man.glb', height: 0.68, title: 'Roman portrait bust of a young man',
-    credit: '3D scan by Scan the World, Musée Saint-Raymond, Toulouse · free use with attribution · via Wikimedia Commons' },
-  detEntryL: { src: 'assets/sculpture/augustus.glb', height: 0.72, title: 'Bust of Augustus',
-    credit: '3D scan by Rama, Musées d’art et d’histoire de Genève · CC BY-SA 3.0 FR · via Wikimedia Commons' },
-  detEntryR: { src: 'assets/sculpture/woman-2.glb', height: 0.68, title: 'Roman portrait bust of a woman',
-    credit: '3D scan by Scan the World, Musée Saint-Raymond, Toulouse · free use with attribution · via Wikimedia Commons' }
+  w2bust: { src: 'assets/sculpture/costanza.glb', height: 0.7, turn: 0, title: 'Costanza Bonarelli, Gian Lorenzo Bernini, c. 1636–38 (cast of the Bargello marble)',
+    credit: '3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons' },
+  detEndL: { src: 'assets/sculpture/ariadne-head.glb', height: 0.7, turn: Math.PI, title: 'Head of Ariadne (Musée Saint-Raymond, Toulouse)',
+    credit: '3D scan by Musée Saint-Raymond / Scan the World · CC BY · via Wikimedia Commons' },
+  detEndR: { src: 'assets/sculpture/antinous-dionysus.glb', height: 0.78, turn: -Math.PI * 0.4, title: 'Antinous as Dionysus (cast of the Vatican marble)',
+    credit: '3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons' },
+  detEntryL: { src: 'assets/sculpture/beatrice.glb', height: 0.66, turn: 0, title: 'Beatrice d’Este, after Gian Cristoforo Romano (cast of the Louvre marble)',
+    credit: '3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons' },
+  detEntryR: { src: 'assets/sculpture/isabella.glb', height: 0.62, title: 'Isabella of Aragon, attributed to Francesco Laurana (cast)',
+    credit: '3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons' },
 };
 // the Credits panel: the paintings, then every sculpture scan with the attribution its licence asks for
 (function credits() {
@@ -1623,6 +1871,18 @@ const SCULPTURES = {
     ['Parnassus, Andrea Mantegna, 1497', 'Musée du Louvre, Paris · public domain'],
     ['Banquet Still Life, Adriaen van Utrecht, 1644', 'Rijksmuseum, Amsterdam · public domain'],
     ['Still Life with Fruit, Giovan Battista Ruoppolo, 1650–1699', 'Public domain'],
+    ['Pallas and the Centaur, Sandro Botticelli, c. 1482', 'Gallerie degli Uffizi, Florence · public domain'],
+    ['The Triumph of Galatea, Raphael, c. 1512', 'Villa Farnesina, Rome · public domain'],
+    ['April (The Triumph of Venus), Francesco del Cossa, c. 1470', 'Palazzo Schifanoia, Ferrara · public domain'],
+    ['The Wedding Banquet of Cupid and Psyche, Raphael and workshop, 1518', 'Villa Farnesina, Rome · public domain'],
+    ['A Dance to the Music of Time, follower of Laurent de La Hyre, 17th century', 'Public domain'],
+    ['Pleasure Garden with a Maze, Lodewijk Toeput (Pozzoserrato), c. 1579–84', 'Royal Collection · public domain'],
+    ['Dives and Lazarus, Bonifacio Veronese (Bonifacio de’ Pitati), c. 1540s', 'Gallerie dell’Accademia, Venice · public domain'],
+    ['A Storm on a Mediterranean Coast, Claude-Joseph Vernet, 1767', 'J. Paul Getty Museum, Los Angeles · public domain'],
+    ['Allegory of the Four Seasons, Bartolomeo Manfredi, c. 1610', 'Dayton Art Institute · public domain'],
+    ['The Effects of Good Government in the Countryside, Ambrogio Lorenzetti, 1338–39', 'Palazzo Pubblico, Siena · public domain'],
+    ['The Dream of St Ursula, Vittore Carpaccio, 1495', 'Gallerie dell’Accademia, Venice · public domain'],
+    ['The Court of Gonzaga (Camera degli Sposi), Andrea Mantegna, 1465–74', 'Palazzo Ducale, Mantua · public domain'],
     ['Pop-Up Invitation, Truong Hoai Vu', 'vuth.art · illustration and paper engineering, shown with the artist’s permission'],
     ...Object.values(SCULPTURES).map((c) => [c.title, c.credit + ' · simplified for the web, shared under the same licence'])
   ];
@@ -1640,7 +1900,52 @@ const SCULPTURES = {
   panel.addEventListener('click', (e) => { if (e.target === panel || e.target.id === 'creditsClose') panel.style.display = 'none'; });
 })();
 
+// write-ups for the sculpture in the details room: click a statue or bust and this fills the bottom panel
+const SCULPTURE_NOTES = {
+  detStatueL: ['Apollo Belvedere', 'The most admired statue in the world for about three hundred years: Apollo, a moment after loosing an arrow, watching it land. Goethe wept. Napoleon stole it. It is here because a wedding needs at least one guest who has just hit his mark.', 'Roman copy after Leochares, c. 120–140 · Vatican Museums (cast at Statens Museum for Kunst, Copenhagen)'],
+  detStatueR: ['Diana of Versailles', 'Apollo’s twin sister, reaching over her shoulder for an arrow, with a stag at her side. Goddess of the hunt, the moon and the countryside, which makes her the patron of everyone driving through the Tuscan hills after dark.', 'Roman copy after Leochares, 1st–2nd century · Musée du Louvre, Paris (cast: Musées d’art et d’histoire de Genève)'],
+  detEndL: ['Ariadne', 'Abandoned on an island by the man she had just saved, she lay down and slept. Bacchus found her there, married her, and set her wedding crown in the sky as a constellation. He is across the room, in the opposite corner, still wearing the ivy. Things turned out fine.', 'Roman, 2nd century · Musée Saint-Raymond, Toulouse'],
+  detEndR: ['Antinous as Dionysus', 'Ivy and grapes in his hair: the god of wine, as the emperor Hadrian had his beloved Antinous portrayed. A confession: neither of us drinks. A request: please do not let that stop you. Tuscany makes some of the best wine on earth, and somebody has to enjoy it on our behalf.', 'Roman, c. 130–138 · Vatican Museums (cast at Statens Museum for Kunst, Copenhagen)'],
+  detEntryL: ['Beatrice d’Este', 'Married at fifteen to the Duke of Milan, and by twenty running the most brilliant court in Italy: Leonardo worked for her husband, and the poets worked for her. A Renaissance bride, at the door to welcome you in.', 'After Gian Cristoforo Romano, c. 1490 · Musée du Louvre, Paris (cast at Statens Museum for Kunst, Copenhagen)'],
+  detEntryR: ['Isabella of Aragon', 'Beatrice’s cousin by marriage and, for a few years, her rival for the same palace in Milan. The two of them are on either side of this door, which is the closest they have stood to each other in five hundred years. They are behaving.', 'Attributed to Francesco Laurana, c. 1490 (cast at Statens Museum for Kunst, Copenhagen)']
+};
 const marbleScan = new THREE.MeshStandardMaterial({ color: '#ece6d9', roughness: 0.55 });
+// stand a scan flat: fit a plane through its lowest vertices (the underside of its base) and rotate the whole
+// figure so that plane lies level; repeated with a thinner slice once it is roughly level, to refine
+function levelBase(model) {
+  model.updateMatrixWorld(true);
+  const pts = [];
+  model.traverse((o) => {
+    if (!o.isMesh) return;
+    const p = o.geometry.attributes.position;
+    for (let i = 0; i < p.count; i++) pts.push(new THREE.Vector3().fromBufferAttribute(p, i).applyMatrix4(o.matrixWorld));
+  });
+  const q = new THREE.Quaternion(), up = new THREE.Vector3(0, 1, 0);
+  for (let pass = 0; pass < 5; pass++) {
+    let lo = Infinity, hi = -Infinity;
+    pts.forEach((p) => { if (p.y < lo) lo = p.y; if (p.y > hi) hi = p.y; });
+    const band = lo + (hi - lo) * (pass ? 0.015 : 0.06);
+    let n = 0, sx = 0, sz = 0, sy = 0, sxx = 0, szz = 0, sxz = 0, sxy = 0, szy = 0;   // least squares for y = a·x + b·z + c
+    pts.forEach((p) => { if (p.y > band) return; n++; sx += p.x; sz += p.z; sy += p.y; sxx += p.x * p.x; szz += p.z * p.z; sxz += p.x * p.z; sxy += p.x * p.y; szy += p.z * p.y; });
+    if (n < 12) break;
+    const det = sxx * (szz * n - sz * sz) - sxz * (sxz * n - sz * sx) + sx * (sxz * sz - szz * sx);
+    if (Math.abs(det) < 1e-12) break;
+    const a = (sxy * (szz * n - sz * sz) - sxz * (szy * n - sz * sy) + sx * (szy * sz - szz * sy)) / det;
+    const b = (sxx * (szy * n - sz * sy) - sxy * (sxz * n - sz * sx) + sx * (sxz * sy - szy * sx)) / det;
+    const r = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(-a, 1, -b).normalize(), up);
+    pts.forEach((p) => p.applyQuaternion(r));
+    q.premultiply(r);
+  }
+  model.quaternion.copy(q);
+  model.updateMatrixWorld(true);
+  // where the base itself sits, so the figure can be centred by its base rather than by its outstretched limbs
+  let lo = Infinity, hi = -Infinity;
+  pts.forEach((p) => { if (p.y < lo) lo = p.y; if (p.y > hi) hi = p.y; });
+  const band = lo + (hi - lo) * 0.03, base = new THREE.Vector3();
+  let n = 0;
+  pts.forEach((p) => { if (p.y <= band) { base.add(p); n++; } });
+  return n ? base.divideScalar(n) : null;
+}
 (function loadSculptures() {
   const ids = Object.keys(SCULPTURES).filter((id) => SCULPTURE_SPOTS[id]);
   if (!ids.length) return;
@@ -1650,7 +1955,11 @@ const marbleScan = new THREE.MeshStandardMaterial({ color: '#ece6d9', roughness:
       const cfg = SCULPTURES[id], spot = SCULPTURE_SPOTS[id];
       gltfLoader.load(cfg.src, (gltf) => {
         const model = gltf.scene;
-        const box = new THREE.Box3().setFromObject(model), size = box.getSize(new THREE.Vector3()), c = box.getCenter(new THREE.Vector3());
+        let base = null;
+        if (cfg.level) base = levelBase(model);
+        else if (cfg.tilt) { model.rotation.set(THREE.MathUtils.degToRad(cfg.tilt[0]), 0, THREE.MathUtils.degToRad(cfg.tilt[1])); model.updateMatrixWorld(true); }
+        const box = new THREE.Box3().setFromObject(model, true), size = box.getSize(new THREE.Vector3()), c = box.getCenter(new THREE.Vector3());   // precise: a levelled scan is rotated, and its loose box would sit below its real feet
+        if (base) { c.x = base.x; c.z = base.z; }                                  // a levelled scan is centred by its base, not its reach
         const k = cfg.height / size.y;
         model.scale.setScalar(k);
         const [nx, nz] = cfg.nudge || [0, 0];                                    // metres, to centre the statue's own base on its plinth
@@ -1661,6 +1970,22 @@ const marbleScan = new THREE.MeshStandardMaterial({ color: '#ece6d9', roughness:
         holder.add(model);
         spot.placeholder.forEach((m) => m.removeFromParent());
         spot.group.add(holder);
+        if (SCULPTURE_NOTES[id]) {
+          // a walk-up stop: stand 2.2 m in front of it on the room side, facing it, eyes near the figure's middle; Step back returns to the room's entry
+          const n = SCULPTURE_NOTES[id], g = spot.group, fx = g.position.x, fz = g.position.z;
+          // approach straight off the wall the figure stands against, at a distance that fills the view with it
+          const onEndWall = fz < DET.zB + 1.2, onFrontWall = fz > DET.zF - 1.2;
+          const toRoom = onEndWall ? new THREE.Vector3(0, 0, 1) : onFrontWall ? new THREE.Vector3(0, 0, -1) : new THREE.Vector3(-Math.sign(fx), 0, 0);
+          const dist = THREE.MathUtils.clamp(1.3 * cfg.height + 0.3, 1.0, 2.4);
+          const sx = fx + toRoom.x * dist, sz = fz + toRoom.z * dist, yaw = Math.atan2(sx - fx, sz - fz);
+          const sid = 'sc_' + id;
+          // small pieces: look slightly down at them from close by, so they fill the view
+          const mid = spot.top + cfg.height * 0.55, eye = THREE.MathUtils.clamp(mid + 0.15, 1.35, 2.2);
+          STATIONS.push({ id: sid, x: sx, z: sz, yaw, eye, pitch: -Math.atan2(eye - mid, dist) * 0.8, room: 'det', tour: false, back: 'det',
+            accent: '#C9A667', eyebrow: 'Exhibit details · sculpture', title: n[0], body: n[1], meta: n[2] });
+          ST[sid] = STATIONS.length - 1;
+          g.userData.station = ST[sid];
+        }
       }, undefined, () => console.warn('sculpture did not load, keeping the placeholder:', cfg.src));
     });
   }).catch(() => console.warn('sculpture loader unavailable, keeping the placeholders'));
@@ -1797,8 +2122,8 @@ pictureLight(P.wingEndX - 0.6, H - 0.5, -7.5, P.wingEndX, 1.95, -7.5, true, 15, 
 });
 
 pictureLight(0, H - 0.14, DET.zB + 1.0, 0, 2.55, DET.zB, false, 7, 3.84, 1.9);
-pictureLight(-DET.x + 1.0, H - 0.14, DET.zMid, -DET.x, 2.5, DET.zMid, false, 7, 3.64, 1.7);
-pictureLight(DET.x - 1.0, H - 0.14, DET.zMid, DET.x, 2.5, DET.zMid, false, 7, 3.64, 1.7);
+pictureLight(-DET.x + 1.0, H - 0.14, DET.zMid - 1.35, -DET.x, 2.3, DET.zMid - 1.35, false, 7, 3.19, 0.8);   // the Galatea
+pictureLight(DET.x - 1.0, H - 0.14, DET.zMid + 0.45, DET.x, 2.15, DET.zMid + 0.45, false, 7, 3.19, 1.5);                 // the maze garden
 
 // warm pools down the corridor so the space reads as lit
 [[0, 10], [0, 6.5], [0, 3], [0, -0.5], [0, -4], [0, -7.5]].forEach(([x, z]) => {
@@ -1877,7 +2202,7 @@ function goTo(n) {
   // tilt to the other, or simply stays put, instead of nodding up and back down
   const sameView = Math.abs(shortAngle(cam.yaw, t.yaw) - cam.yaw) < 0.01;
   // ...nor when sidestepping along a wall between two close-ups held at the same height and tilt
-  const alongWall = sameView && Math.hypot(t.x - cam.x, t.z - cam.z) < 3 && Math.abs(cam.eye - (t.eye || EYE)) < 0.001 && Math.abs(cam.pitch - (t.pitch || 0)) < 0.001;
+  const alongWall = sameView && Math.hypot(t.x - cam.x, t.z - cam.z) < 3;
   const staying = (Math.hypot(t.x - cam.x, t.z - cam.z) < 0.01 && sameView) || alongWall;
   if (!staying && (Math.abs(cam.pitch) > 0.001 || Math.abs(cam.eye - EYE) > 0.001)) queue.push({ kind: 'turn', yaw: cam.yaw, pitch: 0, eye: EYE, ms: 800 });
 
@@ -1967,6 +2292,8 @@ function paintLabel(st) {
   el('title').textContent = st.title;
   el('body').textContent = st.body;
   el('meta').textContent = st.meta;
+  el('more').style.display = st.card ? '' : 'none';               // "Read the full details", where a wall text exists
+  el('more').dataset.card = st.card || '';
   // ease the new text in, so a change of write-up catches the eye (restarts the CSS animation)
   ['eyebrow', 'title', 'body', 'meta'].forEach((id) => {
     const n = el(id);
@@ -1989,11 +2316,18 @@ function markRoom(room) {
   else { back.style.display = ''; back.style.pointerEvents = 'auto'; requestAnimationFrame(() => { back.style.opacity = '1'; }); }
   // no turning round with the save-the-date or the invitation in your hands
   const holding = STATIONS[idx].back === 'detTable';
+  el('sections').style.display = room === 'det' ? 'flex' : 'none';
+  document.querySelectorAll('#sections button').forEach((b) => {
+    const on = b.dataset.card === (STATIONS[idx].card || '');
+    b.style.background = on ? 'rgba(232,192,122,.26)' : 'rgba(26,18,8,.55)';
+    b.style.color = on ? '#FFF3D0' : '#F2DFA8';
+  });
   el('turn').style.opacity = holding ? '0' : '1';
   el('turn').style.pointerEvents = holding ? 'none' : 'auto';
 }
 // turn around on the spot: a half turn, with the view levelled and back at standing height. Turning again faces the
 // stop once more and takes up its own tilt and height.
+document.querySelectorAll('#sections button').forEach((b) => b.addEventListener('click', () => goTo(ST[b.dataset.stop])));
 el('turn').addEventListener('click', () => {
   if (leg || queue.length) return;
   const t = STATIONS[idx], yaw = cam.yaw + Math.PI;
@@ -2022,7 +2356,27 @@ function tourStep(dir) {
 }
 el('nav').querySelector('[data-back]').addEventListener('click', () => tourStep(-1));
 document.querySelector('[data-fwd]').addEventListener('click', () => tourStep(1));
+// the wall-text card
+function openCard(key) {
+  const c = CARDS[key];
+  if (!c) return;
+  el('cardTitle').textContent = c.title;
+  const body = el('cardBody');
+  body.textContent = '';
+  c.sections.forEach((sec) => {
+    const h = document.createElement('h3');
+    h.textContent = sec.h;
+    body.appendChild(h);
+    sec.p.forEach((t) => { const p = document.createElement('p'); p.textContent = t; body.appendChild(p); });
+  });
+  el('card').style.display = 'grid';
+  el('cardSheet').scrollTop = 0;
+}
+const closeCard = () => { el('card').style.display = 'none'; };
+el('more').addEventListener('click', () => openCard(el('more').dataset.card));
+el('card').addEventListener('click', (e) => { if (e.target === el('card') || e.target.id === 'cardClose') closeCard(); });
 window.addEventListener('keydown', (e) => {
+  if (el('card').style.display === 'grid') { if (e.key === 'Escape') closeCard(); return; }   // no walking about behind an open card
   if (e.key === 'ArrowRight' || e.key === 'ArrowUp') tourStep(1);
   if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') tourStep(-1);
 });
@@ -2081,30 +2435,46 @@ function probe(clientX, clientY) {
   const r = canvas.getBoundingClientRect();
   raycaster.setFromCamera(new THREE.Vector2(((clientX - r.left) / r.width) * 2 - 1, -((clientY - r.top) / r.height) * 2 + 1), camera);
   const here = roomAt();
-  let own = false, target = null, surface = null, station, closer, note;
+  let own = false, target = null, surface = null, station, closer, note, cardKey;
   for (const hit of raycaster.intersectObjects(scene.children, true)) {
     const room = hit.object.userData.room;
     if (!room) {                            // anything solid ends the line of sight
       surface = hit;
-      for (let o = hit.object; o && station === undefined && !note; o = o.parent) { station = o.userData.station; closer = o.userData.closer; note = o.userData.note; }
+      for (let o = hit.object; o && station === undefined && !note; o = o.parent) { station = o.userData.station; closer = o.userData.closer; note = o.userData.note; cardKey = cardKey || o.userData.cardKey; }
       break;
     }
     if (room === here) own = true; else target = room;
   }
   // the doorway of the room you are standing in leads back out to the atrium
   // a picture only counts from inside its own room, and not through a doorway
-  if (station !== undefined && (own || target || STATIONS[station].room !== here)) station = undefined;
+  if (station !== undefined && (own || target || STATIONS[station].room !== here)) { station = undefined; note = undefined; }
   // already facing it: the next click is the step closer (and nothing once you are there)
   if (station !== undefined && closer !== undefined && (idx === station || idx === closer || STATIONS[idx].back === STATIONS[station].id)) station = closer;
+  // a write-up: for things with no stop of their own (the entrance hall), from the atrium; for a picture or title that
+  // belongs to a stop, once you stand at that stop. Never through a doorway, nor while that write-up is already showing.
+  const atIt = station === undefined ? here === 'atrium' : station === idx && !leg && !queue.length;
+  if (note && (own || target || !atIt || el('title').textContent === note.title)) note = undefined;
   if (station === idx) station = undefined;
-  // a write-up-only object counts from the atrium, in plain view, and not while its write-up is already showing
-  if (note && (own || target || here !== 'atrium' || el('title').textContent === note.title)) note = undefined;
-  return { room: target || (own ? 'atrium' : null), surface, station, note };
+  if (cardKey && (own || target || here !== 'det')) cardKey = undefined;   // the wall buttons work from anywhere in their room
+  return { room: target || (own ? 'atrium' : null), surface, station, note, cardKey };
 }
 const doorAt = (clientX, clientY) => probe(clientX, clientY).room;
+// is this click on the thing in your hands (the save-the-date or the invitation)?
+function onHeldItem(e) {
+  if (volHeld()) return volAngleAt(e.clientX, e.clientY) !== null;
+  if (invHeld()) {
+    const r = canvas.getBoundingClientRect();
+    raycaster.setFromCamera(new THREE.Vector2(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1), camera);
+    return raycaster.intersectObjects([invPick, invCard], true).length > 0;
+  }
+  return false;
+}
 canvas.addEventListener('click', (e) => {
   const p = probe(e.clientX, e.clientY);
+  // holding something and clicking away from it: put it down (a click on something else walks there, which puts it down too)
+  if ((volHeld() || invHeld()) && !onHeldItem(e) && !p.room && p.station === undefined && !p.cardKey && !p.note) { goTo(ST.detTable); return; }
   if (p.room) goTo(ROOM_ENTRY[p.room]);
+  else if (p.cardKey) openCard(p.cardKey);
   else if (p.note) paintLabel(p.note);                  // no walking: only the panel changes
   else if (p.station !== undefined) goTo(p.station);    // a picture in this room: go and face it
 });
@@ -2143,7 +2513,7 @@ function updatePointer() {
     pointer.moved = false;
     const p = probe(pointer.x, pointer.y);
     canvas.style.cursor = volHeld() && p.surface && isVolvelle(p.surface.object) ? (volDrag ? 'grabbing' : 'grab')
-      : p.room || p.station !== undefined || p.note || (invHeld() && p.surface && p.surface.object.userData.invite) ? 'var(--cur-on)' : '';
+      : p.room || p.station !== undefined || p.note || p.cardKey || (invHeld() && p.surface && p.surface.object.userData.invite) ? 'var(--cur-on)' : '';
     if (p.surface) {
       // hold the light a little off the surface, on the side facing the viewer
       const n = p.surface.face.normal.clone().transformDirection(p.surface.object.matrixWorld);
@@ -2626,6 +2996,137 @@ function updateInvitation() {
   invCard.scale.setScalar(1 + 0.12 * b);
 }
 
+// ---------------------------------------------------------------- the gift-shop stand (a first mock-up, to be decided on)
+// A walnut counter under the main frame on the details room's end wall ("the only thing missing is you", and
+// right below it, the way to say you are coming): a revolving rack of postcards of
+// the gallery's pictures, a burgundy enamel letterbox for the RSVP, and a tent card for the registry note.
+// Planned, not built yet: click the rack to spin it and draw a postcard; the postcard flips to its writing side,
+// which is the RSVP form; posting it sends the reply to a form service.
+let shopRack = null;
+(function giftShop() {
+  const g = new THREE.Group();
+  const walnut = new THREE.MeshStandardMaterial({ map: tex('assets/door-walnut-rail.jpg'), color: '#ffe2bd', roughness: 0.5, emissive: '#2a1a0c', emissiveIntensity: 0.6 });
+  const W = 1.6, D = 0.56, Hc = 0.84;                               // kept low, so the rack and letterbox stay under the picture
+  const body = new THREE.Mesh(new THREE.BoxGeometry(W, Hc - 0.04, D), walnut);
+  body.position.y = (Hc - 0.04) / 2;
+  const top = new THREE.Mesh(new THREE.BoxGeometry(W + 0.06, 0.04, D + 0.05), marbleWhite);
+  top.position.y = Hc - 0.02;
+  const kick = new THREE.Mesh(new THREE.BoxGeometry(W + 0.02, 0.07, D + 0.02), brass);
+  kick.position.y = 0.035;
+  g.add(body, top, kick);
+  [-0.5, 0, 0.5].forEach((x) => {                                    // three recessed panels on the front
+    const panel = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.52, 0.012), new THREE.MeshStandardMaterial({ map: tex('assets/door-walnut-panel.jpg'), color: '#f0cfa6', roughness: 0.55, emissive: '#2a1a0c', emissiveIntensity: 0.5 }));
+    panel.position.set(x, 0.43, D / 2 + 0.004);
+    g.add(panel);
+  });
+  const sign = engravedPlaque(0.62, 0.13, [[0.46, 150, [['THE GIFT SHOP', '600', 20]]], [0.84, 84, [['Postcards  ·  RSVP  ·  Registry', 'italic 500', 3]]]]);
+  sign.position.set(0, Hc - 0.135, D / 2 + 0.012);
+  g.add(sign);
+
+  // the postcards: one small atlas drawn from the gallery's own pictures as they load
+  const COLS = 4, ROWS = 3, CW = 256, CHh = 176, atlas = document.createElement('canvas');
+  atlas.width = COLS * CW; atlas.height = ROWS * CHh;
+  const ax = atlas.getContext('2d');
+  ax.fillStyle = '#f4eee0'; ax.fillRect(0, 0, atlas.width, atlas.height);
+  const atlasTex = new THREE.CanvasTexture(atlas);
+  atlasTex.colorSpace = THREE.SRGBColorSpace; atlasTex.anisotropy = 8;
+  ['birth-of-venus', 'primavera', 'w1-three-graces', 'w1-happy-union', 'w1-mars-and-venus', 'w1-amaryllis-and-mirtillo', 'w2-parnassus', 'w2-nastagio-banquet',
+    'w2-banquet-still-life', 'w2-watermelon-still-life', 'fresco-venus-and-graces', 'fresco-liberal-arts'].forEach((name, i) => {
+    const img = new Image();
+    img.onload = () => {
+      const cx = (i % COLS) * CW, cy = Math.floor(i / COLS) * CHh, m = 12, w = CW - 2 * m, h = CHh - 2 * m;
+      const k = Math.max(w / img.width, h / img.height), sw = w / k, sh = h / k;     // fill the card, cropping the overflow
+      ax.drawImage(img, (img.width - sw) / 2, (img.height - sh) / 2, sw, sh, cx + m, cy + m, w, h);
+      atlasTex.needsUpdate = true;
+    };
+    img.src = 'assets/' + name + '.jpg';
+  });
+  const cardMat = new THREE.MeshStandardMaterial({ map: atlasTex, roughness: 0.8, side: THREE.DoubleSide });
+  const card = (i) => {
+    const geo = new THREE.PlaneGeometry(0.15, 0.103), uv = geo.attributes.uv, c = i % COLS, r = Math.floor(i / COLS);
+    for (let k = 0; k < uv.count; k++) uv.setXY(k, (c + uv.getX(k)) / COLS, 1 - (r + 1 - uv.getY(k)) / ROWS);
+    return new THREE.Mesh(geo, cardMat);
+  };
+  // the rack: a brass pole on a round foot, four wire faces, three pockets a face
+  shopRack = new THREE.Group();
+  const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.011, 0.011, 0.6, 10), brass);
+  pole.position.y = 0.3;
+  const foot = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.12, 0.025, 28), brass);
+  foot.position.y = 0.0125;
+  const knob = new THREE.Mesh(new THREE.SphereGeometry(0.024, 14, 10), brass);
+  knob.position.y = 0.61;
+  shopRack.add(pole, foot, knob);
+  for (let f = 0; f < 4; f++) {
+    const face = new THREE.Group();
+    for (let r = 0; r < 3; r++) {
+      const c = card(f * 3 + r);
+      c.position.set(0, 0.13 + r * 0.155, 0.118);
+      c.rotation.x = -0.2;
+      const lip = new THREE.Mesh(new THREE.BoxGeometry(0.165, 0.008, 0.02), brass);   // the pocket's wire
+      lip.position.set(0, 0.085 + r * 0.155, 0.122);
+      face.add(c, lip);
+    }
+    face.rotation.y = f * Math.PI / 2;
+    shopRack.add(face);
+  }
+  shopRack.position.set(-0.42, Hc, 0);
+  shopRack.scale.setScalar(1.05);
+  g.add(shopRack);
+
+  // the letterbox: burgundy enamel with an arched top, a brass-lipped slot and gold lettering
+  const enamel = new THREE.MeshStandardMaterial({ color: BURGUNDY_PAINT, roughness: 0.32, metalness: 0.1 });
+  const box = new THREE.Group(), bw = 0.3, bh = 0.3, bd = 0.2;
+  const lower = new THREE.Mesh(new THREE.BoxGeometry(bw, bh, bd), enamel);
+  lower.position.y = bh / 2 + 0.02;
+  const arch = new THREE.Mesh(new THREE.CylinderGeometry(bw / 2, bw / 2, bd, 28, 1, false, 0, Math.PI), enamel);
+  arch.rotation.set(Math.PI / 2, Math.PI / 2, 0); arch.position.y = bh + 0.02;
+  const plinth = new THREE.Mesh(new THREE.BoxGeometry(bw + 0.03, 0.02, bd + 0.03), brass);
+  plinth.position.y = 0.01;
+  const slot = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.016, 0.01), new THREE.MeshBasicMaterial({ color: '#120509' }));
+  slot.position.set(0, bh + 0.035, bd / 2 + 0.002);
+  const slotLip = new THREE.Mesh(new THREE.BoxGeometry(0.235, 0.046, 0.008), brass);
+  slotLip.position.set(0, bh + 0.035, bd / 2);
+  const lc = document.createElement('canvas');
+  lc.width = 512; lc.height = 384;
+  const lx = lc.getContext('2d');
+  lx.fillStyle = BURGUNDY_PAINT; lx.fillRect(0, 0, 512, 384);
+  lx.strokeStyle = '#d9ab4c'; lx.lineWidth = 6; lx.strokeRect(26, 26, 460, 332);
+  lx.fillStyle = '#e6c06a'; lx.textAlign = 'center';
+  if ('letterSpacing' in lx) lx.letterSpacing = '14px';
+  lx.font = '600 92px Georgia'; lx.fillText('POSTA', 256, 170);
+  if ('letterSpacing' in lx) lx.letterSpacing = '10px';
+  lx.font = 'italic 500 70px Georgia'; lx.fillText('R.S.V.P.', 256, 286);
+  const lt = new THREE.CanvasTexture(lc);
+  lt.colorSpace = THREE.SRGBColorSpace; lt.anisotropy = 8;
+  const face = new THREE.Mesh(new THREE.PlaneGeometry(0.25, 0.19), new THREE.MeshStandardMaterial({ map: lt, roughness: 0.35, emissive: '#ffffff', emissiveMap: lt, emissiveIntensity: 0.12 }));
+  face.position.set(0, 0.145, bd / 2 + 0.002);
+  box.add(lower, arch, plinth, slotLip, slot, face);
+  box.position.set(0.4, Hc, 0.0);
+  box.rotation.y = -0.18;
+  box.scale.setScalar(1.1);
+  g.add(box);
+
+  // a tent card for the registry note
+  const tc = document.createElement('canvas');
+  tc.width = 512; tc.height = 320;
+  const tx = tc.getContext('2d');
+  tx.fillStyle = '#f6f0e2'; tx.fillRect(0, 0, 512, 320);
+  tx.strokeStyle = '#b8934a'; tx.lineWidth = 4; tx.strokeRect(18, 18, 476, 284);
+  tx.fillStyle = '#2b2520'; tx.textAlign = 'center';
+  tx.font = 'italic 500 62px Georgia'; tx.fillText('Registry', 256, 140);
+  tx.font = '500 40px Georgia'; tx.fillText('& the local guide', 256, 214);
+  const tt = new THREE.CanvasTexture(tc);
+  tt.colorSpace = THREE.SRGBColorSpace; tt.anisotropy = 8;
+  const tent = new THREE.Mesh(new THREE.PlaneGeometry(0.2, 0.125), new THREE.MeshStandardMaterial({ map: tt, roughness: 0.85, side: THREE.DoubleSide }));
+  tent.scale.setScalar(1.4);
+  tent.position.set(-0.03, Hc + 0.085, 0.19); tent.rotation.x = -0.35;
+  g.add(tent);
+
+  g.position.set(0, 0, DET.zB + 0.03 + D / 2);                       // its front faces into the room
+  g.traverse((o) => { o.userData.station = ST.detShop; });
+  scene.add(g);
+})();
+
 // ---------------------------------------------------------------- loop
 function resize() {
   const stage = el('stage');
@@ -2658,6 +3159,7 @@ function frame(now) {
   camera.updateMatrixWorld();
   updateVolvelle();
   updateInvitation();
+  if (shopRack) shopRack.rotation.y += 0.003;                      // the postcard rack turns idly
   updatePointer();
   renderer.render(scene, camera);
   requestAnimationFrame(frame);

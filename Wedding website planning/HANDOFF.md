@@ -127,6 +127,55 @@ No scans of Villa Cetinale's own sculpture exist online (searched). See `assets/
 - Motto: consistent dark gold, condensed to the centre, soft ivory haze behind it, no rule lines.
 - Credits panel (button at the right of the bottom bar) — built from `SCULPTURES`.
 
+**The details room's sections** (owner's plan, 21 Sept 2026; all texts are still PLACEHOLDERS)
+- Main frame, end wall: "The only thing missing from this exhibit is you" (kept for the guests), with the gift-shop
+  stand (`giftShop`, stop `detShop`) under it: postcard rack, "POSTA · R.S.V.P." letterbox, registry card. The owner
+  wants the RSVP to be a postcard drawn from the rack that flips to a writing side (the form) and is posted in the
+  letterbox. NOT BUILT YET: it needs a form service behind it (a static page cannot collect replies).
+- Layout (the owner's, 21 Sept): the END WALL carries only the main frame (she found clusters beside it too small).
+  LEFT wall: 2 Schedule (entrance side) and 3 Travel (far side). RIGHT wall: 1 Main details (entrance side) and
+  4 Accommodations, one good-sized picture (far side). ENTRANCE wall: 5 Logistics (left), 6 Guest policies (right).
+  7 Registry & extras is the gift-shop stand. She rejected the Aurora on the travel wall (file kept in assets, unused)
+  and three versions of one painting in a cluster. More pictures may come; Villa Cetinale art is still open (none
+  exists in open collections, and she does not want the invitation artist's drawing used).
+- Stops: `detMain`, `detSchedule`, `detTravel`, `detStay`, `detFrontL`, `detFrontR`, `detShop`, all in the Walk on tour in
+  that order after `det` and `detTable`. `detClose`, `detVolvelle`, `detInvite` are click-only.
+- A gold title on the wall above every section (`sectionTitle`), sized to read from the room's entry.
+- Every picture has `sec` (its section) and `note` (title, anecdote, caption). Each picture with a note gets its own
+  close-up stop, made at build time (`pic<index>`, `back:` its section, `card:` the section's), standing as near as its
+  size allows at the picture's height. Click from elsewhere: walk to the section. Click from the section (or from a
+  sibling's close-up): step up to the picture; its write-up fills the panel. The anecdotes are drafts.
+- Beneath every section a gold-edged wall button "CLICK HERE FOR DETAILS" (`detailsButton`, `userData.cardKey`)
+  opens its wall text from anywhere in the room. The panel's "Read the full details" does the same.
+- In the details room a row of gold-trimmed section buttons (`#sections`) runs across the top between Step back and
+  Walk on; the current section is highlighted. Turn around now sits at the bottom right of the stage. No console tables in the room any more (the owner removed them).
+- Holding the save-the-date or the invitation, a click on anything else puts it down (`onHeldItem`); the open wall
+  text closes on a click outside it.
+- Pictures are `DETAIL_PICTURES` (`src`, optional `crop: [l, t, r, b]`). `tools/art-options.html` is the browsing
+  page used to choose them.
+- Wall texts: `CARDS`, named by a stop's `card:`; the panel shows "Read the full details", which opens a cream
+  placard over the scene (Escape or a click outside closes it; arrow keys are ignored while it is open).
+
+**Sculpture in the details room** (22 Sept 2026)
+- Apollo and Diana flank the main frame. The Apollo scan was captured ~28 degrees off level (a hand-set `tilt` of
+  10 degrees was not enough): `level: true` now straightens it automatically (`levelBase()` fits a plane to the
+  underside of the base and stands it flat, then centres the figure by its base rather than its reach). `tilt`
+  ([x, z] degrees) is still accepted for hand corrections. Diana is centred by `nudge`; her plinth is sized to her
+  base (0.96 x 0.74). Rotated models are measured with the precise bounding box, otherwise they float.
+- Every plinth in the museum is Siena marble (`plinthMat`, drawn by `sienaMarble()`); the walls' dado keeps the
+  plaster `stoneMat`, so the plinths stand off it. The one-line switch to white marble is the `plinthMat` colour/map.
+- The four corner pedestals hold bust-sized pieces: a Roman head of Ariadne (Musée Saint-Raymond, Toulouse, CC BY —
+  the reclining Sleeping Ariadne cast was tried first and rejected as too big for a bust plinth), Antinous as Dionysus (the Bacchus reference: the owner does not drink and
+  wants guests told to enjoy the wine anyway), Beatrice d'Este and Isabella of Aragon (two Renaissance brides, either
+  side of the entrance arch). Bernini's Costanza Bonarelli replaced the Laurana woman in Wing II. The owner did NOT
+  want full-size statues shrunk to fit these pedestals (a shrunk Dancing Faun was tried and rejected), and does not
+  want the Roman portrait busts back. No Cupid and Psyche scan exists in any open collection (searched).
+- Scans face whichever way they were captured: `turn` (radians) spins each to face the room; set by eye from renders,
+  because a nose-direction test misfires on busts with wide shoulders or hair.
+- Every sculpture in the room has a walk-up stop made at load time (`sc_<spotId>`, from `SCULPTURE_NOTES`), standing
+  straight off its wall at a distance and height that fill the view; Step back returns to the room's entry. The
+  anecdotes are drafts.
+
 **The save-the-date volvelle** (section "on the table" in `gallery3d.js`)
 - A digital build of the owner's paper save-the-date. Her original build pack (print sheets, Cricut
   cut files, shopping list) lives OUTSIDE the project — it was removed on purpose so it is not
@@ -200,7 +249,7 @@ No scans of Villa Cetinale's own sculpture exist online (searched). See `assets/
 - Stops (`STATIONS`) are referred to by **id**, never by index (`ST.w1`, `ST.detTable`, …).
   `tour: false` marks stops reached only by clicking (skipped by Walk on / arrow keys).
   Ids: atrium, kelly, kelly1, kelly2, anthony, anthony1, anthony2, w1, w1close, w1a, w1b, w2,
-  w1graces, w1amaryllis, w1union, w1mars, w2close, w2a, w2b, w2utrecht, w2ruoppolo, w2parnassus, w2nastagio, det, detL, detR, detLclose, detRclose, detClose, detStackL, detStackR, detTable, detVolvelle, detInvite, detFrontL, detFrontR.
+  w1graces, w1amaryllis, w1union, w1mars, w2close, w2a, w2b, w2utrecht, w2ruoppolo, w2parnassus, w2nastagio, det, detL, detR, detLclose, detRclose, detTable, detMain, detSchedule, detTravel, detStay, detFrontL, detFrontR, detShop, detClose, detVolvelle, detInvite.
 - A stop may name where Step back leads (`back: 'detTable'`); otherwise Step back goes to the room's entry stop, then the atrium.
 - Click **doorways** (invisible arch-shaped panes), **pictures/frames/plaques/the table**
   (`userData.station`, and `userData.closer` for the two wing paintings' close-up).

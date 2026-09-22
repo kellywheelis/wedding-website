@@ -149,6 +149,7 @@
 { const q = new URLSearchParams(location.search);
   // goto=id[,id...] : walk to stops by id, one after another, and report where each ends
   if (q.has('goto')) setTimeout(() => {
+    // (sculpture stops exist only once their scans have loaded: pass slow=1 to wait for them)
     const out = [];
     q.get('goto').split(',').forEach((id) => {
       goTo(ST[id]);
@@ -164,7 +165,7 @@
     tag.style.cssText = 'position:fixed;left:8px;bottom:8px;z-index:99;background:#000;color:#ff0;font:14px monospace;padding:4px 8px;white-space:pre';
     tag.textContent = out.join('\n');
     document.body.appendChild(tag);
-  }, 2000); }
+  }, q.has('slow') ? 15000 : 2000); }
 
 { const q = new URLSearchParams(location.search);
   // hold=1 : jump the save-the-date straight to its lifted pose (go to detVolvelle first); turn=n : n plates on
@@ -280,6 +281,7 @@
 { const q = new URLSearchParams(location.search);
   // noteclick=fx,fy;... : after earlier actions, click each point and report what the panel shows and whether you moved
   if (q.has('noteclick')) setTimeout(() => {
+    // wait for the sculpture scans, which load in the background
     const out = [];
     q.get('noteclick').split(';').forEach((pair) => {
       const [fx, fy] = pair.split(',').map(Number), r = canvas.getBoundingClientRect();
@@ -290,7 +292,7 @@
     const tag = document.createElement('div');
     tag.style.cssText = 'position:fixed;right:8px;top:110px;z-index:99;background:#000;color:#0f0;font:14px monospace;padding:4px 8px;white-space:pre';
     tag.textContent = out.join('\n'); document.body.appendChild(tag);
-  }, 6500); }
+  }, q.has('slow') ? 14000 : 6500); }
 { const q = new URLSearchParams(location.search);
   if (q.has('probeat')) setTimeout(() => {
     const out = [];
@@ -305,3 +307,19 @@
     tag.style.cssText = 'position:fixed;left:8px;top:150px;z-index:99;background:#000;color:#ff0;font:13px monospace;padding:4px 8px;white-space:pre';
     tag.textContent = out.join('\n'); document.body.appendChild(tag);
   }, 6500); }
+{ const q = new URLSearchParams(location.search);
+  if (q.has('card')) setTimeout(() => document.getElementById('more').click(), 6000); }
+{ const q = new URLSearchParams(location.search);
+  if (q.has('sprobe')) setTimeout(() => {
+    const out = ['spots loaded: ' + Object.keys(SCULPTURE_SPOTS).map((k) => k + '=' + (SCULPTURE_SPOTS[k].group.userData.note ? 'note' : (SCULPTURE_SPOTS[k].placeholder.length && SCULPTURE_SPOTS[k].placeholder[0].parent ? 'placeholder' : 'loaded-no-note'))).join(' ')];
+    q.get('sprobe').split(';').forEach((pair) => {
+      const [fx, fy] = pair.split(',').map(Number), r = canvas.getBoundingClientRect();
+      camera.position.set(cam.x, cam.eye, cam.z); camera.rotation.set(cam.pitch, cam.yaw, 0, 'YXZ'); camera.updateMatrixWorld();
+      const p = probe(r.left + fx * r.width, r.top + fy * r.height);
+      const chain = []; for (let o = p.surface && p.surface.object; o; o = o.parent) chain.push((o.type || '?') + (o.userData.note ? '[NOTE]' : '') + (o.userData.station !== undefined ? '[st' + o.userData.station + ']' : ''));
+      out.push(pair + ' -> note=' + (p.note ? p.note.title : p.note) + ' station=' + p.station + ' chain=' + chain.join('<'));
+    });
+    const tag = document.createElement('div');
+    tag.style.cssText = 'position:fixed;left:8px;top:150px;z-index:99;background:#000;color:#ff0;font:13px monospace;padding:4px 8px;white-space:pre';
+    tag.textContent = out.join('\n'); document.body.appendChild(tag);
+  }, 14000); }

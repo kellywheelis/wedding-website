@@ -36,6 +36,8 @@
   @keyframes drawRule { from { transform: scaleX(0); } to { transform: scaleX(1); } }
   @keyframes riseIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  #cardBody h3 { margin: 26px 0 6px; font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-size: 22px; color: #2B2520; border-top: 1px solid rgba(122,26,60,.25); padding-top: 16px; }
+  #cardBody p { margin: 0 0 10px; font-size: 17px; line-height: 1.65; color: #4a4137; }
   /* one themed cursor everywhere: Cupid's arrow. Over anything you can click, the same arrow lights up
      (rose heart, gold glow). The hot spot is the tip of the heart. */
   :root { --cur: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22 viewBox=%220 0 32 32%22%3E%3Cg stroke-linecap=%22round%22 fill=%22none%22%3E%3Cpath d=%22M11 11L27 27M21.5 21.5v5.5M21.5 21.5h5.5M25 25v4M25 25h4%22 stroke=%22%232a1c0a%22 stroke-width=%224%22/%3E%3Cpath d=%22M21.5 21.5v5.5M21.5 21.5h5.5M25 25v4M25 25h4%22 stroke=%22%23D9AB4C%22 stroke-width=%221.9%22/%3E%3Cpath d=%22M11 11L27 27%22 stroke=%22%23F7EFDC%22 stroke-width=%221.9%22/%3E%3C/g%3E%3Cpath transform=%22translate%288.4 8.4%29 rotate%28135%29 scale%28.8%29%22 d=%22M0 10C-14 1 -7 -11 0 -1.5C7 -11 14 1 0 10Z%22 fill=%22%23D9AB4C%22 stroke=%22%232a1c0a%22 stroke-width=%221.9%22 stroke-linejoin=%22round%22/%3E%3C/svg%3E") 3 3, auto; --cur-on: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22 viewBox=%220 0 32 32%22%3E%3Ccircle cx=%228.6%22 cy=%228.6%22 r=%228.4%22 fill=%22%23F6D98A%22 opacity=%22.45%22/%3E%3Cg stroke-linecap=%22round%22 fill=%22none%22%3E%3Cpath d=%22M11 11L27 27M21.5 21.5v5.5M21.5 21.5h5.5M25 25v4M25 25h4%22 stroke=%22%232a1c0a%22 stroke-width=%224%22/%3E%3Cpath d=%22M21.5 21.5v5.5M21.5 21.5h5.5M25 25v4M25 25h4%22 stroke=%22%23F6D98A%22 stroke-width=%221.9%22/%3E%3Cpath d=%22M11 11L27 27%22 stroke=%22%23F7EFDC%22 stroke-width=%221.9%22/%3E%3C/g%3E%3Cpath transform=%22translate%288.4 8.4%29 rotate%28135%29 scale%28.8%29%22 d=%22M0 10C-14 1 -7 -11 0 -1.5C7 -11 14 1 0 10Z%22 fill=%22%23E0486E%22 stroke=%22%232a1c0a%22 stroke-width=%221.9%22 stroke-linejoin=%22round%22/%3E%3C/svg%3E") 3 3, pointer; }
@@ -52,9 +54,18 @@
   <div id="stage"><canvas id="view"></canvas>
     <div id="topLeft" style="position:absolute;left:clamp(12px,2vw,24px);top:clamp(12px,2vw,24px);z-index:12;display:flex;flex-wrap:wrap;gap:10px;max-width:calc(100% - 200px)">
       <button id="back" aria-label="Step back" style="height:42px;padding:0 clamp(14px,2vw,20px);border-radius:22px;background:rgba(26,18,8,.55);backdrop-filter:blur(2px);border:1px solid rgba(232,192,122,.7);color:#F2E6C9;font-size:11px;letter-spacing:.24em;text-transform:uppercase;cursor:pointer;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity 500ms ease;display:none">&larr;&nbsp; Step back</button>
-      <button id="turn" aria-label="Turn around" style="height:42px;padding:0 clamp(14px,2vw,20px);border-radius:22px;background:rgba(26,18,8,.55);backdrop-filter:blur(2px);border:1px solid rgba(232,192,122,.7);color:#F2E6C9;font-size:11px;letter-spacing:.24em;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:opacity 500ms ease">&#8634;&nbsp; Turn around</button>
     </div>
     <button data-fwd="1" aria-label="Walk forward" style="position:absolute;right:clamp(12px,2vw,24px);top:clamp(12px,2vw,24px);z-index:12;height:42px;padding:0 clamp(14px,2vw,20px);border-radius:22px;background:rgba(26,18,8,.55);backdrop-filter:blur(2px);border:1px solid rgba(232,192,122,.7);color:#F2E6C9;font-size:11px;letter-spacing:.24em;text-transform:uppercase;cursor:pointer;white-space:nowrap">Walk on &nbsp;&rarr;</button>
+    <button id="turn" aria-label="Turn around" style="position:absolute;right:clamp(12px,2vw,24px);bottom:clamp(10px,1.6vw,18px);z-index:12;height:42px;padding:0 clamp(14px,2vw,20px);border-radius:22px;background:rgba(26,18,8,.55);backdrop-filter:blur(2px);border:1px solid rgba(232,192,122,.7);color:#F2E6C9;font-size:11px;letter-spacing:.24em;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:opacity 500ms ease">&#8634;&nbsp; Turn around</button>
+    <div id="sections" style="position:absolute;left:50%;top:clamp(12px,2vw,24px);transform:translateX(-50%);z-index:11;display:none;gap:5px;flex-wrap:wrap;justify-content:center;max-width:calc(100% - 340px)">
+      <button data-card="main" data-stop="detMain" style="background:rgba(26,18,8,.55);backdrop-filter:blur(2px);border:1px solid rgba(232,192,122,.95);box-shadow:0 0 0 1px rgba(26,18,8,.5),inset 0 0 0 1px rgba(232,192,122,.35);color:#F2DFA8;height:34px;padding:0 10px;border-radius:17px;font-size:9px;letter-spacing:.15em;text-transform:uppercase;white-space:nowrap">Details</button>
+      <button data-card="schedule" data-stop="detSchedule" style="background:rgba(26,18,8,.55);backdrop-filter:blur(2px);border:1px solid rgba(232,192,122,.95);box-shadow:0 0 0 1px rgba(26,18,8,.5),inset 0 0 0 1px rgba(232,192,122,.35);color:#F2DFA8;height:34px;padding:0 10px;border-radius:17px;font-size:9px;letter-spacing:.15em;text-transform:uppercase;white-space:nowrap">Schedule</button>
+      <button data-card="travel" data-stop="detTravel" style="background:rgba(26,18,8,.55);backdrop-filter:blur(2px);border:1px solid rgba(232,192,122,.95);box-shadow:0 0 0 1px rgba(26,18,8,.5),inset 0 0 0 1px rgba(232,192,122,.35);color:#F2DFA8;height:34px;padding:0 10px;border-radius:17px;font-size:9px;letter-spacing:.15em;text-transform:uppercase;white-space:nowrap">Travel</button>
+      <button data-card="stay" data-stop="detStay" style="background:rgba(26,18,8,.55);backdrop-filter:blur(2px);border:1px solid rgba(232,192,122,.95);box-shadow:0 0 0 1px rgba(26,18,8,.5),inset 0 0 0 1px rgba(232,192,122,.35);color:#F2DFA8;height:34px;padding:0 10px;border-radius:17px;font-size:9px;letter-spacing:.15em;text-transform:uppercase;white-space:nowrap">Accommodations</button>
+      <button data-card="logistics" data-stop="detFrontL" style="background:rgba(26,18,8,.55);backdrop-filter:blur(2px);border:1px solid rgba(232,192,122,.95);box-shadow:0 0 0 1px rgba(26,18,8,.5),inset 0 0 0 1px rgba(232,192,122,.35);color:#F2DFA8;height:34px;padding:0 10px;border-radius:17px;font-size:9px;letter-spacing:.15em;text-transform:uppercase;white-space:nowrap">Logistics</button>
+      <button data-card="policies" data-stop="detFrontR" style="background:rgba(26,18,8,.55);backdrop-filter:blur(2px);border:1px solid rgba(232,192,122,.95);box-shadow:0 0 0 1px rgba(26,18,8,.5),inset 0 0 0 1px rgba(232,192,122,.35);color:#F2DFA8;height:34px;padding:0 10px;border-radius:17px;font-size:9px;letter-spacing:.15em;text-transform:uppercase;white-space:nowrap">Policies</button>
+      <button data-card="registry" data-stop="detShop" style="background:rgba(26,18,8,.55);backdrop-filter:blur(2px);border:1px solid rgba(232,192,122,.95);box-shadow:0 0 0 1px rgba(26,18,8,.5),inset 0 0 0 1px rgba(232,192,122,.35);color:#F2DFA8;height:34px;padding:0 10px;border-radius:17px;font-size:9px;letter-spacing:.15em;text-transform:uppercase;white-space:nowrap">RSVP</button>
+    </div>
     <p id="hint" style="position:absolute;left:50%;bottom:clamp(10px,1.6vw,18px);transform:translateX(-50%);z-index:12;margin:0;padding:6px 18px;border-radius:18px;background:rgba(26,18,8,.5);backdrop-filter:blur(2px);font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:clamp(15px,1.3vw,18px);color:#F2DFA8;white-space:nowrap;pointer-events:none">Go ahead &ndash; touch the art</p>
   </div>
 
@@ -63,6 +74,7 @@
       <div>
         <p id="eyebrow" style="margin:0 0 8px;font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:#C9A667;transition:color 700ms ease"></p>
         <h2 id="title" style="margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-weight:400;font-size:clamp(23px,3vw,33px);line-height:1.18;color:#F6F1E4"></h2>
+        <button id="more" style="display:none;margin-top:clamp(10px,1.3vw,15px);height:38px;padding:0 18px;background:rgba(232,192,122,.12);border:1px solid rgba(201,166,103,.7);color:#F2E6C9;font-size:10.5px;letter-spacing:.22em;text-transform:uppercase">Read the full details &nbsp;&rarr;</button>
       </div>
       <div>
         <p id="body" style="margin:0 0 9px;font-size:clamp(16px,1.35vw,18.5px);line-height:1.62;color:#E6DCC4"></p>
@@ -91,6 +103,16 @@
     <div id="creditsList"></div>
     <button id="creditsClose" style="margin-top:8px;height:40px;padding:0 20px;background:transparent;border:1px solid rgba(201,166,103,.5);color:#F2E6C9;font-size:10px;letter-spacing:.24em;text-transform:uppercase;cursor:pointer">Close</button>
   </div>
+</div>
+
+<!-- the wall-text card: the long version of a details section, set like a gallery placard -->
+<div id="card" style="position:fixed;inset:0;z-index:60;display:none;place-items:center;padding:clamp(14px,4vw,48px);background:rgba(20,15,10,.74)">
+  <article id="cardSheet" style="width:min(680px,100%);max-height:86vh;overflow:auto;background:#F6F1E4;color:#2B2520;padding:clamp(24px,4.5vw,52px);box-shadow:0 18px 60px rgba(0,0,0,.55);border-top:5px solid #7A1A3C">
+    <p style="margin:0 0 10px;font-size:10.5px;letter-spacing:.34em;text-transform:uppercase;color:#7A1A3C">Exhibit details</p>
+    <h2 id="cardTitle" style="margin:0 0 6px;font-family:'Cormorant Garamond',Georgia,serif;font-weight:400;font-size:clamp(28px,4vw,40px);line-height:1.12"></h2>
+    <div id="cardBody"></div>
+    <button id="cardClose" style="margin-top:26px;height:40px;padding:0 22px;background:transparent;border:1px solid #7A1A3C;color:#7A1A3C;font-size:10.5px;letter-spacing:.24em;text-transform:uppercase">Close</button>
+  </article>
 </div>
 
 <!-- ENTRANCE -->

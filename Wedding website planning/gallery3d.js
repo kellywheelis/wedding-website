@@ -99,7 +99,7 @@ const STATIONS = [
   // "The Banquet" wall's two still lifes, up close
   { id: 'w2utrecht', x: 5.9, z: -8.1, yaw: 0, eye: 2.0, room: 'w2', accent: '#D19A6E', tour: false, back: 'w2a',
     eyebrow: 'Wing II · The Banquet', title: 'Banquet Still Life',
-    body: 'A lobster, a game pie, a lute, a macaw, a monkey helping himself to the cherries, and a small white dog pretending not to watch. Our seating plan is slightly more orderly. The dog situation is about the same.',
+    body: 'A lobster, a game pie, a lute, a macaw, a monkey helping himself to the cherries, and a small white dog pretending not to watch. Our seating plan is slightly more orderly. The dog situation is about the same. It hangs in Amsterdam, which is the real reason it is here: it’s where Anthony proposed, on our second trip there. We have a soft spot.',
     meta: 'Adriaen van Utrecht, 1644 · Rijksmuseum, Amsterdam' },
   { id: 'w2ruoppolo', x: 7.85, z: -8.1, yaw: 0, eye: 2.0, room: 'w2', accent: '#D19A6E', tour: false, back: 'w2a',
     eyebrow: 'Wing II · The Banquet', title: 'Still Life with Fruit',

@@ -122,7 +122,7 @@ const STATIONS = [
   // Walk on visits the room in this order: the centrepiece, the table, then sections 1 to 7
   { id: 'detTable', look: 'free', x: 0, z: -13.95, yaw: 0, pitch: -0.5, room: 'det', accent: '#C9A667',
     eyebrow: 'Exhibit details · the table', title: 'On the table',
-    body: 'The save-the-date is here to be handled. Click it to pick it up and turn the wheel.', meta: 'Please touch' },
+    body: 'The save-the-date and the invitation are here to be handled. Click the save-the-date to pick it up and turn the wheel; click the invitation to open its doors and look inside.', meta: 'Please touch' },
   // the six sections on the walls: you stand before the group, raised to the height of its pictures (`eye`)
   { id: 'detMain', look: 'free', x: 2.2, z: -12.77, yaw: -Math.PI / 2, eye: 2.3, room: 'det', card: 'main', accent: '#C9A667',
     eyebrow: 'Exhibit details · 1', title: 'The Main Details',

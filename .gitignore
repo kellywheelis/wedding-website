@@ -1,3 +1,5 @@
 .DS_Store
 # throwaway output of the screenshot harness
 Wedding website planning/tools/harness/.work/
+.vercel
+.env*

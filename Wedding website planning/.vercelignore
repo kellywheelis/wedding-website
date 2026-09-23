@@ -1,0 +1,12 @@
+# Only the live gallery is deployed: The Gallery 3D.html, gallery3d.js and assets/.
+# Everything else in this folder is working material and must not be published.
+uploads/
+tools/
+screenshots/
+*.dc.html
+*.md
+walls.json
+doc-page.js
+image-slot.js
+support.js
+.DS_Store

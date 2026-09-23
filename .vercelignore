@@ -1,0 +1,14 @@
+# Only the live gallery is deployed: The Gallery 3D.html, gallery3d.js and assets/ inside
+# "Wedding website planning". Everything else is working material and must not be published.
+CLAUDE.md
+empty.txt
+*.md
+Wedding website planning/uploads/
+Wedding website planning/tools/
+Wedding website planning/screenshots/
+Wedding website planning/*.dc.html
+Wedding website planning/walls.json
+Wedding website planning/doc-page.js
+Wedding website planning/image-slot.js
+Wedding website planning/support.js
+.DS_Store

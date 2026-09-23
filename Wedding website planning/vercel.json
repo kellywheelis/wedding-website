@@ -1,5 +1,0 @@
-{
-  "rewrites": [
-    { "source": "/", "destination": "/The%20Gallery%203D.html" }
-  ]
-}

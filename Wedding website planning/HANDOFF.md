@@ -352,9 +352,9 @@ hooks) to a copy of `gallery3d.js`. Query parameters:
 ## 8. Version control
 
 The repo is on GitHub (private): github.com/kellywheelis/wedding-website, pushed over SSH (key in ~/.ssh/id_ed25519,
-added to the owner's account 23 Sept 2026). Push after each approved commit. Vercel deploys from it: project root directory = `Wedding website planning`,
-no build step; `vercel.json` rewrites `/` to the gallery page and `.vercelignore` keeps everything but the page,
-`gallery3d.js` and `assets/` off the live site. History so far:
+added to the owner's account 23 Sept 2026). Push after each approved commit. Vercel deploys from it (kaweddinggallery.vercel.app), from the repo root with
+no build step: the root `vercel.json` rewrites `/`, `/gallery3d.js` and `/assets/*` to the files inside this folder,
+and the root `.vercelignore` keeps everything but the page, `gallery3d.js` and `assets/` off the live site. History so far:
 
     146d569  prototyping
     fd3b79b  Add empty txt file

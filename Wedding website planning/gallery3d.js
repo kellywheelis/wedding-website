@@ -235,6 +235,9 @@ const canvas = document.getElementById('view');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFShadowMap;
+// nothing that moves casts a shadow, so the shadow maps are drawn once (and again whenever something is added), not every frame
+renderer.shadowMap.autoUpdate = false;
+renderer.shadowMap.needsUpdate = true;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.15;
 
@@ -2022,6 +2025,7 @@ function levelBase(model) {
         holder.add(model, proxy);
         spot.placeholder.forEach((m) => m.removeFromParent());
         spot.group.add(holder);
+        renderer.shadowMap.needsUpdate = true;
         if (SCULPTURE_NOTES[id]) {
           // a walk-up stop: stand in front of it on the room side, facing it, eyes near the figure's middle; Step back returns to the room's entry
           const n = SCULPTURE_NOTES[id], g = spot.group, fx = g.position.x, fz = g.position.z;
@@ -2231,7 +2235,7 @@ const shortAngle = (from, to) => {
 };
 
 function pushMove(x, z) { queue.push({ kind: 'move', x, z, ms: 1250 }); }
-function pushTurn(yaw) { queue.push({ kind: 'turn', yaw, ms: 1100 }); }
+function pushTurn(yaw) { queue.push({ kind: 'turn', yaw, ms: 1300 }); }
 
 // the centre table is the one thing standing in the open floor of the details room: walks go round it
 const TABLE_KEEPOUT = { x0: -1.5, x1: 1.5, z0: DET.zMid - 0.9 - 0.9, z1: DET.zMid - 0.9 + 0.9 };
@@ -2365,7 +2369,7 @@ function planRoute(n) {
 // speed m/s; ramp: metres to get up to pace and to stop; slow: how much a corner slows you (0.45 = to 55%);
 // corner: corner radius in metres; bigTurn: radians, a first turn larger than this is taken on the spot;
 // turnRate: radians per ms, the fastest the view ever swings (~125 deg/s); lag: ms, how far the view trails its heading
-const WALK = { speed: 2.5, ramp: 0.9, minMs: 900, corner: 0.9, slow: 0.4, bigTurn: 0.9, turnRate: 0.0022, lag: 110 };
+const WALK = { speed: 2.5, ramp: 1.3, minMs: 1100, corner: 0.9, slow: 0.4, bigTurn: 0.9, turnRate: 0.0022, lag: 130 };
 let lastSteps = [];                                    // the plan as steps, kept for the test harness to report
 function goTo(n) {
   planRoute(n);
@@ -2431,7 +2435,7 @@ function compileWalk() {
   const turn0 = Math.abs(shortAngle(cam.yaw, h0) - cam.yaw), turn1 = Math.abs(shortAngle(h1, endYaw) - h1);
   walk.lookIn = turn0 > WALK.bigTurn ? 0.3 : Math.min(L * 0.45, 0.5 + 1.6 * turn0 / (Math.PI / 2));
   walk.lookOut = Math.min(L * 0.6, 0.6 + 2.2 * turn1 / (Math.PI / 2));
-  if (turn0 > WALK.bigTurn) queue.push({ kind: 'turn', yaw: h0, ms: 600 + turn0 / Math.PI * 1400 });
+  if (turn0 > WALK.bigTurn) queue.push({ kind: 'turn', yaw: h0, ms: 800 + turn0 / Math.PI * 1600 });
   queue.push(walk);
 }
 // where along the path you are after `s` metres, and which way the walk itself faces there: a held view, or the
@@ -2555,7 +2559,7 @@ el('turn').addEventListener('click', () => {
   wantEye = facingStop ? t.eye || EYE : EYE;
   hideMotto();
   paintLabel(t);                                         // back to the stop's own write-up, if a statue's or fresco's was showing
-  queue.push({ kind: 'turn', yaw, pitch: 0, eye: EYE, ms: 1500 });
+  queue.push({ kind: 'turn', yaw, pitch: 0, eye: EYE, ms: 1700 });
 });
 // step back one level: from a side picture to the room's entry stop (where the other pictures
 // are in view to click), and from the entry stop out to the atrium
@@ -2728,7 +2732,7 @@ function updatePointer() {
   const busy = !!leg || queue.length > 0 || !settled();
   if (busy) pointer.recheck = 100;                                  // frames to keep looking after a move ends (things are still lifting into the hand)
   else if (pointer.recheck) pointer.recheck--;
-  if (pointer.inside && (pointer.moved || busy || pointer.recheck)) {
+  if (pointer.inside && (pointer.moved || (!busy && pointer.recheck))) {   // not on every frame of a walk: the ray test is the dearest thing in the frame
     pointer.moved = false;
     const p = probe(pointer.x, pointer.y);
     canvas.style.cursor = volHeld() && p.surface && isVolvelle(p.surface.object) ? (volDrag ? 'grabbing' : 'grab')
@@ -3355,7 +3359,7 @@ let shopRack = null;
 function resize() {
   const stage = el('stage');
   const w = stage.clientWidth, h = stage.clientHeight;
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));   // 2 on a Retina screen is four times the pixels of 1, and costs frames while walking
   renderer.setSize(w, h, false);
   camera.aspect = w / Math.max(1, h);
   camera.updateProjectionMatrix();

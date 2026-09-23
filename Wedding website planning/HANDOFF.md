@@ -351,7 +351,8 @@ hooks) to a copy of `gallery3d.js`. Query parameters:
 
 ## 8. Version control
 
-The repo is local only (no remote). History so far:
+The repo is on GitHub (private): github.com/kellywheelis/wedding-website, pushed over SSH (key in ~/.ssh/id_ed25519,
+added to the owner's account 23 Sept 2026). Push after each approved commit. History so far:
 
     146d569  prototyping
     fd3b79b  Add empty txt file

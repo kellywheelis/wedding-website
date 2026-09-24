@@ -87,8 +87,8 @@ window.CONTENT = {
        "img": "img/w1-three-graces.jpg",
        "aspect": 0.78955078125,
        "title": "The Three Graces",
-       "body": "Every girl needs her squad. The Graces have attended Venus since antiquity: they do the hair, carry the flowers and keep the secrets. The original bridal party.",
-       "meta": "Francesco Furini, c. 1633 · Hermitage, St Petersburg · #girlgang"
+       "body": "Every girl needs her squad. The Graces have attended Venus since antiquity: they do the hair, carry the flowers and keep the secrets. The original bridal party. #girlgang",
+       "meta": "Francesco Furini, c. 1633 · Hermitage, St Petersburg"
       }
      ]
     },

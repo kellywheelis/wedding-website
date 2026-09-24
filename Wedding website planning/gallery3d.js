@@ -64,8 +64,8 @@ const STATIONS = [
   // Wing I's four side pictures, up close: reached by clicking a picture from its wall's stop; Step back returns there
   { id: 'w1graces', x: -7.8, z: -8.1, yaw: 0, eye: 2.0, room: 'w1', accent: '#93AEA2', tour: false, back: 'w1a',
     eyebrow: 'Wing I · The Procession · the bridal party', title: 'The Three Graces',
-    body: 'Every girl needs her squad. The Graces have attended Venus since antiquity: they do the hair, carry the flowers and keep the secrets. The original bridal party.',
-    meta: 'Francesco Furini, c. 1633 · Hermitage, St Petersburg · #girlgang' },
+    body: 'Every girl needs her squad. The Graces have attended Venus since antiquity: they do the hair, carry the flowers and keep the secrets. The original bridal party. #girlgang',
+    meta: 'Francesco Furini, c. 1633 · Hermitage, St Petersburg' },
   { id: 'w1amaryllis', x: -5.9, z: -8.1, yaw: 0, eye: 2.0, room: 'w1', accent: '#93AEA2', tour: false, back: 'w1a',
     eyebrow: 'Wing I · The Procession', title: 'Amaryllis and Mirtillo',
     body: 'A kissing contest, judged by nymphs, and the winner is crowned with flowers. We are not holding a contest. There will be a kiss.',

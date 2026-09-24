@@ -63,7 +63,7 @@
     const S = {};
     function reset() {
       Object.assign(S, { mode: 'title', who: 'bride', sel: 0, t: 0, lives: 3, score: 0, bonus: 5000, items: {}, msg: null, msgT: 0,
-        p: { x: 20, y: PLATS[0].y, plat: 0, vy: 0, air: false, climb: null, dir: 1, anim: 0, hit: 0, slow: 0, slip: 0, won: false },
+        p: { x: 20, y: PLATS[0].y, plat: 0, vy: 0, air: false, climb: null, dir: 1, anim: 0, hit: 0, slow: 0, slip: 0, safe: 0, won: false },
         cases: [], planes: [], drips: [], vespa: null, cloud: { x: 60, dir: 1, t: 0 },
         tCase: 1.5, tPlane: 2, tVespa: 3, ready: 0 });
     }
@@ -88,12 +88,12 @@
       if (S.msgT > 0) S.msgT -= dt;
       if (p.hit > 0) {                                              // knocked down: lie there, then start again from Departures
         p.hit -= dt;
-        if (p.hit <= 0) { if (S.lives <= 0) { S.mode = 'over'; return; } Object.assign(p, { x: 20, y: PLATS[0].y, plat: 0, vy: 0, air: false, climb: null, dir: 1, slow: 0 }); }
+        if (p.hit <= 0) { if (S.lives <= 0) { S.mode = 'over'; return; } Object.assign(p, { x: 20, y: PLATS[0].y, plat: 0, vy: 0, air: false, climb: null, dir: 1, slow: 0, safe: 1 }); }   // a second's grace on respawn
       } else if (p.slip > 0) {                                     // slipped on the rain: a moment on the floor, then up again
         p.slip -= dt;
       } else {
         // ---- the player
-        const speed = 62 * (p.slow > 0 ? 0.5 : 1); if (p.slow > 0) p.slow -= dt;
+        const speed = 62 * (p.slow > 0 ? 0.5 : 1); if (p.slow > 0) p.slow -= dt; if (p.safe > 0) p.safe -= dt;
         if (p.climb) {
           const L = p.climb, top = PLATS[L.from + 1].y, bottom = PLATS[L.from].y;
           if (input.is('up')) { p.y -= 46 * dt; p.anim += dt * 6; } if (input.is('down')) { p.y += 46 * dt; p.anim += dt * 6; }
@@ -138,7 +138,7 @@
       S.tVespa -= dt; if (S.tVespa <= 0 && !S.vespa) { S.tVespa = 4.5 + Math.random() * 2; S.vespa = { x: -26, scored: false }; }
       if (S.vespa) { S.vespa.x += 115 * dt; if (S.vespa.x > 232) S.vespa = null; }
       // ---- collisions and jump scoring
-      if (p.hit <= 0 && S.mode === 'play') {
+      if (p.hit <= 0 && p.safe <= 0 && S.mode === 'play') {
         const px = p.x - 4, py = p.y - 14, pw = 8, ph = 14;                   // the body, not the head: a jump under a platform must not clip what rolls along it
         const over = (hx, hw, hy) => { if (p.air && hx < p.x && hx + hw > p.x && hy >= p.y) return true; return false; };
         S.cases.forEach((b) => { if (!b.fall && b.plat !== p.plat && !p.climb) return; if (hitBox(px, py, pw, ph, b.x + 1, b.y - 11, 12, 11)) hurt(); else if (!b.scored && over(b.x, 14, b.y - 11)) { b.scored = true; S.score += 100; } });
@@ -186,7 +186,7 @@
       ART.cloud.draw(c, S.cloud.x, PLATS[2].y - 36, 20, 14, false); S.drips.forEach((d) => { c.fillStyle = '#9ecbe8'; c.fillRect(d.x, d.y, 2, 5); });
       if (S.vespa) ART.vespa.draw(c, S.vespa.x, PLATS[0].y - 14, 24, 14, false);
       const p = S.p, frame = p.hit > 0 ? 6 : p.slip > 0 ? 8 : S.mode === 'won' ? 7 : p.climb ? 3 + (Math.floor(p.anim) % 2) : p.air ? 5 : (input_moving() ? 1 + (Math.floor(p.anim) % 2) : 0);
-      if (p.slow > 0 && Math.floor(S.t * 8) % 2) c.globalAlpha = 0.6;
+      if ((p.slow > 0 || p.safe > 0) && Math.floor(S.t * 8) % 2) c.globalAlpha = 0.6;   // flickers while slowed or invincible
       sheets[S.who].draw(c, frame, Math.round(p.x) - FW / 2, Math.round(p.y) - FH, p.dir < 0);
       c.globalAlpha = 1;
       hud(c);

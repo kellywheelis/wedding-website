@@ -35,7 +35,7 @@
     const S = {};
     function reset() {
       Object.assign(S, { mode: 'title', who: 'bride', sel: 0, t: 0, lives: 3, score: 0, bonus: 3000, best: 0, ready: 0, msg: null, msgT: 0,
-        p: { col: 6, row: 0, x: 0, y: 0, fx: 0, fy: 0, hop: 0, dir: 'n', hit: 0, won: false }, lanes: {} });
+        p: { col: 6, row: 0, x: 0, y: 0, fx: 0, fy: 0, hop: 0, dir: 'n', hit: 0, safe: 0, won: false }, lanes: {} });
       S.p.x = S.p.fx = colX(S.p.col); S.p.y = S.p.fy = rowY(0);
       Object.keys(LANES).forEach((r) => { const L = LANES[r]; S.lanes[r] = []; for (let x = -40; x < W + 40; x += L.gap) S.lanes[r].push({ x: x + Math.random() * 20, look: Math.floor(Math.random() * 4) }); });
     }
@@ -56,10 +56,10 @@
       }
       if (S.mode === 'ready') { S.ready -= dt; if (S.ready <= 0) S.mode = 'play'; return; }
       if (S.mode === 'over' || S.mode === 'won') { if (input.hit('start') || input.hit('jump')) { const who = S.who; reset(); S.mode = 'select'; S.sel = who === 'groom' ? 1 : 0; } return; }
-      if (S.msgT > 0) S.msgT -= dt;
+      if (S.msgT > 0) S.msgT -= dt; if (p.safe > 0) p.safe -= dt;
       if (S.bonus > 0) S.bonus = Math.max(0, S.bonus - 10 * dt);
       // ---- the hop
-      if (p.hit > 0) { p.hit -= dt; if (p.hit <= 0) { if (S.lives <= 0) { S.mode = 'over'; return; } p.col = 6; p.row = 0; p.x = p.fx = colX(6); p.y = p.fy = rowY(0); p.hop = 0; p.dir = 'n'; } }
+      if (p.hit > 0) { p.hit -= dt; if (p.hit <= 0) { if (S.lives <= 0) { S.mode = 'over'; return; } p.col = 6; p.row = 0; p.x = p.fx = colX(6); p.y = p.fy = rowY(0); p.hop = 0; p.dir = 'n'; p.safe = 1; } }   // a second's grace on respawn
       else if (p.hop > 0) { p.hop = Math.max(0, p.hop - dt / 0.12); const k = 1 - p.hop; p.x = p.fx + (colX(p.col) - p.fx) * k; p.y = p.fy + (rowY(p.row) - p.fy) * k; if (p.hop === 0) { p.x = colX(p.col); p.y = rowY(p.row); } }
       else {
         let dc = 0, dr = 0;
@@ -77,7 +77,7 @@
         if (L.dir > 0) { const lo = Math.min(...lane.map((o) => o.x), Infinity); if (lo > -50 + L.gap) lane.push({ x: -50 - Math.random() * 30, look: Math.floor(Math.random() * 4) }); }
         else { const hi = Math.max(...lane.map((o) => o.x), -Infinity); if (hi < W + 50 - L.gap) lane.push({ x: W + 50 + Math.random() * 30, look: Math.floor(Math.random() * 4) }); } });
       // ---- collisions
-      if (p.hit <= 0 && S.mode === 'play' && LANES[p.row]) {
+      if (p.hit <= 0 && p.safe <= 0 && S.mode === 'play' && LANES[p.row]) {
         const L = LANES[p.row], px = p.x + 10, py = p.y + 6, pw = 12, ph = 12;
         S.lanes[p.row].forEach((o) => { if (hitBox(px, py, pw, ph, o.x + 2, rowY(p.row) + (ROW - L.h) / 2, L.w - 4, L.h)) { hurt(); say(L.kind === 'pigeon' ? 'PIGEONS!' : L.kind === 'nonna' ? 'MANGIA!' : L.kind === 'tour' ? 'SCUSI, SCUSI' : 'ATTENZIONE!', 1.3); } });
       }
@@ -124,7 +124,7 @@
     function scene(c) {
       ground(c); lanes(c);
       sheets[other()].draw(c, 2, 96, rowY(11) - 6, false);
-      const p = S.p; sheets[S.who].draw(c, frameFor(p), Math.round(p.x) - 8, Math.round(p.y) - 8, false);
+      const p = S.p; if (!(p.safe > 0 && Math.floor(S.t * 8) % 2)) sheets[S.who].draw(c, frameFor(p), Math.round(p.x) - 8, Math.round(p.y) - 8, false);   // flickers while invincible
       hud(c);
       if (S.msgT > 0 && S.msg) { const y = Math.max(TOP + 4, p.y - 14); c.fillStyle = C.white; c.fillRect(p.x - 22, y - 2, 60, 10); api.text(c, S.msg, p.x + 8, y, C.burg, 'center'); }
     }

@@ -30,6 +30,9 @@
     <button class="statue" data-lb="${lbItems.length - 1}"><div class="plinth"><img src="${pair.img2}" alt="Mars" loading="lazy" decoding="async"></div><h3>Mars</h3></button></div>
     <div class="text"><p class="eyebrow">The atrium · a pair</p><h3>${esc(pair.title)}</h3><p class="body">${esc(pair.body)}</p><p class="meta">${esc(pair.meta)}</p></div>`;
   html += artHtml(atrium.items[1]) + artHtml(atrium.items[2]);
+  html += `<div class="text"><p class="eyebrow">The atrium · Anthony · interactive installation</p><h3>The Arcade</h3></div>
+    <figure class="art"><button class="pic" id="playItaly" aria-label="Open the arcade"><div class="frame" id="italyFrame"></div></button>
+      <figcaption class="label"><p class="meta">Anthony Alvarez &amp; Kelly Wheelis, 2026 · playable pieces</p><p class="body">A cabinet of games. Getting to Italy: choose the bride or the groom, climb from Departures to the villa gate, collect the passport, the ticket and the bouquet (or, for the groom, the ring), and dodge the suitcases, the cancelled flights, the rain and a Vespa. More to come.</p><p class="tap">Tap to play</p></figcaption></figure>`;
   html += `<div class="text center"><p class="eyebrow">The two galleries</p><p class="body">Two collections, one exhibit: on the left, Kelly's; on the right, Anthony's. The frames are waiting for photographs.</p><div><span class="plaque">Kelly</span> &nbsp; <span class="plaque">Anthony</span></div></div><div class="rule"></div></section>`;
 
   const wingHtml = (w, sub) => {
@@ -67,6 +70,12 @@
   });
   html += `<div class="text"><p class="eyebrow" style="text-align:center">The sculpture</p></div><div class="statues">${det.sculptures.map(statueHtml).join('')}</div></div></section>`;
   el('guide').innerHTML = html;
+  // the game's title plays in its frame; tapping it opens the arcade
+  if (window.Arcade && Arcade.games.italy) {
+    const cv = Arcade.attract('menu', 6); cv.style.cssText = 'width:100%;aspect-ratio:224/288;display:block;image-rendering:pixelated;background:#140c06';
+    el('italyFrame').appendChild(cv);
+    el('playItaly').addEventListener('click', () => Arcade.launch('menu'));
+  }
 
   // ---- lightbox
   const lb = el('lb');

@@ -3,3 +3,9 @@
 Wedding website planning/tools/harness/.work/
 .vercel
 .env*
+
+# raw PixelLab exports (the chosen files are copied into Wedding website planning/assets/game)
+8bit assets/
+8bit bride and groom/
+plain plane/
+bouquet 8 bit/

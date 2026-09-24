@@ -40,9 +40,10 @@ const STATIONS = [
   { id: 'anthony1', x: 0, z: GALLERY_Z + 1.3, yaw: -Math.PI / 2, room: 'atrium', accent: '#C9A667', tour: false,
     eyebrow: 'The atrium · Anthony', title: 'Anthony',
     body: 'Photographs to come.', meta: 'Placeholder' },
-  { id: 'anthony2', x: 0, z: GALLERY_Z - 1.3, yaw: -Math.PI / 2, room: 'atrium', accent: '#C9A667', tour: false,
-    eyebrow: 'The atrium · Anthony', title: 'Anthony',
-    body: 'Photographs to come.', meta: 'Placeholder' },
+  { id: 'anthony2', x: 0, z: GALLERY_Z - 1.3, yaw: -Math.PI / 2, room: 'atrium', accent: '#C9A667', tour: false, game: 'menu',
+    eyebrow: 'The atrium · Anthony · interactive installation', title: 'The Arcade',
+    body: 'A cabinet of playable pieces. Getting to Italy: choose the bride or the groom, climb from Departures to the villa gate, collect the passport, the ticket and the bouquet (or, for the groom, the ring), and dodge the suitcases, the cancelled flights, the rain and a Vespa. More to come: Cross the Piazza, Catch the Bouquet, The Seating Chart. Arrows move, space jumps, up and down climb.',
+    meta: 'Anthony Alvarez & Kelly Wheelis, 2026 · interactive installation · press Esc to step away' },
 
   { id: 'w1', x: -1150 * U, z: -7.5, yaw: Math.PI / 2, room: 'w1', accent: '#93AEA2',
     eyebrow: 'Wing I · principal work', title: 'The Birth of Venus',
@@ -1174,6 +1175,15 @@ ATRIUM_PICTURES.forEach((p, i) => {
   grp.position.set(sx * (P.corrX - 0.075), p.y, GALLERY_Z + p.dz);
   grp.rotation.y = sx < 0 ? Math.PI / 2 : -Math.PI / 2;
   grp.userData.station = ST[p.stop];
+  // a frame whose stop carries a game is a screen: the game's title plays on it, so it reads as alive from the hall
+  const game = STATIONS[ST[p.stop]].game;
+  if (game && window.Arcade && Arcade.games[game]) {
+    const cv = Arcade.attract(game, 6), t = new THREE.CanvasTexture(cv);
+    t.colorSpace = THREE.SRGBColorSpace; t.magFilter = THREE.NearestFilter; t.minFilter = THREE.LinearFilter;
+    cv.onframe = () => { t.needsUpdate = true; };
+    const pic = grp.children[1];
+    pic.material = new THREE.MeshStandardMaterial({ map: t, emissive: '#ffffff', emissiveMap: t, emissiveIntensity: 0.55, roughness: 0.4 });   // a lit screen
+  }
 });
 
 // ---- an engraved brass name plaque under each gallery's large frame
@@ -3445,8 +3455,21 @@ function updateLook(now) {
   LOOK.turning = k > 0 ? Math.sign(u) : 0;
   if (k > 0) { cam.yaw -= Math.sign(u) * k * k * LOOK.spin * dt; pointer.moved = true; }   // moved: keep reading what is under the cursor as the view turns
 }
+// a stop that carries a game: once you have arrived and the view has settled, the game opens over the frame;
+// closing it (Esc, the cross, or Step back) takes you back to the wall
+let gameOpenedAt = -1;
+function updateArcade() {
+  if (!window.Arcade) return;
+  const st = STATIONS[idx];
+  if (st.game && !leg && !queue.length && settled() && !Arcade.open && gameOpenedAt !== idx) {
+    gameOpenedAt = idx;
+    Arcade.launch(st.game, { onClose: () => { if (idx === gameOpenedAt) goTo(ROOM_ENTRY[st.room]); gameOpenedAt = -1; } });
+  }
+  if (!st.game) gameOpenedAt = -1;
+}
 function frame(now) {
   if (!leg && (queue.length || !settled())) startLeg();
+  updateArcade();
   if (leg && leg.kind === 'path') {
     if (stepPath(leg, now)) leg = null;
   } else if (leg) {

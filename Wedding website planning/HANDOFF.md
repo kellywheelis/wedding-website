@@ -315,6 +315,33 @@ the phone's tilt, the tab draws the card out), the seven detail sections with th
 - To adapt it towards a touch version of the 3D gallery later: keep the redirect, and point `/mobile/` at
   whatever replaces this page.
 
+## 4c. The arcade (`game/`) — 24 Sept 2026
+
+Playable pieces, in plain code. `game/arcade.js` is the shell: the overlay (`#arcade`, gilt frame, pixel canvas
+scaled to the screen, touch pad on coarse pointers, Esc/cross to close), keyboard + touch input, a fixed 60 Hz
+step, sprite sheets with a drawn-in-code fallback, a 4x6 pixel font, and `Arcade.attract(id)`: the game's title
+screen on a canvas, redrawn a few times a second, for a picture frame. A game registers `Arcade.games[id] =
+{ title, w, h, create(api) -> { update, draw, drawTitle } }`.
+
+`game/italy.js` — GETTING TO ITALY, a Donkey Kong-style barrel-jumper: six platforms from Departures to the villa
+gate, ladders, three items (passport, ticket, bouquet or ring), hazards: suitcases from the baggage belt, CANCELLED
+paper planes, a rain cloud (a slip, no life lost) and a Vespa. Choose bride or groom; the other waits at the gate. Score, 5000-point time
+bonus, three lives. Sprites: `assets/game/bride.png` and `groom.png`, 8 frames of 16x24 in a row (stand, walk 1,
+walk 2, climb 1, climb 2, jump, hit, win); made by the owner in PixelLab (raw exports live in the repo root folders `8bit assets/`, `8bit bride and groom/`,
+`plain plane/`, `bouquet 8 bit/`, which are git-ignored); the sheets were assembled from single poses (idle, walk,
+climb from behind, jump, knocked down, celebrate, slip) with a pure-python PNG script in the session log. All the
+other art (suitcases x6, planes, cloud, Vespa, belt, passport, ticket, ring, bouquet) is hers too, drawn at game
+scale with nearest-neighbour from `api.image()`. The code-drawn figures remain as fallbacks.
+
+Where it hangs: the small frame to the left of Anthony's main frame, further from the doors (`anthony2`, `game: 'menu'` on its stop: the arcade's menu, `Arcade.games.menu`, lists `Arcade.menuList`; planned titles show as coming soon; a game launched from it gets `back: 'menu'` so Esc returns to the list)
+is a lit screen showing the attract loop; arriving at the stop opens the game (`updateArcade()` in
+gallery3d.js); closing it walks back to the atrium. The mobile edition has a card in the atrium chapter.
+Vercel serves `/game/*`. Test page: `game/test.html?sim=title|select|run` (`run` steps the game deterministically
+with `Arcade.step`, no timers; headless Chrome's timers are unreliable). Harness: `.work/game` is a symlink.
+
+Ideas agreed for later, on the same shell: Cross the piazza (Frogger, in Travel), Catch the bouquet (Wing I),
+The seating chart (Tetris-like, Wing II).
+
 ## 5. Known loose ends / ideas not yet done
 
 - `PROCESS.md` "Still to do": real artwork for the wing side paintings (currently colour

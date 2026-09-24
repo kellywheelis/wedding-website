@@ -13,6 +13,7 @@
     { "source": "/", "destination": "/Wedding%20website%20planning/The%20Gallery%203D.html" },
     { "source": "/gallery3d.js", "destination": "/Wedding%20website%20planning/gallery3d.js" },
     { "source": "/assets/:path*", "destination": "/Wedding%20website%20planning/assets/:path*" },
+    { "source": "/game/:path*", "destination": "/Wedding%20website%20planning/game/:path*" },
     { "source": "/mobile/", "destination": "/Wedding%20website%20planning/mobile/index.html" },
     { "source": "/mobile/:path*", "destination": "/Wedding%20website%20planning/mobile/:path*" }
   ]

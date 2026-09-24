@@ -42,7 +42,7 @@ const STATIONS = [
     body: 'Photographs to come.', meta: 'Placeholder' },
   { id: 'anthony2', x: 0, z: GALLERY_Z - 1.3, yaw: -Math.PI / 2, eye: 2.12, room: 'atrium', accent: '#C9A667', tour: false, back: 'anthony', game: 'menu',
     eyebrow: 'The atrium · Anthony · interactive installation', title: 'The Arcade',
-    body: 'Three playable pieces. Getting to Italy, Cross the Piazza, and Catch the Bouquet. Choose the bride or the groom; arrows move, space jumps. Click the frame again to play.',
+    body: 'Four playable pieces. Getting to Italy, Cross the Piazza, Catch the Bouquet, and Flight to Siena. Choose the bride or the groom; arrows move, space jumps. Click the frame again to play.',
     meta: 'Anthony Alvarez & Kelly Wheelis, 2026 · interactive installation · Esc steps away' },
 
   { id: 'w1', x: -1150 * U, z: -7.5, yaw: Math.PI / 2, room: 'w1', accent: '#93AEA2',
@@ -2610,12 +2610,13 @@ function markRoom(room) {
   // no turning round with the save-the-date or the invitation in your hands
   const holding = STATIONS[idx].back === 'detTable';
   el('sections').style.display = room === 'det' ? 'flex' : 'none';
+  el('compass').classList.toggle('corner', room === 'det' && /^pic\d+$/.test(STATIONS[idx].id));   // a picture close-up here: the compass steps aside to the corner
   document.querySelectorAll('#sections button').forEach((b) => {
     const on = b.dataset.card === (STATIONS[idx].card || '');
     b.style.background = on ? 'rgba(232,192,122,.26)' : 'rgba(26,18,8,.55)';
     b.style.color = on ? '#FFF3D0' : '#F2DFA8';
   });
-  el('turn').style.opacity = holding ? '0' : '1';
+  el('turn').style.opacity = holding || !navShown ? '0' : '1';      // hidden while a card is held, and until the motto has gone
   el('turn').style.pointerEvents = holding ? 'none' : 'auto';
 }
 // turn around on the spot: a half turn, with the view levelled and back at standing height. Turning again faces the
@@ -2700,9 +2701,12 @@ window.addEventListener('keydown', (e) => {
 });
 
 let mottoTimer = null;
+let navShown = false;                                              // the compass and Turn around wait until the motto has gone
+function showNav() { navShown = true; el('compass').style.opacity = '1'; markRoom(STATIONS[idx].room); }
 function hideMotto() {
   clearTimeout(mottoTimer);
   el('motto').style.opacity = '0';
+  showNav();
 }
 function openDoors(instant) {
   el('gateCopy').style.opacity = '0';
@@ -2719,7 +2723,7 @@ function openDoors(instant) {
     el('label').style.opacity = '1';
     el('nav').style.opacity = '1';
     el('motto').style.opacity = '1';
-    mottoTimer = setTimeout(() => { el('motto').style.opacity = '0'; }, 5200);
+    mottoTimer = setTimeout(() => { el('motto').style.opacity = '0'; showNav(); }, 5200);
   }, instant ? 0 : 480);
   setTimeout(() => { el('gate').style.display = 'none'; }, instant ? 100 : 2800);
 }
@@ -3475,7 +3479,7 @@ resize();
 // the outer part of the screen the view turns that way, faster the further out it is, and stays turned until
 // you click something. That turn goes into the stop's own heading (cam.yaw), so a walk from there starts
 // from the way you are facing.
-const LOOK = { yaw: 0.1, pitch: 0.055, ease: 0.06, x: 0, y: 0, edge: 0.55, spin: 1.5, last: 0, turning: 0 };   // edge: where the turning zone starts (fraction of half the width); spin: rad/s at the very edge
+const LOOK = { yaw: 0.1, pitch: 0.055, ease: 0.06, x: 0, y: 0, edge: 0.55, spin: 1.5, limit: Math.PI / 2, last: 0, turning: 0 };   // limit: how far the free look may turn from the stop's facing   // edge: where the turning zone starts (fraction of half the width); spin: rad/s at the very edge
 function updateLook(now) {
   const r = canvas.getBoundingClientRect(), on = pointer.inside && !volHeld() && !invHeld() && r.width > 0;
   const u = on ? (pointer.x - r.left) / r.width * 2 - 1 : 0;
@@ -3487,7 +3491,11 @@ function updateLook(now) {
   const free = on && STATIONS[idx].look === 'free' && !leg && !queue.length && el('card').style.display !== 'grid';
   const k = free ? Math.max(0, (Math.abs(u) - LOOK.edge) / (1 - LOOK.edge)) : 0;
   LOOK.turning = k > 0 ? Math.sign(u) : 0;
-  if (k > 0) { cam.yaw -= Math.sign(u) * k * k * LOOK.spin * dt; pointer.moved = true; }   // moved: keep reading what is under the cursor as the view turns
+  if (k > 0) {                                                       // moved: keep reading what is under the cursor as the view turns
+    const home = STATIONS[idx].yaw, off = shortAngle(home, cam.yaw - Math.sign(u) * k * k * LOOK.spin * dt) - home;
+    cam.yaw = home + Math.max(-LOOK.limit, Math.min(LOOK.limit, off));   // never more than a quarter turn from the stop's own facing
+    pointer.moved = true;
+  }
 }
 // a stop that carries a game: arriving shows its write-up; the game opens when you click the frame again or the
 // panel's Play button, and closing it (Esc or the cross) leaves you standing before the frame

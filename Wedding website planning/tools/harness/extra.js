@@ -1,4 +1,5 @@
-{ const q = new URLSearchParams(location.search);
+{ if (typeof showNav === 'function') showNav();   // the harness skips the doors and the motto: show the compass and Turn around straight away
+  const q = new URLSearchParams(location.search);
   if (q.has('x')) cam.x = +q.get('x');
   if (q.has('z')) cam.z = +q.get('z');
   if (q.has('yaw')) cam.yaw = +q.get('yaw');

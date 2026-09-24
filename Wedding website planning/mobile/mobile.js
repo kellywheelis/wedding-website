@@ -32,7 +32,7 @@
   html += artHtml(atrium.items[1]) + artHtml(atrium.items[2]);
   html += `<div class="text"><p class="eyebrow">The atrium · Anthony · interactive installation</p><h3>The Arcade</h3></div>
     <figure class="art"><button class="pic" id="playItaly" aria-label="Open the arcade"><div class="frame" id="italyFrame"></div></button>
-      <figcaption class="label"><p class="meta">Anthony Alvarez &amp; Kelly Wheelis, 2026 · playable pieces</p><p class="body">A cabinet of games. Getting to Italy: climb from Departures to the villa gate with the passport, the ticket and the bouquet or the ring. Cross the Piazza: from Via di Città to the Duomo, one hop at a time. Catch the Bouquet: the terrace, the night sky, and what comes down out of it. Choose the bride or the groom.</p><p class="tap">Tap to play</p></figcaption></figure>`;
+      <figcaption class="label"><p class="meta">Anthony Alvarez &amp; Kelly Wheelis, 2026 · playable pieces</p><p class="body">Four playable pieces: Getting to Italy, Cross the Piazza, Catch the Bouquet, and Flight to Siena. Choose the bride or the groom.</p><p class="tap">Tap to play</p></figcaption></figure>`;
   html += `<div class="text center"><p class="eyebrow">The two galleries</p><p class="body">Two collections, one exhibit: on the left, Kelly's; on the right, Anthony's. The frames are waiting for photographs.</p><div><span class="plaque">Kelly</span> &nbsp; <span class="plaque">Anthony</span></div></div><div class="rule"></div></section>`;
 
   const wingHtml = (w, sub) => {

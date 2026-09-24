@@ -124,7 +124,7 @@
   // for tests: run the open game forward by `steps` frames with these keys held (deterministic, no timers)
   Arcade.step = (steps, keys) => { if (!game) return; Object.keys(held).forEach((k) => { held[k] = false; }); (keys || []).forEach((k) => { held[k] = true; pressed[k] = true; }); for (let i = 0; i < steps; i++) { game.inst.update(STEP, input); Object.keys(pressed).forEach((k) => { delete pressed[k]; }); } (keys || []).forEach((k) => { held[k] = false; }); };
   // ---- the menu: the cabinet's list of games. Registered games are playable; the planned ones show as coming soon.
-  Arcade.menuList = [['italy', 'Getting to Italy'], ['piazza', 'Cross the Piazza'], ['bouquet', 'Catch the Bouquet'], ['seating', 'The Seating Chart']];
+  Arcade.menuList = [['italy', 'Getting to Italy'], ['piazza', 'Cross the Piazza'], ['bouquet', 'Catch the Bouquet'], ['flight', 'Flight to Siena'], ['seating', 'The Seating Chart']];
   Arcade.games.menu = { title: 'The Arcade', w: 224, h: 288, create(api) {
     let sel = 0, t = 0; const titles = {};
     const playable = () => Arcade.menuList.filter(([id]) => Arcade.games[id]);

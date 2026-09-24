@@ -6,6 +6,7 @@
 <script src="italy.js"></script>
 <script src="piazza.js"></script>
 <script src="bouquet.js"></script>
+<script src="flight.js"></script>
 <script>
 // ?game=italy&sim=title|select|play|win|over : opens the game and, for the play cases, drives it with scripted key presses
 // so the harness can screenshot the level with the player mid-climb; ?touch=1 shows the phone controls.
@@ -19,9 +20,12 @@ if (sim === 'select') seq.push([500, () => key('ArrowRight', 50)]);
 if (sim === 'play' || sim === 'win' || sim === 'over') { seq.push([600, () => key('Enter', 50)]); seq.push([2200, () => key('ArrowRight', 2600)]); seq.push([4900, () => key('ArrowUp', 1400)]); seq.push([6400, () => key('ArrowLeft', 900)]); seq.push([7000, () => key(' ', 50)]); }
 seq.forEach(([t, f]) => setTimeout(f, t));
 // ?sim=run : start straight into play as the groom and step the game deterministically: walk right, climb, walk left, jump
+if (sim === 'fly') { const g = Arcade.current.inst.debug; g.start(q.get('who') || 'groom'); const st = Arcade.step; for (let i = 0; i < 14; i++) { st(1, ['jump']); st(26, []); } document.title = 'rings ' + g.S.rings + ' lives ' + g.S.lives + ' y ' + Math.round(g.S.p.y) + ' things ' + g.S.things.length; }
 if (sim === 'run') { const g = Arcade.current.inst.debug; g.start(q.get('who') || 'groom'); const st = Arcade.step;
   st(170, ['right']); st(100, ['up']); st(60, ['left']); st(1, ['jump']); st(20, []); st(40, ['left']); st(10, []);
   document.title = 'x' + Math.round(g.S.p.x) + ' y' + Math.round(g.S.p.y) + ' plat' + g.S.p.plat + ' lives' + g.S.lives + ' score' + g.S.score + ' items' + Object.keys(g.S.items).join(',') + ' cases' + g.S.cases.length; }
 </script>
 </body></html>
 <script>if (sim === 'ready') { const g = Arcade.current.inst.debug; g.start(q.get('who') || 'bride'); g.S.mode = "ready"; g.S.ready = 999; }</script>
+<script>// ?sim=fly&rings=N : jump straight to N rings (to see a later stage), then fly a little
+if (sim === 'fly' && q.get('rings')) { const g = Arcade.current.inst.debug; g.S.rings = +q.get('rings'); g.S.stage = 0; for (let i = 0; i < 6; i++) { Arcade.step(1, ['jump']); Arcade.step(26, []); } }</script>

@@ -272,18 +272,23 @@ No scans of Villa Cetinale's own sculpture exist online (searched). See `assets/
   turn taken on the spot first, the final turn to face the stop given more of the path the bigger it is, the
   view levelling and the stop's own tilt/height folded into the same motion, and the view never swinging faster
   than ~125 deg/s. A route with no walking (Turn around) still runs as a plain turn step.
-- Navigation (24 Sept 2026): a compass round the "Go ahead" hint at the bottom centre (`#compass`): up = Walk on
+- Navigation (24 Sept 2026): a compass (a cross of arrows round the "Go ahead" hint, `#compass`) at the bottom
+  centre of the view, sized compactly (28 px arrows, ~80 px tall) so it sits in the band under the walls'
+  "click here" buttons at the details-room stops even on a 760 px-high window; at a details-room picture close-up (`pic<n>` stops) it moves to the bottom-left
+  corner (`#compass.corner`, set in `markRoom`), since the wall's button then sits at the bottom centre: up = Walk on
   (`tourStep(1)`, kept as `[data-fwd]`), down = Step back (`#back`, dimmed at the atrium's own stop), left/right =
   `sideStep(+1/-1)`: the nearest stop in the room that faces ~90 degrees that way and is not behind you (wall stops
   preferred over close-ups), else a quarter turn on the spot. The arrow keys do the same. Turn around stays bottom
-  right. The old Step back / Walk on pills at the top are gone. Harness: `steps=goto:id,left,right,fwd,back,...`.
+  right. It fades in only after the entrance motto has gone.
+  The old Step back / Walk on pills at the top are gone. Harness: `steps=goto:id,left,right,fwd,back,...`.
 - Mouse-look (`LOOK`, `updateLook()`): the view leans up to ~6 deg sideways and ~3 deg up/down towards the
   cursor, easing back when it leaves the canvas; applied only at draw time (`camera.rotation` = cam + LOOK), so
   nothing about stops or routes sees it. Off while the save-the-date or invitation is held. The harness's
   `build.sh` rewrites that camera.rotation line to add its `pitch=` offset, so keep the line's text in step.
 - Free look in the details room: at stops marked `look: 'free'` (entry, table, the six section stops) the cursor
   in the outer part of the screen (`LOOK.edge`) turns the view that way, up to `LOOK.spin` rad/s, folded into
-  `cam.yaw` so it persists and walks start from it. Off at close-ups, walk-ups, the stand, during walks and cards.
+  `cam.yaw` so it persists and walks start from it, but never more than `LOOK.limit` (a quarter turn) from the
+  stop's own facing, so you cannot spin round and lose your bearings. Off at close-ups, walk-ups, the stand, during walks and cards.
 - Frame rate while walking: the cursor's ray is tested against the scene every frame of a walk, so the sculpture
   scans (55k-118k triangles each) are left OUT of the ray test (`raycast = () => {}`) and each carries an
   invisible box (`colorWrite: false`) that the cursor and clicks meet instead.
@@ -341,7 +346,7 @@ scale with nearest-neighbour from `api.image()`. The code-drawn figures remain a
 The atrium walls click like the wings (24 Sept 2026): any frame on Kelly's or Anthony's wall goes to the wall's
 centred stop (`station` = the main frame's stop); from there a small frame steps you across (`closer`), and Step
 back returns to the wall (`back:`). The panel under the view has a FIXED height (the write-up column is
-`calc(font * 8.1 + 63px)` and scrolls if longer: five lines plus two of credit), because the 3D view is re-fitted
+`calc(font * 6.48 + 54px)` and scrolls if longer: four lines plus two of credit), because the 3D view is re-fitted
 to the stage and a panel that grows with its text made the picture stretch at stops with long write-ups. A
 ResizeObserver on `#stage` re-fits inside the draw loop as a safety net. Scripts are stamped with `Date.now()`
 by a small loader in both pages, so a browser never runs a stale copy after a change; the harness build swaps
@@ -362,6 +367,12 @@ until the owner's files arrive: `fiat.png`, `tourist.png`, `nonna.png`, `pigeon.
 `game/bouquet.js` — CATCH THE BOUQUET: night on the terrace; bouquets (+100), rings (+300) and champagne (+50)
 fall, cake and pigeons cost a life; 45 seconds, quickening (`KINDS` sets each thing's odds, size and worth).
 Uses the side-view sheets. Code-drawn until files arrive: `champagne.png`, `cake.png`, `pigeon.png`.
+
+`game/flight.js` — FLIGHT TO SIENA, a one-button flier: space/jump lifts the plane (`plane-plain.png`, the pilot's
+face clipped from the chosen sprite), gravity pulls it down; rings (+10, or a life if clipped), storm clouds and
+birds come at you over rolling hills while the sky goes dawn to dusk; 30 rings (`GOAL`) and the villa arrives, you
+glide down and land. Stand-ins until files arrive: `storm.png` (the rain cloud with a drawn bolt), `swallow.png`
+(the flying pigeon), `villa.png` (drawn).
 
 All games live in one cabinet (the arcade menu); still to come on the same shell: The Seating Chart.
 

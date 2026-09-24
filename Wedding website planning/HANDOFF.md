@@ -369,7 +369,7 @@ fall, cake and pigeons cost a life; 45 seconds, quickening (`KINDS` sets each th
 Uses the side-view sheets. Code-drawn until files arrive: `champagne.png`, `cake.png`, `pigeon.png`.
 
 `game/flight.js` — FLIGHT TO SIENA, a one-button flier: space/jump lifts the plane (`plane-plain.png`, the pilot's
-face clipped from the chosen sprite), gravity pulls it down; rings (+10, or a life if clipped), storm clouds and
+face clipped from the chosen sprite), gravity pulls it down; rings (+10; a miss or a clip is only a miss), storm clouds and
 birds come at you over rolling hills while the sky goes dawn to dusk; 30 rings (`GOAL`) and the villa arrives, you
 glide down and land. Stand-ins until files arrive: `storm.png` (the rain cloud with a drawn bolt), `swallow.png`
 (the flying pigeon), `villa.png` (drawn).

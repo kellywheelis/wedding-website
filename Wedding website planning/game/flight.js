@@ -1,5 +1,5 @@
 // FLIGHT TO SIENA — a one-button flier for the museum's arcade. Tap to lift the plane; gravity does the rest.
-// Fly through the wedding rings drifting toward you (+10 each; clip a ring and it costs a life), past the storm
+// Fly through the wedding rings drifting toward you (+10 each; miss one and it is only a miss), past the storm
 // clouds and the birds, over the Tuscan hills as the day goes from dawn to dusk. Thirty rings and the villa
 // comes into view: land, and you have arrived.
 // Sprites: plane-plain.png (the plane), ring.png, cloud.png (the rain cloud, until a storm cloud arrives),
@@ -18,9 +18,9 @@
   const STAGES = [
     { name: 'NEW YORK', from: 0, ground: 'city', marks: [{ at: 1, kind: 'liberty' }, { at: 3, kind: 'skyline' }] },
     { name: 'THE ATLANTIC', from: 6, ground: 'sea', marks: [{ at: 8, kind: 'ship' }, { at: 12, kind: 'whale' }] },
-    { name: 'THE ALPS', from: 15, ground: 'alps', marks: [{ at: 16, kind: 'eiffel' }] },
+    { name: 'THE ALPS', from: 15, ground: 'alps', marks: [{ at: 15, kind: 'paris' }, { at: 16, kind: 'eiffel' }] },
     { name: 'ITALIA', from: 21, ground: 'italy', marks: [{ at: 22, kind: 'colosseum' }, { at: 25, kind: 'pisa' }] },
-    { name: 'TOSCANA', from: 27, ground: 'tuscany', marks: [] }
+    { name: 'TOSCANA', from: 27, ground: 'tuscany', marks: [{ at: 28, kind: 'florence' }] }
   ];
   const GROUND_COL = { city: '#3a3d4a', sea: '#2d6a9e', alps: '#7d8a96', italy: '#5f8a3a', tuscany: '#a8503a' };
   Arcade.games.flight = { title: 'Flight to Siena', w: W, h: H, create(api) {
@@ -36,6 +36,8 @@
       eiffel: pic('eiffel', (c, x, y, w, h) => { c.fillStyle = '#6b5a4a'; for (let i = 0; i < 8; i++) { const t = i / 8, ww = w * (0.12 + 0.88 * t * t); c.fillRect(x + (w - ww) / 2, y + h * t, ww, h / 8 + 1); } c.fillStyle = '#8a7a6a'; [0.35, 0.62].forEach((t) => { const ww = w * (0.12 + 0.88 * t * t); c.fillRect(x + (w - ww) / 2 - 2, y + h * t, ww + 4, 2); }); c.fillStyle = '#e9dfc6'; for (let i = 1; i < 7; i++) { const t = i / 8, ww = w * (0.12 + 0.88 * t * t); c.fillRect(x + (w - ww) / 2 + ww * 0.5 - 1, y + h * t + 2, 2, 2); } }),
       colosseum: pic('colosseum', (c, x, y, w, h) => { c.fillStyle = '#c9b28a'; c.beginPath(); c.ellipse(x + w / 2, y + h * 0.4, w / 2, h * 0.4, 0, Math.PI, 0); c.lineTo(x + w, y + h); c.lineTo(x, y + h); c.closePath(); c.fill(); c.fillStyle = '#7a6a4a'; [0.42, 0.65, 0.86].forEach((row) => { for (let i = 0; i < 8; i++) c.fillRect(x + 3 + i * (w - 6) / 8, y + h * row, 3, h * 0.12); }); c.fillStyle = '#a89470'; c.fillRect(x, y + h * 0.2, w * 0.35, h * 0.12); }),
       pisa: pic('pisa', (c, x, y, w, h) => { const lean = w * 0.3; for (let i = 0; i < 7; i++) { const t = i / 7; c.fillStyle = i % 2 ? '#f4efe1' : '#d8ccb0'; c.fillRect(x + lean * (1 - t) + w * 0.1, y + h * t, w * 0.5, h / 7 + 1); } c.fillStyle = '#8f7a4a'; for (let i = 1; i < 7; i++) { const t = i / 7; c.fillRect(x + lean * (1 - t) + w * 0.1, y + h * t, w * 0.5, 1); } }),
+      paris: pic('paris', (c, x, y, w, h) => { for (let i = 0; i < 5; i++) { const bx = x + i * w / 5, bh = h * (0.6 + (i % 2) * 0.12); c.fillStyle = '#d8ccb0'; c.fillRect(bx, y + h - bh, w / 5 - 1, bh); c.fillStyle = '#6b6e78'; c.fillRect(bx, y + h - bh - h * 0.14, w / 5 - 1, h * 0.14); c.fillStyle = '#5a4a3a'; c.fillRect(bx + 3, y + h - bh - h * 0.22, 2, h * 0.08); c.fillStyle = '#8a7a6a'; for (let k = 0; k < 3; k++) c.fillRect(bx + 2 + k * 4, y + h - bh + 4, 2, 3); } }),
+      florence: pic('florence', (c, x, y, w, h) => { c.fillStyle = '#c9b28a'; c.fillRect(x, y + h * 0.55, w, h * 0.45); c.fillStyle = '#b3513a'; for (let i = 0; i < 6; i++) c.fillRect(x + i * w / 6, y + h * 0.5, w / 6 - 1, h * 0.08); c.fillStyle = '#f4efe1'; c.fillRect(x + w * 0.3, y + h * 0.45, w * 0.4, h * 0.55); c.fillStyle = '#b3513a'; c.beginPath(); c.ellipse(x + w * 0.5, y + h * 0.45, w * 0.22, h * 0.32, 0, Math.PI, 0); c.fill(); c.fillStyle = '#e9dfc6'; c.fillRect(x + w * 0.48, y + h * 0.06, w * 0.04, h * 0.1); c.fillStyle = '#f4efe1'; c.fillRect(x + w * 0.82, y + h * 0.18, w * 0.1, h * 0.82); c.fillStyle = '#7a6a4a'; for (let k = 0; k < 4; k++) c.fillRect(x + w * 0.85, y + h * 0.25 + k * h * 0.17, w * 0.04, h * 0.06); }),
       villa: pic('villa', (c, x, y, w, h) => { c.fillStyle = '#e9dfc6'; c.fillRect(x, y + h * 0.4, w, h * 0.6); c.fillStyle = '#b3513a'; c.fillRect(x - 2, y + h * 0.3, w + 4, h * 0.12); c.fillStyle = C.cypress; [-8, w + 4].forEach((dx) => { c.fillRect(x + dx, y + h * 0.15, 4, h * 0.85); }); }) };
     const stand = (col) => (c, f, x, y) => { c.fillStyle = col; c.fillRect(x + 11, y + 8, 10, 20); c.fillStyle = '#f1c9a5'; c.fillRect(x + 12, y + 4, 8, 7); };
     const sheets = { bride: api.sheet('/assets/game/bride.png', 32, 32, 9, stand('#fbf5ea')), groom: api.sheet('/assets/game/groom.png', 32, 32, 9, stand('#2b2520')) };
@@ -85,18 +87,19 @@
       if (next && S.rings >= next.from) { S.stage++; S.seam = W + 10; S.caption = next.name; S.captionT = 3; }
       if (S.seam > -120) S.seam -= speed * 0.6 * dt;
       if (S.captionT > 0) S.captionT -= dt;
-      STAGES[S.stage].marks.forEach((m) => { if (!m.done && S.rings >= m.at) { m.done = true; S.marks.push({ kind: m.kind, x: W + 30, w: m.kind === 'skyline' ? 90 : m.kind === 'ship' ? 60 : m.kind === 'whale' ? 40 : m.kind === 'colosseum' ? 64 : 34, h: m.kind === 'skyline' ? 60 : m.kind === 'ship' ? 26 : m.kind === 'whale' ? 16 : m.kind === 'eiffel' ? 70 : m.kind === 'pisa' ? 48 : m.kind === 'colosseum' ? 34 : 54 }); } });
+      STAGES[S.stage].marks.forEach((m) => { if (!m.done && S.rings >= m.at) { m.done = true; S.marks.push({ kind: m.kind, x: W + 30, w: ({ skyline: 90, ship: 60, whale: 40, colosseum: 64, paris: 80, florence: 70 })[m.kind] || 34, h: ({ skyline: 60, ship: 26, whale: 16, eiffel: 70, pisa: 48, colosseum: 34, paris: 34, florence: 44 })[m.kind] || 54 }); } });
       S.marks.forEach((m) => { m.x -= speed * 0.6 * dt; }); S.marks = S.marks.filter((m) => m.x > -120);
       // ---- collisions: through the ring is a score, its edge is a hit; clouds and birds are hits
       const px = PX + 4, py = p.y + 3, pw = PW - 8, ph = PH - 4;
       S.things.forEach((o) => {
         if (o.dead) return;
         if (o.kind === 'ring') {
-          if (!o.passed && o.x + o.w / 2 < PX + PW / 2) {                 // the plane's centre has crossed the ring's centre
+          // through the ring: the nose within the ring's opening at any moment while the ring passes the plane
+          // (judged across the whole crossing, not a single frame, since the rings bob as they drift)
+          const nose = p.y + PH / 2, inner0 = o.y + 5, inner1 = o.y + o.h - 5, crossing = o.x < PX + PW && o.x + o.w > PX;
+          if (crossing && !o.passed && nose >= inner0 && nose <= inner1 && p.hit <= 0) {
             o.passed = true;
-            const inside = p.y + PH / 2 > o.y + 6 && p.y + PH / 2 < o.y + o.h - 6 && p.hit <= 0;
-            if (inside) { S.rings++; S.score += 10; say(S.rings % 10 === 0 ? S.rings + ' RINGS!' : 'RING!', 0.6); if (S.rings >= GOAL) { S.mode = 'landing'; S.things.push({ kind: 'villa', x: W + 40, y: GROUND - 62, w: 56, h: 60 }); } }
-            else if (p.hit <= 0 && hitBox(px, py, pw, ph, o.x, o.y, o.w, o.h)) hurt('CLIPPED IT!');
+            { S.rings++; S.score += 10; say(S.rings % 10 === 0 ? S.rings + ' RINGS!' : 'RING!', 0.6); if (S.rings >= GOAL) { S.mode = 'landing'; S.things.push({ kind: 'villa', x: W + 40, y: GROUND - 62, w: 56, h: 60 }); } }
           }
         } else if (o.kind !== 'villa' && p.hit <= 0 && hitBox(px, py, pw, ph, o.x + 3, o.y + 3, o.w - 6, o.h - 6)) { hurt(o.kind === 'storm' ? 'TURBULENCE!' : 'BIRD STRIKE!'); o.dead = true; }
       });
@@ -143,8 +146,6 @@
     }
     function plane(c, x, y, tilt, who) {
       c.save(); c.translate(x + PW / 2, y + PH / 2); c.rotate(tilt); ART.plane.draw(c, -PW / 2, -PH / 2, PW, PH, true); c.restore();
-      // the pilot's face in the cockpit window: the head of the chosen sprite, cropped
-      c.save(); c.beginPath(); c.arc(x + PW - 7, y + 5, 3.5, 0, Math.PI * 2); c.clip(); sheets[who].draw(c, 0, x + PW - 7 - 16, y + 5 - 8, false); c.restore();
     }
     function hud(c) {
       c.fillStyle = C.burg; c.fillRect(0, 0, W, TOP);
@@ -167,14 +168,16 @@
     }
     function big(c, s, x, y, col, scale = 2) { c.save(); c.translate(x, y); c.scale(scale, scale); api.text(c, s, 0, 0, col, 'center'); c.restore(); }
     function drawTitle(c, t) {
-      const saveR = S.rings; S.rings = 8; sky(c); S.rings = saveR; c.fillStyle = C.burg; c.fillRect(0, 0, W, 10);
+      const saveR = S.rings; S.rings = 8; sky(c); S.rings = saveR;
+      c.fillStyle = 'rgba(20,12,6,.72)'; c.fillRect(0, 0, W, 112); c.fillStyle = C.burg; c.fillRect(0, 0, W, 10);   // the title on a band of its own
       big(c, 'FLIGHT', W / 2, 40, C.gold, 3); big(c, 'TO SIENA', W / 2, 66, C.gold, 3);
       api.text(c, 'ANTHONY ALVAREZ & KELLY WHEELIS', W / 2, 98, C.dim, 'center');
       const ry = 150 + Math.sin(t * 1.3) * 10; ART.ring.draw(c, 150, ry, 26, 30, false); ART.ring.draw(c, 200, ry + 20, 26, 30, false);
       plane(c, 60, 150 + Math.sin(t * 2) * 8, Math.sin(t * 2) * 0.2, 'bride');
-      api.text(c, 'TAP TO LIFT. FLY THROUGH THE RINGS,', W / 2, 200, C.dark, 'center'); api.text(c, 'PAST THE STORMS AND THE BIRDS.', W / 2, 210, C.dark, 'center');
-      if (Math.floor(t * 2) % 2) api.text(c, 'PRESS START', W / 2, 232, C.burg, 'center');
-      api.text(c, (typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches) ? 'JUMP LIFTS' : 'SPACE LIFTS', W / 2, 268, C.text, 'center');
+      c.fillStyle = 'rgba(20,12,6,.72)'; c.fillRect(0, 190, W, 60);                        // the words on a band, clear of whatever is on the ground
+      api.text(c, 'TAP TO LIFT. FLY THROUGH THE RINGS,', W / 2, 198, C.text, 'center'); api.text(c, 'PAST THE STORMS AND THE BIRDS.', W / 2, 208, C.text, 'center');
+      if (Math.floor(t * 2) % 2) api.text(c, 'PRESS START', W / 2, 224, C.gold, 'center');
+      api.text(c, (typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches) ? 'JUMP LIFTS' : 'SPACE LIFTS', W / 2, 238, C.dim, 'center');
     }
     function draw(c) {
       if (S.mode === 'title') { drawTitle(c, S.t); return; }

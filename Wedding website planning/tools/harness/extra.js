@@ -382,3 +382,25 @@
   if (q.has('clean')) { const s = document.createElement('style'); s.textContent = '#topLeft,#turn,#hint,#sections,#back,[data-fwd],[data-back],#nav,#label,#motto{display:none!important}'; document.head.appendChild(s); } }
 { const q = new URLSearchParams(location.search);
   if (q.has('arcadecheck')) { const p = ATRIUM_PICTURES[4]; const st = STATIONS[ST[p.stop]]; document.title = 'arcade:' + !!window.Arcade + ' games:' + (window.Arcade ? Object.keys(Arcade.games).join(',') : '-') + ' stop:' + st.id + ' game:' + st.game + ' mat:' + (scene.children.find((o) => o.userData.station === ST[p.stop]) ? scene.children.find((o) => o.userData.station === ST[p.stop]).children[1].material.map.constructor.name : '?'); } }
+{ const q = new URLSearchParams(location.search);
+  if (q.has('framepos')) { const out = ATRIUM_PICTURES.map((p) => { const g = scene.children.find((o) => o.userData.station === ST[p.stop]); return p.stop + ' frame z=' + (g ? g.position.z.toFixed(2) : '?') + ' stop z=' + STATIONS[ST[p.stop]].z.toFixed(2) + ' cam-at-stop=' + (cam.z).toFixed(2); }); document.title = out.join(' | '); } }
+{ const q = new URLSearchParams(location.search);
+  // project=stopId : after placing the camera at that stop (x,z,yaw from the stop itself), where does its frame's centre land on screen?
+  if (q.has('project')) setTimeout(() => {
+    const id = q.get('project'), st = STATIONS[ST[id]]; cam.x = st.x; cam.z = st.z; cam.yaw = st.yaw; cam.pitch = 0; LOOK.x = LOOK.y = 0;
+    camera.position.set(cam.x, cam.eye, cam.z); camera.rotation.set(0, cam.yaw, 0, 'YXZ'); camera.updateMatrixWorld(); camera.updateProjectionMatrix();
+    const g = scene.children.find((o) => o.userData.station === ST[id]); const v = g.position.clone().project(camera);
+    document.title = id + ' cam(' + cam.x + ',' + cam.z + ') yaw ' + cam.yaw.toFixed(3) + ' frame(' + g.position.x.toFixed(2) + ',' + g.position.z.toFixed(2) + ') on screen x=' + ((v.x + 1) / 2 * innerWidth).toFixed(0) + ' of ' + innerWidth + ' (centre ' + (innerWidth / 2) + ') aspect ' + camera.aspect.toFixed(2) + ' fov ' + camera.fov;
+  }, 1200); }
+{ const q = new URLSearchParams(location.search);
+  // arcadeclick=fx,fy : after goto has settled, a real click at that screen point, then: did the arcade open?
+  if (q.has('arcadeclick')) setTimeout(() => {
+    const [fx, fy] = q.get('arcadeclick').split(',').map(Number), r = canvas.getBoundingClientRect();
+    const x = r.left + fx * r.width, y = r.top + fy * r.height;
+    const p = probe(x, y);
+    canvas.dispatchEvent(new MouseEvent('click', { clientX: x, clientY: y, bubbles: true }));
+    const tag = document.createElement('div');
+    tag.style.cssText = 'position:fixed;left:8px;top:200px;z-index:999;background:#000;color:#0ff;font:14px monospace;padding:4px 8px';
+    tag.textContent = 'idx=' + idx + ' (' + STATIONS[idx].id + ') probe.station=' + p.station + ' game=' + (p.station !== undefined ? STATIONS[p.station].game : '-') + ' leg=' + (leg ? leg.kind : null) + ' queue=' + queue.length + ' -> Arcade.open=' + (window.Arcade ? Arcade.open : 'no arcade');
+    document.body.appendChild(tag);
+  }, 6000); }

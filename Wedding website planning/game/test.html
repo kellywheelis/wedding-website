@@ -5,6 +5,7 @@
 <script src="arcade.js"></script>
 <script src="italy.js"></script>
 <script src="piazza.js"></script>
+<script src="bouquet.js"></script>
 <script>
 // ?game=italy&sim=title|select|play|win|over : opens the game and, for the play cases, drives it with scripted key presses
 // so the harness can screenshot the level with the player mid-climb; ?touch=1 shows the phone controls.
@@ -13,7 +14,7 @@ if (q.get('touch')) Object.defineProperty(window, 'matchMedia', { value: () => (
 Arcade.launch(q.get('game') || 'italy');
 const key = (k, ms) => { window.dispatchEvent(new KeyboardEvent('keydown', { key: k })); if (ms) setTimeout(() => window.dispatchEvent(new KeyboardEvent('keyup', { key: k })), ms); };
 const seq = [];
-if (sim !== 'title') seq.push([200, () => key('Enter', 50)]);
+if (sim !== 'title' && sim !== 'run' && sim !== 'ready') seq.push([200, () => key('Enter', 50)]);
 if (sim === 'select') seq.push([500, () => key('ArrowRight', 50)]);
 if (sim === 'play' || sim === 'win' || sim === 'over') { seq.push([600, () => key('Enter', 50)]); seq.push([2200, () => key('ArrowRight', 2600)]); seq.push([4900, () => key('ArrowUp', 1400)]); seq.push([6400, () => key('ArrowLeft', 900)]); seq.push([7000, () => key(' ', 50)]); }
 seq.forEach(([t, f]) => setTimeout(f, t));
@@ -23,3 +24,4 @@ if (sim === 'run') { const g = Arcade.current.inst.debug; g.start(q.get('who') |
   document.title = 'x' + Math.round(g.S.p.x) + ' y' + Math.round(g.S.p.y) + ' plat' + g.S.p.plat + ' lives' + g.S.lives + ' score' + g.S.score + ' items' + Object.keys(g.S.items).join(',') + ' cases' + g.S.cases.length; }
 </script>
 </body></html>
+<script>if (sim === 'ready') { const g = Arcade.current.inst.debug; g.start(q.get('who') || 'bride'); g.S.mode = "ready"; g.S.ready = 999; }</script>

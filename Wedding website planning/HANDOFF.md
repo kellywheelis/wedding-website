@@ -333,9 +333,17 @@ climb from behind, jump, knocked down, celebrate, slip) with a pure-python PNG s
 other art (suitcases x6, planes, cloud, Vespa, belt, passport, ticket, ring, bouquet) is hers too, drawn at game
 scale with nearest-neighbour from `api.image()`. The code-drawn figures remain as fallbacks.
 
+The atrium walls click like the wings (24 Sept 2026): any frame on Kelly's or Anthony's wall goes to the wall's
+centred stop (`station` = the main frame's stop); from there a small frame steps you across (`closer`), and Step
+back returns to the wall (`back:`). The panel under the view has a FIXED height (the write-up column is
+`calc(font * 8.1 + 63px)` and scrolls if longer: five lines plus two of credit), because the 3D view is re-fitted
+to the stage and a panel that grows with its text made the picture stretch at stops with long write-ups. A
+ResizeObserver on `#stage` re-fits inside the draw loop as a safety net. Scripts are stamped with `Date.now()`
+by a small loader in both pages, so a browser never runs a stale copy after a change; the harness build swaps
+the loader for plain tags.
 Where it hangs: the small frame to the left of Anthony's main frame, further from the doors (`anthony2`, `game: 'menu'` on its stop: the arcade's menu, `Arcade.games.menu`, lists `Arcade.menuList`; planned titles show as coming soon; a game launched from it gets `back: 'menu'` so Esc returns to the list)
-is a lit screen showing the attract loop; arriving at the stop opens the game (`updateArcade()` in
-gallery3d.js); closing it walks back to the atrium. The mobile edition has a card in the atrium chapter.
+is a lit screen showing the attract loop; arriving shows the write-up; a second click on the frame, or the panel's Play button, opens the game
+(`openArcade()` in gallery3d.js); closing it leaves you before the frame. The mobile edition has a card in the atrium chapter.
 Vercel serves `/game/*`. Test page: `game/test.html?sim=title|select|run` (`run` steps the game deterministically
 with `Arcade.step`, no timers; headless Chrome's timers are unreliable). Harness: `.work/game` is a symlink.
 
@@ -346,7 +354,11 @@ pigeons, a nonna), the steps, the door with the other half of the couple. Hop a 
 of 32x32: idle/walk facing N, S, E, W, then knocked down, assembled from the PixelLab rotations). Still code-drawn
 until the owner's files arrive: `fiat.png`, `tourist.png`, `nonna.png`, `pigeon.png`, `gelato.png`.
 
-All games live in one cabinet (the arcade menu); still to come on the same shell: Catch the Bouquet, The Seating Chart.
+`game/bouquet.js` — CATCH THE BOUQUET: night on the terrace; bouquets (+100), rings (+300) and champagne (+50)
+fall, cake and pigeons cost a life; 45 seconds, quickening (`KINDS` sets each thing's odds, size and worth).
+Uses the side-view sheets. Code-drawn until files arrive: `champagne.png`, `cake.png`, `pigeon.png`.
+
+All games live in one cabinet (the arcade menu); still to come on the same shell: The Seating Chart.
 
 ## 5. Known loose ends / ideas not yet done
 

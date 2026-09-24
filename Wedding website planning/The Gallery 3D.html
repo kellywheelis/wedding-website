@@ -11,6 +11,8 @@
 // `?desktop` on the address keeps you here.
 if (!/[?&]desktop/.test(location.search) && /iPhone|iPod|Android.*Mobile|Windows Phone|Mobi/i.test(navigator.userAgent) && Math.min(screen.width, screen.height) < 700) location.replace('/mobile/');
 </script>
+<link rel="preload" as="image" href="assets/cursor.png" />
+<link rel="preload" as="image" href="assets/cursor-on.png" />
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
 <script type="importmap">
 {
@@ -45,7 +47,7 @@ if (!/[?&]desktop/.test(location.search) && /iPhone|iPod|Android.*Mobile|Windows
   #cardBody p { margin: 0 0 10px; font-size: 17px; line-height: 1.65; color: #4a4137; }
   /* one themed cursor everywhere: Cupid's arrow. Over anything you can click, the same arrow lights up
      (rose heart, gold glow). The hot spot is the tip of the heart. */
-  :root { --cur: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22 viewBox=%220 0 32 32%22%3E%3Cg stroke-linecap=%22round%22 fill=%22none%22%3E%3Cpath d=%22M11 11L27 27M21.5 21.5v5.5M21.5 21.5h5.5M25 25v4M25 25h4%22 stroke=%22%232a1c0a%22 stroke-width=%224%22/%3E%3Cpath d=%22M21.5 21.5v5.5M21.5 21.5h5.5M25 25v4M25 25h4%22 stroke=%22%23D9AB4C%22 stroke-width=%221.9%22/%3E%3Cpath d=%22M11 11L27 27%22 stroke=%22%23F7EFDC%22 stroke-width=%221.9%22/%3E%3C/g%3E%3Cpath transform=%22translate%288.4 8.4%29 rotate%28135%29 scale%28.8%29%22 d=%22M0 10C-14 1 -7 -11 0 -1.5C7 -11 14 1 0 10Z%22 fill=%22%23D9AB4C%22 stroke=%22%232a1c0a%22 stroke-width=%221.9%22 stroke-linejoin=%22round%22/%3E%3C/svg%3E") 3 3, auto; --cur-on: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22 viewBox=%220 0 32 32%22%3E%3Ccircle cx=%228.6%22 cy=%228.6%22 r=%228.4%22 fill=%22%23F6D98A%22 opacity=%22.45%22/%3E%3Cg stroke-linecap=%22round%22 fill=%22none%22%3E%3Cpath d=%22M11 11L27 27M21.5 21.5v5.5M21.5 21.5h5.5M25 25v4M25 25h4%22 stroke=%22%232a1c0a%22 stroke-width=%224%22/%3E%3Cpath d=%22M21.5 21.5v5.5M21.5 21.5h5.5M25 25v4M25 25h4%22 stroke=%22%23F6D98A%22 stroke-width=%221.9%22/%3E%3Cpath d=%22M11 11L27 27%22 stroke=%22%23F7EFDC%22 stroke-width=%221.9%22/%3E%3C/g%3E%3Cpath transform=%22translate%288.4 8.4%29 rotate%28135%29 scale%28.8%29%22 d=%22M0 10C-14 1 -7 -11 0 -1.5C7 -11 14 1 0 10Z%22 fill=%22%23E0486E%22 stroke=%22%232a1c0a%22 stroke-width=%221.9%22 stroke-linejoin=%22round%22/%3E%3C/svg%3E") 3 3, pointer; }
+  :root { --cur: url("assets/cursor.png") 3 3, auto; --cur-on: url("assets/cursor-on.png") 3 3, pointer; }   /* pre-rendered PNGs: an SVG cursor is re-rasterised on every change, which flashes the default arrow */
   html, body, #view { cursor: var(--cur); }
   button { cursor: var(--cur-on) !important; }
   /* the info panel's text eases in afresh each time it changes, so a new write-up catches the eye */
@@ -79,9 +81,9 @@ if (!/[?&]desktop/.test(location.search) && /iPhone|iPod|Android.*Mobile|Windows
       <div>
         <p id="eyebrow" style="margin:0 0 8px;font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:#C9A667;transition:color 700ms ease"></p>
         <h2 id="title" style="margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-weight:400;font-size:clamp(23px,3vw,33px);line-height:1.18;color:#F6F1E4"></h2>
-        <button id="more" style="display:none;margin-top:clamp(10px,1.3vw,15px);height:38px;padding:0 18px;background:rgba(232,192,122,.12);border:1px solid rgba(201,166,103,.7);color:#F2E6C9;font-size:10.5px;letter-spacing:.22em;text-transform:uppercase">Read the full details &nbsp;&rarr;</button>
+        <button id="more" style="visibility:hidden;margin-top:clamp(10px,1.3vw,15px);height:38px;padding:0 18px;background:rgba(232,192,122,.12);border:1px solid rgba(201,166,103,.7);color:#F2E6C9;font-size:10.5px;letter-spacing:.22em;text-transform:uppercase">Read the full details &nbsp;&rarr;</button>
       </div>
-      <div>
+      <div style="height:calc(clamp(16px,1.35vw,18.5px) * 8.1 + 63px);overflow-y:auto">
         <p id="body" style="margin:0 0 9px;font-size:clamp(16px,1.35vw,18.5px);line-height:1.62;color:#E6DCC4"></p>
         <p id="meta" style="margin:0;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#B5A88C"></p>
       </div>
@@ -218,9 +220,10 @@ if (!/[?&]desktop/.test(location.search) && /iPhone|iPod|Android.*Mobile|Windows
   setTimeout(fit, 1600);
 })();
 </script>
-<script src="game/arcade.js"></script>
-<script src="game/italy.js"></script>
-<script src="game/piazza.js"></script>
-<script type="module" src="gallery3d.js?v=1790273515739"></script>
+<script>
+// every script is stamped with the load time, so a browser never serves a stale copy after a change
+['game/arcade.js', 'game/italy.js', 'game/piazza.js', 'game/bouquet.js'].forEach(function (f) { document.write('<script src="' + f + '?v=' + Date.now() + '"><\/script>'); });
+document.write('<script type="module" src="gallery3d.js?v=' + Date.now() + '"><\/script>');
+</script>
 </body>
 </html>

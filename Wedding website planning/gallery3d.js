@@ -28,22 +28,22 @@ const STATIONS = [
   { id: 'kelly', x: 0, z: GALLERY_Z, yaw: Math.PI / 2, room: 'atrium', accent: '#C9A667',
     eyebrow: 'The atrium · Kelly', title: 'Kelly',
     body: 'Photographs to come.', meta: 'Placeholder' },
-  { id: 'kelly1', x: 0, z: GALLERY_Z + 1.3, yaw: Math.PI / 2, room: 'atrium', accent: '#C9A667', tour: false,
+  { id: 'kelly1', x: 0, z: GALLERY_Z + 1.3, yaw: Math.PI / 2, room: 'atrium', accent: '#C9A667', tour: false, back: 'kelly',
     eyebrow: 'The atrium · Kelly', title: 'Kelly',
     body: 'Photographs to come.', meta: 'Placeholder' },
-  { id: 'kelly2', x: 0, z: GALLERY_Z - 1.3, yaw: Math.PI / 2, room: 'atrium', accent: '#C9A667', tour: false,
+  { id: 'kelly2', x: 0, z: GALLERY_Z - 1.3, yaw: Math.PI / 2, room: 'atrium', accent: '#C9A667', tour: false, back: 'kelly',
     eyebrow: 'The atrium · Kelly', title: 'Kelly',
     body: 'Photographs to come.', meta: 'Placeholder' },
   { id: 'anthony', x: 0, z: GALLERY_Z, yaw: -Math.PI / 2, room: 'atrium', accent: '#C9A667',
     eyebrow: 'The atrium · Anthony', title: 'Anthony',
     body: 'Photographs to come.', meta: 'Placeholder' },
-  { id: 'anthony1', x: 0, z: GALLERY_Z + 1.3, yaw: -Math.PI / 2, room: 'atrium', accent: '#C9A667', tour: false,
+  { id: 'anthony1', x: 0, z: GALLERY_Z + 1.3, yaw: -Math.PI / 2, room: 'atrium', accent: '#C9A667', tour: false, back: 'anthony',
     eyebrow: 'The atrium · Anthony', title: 'Anthony',
     body: 'Photographs to come.', meta: 'Placeholder' },
-  { id: 'anthony2', x: 0, z: GALLERY_Z - 1.3, yaw: -Math.PI / 2, room: 'atrium', accent: '#C9A667', tour: false, game: 'menu',
+  { id: 'anthony2', x: 0, z: GALLERY_Z - 1.3, yaw: -Math.PI / 2, eye: 2.12, room: 'atrium', accent: '#C9A667', tour: false, back: 'anthony', game: 'menu',
     eyebrow: 'The atrium · Anthony · interactive installation', title: 'The Arcade',
-    body: 'A cabinet of playable pieces. Getting to Italy: choose the bride or the groom, climb from Departures to the villa gate, collect the passport, the ticket and the bouquet (or, for the groom, the ring), and dodge the suitcases, the cancelled flights, the rain and a Vespa. More to come: Cross the Piazza, Catch the Bouquet, The Seating Chart. Arrows move, space jumps, up and down climb.',
-    meta: 'Anthony Alvarez & Kelly Wheelis, 2026 · interactive installation · press Esc to step away' },
+    body: 'Three playable pieces. Getting to Italy, Cross the Piazza, and Catch the Bouquet. Choose the bride or the groom; arrows move, space jumps. Click the frame again to play.',
+    meta: 'Anthony Alvarez & Kelly Wheelis, 2026 · interactive installation · Esc steps away' },
 
   { id: 'w1', x: -1150 * U, z: -7.5, yaw: Math.PI / 2, room: 'w1', accent: '#93AEA2',
     eyebrow: 'Wing I · principal work', title: 'The Birth of Venus',
@@ -1167,14 +1167,17 @@ const ATRIUM_PICTURES = [
   { who: 'kelly', stop: 'kelly2', dz: -1.3, y: 1.88, w: 0.8, h: 1.05, blank: true },
   { who: 'anthony', stop: 'anthony', dz: 0, y: 2.0, w: 1.15, h: 1.5, blank: true },
   { who: 'anthony', stop: 'anthony1', dz: 1.3, y: 1.88, w: 0.8, h: 1.05, blank: true },
-  { who: 'anthony', stop: 'anthony2', dz: -1.3, y: 2.12, w: 0.8, h: 1.05, blank: true }
+  { who: 'anthony', stop: 'anthony2', dz: -1.3, y: 2.12, w: 0.84, h: 1.08, blank: true }   // the arcade screen: 224 x 288, so 7:9
 ];
 ATRIUM_PICTURES.forEach((p, i) => {
   const grp = framedPicture(p, i);
   const sx = p.who === 'kelly' ? -1 : 1;
-  grp.position.set(sx * (P.corrX - 0.075), p.y, GALLERY_Z + p.dz);
+  grp.position.set(sx * (P.corrX - 0.075), p.y, GALLERY_Z + p.dz);   // NB the stops for these frames use the same z; keep the two lists in step
   grp.rotation.y = sx < 0 ? Math.PI / 2 : -Math.PI / 2;
-  grp.userData.station = ST[p.stop];
+  // clicking any frame on the wall takes you to the wall's centred stop (the main frame's); from there a small frame
+  // steps you across to it, as the wings' side pictures do
+  grp.userData.station = ST[p.dz === 0 ? p.stop : p.who];
+  if (p.dz !== 0) grp.userData.closer = ST[p.stop];
   // a frame whose stop carries a game is a screen: the game's title plays on it, so it reads as alive from the hall
   const game = STATIONS[ST[p.stop]].game;
   if (game && window.Arcade && Arcade.games[game]) {
@@ -2581,8 +2584,10 @@ function paintLabel(st) {
   el('title').textContent = st.title;
   el('body').textContent = st.body;
   el('meta').textContent = st.meta;
-  el('more').style.display = st.card ? '' : 'none';               // "Read the full details", where a wall text exists
+  el('more').style.visibility = st.card || st.game ? 'visible' : 'hidden';   // "Read the full details" where a wall text exists; "Play" where a game does. Its space is kept at every stop, so the panel (and the view above it) never changes height
   el('more').dataset.card = st.card || '';
+  el('more').dataset.game = st.game || '';
+  el('more').innerHTML = st.game ? 'Play &nbsp;&rarr;' : 'Read the full details &nbsp;&rarr;';
   // ease the new text in, so a change of write-up catches the eye (restarts the CSS animation)
   ['eyebrow', 'title', 'body', 'meta'].forEach((id) => {
     const n = el(id);
@@ -2662,7 +2667,7 @@ function openCard(key) {
   el('cardSheet').scrollTop = 0;
 }
 const closeCard = () => { el('card').style.display = 'none'; };
-el('more').addEventListener('click', () => openCard(el('more').dataset.card));
+el('more').addEventListener('click', () => { if (el('more').dataset.game) openArcade(); else openCard(el('more').dataset.card); });
 el('card').addEventListener('click', (e) => { if (e.target === el('card') || e.target.id === 'cardClose') closeCard(); });
 window.addEventListener('keydown', (e) => {
   if (el('card').style.display === 'grid') { if (e.key === 'Escape') closeCard(); return; }   // no walking about behind an open card
@@ -2743,7 +2748,7 @@ function probe(clientX, clientY) {
   // belongs to a stop, once you stand at that stop. Never through a doorway, nor while that write-up is already showing.
   const atIt = station === undefined ? here === 'atrium' : station === idx && !leg && !queue.length;
   if (note && (own || target || !atIt || el('title').textContent === note.title)) note = undefined;
-  if (station === idx) station = undefined;
+  if (station === idx && !STATIONS[idx].game) station = undefined;   // at the stop already: nothing to do, unless it is the arcade, where the next click plays
   if (cardKey && (own || target || here !== 'det')) cardKey = undefined;   // the wall buttons work from anywhere in their room
   return { room: target || (own ? 'atrium' : null), surface, station, note, cardKey };
 }
@@ -2765,7 +2770,7 @@ canvas.addEventListener('click', (e) => {
   if (p.room) goTo(ROOM_ENTRY[p.room]);
   else if (p.cardKey) openCard(p.cardKey);
   else if (p.note) paintLabel(p.note);                  // no walking: only the panel changes
-  else if (p.station !== undefined) goTo(p.station);    // a picture in this room: go and face it
+  else if (p.station !== undefined) { if (STATIONS[p.station].game && p.station === idx && !queue.length && !(leg && leg.kind === 'path')) openArcade(); else goTo(p.station); }   // a picture in this room: go and face it; the arcade, faced already: play
 });
 
 // pointer glow: a soft pool of warm light on whatever the mouse points at
@@ -2801,9 +2806,10 @@ function updatePointer() {
   if (pointer.inside && (pointer.moved || (!busy && pointer.recheck))) {   // not on every frame of a walk: the ray test is the dearest thing in the frame
     pointer.moved = false;
     const p = probe(pointer.x, pointer.y);
-    canvas.style.cursor = volHeld() && p.surface && isVolvelle(p.surface.object) ? (volDrag ? 'grabbing' : 'grab')
+    const cur = volHeld() && p.surface && isVolvelle(p.surface.object) ? (volDrag ? 'grabbing' : 'grab')
       : p.room || p.station !== undefined || p.note || p.cardKey || (invHeld() && p.surface && p.surface.object.userData.invite) ? 'var(--cur-on)'
       : LOOK.turning ? (LOOK.turning > 0 ? 'e-resize' : 'w-resize') : '';
+    if (canvas.style.cursor !== cur) canvas.style.cursor = cur;        // only when it changes: re-setting a cursor makes some browsers flash the default arrow
     if (p.surface) {
       // hold the light a little off the surface, on the side facing the viewer
       const n = p.surface.face.normal.clone().transformDirection(p.surface.object.matrixWorld);
@@ -3431,6 +3437,10 @@ function resize() {
   camera.updateProjectionMatrix();
 }
 window.addEventListener('resize', resize);
+// the panel below the view changes height (a Play or Read-more button comes and goes), which resizes the stage
+// without a window resize; without this the picture is stretched to the new shape
+let needResize = false;
+if (window.ResizeObserver) new ResizeObserver(() => { needResize = true; }).observe(el('stage'));   // re-fitted just before the next draw, so no blank frame shows
 resize();
 
 // a gentle look-round: the view leans a few degrees towards wherever the cursor is on the screen, and settles
@@ -3455,18 +3465,14 @@ function updateLook(now) {
   LOOK.turning = k > 0 ? Math.sign(u) : 0;
   if (k > 0) { cam.yaw -= Math.sign(u) * k * k * LOOK.spin * dt; pointer.moved = true; }   // moved: keep reading what is under the cursor as the view turns
 }
-// a stop that carries a game: once you have arrived and the view has settled, the game opens over the frame;
-// closing it (Esc, the cross, or Step back) takes you back to the wall
-let gameOpenedAt = -1;
-function updateArcade() {
-  if (!window.Arcade) return;
+// a stop that carries a game: arriving shows its write-up; the game opens when you click the frame again or the
+// panel's Play button, and closing it (Esc or the cross) leaves you standing before the frame
+function openArcade() {
   const st = STATIONS[idx];
-  if (st.game && !leg && !queue.length && settled() && !Arcade.open && gameOpenedAt !== idx) {
-    gameOpenedAt = idx;
-    Arcade.launch(st.game, { onClose: () => { if (idx === gameOpenedAt) goTo(ROOM_ENTRY[st.room]); gameOpenedAt = -1; } });
-  }
-  if (!st.game) gameOpenedAt = -1;
+  if (!window.Arcade || !st.game || Arcade.open) return;
+  Arcade.launch(st.game, { onClose: () => {} });
 }
+function updateArcade() {}
 function frame(now) {
   if (!leg && (queue.length || !settled())) startLeg();
   updateArcade();
@@ -3489,6 +3495,7 @@ function frame(now) {
   camera.position.set(cam.x, cam.eye, cam.z);
   camera.rotation.set(cam.pitch + LOOK.y, cam.yaw + LOOK.x, 0, 'YXZ');
   camera.updateMatrixWorld();
+  if (needResize) { needResize = false; resize(); }
   updateVolvelle();
   updateInvitation();
   if (shopRack) shopRack.rotation.y += 0.003;                      // the postcard rack turns idly

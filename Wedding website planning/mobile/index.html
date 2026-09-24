@@ -63,10 +63,8 @@
 
 <div id="lb"><button class="x" id="lbX" aria-label="Close">&times;</button><div class="img" id="lbImg"></div><div class="txt" id="lbTxt"></div></div>
 
-<script src="../game/arcade.js"></script>
-<script src="../game/italy.js"></script>
-<script src="../game/piazza.js"></script>
-<script src="content.js"></script>
-<script src="mobile.js"></script>
+<script>
+['../game/arcade.js', '../game/italy.js', '../game/piazza.js', '../game/bouquet.js', 'content.js', 'mobile.js'].forEach(function (f) { document.write('<script src="' + f + '?v=' + Date.now() + '"><\/script>'); });
+</script>
 </body>
 </html>

@@ -1422,11 +1422,26 @@ function pedestal(h, W = 0.5, D = W, mat = plinthMat) {             // W x D: it
   return g;
 }
 function place(g, x, z, rotY) { g.position.set(x, 0, z); g.rotation.y = rotY || 0; scene.add(g); return g; }
-function urn(top) {                                   // a tall marble urn on its pedestal
+function urn(top) {                                   // a carved marble vase on its pedestal, after the Medici and Borghese urns
   const g = pedestal(0.95);
-  const body = lathe([[0, 0], [0.11, 0], [0.12, 0.04], [0.07, 0.08], [0.06, 0.14], [0.15, 0.24], [0.21, 0.4], [0.2, 0.55], [0.12, 0.68], [0.085, 0.76], [0.1, 0.84], [0.15, 0.88], [0.13, 0.9], [0, 0.9]], marbleWhite);
+  const foot = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.05, 0.3), marbleWhite);   // square foot
+  foot.position.y = 0.95 + 0.025; g.add(foot);
+  // torus base, gadrooned bowl, a wide belly, a narrow neck and a flared lip
+  const profile = [[0, 0.05], [0.105, 0.05], [0.115, 0.085], [0.075, 0.115], [0.068, 0.19], [0.16, 0.27], [0.225, 0.42], [0.215, 0.56], [0.16, 0.66], [0.108, 0.72], [0.095, 0.8], [0.1, 0.855], [0.165, 0.895], [0.155, 0.93], [0.125, 0.93], [0, 0.93]];
+  const geo = new THREE.LatheGeometry(profile.map(([r, y]) => new THREE.Vector2(r, y)), 96), pos = geo.attributes.position;
+  for (let i = 0; i < pos.count; i++) {                            // sixteen convex flutes round the bowl, fading out towards the belly
+    const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
+    if (y > 0.19 && y < 0.58) { const k = Math.sin(Math.PI * (y - 0.19) / 0.39), a = Math.atan2(z, x), f = 1 + 0.05 * k * Math.cos(16 * a); pos.setXYZ(i, x * f, y, z * f); }
+  }
+  geo.computeVertexNormals();
+  const body = new THREE.Mesh(geo, marbleWhite);
   body.position.y = 0.95;
   g.add(body);
+  [-1, 1].forEach((sd) => {                                        // two scroll handles at the shoulder
+    const h = new THREE.Mesh(new THREE.TorusGeometry(0.078, 0.017, 10, 28, Math.PI), marbleWhite);
+    h.position.set(sd * 0.195, 0.95 + 0.5, 0); h.rotation.z = -sd * Math.PI / 2;
+    g.add(h);
+  });
   if (top) { top.position.y = 0.95 + 0.86; g.add(top); }
   return g;
 }
@@ -1525,68 +1540,109 @@ function taperedTube(curve, segs, r0, r1, rnd) {
   pos.needsUpdate = true;
   return geo;
 }
-// roses massed on an urn and trailing down its pedestal on vines, for the urns beside The Birth of Venus
+// roses massed on an urn and fountaining down its pedestal, for the urns beside The Birth of Venus:
+// garden roses of two varieties (cream-blush and coral-pink) with a few deep accents, at every stage from bud to
+// full bloom, on real rose foliage (leaflets in threes), with sprays of gypsophila for air and trailing ivy for depth
 function roseCascade(seed) {
   const g = new THREE.Group(), rnd = seeded(seed);
-  const petals = instancer(PETAL_GEO, new THREE.MeshStandardMaterial({ roughness: 0.62, side: THREE.DoubleSide }));
-  const leaves = instancer(LEAF_GEO, new THREE.MeshStandardMaterial({ roughness: 0.5, side: THREE.DoubleSide }));
-  const ROSES = ['#e9a3ac', '#f2c6c8', '#d97f8e', '#f6e2dc', '#e58f9d', '#c9607a'].map((h) => new THREE.Color(h));
-  const GREENS = ['#2f4a26', '#3d5a2e', '#4d6b35'].map((h) => new THREE.Color(h));
+  const petals = instancer(PETAL_GEO, new THREE.MeshStandardMaterial({ roughness: 0.68, side: THREE.DoubleSide }));
+  const leaves = instancer(LEAF_GEO, new THREE.MeshStandardMaterial({ roughness: 0.55, side: THREE.DoubleSide }));
+  const dots = instancer(new THREE.SphereGeometry(1, 7, 5), new THREE.MeshStandardMaterial({ roughness: 0.8 }));
+  const ROSES = ['#f7ead8', '#f7ead8', '#f4d3c8', '#f4d3c8', '#f4d3c8', '#eeb0b8', '#eeb0b8', '#eeb0b8', '#f1b79e', '#f1b79e', '#dd8c9c', '#dd8c9c', '#bb5872'].map((h) => new THREE.Color(h));
+  const GREENS = ['#2c4524', '#3a562c', '#4a6a34', '#587a3c'].map((h) => new THREE.Color(h));
+  const IVY = ['#22381f', '#2d4a28', '#365a2e'].map((h) => new THREE.Color(h));
   const pick = (arr) => arr[Math.floor(rnd() * arr.length)];
-  // the mass on top: a full, tall dome of open roses, leaves tucked underneath and between
-  for (let i = 0; i < 52; i++) {
+  const V = (x, y, z) => new THREE.Vector3(x, y, z);
+  // a bloom at any stage: a bud on its calyx, a half-open rose, or a full one
+  const bloom = (pos, n, size, stage) => {
+    const t = stage === undefined ? rnd() : stage;
+    if (t < 0.18) {
+      addRose(petals, pos, n, size * 0.62, pick(ROSES), rnd, 1);
+      for (let k = 0; k < 4; k++) addLeaf(leaves, pos.clone().addScaledVector(n.clone().normalize(), -size * 0.1), n.clone().normalize().applyAxisAngle(V(rnd() - 0.5, rnd() - 0.5, rnd() - 0.5).normalize(), 0.7), size * 0.9, GREENS[0], rnd);
+    } else if (t < 0.45) addRose(petals, pos, n, size * 0.85, pick(ROSES), rnd, 2);
+    else addRose(petals, pos, n, size, pick(ROSES), rnd, 3);
+  };
+  // rose foliage: a compound leaf of three leaflets, the middle one a little longer
+  const leafCluster = (pos, dir, size, col) => {
+    const d = dir.clone().normalize(), side = V(-d.z, 0, d.x).normalize();
+    if (side.lengthSq() < 1e-4) side.set(1, 0, 0);
+    addLeaf(leaves, pos, d, size * 1.05, col || pick(GREENS), rnd);
+    [-1, 1].forEach((sd) => addLeaf(leaves, pos.clone().addScaledVector(d, -size * 0.25), d.clone().addScaledVector(side, sd * 0.75).normalize(), size * 0.8, col || pick(GREENS), rnd));
+  };
+  // gypsophila: a loose spray of tiny white flowers
+  const gyp = (pos, n) => {
+    const count = 6 + Math.floor(rnd() * 6), c = new THREE.Color('#fbf6ec');
+    for (let k = 0; k < count; k++) {
+      const p = pos.clone().add(V(rnd() - 0.5, rnd() - 0.5, rnd() - 0.5).multiplyScalar(0.07)).addScaledVector(n, 0.02 + rnd() * 0.04);
+      dots.add(new THREE.Matrix4().compose(p, new THREE.Quaternion(), V(0.0065, 0.0065, 0.0065)), c);
+    }
+  };
+  // the mass on top: a tall dome of blooms, foliage tucked between and underneath, gypsophila at the edges
+  for (let i = 0; i < 58; i++) {
     const a = rnd() * 6.283, e = Math.acos(1 - rnd() * 1.05), R = 0.3 + rnd() * 0.06;
-    const n = new THREE.Vector3(Math.sin(e) * Math.cos(a), Math.cos(e), Math.sin(e) * Math.sin(a));
-    addRose(petals, n.clone().multiplyScalar(R).setY(n.y * R * 1.35 + 0.1), n, 0.048 + rnd() * 0.016, pick(ROSES), rnd);
+    const n = V(Math.sin(e) * Math.cos(a), Math.cos(e), Math.sin(e) * Math.sin(a));
+    bloom(n.clone().multiplyScalar(R).setY(n.y * R * 1.35 + 0.1), n, 0.054 + rnd() * 0.016, rnd() < 0.75 ? 0.5 + rnd() * 0.5 : rnd() * 0.45);
   }
-  // the fountain: tall sprays rising out of the middle of the dome, arching over and out, roses along the
-  // arc thinning to buds at the tips
+  for (let i = 0; i < 34; i++) {
+    const a = rnd() * 6.283, e = 0.85 + rnd() * 0.95, R = 0.3 + rnd() * 0.1;
+    const n = V(Math.sin(e) * Math.cos(a), Math.cos(e) * 0.6, Math.sin(e) * Math.sin(a));
+    leafCluster(n.clone().multiplyScalar(R * 0.82), n, 0.085 + rnd() * 0.04);
+  }
+  for (let i = 0; i < 16; i++) {
+    const a = rnd() * 6.283, e = 0.7 + rnd() * 0.7, n = V(Math.sin(e) * Math.cos(a), Math.cos(e), Math.sin(e) * Math.sin(a));
+    gyp(n.clone().multiplyScalar(0.36).setY(n.y * 0.4 + 0.1), n);
+  }
+  // the fountain: tall sprays rising out of the middle, arching over and out, thinning to buds at the tips
   const stemMat = tint('#3b4a26');
   for (let i = 0; i < 6; i++) {
     const ang = 0.35 + i * (2.45 / 5) + (rnd() - 0.5) * 0.25;                   // fanned towards the room, never into the wall
-    const out = new THREE.Vector3(Math.cos(ang), 0, Math.sin(ang)), h = 0.5 + rnd() * 0.18, reach = 0.42 + rnd() * 0.16;
-    const pts = [[0, 0.15, 0], [0.07, 0.45 + h * 0.4, 0.0], [0.28, 0.2 + h, 0], [0.62, 0.05 + h * 0.75, 0], [1, 0.05 + h * 0.15, 0]]
-      .map(([k, y]) => out.clone().multiplyScalar(k * reach).setY(y));
+    const out = V(Math.cos(ang), 0, Math.sin(ang)), h = 0.5 + rnd() * 0.18, reach = 0.42 + rnd() * 0.16;
+    const pts = [[0, 0.15], [0.07, 0.45 + h * 0.4], [0.28, 0.2 + h], [0.62, 0.05 + h * 0.75], [1, 0.05 + h * 0.15]].map(([k, y]) => out.clone().multiplyScalar(k * reach).setY(y));
     const curve = new THREE.CatmullRomCurve3(pts);
     g.add(new THREE.Mesh(taperedTube(curve, 20, 0.009, 0.0025, rnd), stemMat));
     for (let j = 0; j < 9; j++) {
       const t = 0.3 + (j + 0.5 + (rnd() - 0.5) * 0.5) / 9 * 0.7, pt = curve.getPoint(t), tan = curve.getTangent(t);
-      const outward = pt.clone().setY(0).normalize().multiplyScalar(0.7).add(new THREE.Vector3(0, 0.6 - t * 0.4, 0)).addScaledVector(tan, -0.15);
-      const size = (0.05 - 0.024 * t) * (0.85 + rnd() * 0.3);
-      addRose(petals, pt.clone().addScaledVector(outward.clone().normalize(), size * 1.1), outward, size, pick(ROSES), rnd, t > 0.9 ? 1 : t > 0.7 ? 2 : 3);
-      if (rnd() < 0.7) addLeaf(leaves, pt, new THREE.Vector3(rnd() - 0.5, -0.3 - rnd() * 0.5, rnd() - 0.5).addScaledVector(outward, 0.4), 0.05 + rnd() * 0.03, pick(GREENS), rnd);
+      const outward = pt.clone().setY(0).normalize().multiplyScalar(0.7).add(V(0, 0.6 - t * 0.4, 0)).addScaledVector(tan, -0.15);
+      const size = (0.05 - 0.02 * t) * (0.85 + rnd() * 0.3);
+      bloom(pt.clone().addScaledVector(outward.clone().normalize(), size * 1.1), outward, size, t > 0.9 ? rnd() * 0.17 : t > 0.72 ? 0.2 + rnd() * 0.25 : 0.5 + rnd() * 0.5);
+      if (rnd() < 0.8) leafCluster(pt, V(rnd() - 0.5, -0.3 - rnd() * 0.5, rnd() - 0.5).addScaledVector(outward, 0.4), 0.055 + rnd() * 0.03);
+      if (j > 5 && rnd() < 0.5) gyp(pt, outward.clone().normalize());
     }
   }
-  for (let i = 0; i < 44; i++) {
-    const a = rnd() * 6.283, e = 0.9 + rnd() * 0.9, R = 0.3 + rnd() * 0.1;
-    const n = new THREE.Vector3(Math.sin(e) * Math.cos(a), Math.cos(e) * 0.6, Math.sin(e) * Math.sin(a));
-    addLeaf(leaves, n.clone().multiplyScalar(R * 0.8), n, 0.1 + rnd() * 0.06, pick(GREENS), rnd);
-  }
-  // the cascades: vines leaving the rim, arcing out and falling, roses thinning to buds at the tips
+  // the cascades: vines leaving the rim, rising a little, arcing out and falling, roses thinning to buds at the tips
   const vineMat = tint('#3b4a26');
-  // every vine leaves towards the room (local +z), never back into the wall behind the urn
-  [[1.57, 1.6], [1.0, 1.2], [2.15, 1.3], [0.45, 0.85], [2.7, 0.9], [1.3, 0.7], [1.85, 0.6]].forEach(([ang, drop], vi) => {
-    // each vine rises out of the dome first, arcs over, and only then falls: a fountain, not a drip
-    const out = new THREE.Vector3(Math.cos(ang), 0, Math.sin(ang)), reach = 0.4 + rnd() * 0.15, rise = 0.3 + rnd() * 0.18;
-    const side = new THREE.Vector3(-out.z, 0, out.x).multiplyScalar((rnd() - 0.5) * 0.35);
+  [[1.57, 1.6], [1.0, 1.2], [2.15, 1.3], [0.45, 0.85], [2.7, 0.9], [1.3, 0.7], [1.85, 0.6]].forEach(([ang, drop]) => {
+    const out = V(Math.cos(ang), 0, Math.sin(ang)), reach = 0.4 + rnd() * 0.15, rise = 0.3 + rnd() * 0.18;
+    const side = V(-out.z, 0, out.x).multiplyScalar((rnd() - 0.5) * 0.35);
     const pts = [0, 0.15, 0.35, 0.6, 1].map((t) => out.clone().multiplyScalar(0.15 + reach * Math.sin(Math.min(1, t * 1.6) * Math.PI / 2))
       .addScaledVector(side, t * t).setY(0.12 + rise * Math.sin(Math.min(1, t * 2) * Math.PI / 2) * Math.pow(1 - t, 0.7) - drop * t * t));
     const curve = new THREE.CatmullRomCurve3(pts);
     g.add(new THREE.Mesh(taperedTube(curve, 24, 0.011, 0.002, rnd), vineMat));
-    const count = Math.round(12 + drop * 13);
+    const count = Math.round(17 + drop * 14);
     for (let i = 0; i < count; i++) {
       const t = (i + 0.5 + (rnd() - 0.5) * 0.6) / count, pt = curve.getPoint(t), tan = curve.getTangent(t);
-      const outward = pt.clone().setY(0).normalize().multiplyScalar(0.8).add(new THREE.Vector3(0, 0.55 - t * 0.5, 0)).addScaledVector(tan, -0.2);
-      const size = (0.052 - 0.026 * t) * (0.85 + rnd() * 0.3);
-      const across = new THREE.Vector3(-tan.z, 0, tan.x).multiplyScalar((rnd() - 0.5) * 0.3 * (1 - 0.8 * t));
-      addRose(petals, pt.clone().add(across).addScaledVector(outward.clone().normalize(), size * 1.2), outward, size, pick(ROSES), rnd, t > 0.85 ? 1 : t > 0.6 ? 2 : 3);
-      for (let l = 0; l < (rnd() < 0.6 ? 1 : 2); l++) {
-        const ld = new THREE.Vector3(rnd() - 0.5, -0.2 - rnd() * 0.6, rnd() - 0.5).addScaledVector(outward, 0.5);
-        addLeaf(leaves, pt, ld, 0.055 + rnd() * 0.035, pick(GREENS), rnd);
-      }
+      const outward = pt.clone().setY(0).normalize().multiplyScalar(0.8).add(V(0, 0.55 - t * 0.5, 0)).addScaledVector(tan, -0.2);
+      const size = (0.06 - 0.022 * t) * (0.85 + rnd() * 0.3);
+      const across = V(-tan.z, 0, tan.x).multiplyScalar((rnd() - 0.5) * 0.3 * (1 - 0.8 * t));
+      bloom(pt.clone().add(across).addScaledVector(outward.clone().normalize(), size * 1.2), outward, size, t > 0.88 ? rnd() * 0.17 : t > 0.7 ? 0.2 + rnd() * 0.25 : 0.5 + rnd() * 0.5);
+      leafCluster(pt, V(rnd() - 0.5, -0.2 - rnd() * 0.6, rnd() - 0.5).addScaledVector(outward, 0.5), 0.055 + rnd() * 0.03);
+      if (rnd() < 0.3) gyp(pt, outward.clone().normalize());
     }
   });
-  g.add(petals.build(), leaves.build());
+  // trailing ivy between the rose vines: no flowers, small dark leaves close along a thin stem, falling straight
+  [0.75, 1.3, 1.85, 2.4].forEach((ang) => {
+    const out = V(Math.cos(ang), 0, Math.sin(ang)), reach = 0.28 + rnd() * 0.1, drop = 1.0 + rnd() * 0.6;
+    const pts = [0, 0.2, 0.5, 1].map((t) => out.clone().multiplyScalar(0.18 + reach * Math.sin(Math.min(1, t * 1.8) * Math.PI / 2)).setY(0.1 + 0.08 * Math.sin(t * 3) - drop * t * t));
+    const curve = new THREE.CatmullRomCurve3(pts);
+    g.add(new THREE.Mesh(taperedTube(curve, 20, 0.006, 0.0015, rnd), vineMat));
+    const count = Math.round(18 + drop * 10);
+    for (let i = 0; i < count; i++) {
+      const t = (i + 0.5) / count, pt = curve.getPoint(t), tan = curve.getTangent(t);
+      const side = V(-tan.z, 0, tan.x).normalize().multiplyScalar(i % 2 ? 1 : -1);
+      addLeaf(leaves, pt, side.addScaledVector(tan, 0.3).add(V(0, -0.35, 0)), 0.04 + rnd() * 0.02, pick(IVY), rnd);
+    }
+  });
+  g.add(petals.build(), leaves.build(), dots.build());
   return g;
 }
 

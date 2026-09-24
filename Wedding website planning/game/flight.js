@@ -18,19 +18,21 @@
   const STAGES = [
     { name: 'SAN FRANCISCO', from: 0, ground: 'city', marks: [{ at: 1, kind: 'goldengate' }] },
     { name: 'NEW YORK', from: 4, ground: 'city', marks: [{ at: 5, kind: 'liberty' }] },
-    { name: 'THE ATLANTIC', from: 9, ground: 'sea', marks: [{ at: 10, kind: 'ship' }, { at: 13, kind: 'whale' }] },
-    { name: 'THE ALPS', from: 16, ground: 'alps', marks: [{ at: 16, kind: 'paris' }, { at: 17, kind: 'eiffel' }] },
+    { name: 'THE ATLANTIC', from: 9, ground: 'sea', marks: [{ at: 10, kind: 'ship' }, { at: 12, kind: 'whale' }] },
+    { name: 'PARIS', from: 15, ground: 'paris', marks: [{ at: 16, kind: 'eiffel' }, { at: 17, kind: 'paris' }] },
+    { name: 'THE ALPS', from: 18, ground: 'alps', marks: [] },
     { name: 'ITALIA', from: 21, ground: 'italy', marks: [{ at: 22, kind: 'colosseum' }, { at: 25, kind: 'pisa' }] },
-    { name: 'TOSCANA', from: 27, ground: 'tuscany', marks: [{ at: 28, kind: 'florence' }] }
+    { name: 'TOSCANA', from: 27, ground: 'tuscany', marks: [{ at: 27, kind: 'florenceStreet' }, { at: 28, kind: 'florence' }] }
   ];
-  const GROUND_COL = { city: '#3a3d4a', sea: '#2d6a9e', alps: '#7d8a96', italy: '#5f8a3a', tuscany: '#a8503a' };
+  const GROUND_COL = { city: '#3a3d4a', sea: '#2d6a9e', paris: '#5c606e', alps: '#7d8a96', italy: '#5f8a3a', tuscany: '#a8503a' };
   Arcade.games.flight = { title: 'Flight to Siena', w: W, h: H, create(api) {
     const pic = (n, fb) => api.image('/assets/game/' + n + '.png', fb);
     const ART = { plane: pic('plane-plain', (c, x, y, w, h) => { c.fillStyle = C.white; c.fillRect(x, y + h / 2 - 2, w, 4); c.fillRect(x + w - 8, y, 4, h / 2); }),
       ring: pic('ring', (c, x, y, w, h) => { c.strokeStyle = C.gold; c.lineWidth = 3; c.beginPath(); c.ellipse(x + w / 2, y + h / 2, w / 2 - 2, h / 2 - 2, 0, 0, Math.PI * 2); c.stroke(); }),
       storm: pic('storm', (c, x, y, w, h) => { c.fillStyle = '#5a5a6a'; c.beginPath(); c.ellipse(x + w / 2, y + h * 0.45, w / 2, h * 0.4, 0, 0, Math.PI * 2); c.fill(); drawMap(c, BOLT, x + w / 2 - 4, y + h * 0.7, PAL); }),
+      bouquet: pic('bouquet', (c, x, y, w, h) => { c.fillStyle = '#eeb0b8'; c.fillRect(x + 3, y, 10, 8); }), glass: pic('champagne', (c, x, y, w, h) => { c.fillStyle = '#f3dc9a'; c.fillRect(x + 2, y, 4, 8); }),
       cloud: pic('cloud'), bird: pic('swallow', null), pigeon: pic('pigeon-flying', (c, x, y, w, h) => { c.fillStyle = '#8a8a94'; c.fillRect(x, y + h / 2, w, 2); c.fillRect(x + w / 2 - 2, y, 4, h); }),
-      goldengate: pic('goldengate'), skyline2: pic('skyline2'),
+      goldengate: pic('goldengate'), skyline2: pic('skyline2'), parisStreet: [pic('paris-street1'), pic('paris-street2')], florenceStreet: pic('florence-street'),
       liberty: pic('liberty', (c, x, y, w, h) => { c.fillStyle = '#6f8f7a'; c.fillRect(x + w * 0.3, y + h * 0.7, w * 0.4, h * 0.3); c.fillStyle = '#8fbf9f'; c.fillRect(x + w * 0.36, y + h * 0.3, w * 0.28, h * 0.42); c.fillRect(x + w * 0.42, y + h * 0.2, w * 0.16, h * 0.12); for (let i = 0; i < 5; i++) c.fillRect(x + w * 0.4 + i * w * 0.05, y + h * 0.12, 1, h * 0.09); c.fillRect(x + w * 0.62, y + h * 0.08, w * 0.08, h * 0.3); c.fillStyle = '#f3dc9a'; c.fillRect(x + w * 0.6, y + h * 0.02, w * 0.12, h * 0.07); }),
       skyline: pic('skyline', (c, x, y, w, h) => { c.fillStyle = '#2b2f3c'; [[0, 0.5], [0.14, 0.2], [0.3, 0.65], [0.42, 0.1], [0.56, 0.45], [0.7, 0.3], [0.86, 0.55]].forEach(([fx, top]) => { c.fillRect(x + w * fx, y + h * top, w * 0.12, h * (1 - top)); }); c.fillStyle = '#f3dc9a'; for (let i = 0; i < 26; i++) c.fillRect(x + 2 + (i * 7) % (w - 4), y + h * 0.25 + (i * 11) % (h * 0.7), 1, 1); }),
       ship: pic('ship', (c, x, y, w, h) => { c.fillStyle = '#2b2520'; c.beginPath(); c.moveTo(x, y + h * 0.6); c.lineTo(x + w, y + h * 0.6); c.lineTo(x + w * 0.92, y + h); c.lineTo(x + w * 0.08, y + h); c.closePath(); c.fill(); c.fillStyle = C.white; c.fillRect(x + w * 0.2, y + h * 0.35, w * 0.6, h * 0.25); c.fillStyle = C.red; [0.35, 0.55].forEach((fx) => c.fillRect(x + w * fx, y + h * 0.1, w * 0.08, h * 0.25)); c.fillStyle = 'rgba(255,255,255,.6)'; c.fillRect(x + w * 0.3, y, 6, 3); c.fillRect(x + w * 0.5, y - 2, 5, 3); }),
@@ -44,7 +46,7 @@
     const stand = (col) => (c, f, x, y) => { c.fillStyle = col; c.fillRect(x + 11, y + 8, 10, 20); c.fillStyle = '#f1c9a5'; c.fillRect(x + 12, y + 4, 8, 7); };
     const sheets = { bride: api.sheet('/assets/game/bride.png', 32, 32, 9, stand('#fbf5ea')), groom: api.sheet('/assets/game/groom.png', 32, 32, 9, stand('#2b2520')) };
     const S = {};
-    function reset() { Object.assign(S, { mode: 'title', who: 'bride', sel: 0, t: 0, lives: 3, score: 0, rings: 0, best: 0, ready: 0, msg: null, msgT: 0, p: { y: 120, vy: 0, hit: 0, tilt: 0 }, things: [], spawn: 1.2, dist: 0, landed: 0, hills: [], stage: 0, seam: -100, caption: STAGES[0].name, captionT: 3, marks: [] });
+    function reset() { Object.assign(S, { mode: 'title', who: 'bride', sel: 0, t: 0, lives: 3, score: 0, rings: 0, best: 0, streak: 0, clean: true, ready: 0, msg: null, msgT: 0, p: { y: 120, vy: 0, hit: 0, tilt: 0 }, things: [], spawn: 1.2, dist: 0, landed: 0, hills: [], stage: 0, seam: -100, caption: STAGES[0].name, captionT: 3, marks: [] });
       for (let i = 0; i < 3; i++) S.hills.push({ off: 0, speed: 8 + i * 8, amp: 10 + i * 6, phase: i * 1.7, base: GROUND - 10 - i * 14 }); }
     reset();
     STAGES.forEach((st) => st.marks.forEach((m) => { m.done = false; }));
@@ -66,30 +68,32 @@
       // ---- the plane
       if (S.mode === 'landing') {                                        // the villa is here: glide down to the strip
         p.vy += (60 - p.vy) * 0.05; p.y += p.vy * dt; p.tilt = 0.25;
-        S.landed += dt; if (p.y >= GROUND - 30) { p.y = GROUND - 30; if (S.landed > 1.2) { S.score += S.lives * 200; S.mode = 'won'; } }
+        S.landed += dt; if (p.y >= GROUND - 30) { p.y = GROUND - 30; if (S.landed > 1.2) { S.score += S.lives * 200 + (S.clean ? 500 : 0); S.mode = 'won'; } }
         S.things.forEach((o) => { o.x -= speed * 0.6 * dt; }); return;
       }
       if (p.hit > 0) p.hit -= dt;
       if (input.hit('jump') || input.hit('up')) p.vy = -150;
       p.vy += 420 * dt; p.y += p.vy * dt; p.tilt = Math.max(-0.5, Math.min(0.6, p.vy / 250));
       if (p.y < TOP + 4) { p.y = TOP + 4; p.vy = 0; }
-      if (p.y > GROUND - PH - 6) { p.y = GROUND - PH - 6; p.vy = -120; hurt('TOO LOW!'); }
+      if (p.y > GROUND - PH - 6) { p.y = GROUND - PH - 6; p.vy = -120; hurt('TOO LOW!'); S.clean = false; }
       // ---- what comes at you
       S.spawn -= dt;
       if (S.spawn <= 0) {
         S.spawn = 1.35 + Math.random() * 0.6 - Math.min(0.5, S.rings * 0.015);
         const r = Math.random(), y = TOP + 20 + Math.random() * (GROUND - TOP - 80);
         if (r < 0.55) S.things.push({ kind: 'ring', x: W + 20, y, w: 26, h: 30, passed: false, bob: Math.random() * 6.28 });
-        else if (r < 0.8) S.things.push({ kind: 'storm', x: W + 20, y: TOP + 10 + Math.random() * 90, w: 34, h: 24, vx: -10 });
-        else S.things.push({ kind: 'bird', x: W + 20, y: TOP + 30 + Math.random() * (GROUND - TOP - 90), w: 16, h: 12, vx: -40, flap: 0 });
+        else if (r < 0.75) S.things.push({ kind: 'storm', x: W + 20, y: TOP + 10 + Math.random() * 90, w: 34, h: 24, vx: -10 });
+        else if (r < 0.9) S.things.push({ kind: 'bird', x: W + 20, y: TOP + 30 + Math.random() * (GROUND - TOP - 90), w: 16, h: 12, vx: -40, flap: 0 });
+        else if (r < 0.96) S.things.push({ kind: 'bouquet', x: W + 20, y: TOP + 20 + Math.random() * (GROUND - TOP - 80), w: 16, h: 18, vx: 0, bob: Math.random() * 6.28 });
+        else S.things.push({ kind: 'glass', x: W + 20, y: TOP + 20 + Math.random() * (GROUND - TOP - 80), w: 8, h: 20, vx: 0, bob: Math.random() * 6.28 });
       }
-      S.things.forEach((o) => { o.x -= (speed + (o.vx || 0)) * dt; if (o.kind === 'ring') o.y += Math.sin(S.t * 2.4 + o.bob) * 11 * dt; if (o.kind === 'bird') o.flap += dt; });
+      S.things.forEach((o) => { o.x -= (speed + (o.vx || 0)) * dt; if (o.kind === 'ring' || o.kind === 'bouquet' || o.kind === 'glass') o.y += Math.sin(S.t * 2.4 + o.bob) * 11 * dt; if (o.kind === 'bird') o.flap += dt; });
       // ---- the journey below
       const next = STAGES[S.stage + 1];
       if (next && S.rings >= next.from) { S.stage++; S.seam = W + 10; S.caption = next.name; S.captionT = 3; }
       if (S.seam > -120) S.seam -= speed * 0.42 * dt;
       if (S.captionT > 0) S.captionT -= dt;
-      STAGES[S.stage].marks.forEach((m) => { if (!m.done && S.rings >= m.at) { m.done = true; S.marks.push({ kind: m.kind, x: W + 30, w: ({ paris: 80, florence: 70 })[m.kind] || null, h: ({ skyline: 56, skyline2: 50, ship: 30, whale: 24, eiffel: 68, pisa: 52, colosseum: 40, paris: 34, florence: 44, goldengate: 56, liberty: 58 })[m.kind] || 54 }); } });
+      STAGES[S.stage].marks.forEach((m) => { if (!m.done && S.rings >= m.at) { m.done = true; S.marks.push({ kind: m.kind, x: W + 30, w: null, h: ({ skyline: 56, skyline2: 50, ship: 30, whale: 24, eiffel: 68, pisa: 52, colosseum: 40, paris: 40, florence: 56, florenceStreet: 36, goldengate: 56, liberty: 58 })[m.kind] || 54 }); } });
       S.marks.forEach((m) => { m.x -= speed * 0.42 * dt; }); S.marks = S.marks.filter((m) => m.x > -120);   // at the near ground's pace, so they sit in it
       // ---- collisions: through the ring is a score, its edge is a hit; clouds and birds are hits
       const px = PX + 4, py = p.y + 3, pw = PW - 8, ph = PH - 4;
@@ -103,11 +107,13 @@
           const nx = PX + PW - 1, ny = p.y + PH / 2 + Math.sin(p.tilt) * PW / 2;
           const cxr = o.x + o.w / 2, cyr = o.y + o.h / 2, rx = o.w / 2 - 6, ry = o.h / 2 - 8;
           const inside = ((nx - cxr) / rx) ** 2 + ((ny - cyr) / ry) ** 2 <= 1;
+          if (!o.passed && o.x + o.w < PX) { o.passed = true; S.streak = 0; }                       // gone by unthreaded: the streak ends
           if (!o.passed && inside && p.hit <= 0) {
             o.passed = true;
-            { S.rings++; S.score += 10; say(S.rings % 10 === 0 ? S.rings + ' RINGS!' : 'RING!', 0.6); if (S.rings >= GOAL) { S.mode = 'landing'; S.things.push({ kind: 'villa', x: W + 40, y: GROUND - 62, w: 56, h: 60 }); } }
+            { S.rings++; S.streak = Math.min(5, S.streak + 1); S.score += 10 * S.streak; say(S.streak > 1 ? 'RING X' + S.streak : (S.rings % 10 === 0 ? S.rings + ' RINGS!' : 'RING!'), 0.6); if (S.rings >= GOAL) { S.mode = 'landing'; S.things.push({ kind: 'villa', x: W + 40, y: GROUND - 62, w: 56, h: 60 }); } }
           }
-        } else if (o.kind !== 'villa' && p.hit <= 0 && hitBox(px, py, pw, ph, o.x + 3, o.y + 3, o.w - 6, o.h - 6)) { hurt(o.kind === 'storm' ? 'TURBULENCE!' : 'BIRD STRIKE!'); o.dead = true; }
+        } else if ((o.kind === 'bouquet' || o.kind === 'glass') && hitBox(px, py, pw, ph, o.x, o.y, o.w, o.h)) { o.dead = true; S.score += o.kind === 'bouquet' ? 150 : 75; say(o.kind === 'bouquet' ? 'BOUQUET +150' : 'CIN CIN +75', 0.8); }
+        else if (o.kind !== 'villa' && p.hit <= 0 && hitBox(px, py, pw, ph, o.x + 3, o.y + 3, o.w - 6, o.h - 6)) { hurt(o.kind === 'storm' ? 'TURBULENCE!' : 'BIRD STRIKE!'); o.dead = true; S.clean = false; }
       });
       S.things = S.things.filter((o) => !o.dead && o.x > -80);
     }
@@ -125,7 +131,7 @@
         drawGround(STAGES[S.stage - 1].ground, 0, W);
         const cv = document.createElement('canvas'); cv.width = W; cv.height = H; const cx = cv.getContext('2d');
         const saved = c; c = cx; terrain(c, STAGES[S.stage].ground); c = saved;
-        const g = c.createLinearGradient(Math.max(0, S.seam) - 24, 0, Math.max(0, S.seam) + 24, 0); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,1)');
+        const g = c.createLinearGradient(Math.max(0, S.seam) - 8, 0, Math.max(0, S.seam) + 8, 0); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,1)');
         cx.globalCompositeOperation = 'destination-in'; cx.fillStyle = g; cx.fillRect(0, 0, W, H);
         c.drawImage(cv, 0, 0);
       } else drawGround(STAGES[S.stage].ground, 0, W);
@@ -150,6 +156,14 @@
             bx += bw + 2;
           }); }
       };
+      // a street tiled from the owner's building pictures, each drawn at the given height, its width following
+      const tiled = (pics, h, gap = 1) => {
+        if (!pics.every((p) => p.ok)) return false;
+        const ws = pics.map((p) => Math.round(h * p.box.w / p.box.h)), period = ws.reduce((a, b) => a + b + gap, 0);
+        let x = -(((d * 0.42) % period + period) % period) - period;
+        while (x < W + period) { pics.forEach((p, i) => { p.draw(c, Math.round(x), GROUND - h, ws[i], h, false); x += ws[i] + gap; }); }
+        return true;
+      };
       const farTowers = (heights, col) => { const fo = ((d * 0.18) % 20 + 20) % 20; c.fillStyle = col; for (let i = -2; i < 14; i++) { const hh = heights[((i % heights.length) + heights.length) % heights.length]; c.fillRect(Math.round(i * 20 - fo), GROUND - 12 - hh, 17, hh); } c.fillRect(0, GROUND - 26, W, 14); };
       if (kind === 'city') {
         // a city in two distances: a far skyline, hazed into the sky and drifting slowly, whose towers are tall but
@@ -165,7 +179,9 @@
         const PK = [42, 58, 34, 50, 66, 38, 54, 46];                    // fixed peak heights, steady as they scroll
         for (let i = -1; i < 7; i++) { const wx = Math.round(i * 40 - ((d * 0.5) % 40 + 40) % 40), hh = PK[((i % 8) + 8) % 8]; c.fillStyle = i % 2 ? '#7d8a96' : '#6a7683'; c.beginPath(); c.moveTo(wx, GROUND); c.lineTo(wx + 20, GROUND - hh); c.lineTo(wx + 40, GROUND); c.closePath(); c.fill(); c.fillStyle = C.white; c.beginPath(); c.moveTo(wx + 12, GROUND - hh * 0.6); c.lineTo(wx + 20, GROUND - hh); c.lineTo(wx + 28, GROUND - hh * 0.6); c.closePath(); c.fill(); }
         c.fillStyle = '#5b8a3a'; c.fillRect(0, GROUND - 8, W, 8);
-        street([[14, 26, '#e9dfc6'], [12, 30, '#d8ccb0'], [15, 24, '#e2d6bc'], [13, 32, '#d3c6a8'], [14, 28, '#e9dfc6'], [12, 26, '#dccfb4'], [16, 30, '#e2d6bc']], 'mansard');   // Paris
+      } else if (kind === 'paris') {                                     // Paris: a faint far skyline and the owner's Haussmann fronts
+        farTowers([18, 26, 20, 30, 22, 28, 18, 34, 24, 20, 30, 22, 26, 18], 'rgba(120,118,130,.28)');
+        if (!tiled(ART.parisStreet, 34)) street([[14, 26, '#e9dfc6'], [12, 30, '#d8ccb0'], [15, 24, '#e2d6bc'], [13, 32, '#d3c6a8'], [14, 28, '#e9dfc6'], [12, 26, '#dccfb4'], [16, 30, '#e2d6bc']], 'mansard');   // Paris: the owner's Haussmann fronts, tiled
       } else if (kind === 'italy') {                                     // greener hills and umbrella pines
         S.hills.forEach((h, i) => { c.fillStyle = ['#7fa04a', '#5f8a3a', '#46702a'][i]; c.beginPath(); c.moveTo(0, GROUND); for (let x = 0; x <= W; x += 4) c.lineTo(x, h.base - Math.sin((x + h.off) / 30 + h.phase) * h.amp * 0.6); c.lineTo(W, GROUND); c.closePath(); c.fill(); });
         for (let x = ((-d * 0.6) % 70 + 70) % 70; x < W; x += 70) { c.fillStyle = '#5a4a38'; c.fillRect(x + 4, GROUND - 22, 2, 14); c.fillStyle = '#2f5a2a'; c.beginPath(); c.ellipse(x + 5, GROUND - 24, 9, 5, 0, 0, Math.PI * 2); c.fill(); }
@@ -187,7 +203,7 @@
     }
     function hud(c) {
       c.fillStyle = C.burg; c.fillRect(0, 0, W, TOP);
-      api.text(c, 'SCORE ' + Math.floor(S.score), 4, 3, C.text); api.text(c, 'RINGS ' + S.rings + ' / ' + GOAL, 4, 13, C.gold);
+      api.text(c, 'SCORE ' + Math.floor(S.score), 4, 3, C.text); api.text(c, 'RINGS ' + S.rings + ' / ' + GOAL + (S.streak > 1 ? '  X' + S.streak : ''), 4, 13, C.gold);
       api.text(c, 'FLIGHT TO SIENA', 112, 8, C.text, 'center');
       for (let i = 0; i < 3; i++) { c.fillStyle = i < S.lives ? C.red : '#4a2a2a'; c.fillRect(W - 8 - i * 8, 5, 5, 4); c.fillRect(W - 7 - i * 8, 4, 3, 1); }
     }
@@ -198,6 +214,8 @@
         else if (o.kind === 'storm') { if (ART.storm.ok) ART.storm.draw(c, Math.round(o.x), Math.round(o.y), o.w, o.h, false); else { ART.cloud.draw(c, Math.round(o.x), Math.round(o.y), o.w, o.h, false); if (Math.floor(S.t * 5) % 3 === 0) drawMap(c, BOLT, Math.round(o.x) + o.w / 2 - 4, Math.round(o.y) + o.h - 4, PAL); } }
         else if (o.kind === 'bird') (ART.bird.ok ? ART.bird : ART.pigeon).draw(c, Math.round(o.x), Math.round(o.y) + Math.sin(o.flap * 12) * 2, o.w, o.h, false);
         else if (o.kind === 'villa') ART.villa.draw(c, Math.round(o.x), o.y, o.w, o.h, false);
+        else if (o.kind === 'bouquet') ART.bouquet.draw(c, Math.round(o.x), Math.round(o.y), o.w, o.h, false);
+        else if (o.kind === 'glass') ART.glass.draw(c, Math.round(o.x), Math.round(o.y), o.w, o.h, false);
       });
       if (S.captionT > 0) { const a = Math.min(1, S.captionT); c.globalAlpha = a; c.fillStyle = 'rgba(20,12,6,.55)'; const tw = S.caption.length * 5 + 16; c.fillRect(W - tw - 6, GROUND - 40, tw, 14); api.text(c, S.caption, W - 6 - tw / 2, GROUND - 36, C.gold, 'center'); c.globalAlpha = 1; }
       const p = S.p; if (!(p.hit > 0 && Math.floor(S.t * 12) % 2)) plane(c, PX, Math.round(p.y), p.tilt, S.who);
@@ -229,9 +247,9 @@
         api.text(c, 'LEFT / RIGHT · THEN START', W / 2, 220, C.dim, 'center'); return;
       }
       scene(c);
-      if (S.mode === 'ready') { c.fillStyle = 'rgba(20,12,6,.75)'; c.fillRect(16, 100, W - 32, 80); c.strokeStyle = C.gold; c.strokeRect(16.5, 100.5, W - 33, 79); api.text(c, 'TAP OR SPACE TO LIFT', W / 2, 112, C.text, 'center'); api.text(c, 'SAN FRANCISCO TO SIENA · ' + GOAL + ' RINGS', W / 2, 124, C.gold, 'center'); api.text(c, 'STORMS AND BIRDS COST A LIFE', W / 2, 136, C.dim, 'center'); big(c, 'READY?', W / 2, 152, C.gold); }
+      if (S.mode === 'ready') { c.fillStyle = 'rgba(20,12,6,.75)'; c.fillRect(16, 100, W - 32, 80); c.strokeStyle = C.gold; c.strokeRect(16.5, 100.5, W - 33, 79); api.text(c, 'TAP OR SPACE TO LIFT', W / 2, 112, C.text, 'center'); api.text(c, 'SAN FRANCISCO TO SIENA · ' + GOAL + ' RINGS', W / 2, 124, C.gold, 'center'); api.text(c, 'STREAK RINGS · CATCH BOUQUETS', W / 2, 136, C.dim, 'center'); big(c, 'READY?', W / 2, 152, C.gold); }
       if (S.mode === 'over') { c.fillStyle = 'rgba(20,12,6,.8)'; c.fillRect(0, 100, W, 80); big(c, 'DIVERTED', W / 2, 112, C.red); api.text(c, S.rings + ' RINGS · SCORE ' + Math.floor(S.score), W / 2, 140, C.text, 'center'); api.text(c, 'START TO FLY AGAIN', W / 2, 160, C.dim, 'center'); }
-      if (S.mode === 'won') { c.fillStyle = 'rgba(20,12,6,.8)'; c.fillRect(0, 96, W, 96); big(c, 'ARRIVED', W / 2, 108, C.gold); api.text(c, 'SIENA · WELCOME TO THE WEDDING', W / 2, 134, C.text, 'center'); api.text(c, 'SCORE ' + Math.floor(S.score), W / 2, 150, C.gold, 'center'); api.text(c, 'START TO FLY AGAIN', W / 2, 176, C.dim, 'center'); }
+      if (S.mode === 'won') { c.fillStyle = 'rgba(20,12,6,.8)'; c.fillRect(0, 96, W, 96); big(c, 'ARRIVED', W / 2, 108, C.gold); api.text(c, 'SIENA · WELCOME TO THE WEDDING', W / 2, 134, C.text, 'center'); api.text(c, 'SCORE ' + Math.floor(S.score) + (S.clean ? ' · CLEAN FLIGHT' : ''), W / 2, 150, C.gold, 'center'); api.text(c, 'START TO FLY AGAIN', W / 2, 176, C.dim, 'center'); }
     }
     return { update, draw, drawTitle, debug: { S, start(who) { reset(); STAGES.forEach((st) => st.marks.forEach((m) => { m.done = false; })); S.who = who || 'bride'; S.mode = 'play'; } } };
   } };

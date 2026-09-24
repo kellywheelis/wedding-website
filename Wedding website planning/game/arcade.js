@@ -106,7 +106,7 @@
         for (let i = 0; i < d.length; i += 4) { if (d[i + 3] > 40) { const px = (i / 4) % cv.width, py = Math.floor(i / 4 / cv.width); if (px < x0) x0 = px; if (px > x1) x1 = px; if (py < y0) y0 = py; if (py > y1) y1 = py; } }
         if (x1 >= 0) box = { x: x0, y: y0, w: x1 - x0 + 1, h: y1 - y0 + 1 }; };
       img.src = url;
-      return { get ok() { return !!box; }, draw(c, x, y, w, h, flip) {
+      return { get ok() { return !!box; }, get box() { return box; }, draw(c, x, y, w, h, flip) {
         if (!box) { if (fallback) fallback(c, x, y, w || 16, h || 16); return; }
         if (w == null) w = Math.round(h * box.w / box.h); if (h == null) h = Math.round(w * box.h / box.w);   // one size given: keep the picture's own proportion
         c.save(); c.imageSmoothingEnabled = false;

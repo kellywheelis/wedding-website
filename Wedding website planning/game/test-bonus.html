@@ -1,0 +1,5 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:#000}</style></head><body>
+<script src="arcade.js"></script><script src="flight.js"></script>
+<script>Arcade.launch('flight'); const g = Arcade.current.inst.debug; g.start('groom'); g.S.streak = 3; g.S.score = 380; g.S.rings = 7;
+g.S.things.push({ kind: 'bouquet', x: 150, y: 110, w: 16, h: 18, vx: 0, bob: 0 }, { kind: 'glass', x: 190, y: 160, w: 8, h: 20, vx: 0, bob: 0 }, { kind: 'ring', x: 110, y: 90, w: 26, h: 30, passed: false, bob: 0 });
+Arcade.step(2, []);</script></body></html>

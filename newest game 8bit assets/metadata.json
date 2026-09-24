@@ -1,0 +1,764 @@
+{
+  "objects": [
+    {
+      "id": "d6711fca-a0f5-40a6-aca6-740f0c2e6dc7",
+      "name": "base",
+      "prompt": "8-bit NES pixel art row of multiple of Paris Haussmann buildings, front view, pale cream stone facades, grey zinc mansard roofs with dormer windows and chimneys, wrought-iron balconies, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_row_of_mul.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "a67bf8de-30a3-4dc2-ba94-2aac558ee494",
+      "name": "base",
+      "prompt": "8-bit NES pixel art row of multiple of Paris Haussmann buildings, front view, pale cream stone facades, grey zinc mansard roofs with dormer windows and chimneys, wrought-iron balconies, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_row_of_mul_2.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "934a0916-2687-43d1-8ffe-c38e87ff37ef",
+      "name": "base",
+      "prompt": "8-bit NES pixel art row of multiple of Paris Haussmann buildings, front view, pale cream stone facades, grey zinc mansard roofs with dormer windows and chimneys, wrought-iron balconies, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_row_of_mul_3.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "74915e76-8787-4e4a-9f6f-a7baf7707320",
+      "name": "base",
+      "prompt": "8-bit NES pixel art row of multiple of Paris Haussmann buildings, front view, pale cream stone facades, grey zinc mansard roofs with dormer windows and chimneys, wrought-iron balconies, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_row_of_mul_4.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "f88eebef-5e4b-40fc-9eb7-af41fbf582c4",
+      "name": "base",
+      "prompt": "8-bit NES pixel art Florence skyline, front view, terracotta rooftops, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_Florence_s.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "c0bd64db-16c1-4888-9b38-e97065d7f18c",
+      "name": "base",
+      "prompt": "8-bit NES pixel art Florence skyline, front view, terracotta rooftops, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_Florence_s_2.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "b29c28c8-a06e-46e2-a9f5-ebafef8a6ab8",
+      "name": "base",
+      "prompt": "8-bit NES pixel art Florence skyline, front view, terracotta rooftops, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_Florence_s_3.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "8a5cfeed-bbfe-4e5e-9fc6-e5bd025e7c99",
+      "name": "base",
+      "prompt": "8-bit NES pixel art Florence skyline, front view, terracotta rooftops, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_Florence_s_4.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "58c66f6c-e036-4dcf-9709-970b8a260d55",
+      "name": "base",
+      "prompt": "8-bit NES pixel art Florence skyline, front view, terracotta rooftops, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_Florence_s_5.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "181b1ce1-829b-4ba7-b45f-c978a9af93c7",
+      "name": "base",
+      "prompt": "8-bit NES pixel art Florence skyline, front view, terracotta rooftops, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_Florence_s_6.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "eaec44b4-5a9e-4c6c-8816-6d1e4c987ed5",
+      "name": "base",
+      "prompt": "8-bit NES pixel art row of Paris Haussmann buildings, front view, pale cream stone facades, grey zinc mansard roofs with dormer windows and chimneys, wrought-iron balconies, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_row_of_Par.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "e756b5ce-defa-4d77-a334-3ed406267ac3",
+      "name": "base",
+      "prompt": "8-bit NES pixel art row of Paris Haussmann buildings, front view, pale cream stone facades, grey zinc mansard roofs with dormer windows and chimneys, wrought-iron balconies, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_row_of_Par_2.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "e1bac7ae-b66b-4863-926a-2bc11a2dca10",
+      "name": "base",
+      "prompt": "8-bit NES pixel art row of Paris Haussmann buildings, front view, pale cream stone facades, grey zinc mansard roofs with dormer windows and chimneys, wrought-iron balconies, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_row_of_Par_3.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "ac3ae05e-23f1-4dc1-a774-6032be5d3c32",
+      "name": "base",
+      "prompt": "8-bit NES pixel art row of Paris Haussmann buildings, front view, pale cream stone facades, grey zinc mansard roofs with dormer windows and chimneys, wrought-iron balconies, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_row_of_Par_4.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "a837b283-bf5a-4463-9fad-4c070e26419d",
+      "name": "base",
+      "prompt": "8-bit NES pixel art row of Paris Haussmann buildings, front view, pale cream stone facades, grey zinc mansard roofs with dormer windows and chimneys, wrought-iron balconies, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_row_of_Par_5.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "7e25e957-1909-4143-875b-e2c688eb4d3b",
+      "name": "base",
+      "prompt": "8-bit NES pixel art row of Paris Haussmann buildings, front view, pale cream stone facades, grey zinc mansard roofs with dormer windows and chimneys, wrought-iron balconies, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_row_of_Par_6.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "5368c037-326b-4cdc-8924-0d85b6093ed5",
+      "name": "base",
+      "prompt": "8-bit NES pixel art row of Paris Haussmann buildings, front view, pale cream stone facades, grey zinc mansard roofs with dormer windows and chimneys, wrought-iron balconies, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_row_of_Par_7.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "78ce3de0-374d-449d-879a-61a327c44797",
+      "name": "base",
+      "prompt": "8-bit NES pixel art Florence skyline, front view, terracotta rooftops, the great red-tiled dome of the cathedral with a white lantern on top, the tall white and green marble bell tower beside it, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_Florence_s_7.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "5962e96b-c650-4b19-907f-85acbc045176",
+      "name": "base",
+      "prompt": "8-bit NES pixel art Florence skyline, front view, terracotta rooftops, the great red-tiled dome of the cathedral with a white lantern on top, the tall white and green marble bell tower beside it, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_Florence_s_8.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "4ee210c4-b27f-4ab9-b4d1-7d3250d52b8a",
+      "name": "base",
+      "prompt": "8-bit NES pixel art Florence skyline, front view, terracotta rooftops, the great red-tiled dome of the cathedral with a white lantern on top, the tall white and green marble bell tower beside it, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_Florence_s_9.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "4d805d23-d6cf-4741-ae75-2e975f900e2a",
+      "name": "base",
+      "prompt": "8-bit NES pixel art Florence skyline, front view, terracotta rooftops, the great red-tiled dome of the cathedral with a white lantern on top, the tall white and green marble bell tower beside it, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_Florence_s_10.png"
+      },
+      "animations": {}
+    }
+  ],
+  "groups": [
+    {
+      "group_id": "40719f39-5864-468c-8c8c-c4a54976a232",
+      "folder": "objects/8-bit_NES_pixel_art_row_of_mul",
+      "objects": [
+        {
+          "id": "d6711fca-a0f5-40a6-aca6-740f0c2e6dc7",
+          "name": "base",
+          "prompt": "8-bit NES pixel art row of multiple of Paris Haussmann buildings, front view, pale cream stone facades, grey zinc mansard roofs with dormer windows and chimneys, wrought-iron balconies, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_row_of_mul.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "7caff450-31a9-423f-b5dc-8481afdf9068",
+      "folder": "objects/8-bit_NES_pixel_art_row_of_mul_2",
+      "objects": [
+        {
+          "id": "a67bf8de-30a3-4dc2-ba94-2aac558ee494",
+          "name": "base",
+          "prompt": "8-bit NES pixel art row of multiple of Paris Haussmann buildings, front view, pale cream stone facades, grey zinc mansard roofs with dormer windows and chimneys, wrought-iron balconies, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_row_of_mul_2.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "446d8853-e2a9-4272-8351-df5f7d5f734c",
+      "folder": "objects/8-bit_NES_pixel_art_row_of_mul_3",
+      "objects": [
+        {
+          "id": "934a0916-2687-43d1-8ffe-c38e87ff37ef",
+          "name": "base",
+          "prompt": "8-bit NES pixel art row of multiple of Paris Haussmann buildings, front view, pale cream stone facades, grey zinc mansard roofs with dormer windows and chimneys, wrought-iron balconies, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_row_of_mul_3.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "d2a70ccc-b83c-4849-abab-f9791229debc",
+      "folder": "objects/8-bit_NES_pixel_art_row_of_mul_4",
+      "objects": [
+        {
+          "id": "74915e76-8787-4e4a-9f6f-a7baf7707320",
+          "name": "base",
+          "prompt": "8-bit NES pixel art row of multiple of Paris Haussmann buildings, front view, pale cream stone facades, grey zinc mansard roofs with dormer windows and chimneys, wrought-iron balconies, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_row_of_mul_4.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "d173e2ca-e0ed-4121-bc06-71d2f7c91e33",
+      "folder": "objects/8-bit_NES_pixel_art_Florence_s",
+      "objects": [
+        {
+          "id": "f88eebef-5e4b-40fc-9eb7-af41fbf582c4",
+          "name": "base",
+          "prompt": "8-bit NES pixel art Florence skyline, front view, terracotta rooftops, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_Florence_s.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "4d74833b-a98d-40a5-97ef-d5df33e30b8b",
+      "folder": "objects/8-bit_NES_pixel_art_Florence_s_2",
+      "objects": [
+        {
+          "id": "c0bd64db-16c1-4888-9b38-e97065d7f18c",
+          "name": "base",
+          "prompt": "8-bit NES pixel art Florence skyline, front view, terracotta rooftops, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_Florence_s_2.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "20dc86d1-9a07-4ca6-b135-ce6e9979caf8",
+      "folder": "objects/8-bit_NES_pixel_art_Florence_s_3",
+      "objects": [
+        {
+          "id": "b29c28c8-a06e-46e2-a9f5-ebafef8a6ab8",
+          "name": "base",
+          "prompt": "8-bit NES pixel art Florence skyline, front view, terracotta rooftops, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_Florence_s_3.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "8a96e986-9e96-4f8a-b705-0e7a4581b3e7",
+      "folder": "objects/8-bit_NES_pixel_art_Florence_s_4",
+      "objects": [
+        {
+          "id": "8a5cfeed-bbfe-4e5e-9fc6-e5bd025e7c99",
+          "name": "base",
+          "prompt": "8-bit NES pixel art Florence skyline, front view, terracotta rooftops, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_Florence_s_4.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "c9ed7561-03fd-4e22-bc3a-990e047187b2",
+      "folder": "objects/8-bit_NES_pixel_art_Florence_s_5",
+      "objects": [
+        {
+          "id": "58c66f6c-e036-4dcf-9709-970b8a260d55",
+          "name": "base",
+          "prompt": "8-bit NES pixel art Florence skyline, front view, terracotta rooftops, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_Florence_s_5.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "0f2bd864-6649-4d72-ab72-52f9c2ed36c2",
+      "folder": "objects/8-bit_NES_pixel_art_Florence_s_6",
+      "objects": [
+        {
+          "id": "181b1ce1-829b-4ba7-b45f-c978a9af93c7",
+          "name": "base",
+          "prompt": "8-bit NES pixel art Florence skyline, front view, terracotta rooftops, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_Florence_s_6.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "40b22895-2b29-4095-a476-70e5994cb304",
+      "folder": "objects/8-bit_NES_pixel_art_row_of_Par",
+      "objects": [
+        {
+          "id": "eaec44b4-5a9e-4c6c-8816-6d1e4c987ed5",
+          "name": "base",
+          "prompt": "8-bit NES pixel art row of Paris Haussmann buildings, front view, pale cream stone facades, grey zinc mansard roofs with dormer windows and chimneys, wrought-iron balconies, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_row_of_Par.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "18fa8c33-2460-43ae-856c-397f312d36b4",
+      "folder": "objects/8-bit_NES_pixel_art_row_of_Par_2",
+      "objects": [
+        {
+          "id": "e756b5ce-defa-4d77-a334-3ed406267ac3",
+          "name": "base",
+          "prompt": "8-bit NES pixel art row of Paris Haussmann buildings, front view, pale cream stone facades, grey zinc mansard roofs with dormer windows and chimneys, wrought-iron balconies, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_row_of_Par_2.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "3a416924-ac12-4c5b-adb7-40ebc379a309",
+      "folder": "objects/8-bit_NES_pixel_art_row_of_Par_3",
+      "objects": [
+        {
+          "id": "e1bac7ae-b66b-4863-926a-2bc11a2dca10",
+          "name": "base",
+          "prompt": "8-bit NES pixel art row of Paris Haussmann buildings, front view, pale cream stone facades, grey zinc mansard roofs with dormer windows and chimneys, wrought-iron balconies, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_row_of_Par_3.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "3ae716f2-0934-4789-afc4-83fb66c280d6",
+      "folder": "objects/8-bit_NES_pixel_art_row_of_Par_4",
+      "objects": [
+        {
+          "id": "ac3ae05e-23f1-4dc1-a774-6032be5d3c32",
+          "name": "base",
+          "prompt": "8-bit NES pixel art row of Paris Haussmann buildings, front view, pale cream stone facades, grey zinc mansard roofs with dormer windows and chimneys, wrought-iron balconies, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_row_of_Par_4.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "20b6835f-fbeb-4420-8bad-047692d3fd41",
+      "folder": "objects/8-bit_NES_pixel_art_row_of_Par_5",
+      "objects": [
+        {
+          "id": "a837b283-bf5a-4463-9fad-4c070e26419d",
+          "name": "base",
+          "prompt": "8-bit NES pixel art row of Paris Haussmann buildings, front view, pale cream stone facades, grey zinc mansard roofs with dormer windows and chimneys, wrought-iron balconies, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_row_of_Par_5.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "0e2c04bb-9f85-4c87-abfe-61c3a4fc93fe",
+      "folder": "objects/8-bit_NES_pixel_art_row_of_Par_6",
+      "objects": [
+        {
+          "id": "7e25e957-1909-4143-875b-e2c688eb4d3b",
+          "name": "base",
+          "prompt": "8-bit NES pixel art row of Paris Haussmann buildings, front view, pale cream stone facades, grey zinc mansard roofs with dormer windows and chimneys, wrought-iron balconies, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_row_of_Par_6.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "878e1692-75fe-4377-a3d1-2186e7d92fc6",
+      "folder": "objects/8-bit_NES_pixel_art_row_of_Par_7",
+      "objects": [
+        {
+          "id": "5368c037-326b-4cdc-8924-0d85b6093ed5",
+          "name": "base",
+          "prompt": "8-bit NES pixel art row of Paris Haussmann buildings, front view, pale cream stone facades, grey zinc mansard roofs with dormer windows and chimneys, wrought-iron balconies, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_row_of_Par_7.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "778a159f-96b4-4eda-a177-9fdd9d155034",
+      "folder": "objects/8-bit_NES_pixel_art_Florence_s_7",
+      "objects": [
+        {
+          "id": "78ce3de0-374d-449d-879a-61a327c44797",
+          "name": "base",
+          "prompt": "8-bit NES pixel art Florence skyline, front view, terracotta rooftops, the great red-tiled dome of the cathedral with a white lantern on top, the tall white and green marble bell tower beside it, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_Florence_s_7.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "e5c3472d-0b62-4d3c-a929-4d6be6a5b799",
+      "folder": "objects/8-bit_NES_pixel_art_Florence_s_8",
+      "objects": [
+        {
+          "id": "5962e96b-c650-4b19-907f-85acbc045176",
+          "name": "base",
+          "prompt": "8-bit NES pixel art Florence skyline, front view, terracotta rooftops, the great red-tiled dome of the cathedral with a white lantern on top, the tall white and green marble bell tower beside it, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_Florence_s_8.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "53a84121-1243-4e32-84c8-8675b86f6b3c",
+      "folder": "objects/8-bit_NES_pixel_art_Florence_s_9",
+      "objects": [
+        {
+          "id": "4ee210c4-b27f-4ab9-b4d1-7d3250d52b8a",
+          "name": "base",
+          "prompt": "8-bit NES pixel art Florence skyline, front view, terracotta rooftops, the great red-tiled dome of the cathedral with a white lantern on top, the tall white and green marble bell tower beside it, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_Florence_s_9.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "656fc53e-2dcf-4709-84f3-b73b7b755b70",
+      "folder": "objects/8-bit_NES_pixel_art_Florence_s_10",
+      "objects": [
+        {
+          "id": "4d805d23-d6cf-4741-ae75-2e975f900e2a",
+          "name": "base",
+          "prompt": "8-bit NES pixel art Florence skyline, front view, terracotta rooftops, the great red-tiled dome of the cathedral with a white lantern on top, the tall white and green marble bell tower beside it, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_Florence_s_10.png"
+          },
+          "animations": {}
+        }
+      ]
+    }
+  ],
+  "export_version": "1.1",
+  "export_date": "2026-09-24T23:24:39.404456"
+}

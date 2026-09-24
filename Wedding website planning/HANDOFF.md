@@ -371,8 +371,8 @@ Uses the side-view sheets. Code-drawn until files arrive: `champagne.png`, `cake
 `game/flight.js` — FLIGHT TO SIENA, a one-button flier: space/jump lifts the plane (`plane-plain.png`, the pilot's
 face clipped from the chosen sprite), gravity pulls it down; rings (+10; a miss or a clip is only a miss), storm clouds and
 birds come at you over rolling hills while the sky goes dawn to dusk; 30 rings (`GOAL`) and the villa arrives, you
-glide down and land. Stand-ins until files arrive: `storm.png` (the rain cloud with a drawn bolt), `swallow.png`
-(the flying pigeon), `villa.png` (drawn).
+glide down and land. The owner's files: storm, swallow (a gull), villa, Golden Gate, Liberty, liner, whale,
+Eiffel, Colosseum, Pisa; still code-drawn: Paris, Florence (`paris.png`, `florence.png` would replace them).
 
 All games live in one cabinet (the arcade menu); still to come on the same shell: The Seating Chart.
 

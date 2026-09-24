@@ -16,9 +16,10 @@
   // the journey: where each stage begins (in rings), what its ground looks like, and the landmarks that pass
   // beneath (a landmark spawns when the ring count reaches `at`)
   const STAGES = [
-    { name: 'NEW YORK', from: 0, ground: 'city', marks: [{ at: 1, kind: 'liberty' }, { at: 3, kind: 'skyline' }] },
-    { name: 'THE ATLANTIC', from: 6, ground: 'sea', marks: [{ at: 8, kind: 'ship' }, { at: 12, kind: 'whale' }] },
-    { name: 'THE ALPS', from: 15, ground: 'alps', marks: [{ at: 15, kind: 'paris' }, { at: 16, kind: 'eiffel' }] },
+    { name: 'SAN FRANCISCO', from: 0, ground: 'city', marks: [{ at: 1, kind: 'goldengate' }] },
+    { name: 'NEW YORK', from: 4, ground: 'city', marks: [{ at: 5, kind: 'liberty' }] },
+    { name: 'THE ATLANTIC', from: 9, ground: 'sea', marks: [{ at: 10, kind: 'ship' }, { at: 13, kind: 'whale' }] },
+    { name: 'THE ALPS', from: 16, ground: 'alps', marks: [{ at: 16, kind: 'paris' }, { at: 17, kind: 'eiffel' }] },
     { name: 'ITALIA', from: 21, ground: 'italy', marks: [{ at: 22, kind: 'colosseum' }, { at: 25, kind: 'pisa' }] },
     { name: 'TOSCANA', from: 27, ground: 'tuscany', marks: [{ at: 28, kind: 'florence' }] }
   ];
@@ -29,6 +30,7 @@
       ring: pic('ring', (c, x, y, w, h) => { c.strokeStyle = C.gold; c.lineWidth = 3; c.beginPath(); c.ellipse(x + w / 2, y + h / 2, w / 2 - 2, h / 2 - 2, 0, 0, Math.PI * 2); c.stroke(); }),
       storm: pic('storm', (c, x, y, w, h) => { c.fillStyle = '#5a5a6a'; c.beginPath(); c.ellipse(x + w / 2, y + h * 0.45, w / 2, h * 0.4, 0, 0, Math.PI * 2); c.fill(); drawMap(c, BOLT, x + w / 2 - 4, y + h * 0.7, PAL); }),
       cloud: pic('cloud'), bird: pic('swallow', null), pigeon: pic('pigeon-flying', (c, x, y, w, h) => { c.fillStyle = '#8a8a94'; c.fillRect(x, y + h / 2, w, 2); c.fillRect(x + w / 2 - 2, y, 4, h); }),
+      goldengate: pic('goldengate'), skyline2: pic('skyline2'),
       liberty: pic('liberty', (c, x, y, w, h) => { c.fillStyle = '#6f8f7a'; c.fillRect(x + w * 0.3, y + h * 0.7, w * 0.4, h * 0.3); c.fillStyle = '#8fbf9f'; c.fillRect(x + w * 0.36, y + h * 0.3, w * 0.28, h * 0.42); c.fillRect(x + w * 0.42, y + h * 0.2, w * 0.16, h * 0.12); for (let i = 0; i < 5; i++) c.fillRect(x + w * 0.4 + i * w * 0.05, y + h * 0.12, 1, h * 0.09); c.fillRect(x + w * 0.62, y + h * 0.08, w * 0.08, h * 0.3); c.fillStyle = '#f3dc9a'; c.fillRect(x + w * 0.6, y + h * 0.02, w * 0.12, h * 0.07); }),
       skyline: pic('skyline', (c, x, y, w, h) => { c.fillStyle = '#2b2f3c'; [[0, 0.5], [0.14, 0.2], [0.3, 0.65], [0.42, 0.1], [0.56, 0.45], [0.7, 0.3], [0.86, 0.55]].forEach(([fx, top]) => { c.fillRect(x + w * fx, y + h * top, w * 0.12, h * (1 - top)); }); c.fillStyle = '#f3dc9a'; for (let i = 0; i < 26; i++) c.fillRect(x + 2 + (i * 7) % (w - 4), y + h * 0.25 + (i * 11) % (h * 0.7), 1, 1); }),
       ship: pic('ship', (c, x, y, w, h) => { c.fillStyle = '#2b2520'; c.beginPath(); c.moveTo(x, y + h * 0.6); c.lineTo(x + w, y + h * 0.6); c.lineTo(x + w * 0.92, y + h); c.lineTo(x + w * 0.08, y + h); c.closePath(); c.fill(); c.fillStyle = C.white; c.fillRect(x + w * 0.2, y + h * 0.35, w * 0.6, h * 0.25); c.fillStyle = C.red; [0.35, 0.55].forEach((fx) => c.fillRect(x + w * fx, y + h * 0.1, w * 0.08, h * 0.25)); c.fillStyle = 'rgba(255,255,255,.6)'; c.fillRect(x + w * 0.3, y, 6, 3); c.fillRect(x + w * 0.5, y - 2, 5, 3); }),
@@ -81,14 +83,14 @@
         else if (r < 0.8) S.things.push({ kind: 'storm', x: W + 20, y: TOP + 10 + Math.random() * 90, w: 34, h: 24, vx: -10 });
         else S.things.push({ kind: 'bird', x: W + 20, y: TOP + 30 + Math.random() * (GROUND - TOP - 90), w: 16, h: 12, vx: -40, flap: 0 });
       }
-      S.things.forEach((o) => { o.x -= (speed + (o.vx || 0)) * dt; if (o.kind === 'ring') o.y += Math.sin(S.t * 2 + o.bob) * 8 * dt; if (o.kind === 'bird') o.flap += dt; });
+      S.things.forEach((o) => { o.x -= (speed + (o.vx || 0)) * dt; if (o.kind === 'ring') o.y += Math.sin(S.t * 2.4 + o.bob) * 11 * dt; if (o.kind === 'bird') o.flap += dt; });
       // ---- the journey below
       const next = STAGES[S.stage + 1];
       if (next && S.rings >= next.from) { S.stage++; S.seam = W + 10; S.caption = next.name; S.captionT = 3; }
-      if (S.seam > -120) S.seam -= speed * 0.6 * dt;
+      if (S.seam > -120) S.seam -= speed * 0.42 * dt;
       if (S.captionT > 0) S.captionT -= dt;
-      STAGES[S.stage].marks.forEach((m) => { if (!m.done && S.rings >= m.at) { m.done = true; S.marks.push({ kind: m.kind, x: W + 30, w: ({ skyline: 90, ship: 60, whale: 40, colosseum: 64, paris: 80, florence: 70 })[m.kind] || 34, h: ({ skyline: 60, ship: 26, whale: 16, eiffel: 70, pisa: 48, colosseum: 34, paris: 34, florence: 44 })[m.kind] || 54 }); } });
-      S.marks.forEach((m) => { m.x -= speed * 0.6 * dt; }); S.marks = S.marks.filter((m) => m.x > -120);
+      STAGES[S.stage].marks.forEach((m) => { if (!m.done && S.rings >= m.at) { m.done = true; S.marks.push({ kind: m.kind, x: W + 30, w: ({ paris: 80, florence: 70 })[m.kind] || null, h: ({ skyline: 56, skyline2: 50, ship: 30, whale: 24, eiffel: 68, pisa: 52, colosseum: 40, paris: 34, florence: 44, goldengate: 56, liberty: 58 })[m.kind] || 54 }); } });
+      S.marks.forEach((m) => { m.x -= speed * 0.42 * dt; }); S.marks = S.marks.filter((m) => m.x > -120);   // at the near ground's pace, so they sit in it
       // ---- collisions: through the ring is a score, its edge is a hit; clouds and birds are hits
       const px = PX + 4, py = p.y + 3, pw = PW - 8, ph = PH - 4;
       S.things.forEach((o) => {
@@ -96,8 +98,12 @@
         if (o.kind === 'ring') {
           // through the ring: the nose within the ring's opening at any moment while the ring passes the plane
           // (judged across the whole crossing, not a single frame, since the rings bob as they drift)
-          const nose = p.y + PH / 2, inner0 = o.y + 5, inner1 = o.y + o.h - 5, crossing = o.x < PX + PW && o.x + o.w > PX;
-          if (crossing && !o.passed && nose >= inner0 && nose <= inner1 && p.hit <= 0) {
+          // the nose: the point at the plane's front tip (it pitches with the plane). It has to pass inside the ring's
+          // opening: within the inner ellipse, not merely the ring's box
+          const nx = PX + PW - 1, ny = p.y + PH / 2 + Math.sin(p.tilt) * PW / 2;
+          const cxr = o.x + o.w / 2, cyr = o.y + o.h / 2, rx = o.w / 2 - 6, ry = o.h / 2 - 8;
+          const inside = ((nx - cxr) / rx) ** 2 + ((ny - cyr) / ry) ** 2 <= 1;
+          if (!o.passed && inside && p.hit <= 0) {
             o.passed = true;
             { S.rings++; S.score += 10; say(S.rings % 10 === 0 ? S.rings + ' RINGS!' : 'RING!', 0.6); if (S.rings >= GOAL) { S.mode = 'landing'; S.things.push({ kind: 'villa', x: W + 40, y: GROUND - 62, w: 56, h: 60 }); } }
           }
@@ -115,23 +121,55 @@
       c.fillStyle = k < 1.5 ? '#fff3c4' : '#f3dc9a'; c.beginPath(); c.arc(190 - k * 20, 70 - Math.sin(k / 3 * Math.PI) * 30, 9, 0, Math.PI * 2); c.fill();
       // the ground of this stage, and of the last one still sliding out to the left of the seam
       const drawGround = (kind, x0, x1) => { c.save(); c.beginPath(); c.rect(x0, TOP, x1 - x0, H - TOP); c.clip(); terrain(c, kind); c.restore(); };
-      if (S.seam > -120 && S.stage > 0) { drawGround(STAGES[S.stage - 1].ground, 0, Math.max(0, S.seam)); drawGround(STAGES[S.stage].ground, Math.max(0, S.seam), W); }
-      else drawGround(STAGES[S.stage].ground, 0, W);
-      S.marks.forEach((m) => ART[m.kind].draw(c, Math.round(m.x), GROUND - m.h - (m.kind === 'ship' || m.kind === 'whale' ? -6 : 2), m.w, m.h, false));
+      if (S.seam > -120 && S.stage > 0) {                                // the new stage slides in over the old, its edge feathered so no building is cut
+        drawGround(STAGES[S.stage - 1].ground, 0, W);
+        const cv = document.createElement('canvas'); cv.width = W; cv.height = H; const cx = cv.getContext('2d');
+        const saved = c; c = cx; terrain(c, STAGES[S.stage].ground); c = saved;
+        const g = c.createLinearGradient(Math.max(0, S.seam) - 24, 0, Math.max(0, S.seam) + 24, 0); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,1)');
+        cx.globalCompositeOperation = 'destination-in'; cx.fillStyle = g; cx.fillRect(0, 0, W, H);
+        c.drawImage(cv, 0, 0);
+      } else drawGround(STAGES[S.stage].ground, 0, W);
+      S.marks.forEach((m) => ART[m.kind].draw(c, Math.round(m.x), GROUND - m.h - (m.kind === 'ship' || m.kind === 'whale' ? -6 : 2), m.w, m.h, m.kind === 'ship'));   // the liner sails the other way as drawn
     }
-    function terrain(c, kind) {
+    function terrain(c, kind) {                                       // draws the stage's ground on the given context
       const d = S.dist;
-      if (kind === 'city') {                                             // a skyline of towers, lit windows, a dark street
-        for (let i = -1; i < 12; i++) { const wx = i * 22 - ((d * 0.6) % 22), hh = 20 + ((i * 7919) % 5) * 9; c.fillStyle = i % 2 ? '#2b2f3c' : '#363b4a'; c.fillRect(wx, GROUND - hh, 18, hh); c.fillStyle = '#f3dc9a'; for (let k = 0; k < hh / 6; k++) if ((i * 31 + k * 17) % 3 === 0) c.fillRect(wx + 3 + (k % 3) * 5, GROUND - hh + 3 + k * 6, 2, 2); }
+      // a street of building fronts (fronts: [width, height, colour]; roofs: 'flat' with water towers, 'mansard' grey, 'tile' terracotta)
+      const street = (fronts, roofs, cornice) => {
+        const period = fronts.reduce((a, b) => a + b[0] + 2, 0), start = -(((d * 0.42) % period + period) % period) - period;
+        for (let rep = 0; rep * period + start < W + period; rep++) { let bx = start + rep * period;
+          fronts.forEach(([bw, bh, col], i) => {
+            const x0 = Math.round(bx), y0 = GROUND - bh;
+            c.fillStyle = col; c.fillRect(x0, y0, bw, bh);
+            c.fillStyle = 'rgba(0,0,0,.18)'; c.fillRect(x0 + bw - 3, y0, 3, bh);
+            if (roofs === 'mansard') { c.fillStyle = '#6b6e78'; c.fillRect(x0 - 1, y0 - 5, bw + 2, 6); c.fillStyle = '#4a4d58'; c.fillRect(x0 + 3, y0 - 3, 2, 2); c.fillRect(x0 + bw - 6, y0 - 3, 2, 2); }
+            else if (roofs === 'tile') { c.fillStyle = '#b3513a'; c.fillRect(x0 - 1, y0 - 3, bw + 2, 4); c.fillStyle = '#8f4130'; c.fillRect(x0 - 1, y0 - 1, bw + 2, 1); }
+            else { c.fillStyle = cornice; c.fillRect(x0 - 1, y0, bw + 2, 2); if (i % 3 === 1) { c.fillStyle = '#4a3a2a'; c.fillRect(x0 + bw - 7, y0 - 7, 5, 5); c.fillRect(x0 + bw - 6, y0 - 2, 1, 2); c.fillRect(x0 + bw - 4, y0 - 2, 1, 2); c.fillStyle = '#5a4a3a'; c.fillRect(x0 + bw - 8, y0 - 8, 7, 2); } }
+            let wi = 0;
+            for (let wy = y0 + 5; wy < GROUND - 8; wy += 6) for (let wx = x0 + 2; wx < x0 + bw - 4; wx += 5) { c.fillStyle = ((i * 7 + wi * 5) % 11 < 3) ? '#f3dc9a' : '#2b2520'; c.fillRect(wx, wy, 2, 3); wi++; }   // lit or dark is fixed per window, so nothing flickers as it scrolls
+            c.fillStyle = '#2b2520'; c.fillRect(x0 + Math.floor(bw / 2) - 1, GROUND - 6, 3, 6);
+            bx += bw + 2;
+          }); }
+      };
+      const farTowers = (heights, col) => { const fo = ((d * 0.18) % 20 + 20) % 20; c.fillStyle = col; for (let i = -2; i < 14; i++) { const hh = heights[((i % heights.length) + heights.length) % heights.length]; c.fillRect(Math.round(i * 20 - fo), GROUND - 12 - hh, 17, hh); } c.fillRect(0, GROUND - 26, W, 14); };
+      if (kind === 'city') {
+        // a city in two distances: a far skyline, hazed into the sky and drifting slowly, whose towers are tall but
+        // faint; and a nearer band of low rooftops in the ground's own colour. Landmarks stand on the near band,
+        // with the far towers behind them, so they belong to the city rather than sit in front of it.
+        farTowers([22, 34, 26, 44, 30, 38, 24, 50, 32, 26, 42, 28, 36, 22], 'rgba(88,92,110,.3)');
+        street([[14, 28, '#6e4a3a'], [12, 38, '#8a7a6a'], [16, 22, '#5e4838'], [11, 46, '#7a6a5a'], [14, 32, '#8f6a52'], [15, 26, '#6a5a4a'], [12, 42, '#7d5a48'], [16, 30, '#8a7a6a'], [13, 36, '#6e5a48'], [11, 24, '#8f6a52']], 'flat', '#c9b28a');
+        c.fillStyle = '#3a3d4a'; c.fillRect(0, GROUND - 2, W, 2);
       } else if (kind === 'sea') {                                       // open water: bands of blue and running wave-lines
         c.fillStyle = '#4a8fc4'; c.fillRect(0, GROUND - 26, W, 26); c.fillStyle = '#3b7bb0'; c.fillRect(0, GROUND - 14, W, 14);
         c.fillStyle = '#cfe6f5'; for (let i = -1; i < 16; i++) { const wx = i * 16 - ((d * 0.9) % 16); c.fillRect(wx, GROUND - 22 + Math.sin(i + S.t * 2) * 1.5, 7, 1); c.fillRect(wx + 8 - ((d * 0.5) % 16), GROUND - 9, 5, 1); }
       } else if (kind === 'alps') {                                      // grey peaks with snow on top
-        for (let i = -1; i < 7; i++) { const wx = i * 40 - ((d * 0.5) % 40), hh = 34 + ((i * 104729) % 4) * 8; c.fillStyle = i % 2 ? '#7d8a96' : '#6a7683'; c.beginPath(); c.moveTo(wx, GROUND); c.lineTo(wx + 20, GROUND - hh); c.lineTo(wx + 40, GROUND); c.closePath(); c.fill(); c.fillStyle = C.white; c.beginPath(); c.moveTo(wx + 12, GROUND - hh * 0.6); c.lineTo(wx + 20, GROUND - hh); c.lineTo(wx + 28, GROUND - hh * 0.6); c.closePath(); c.fill(); }
+        const PK = [42, 58, 34, 50, 66, 38, 54, 46];                    // fixed peak heights, steady as they scroll
+        for (let i = -1; i < 7; i++) { const wx = Math.round(i * 40 - ((d * 0.5) % 40 + 40) % 40), hh = PK[((i % 8) + 8) % 8]; c.fillStyle = i % 2 ? '#7d8a96' : '#6a7683'; c.beginPath(); c.moveTo(wx, GROUND); c.lineTo(wx + 20, GROUND - hh); c.lineTo(wx + 40, GROUND); c.closePath(); c.fill(); c.fillStyle = C.white; c.beginPath(); c.moveTo(wx + 12, GROUND - hh * 0.6); c.lineTo(wx + 20, GROUND - hh); c.lineTo(wx + 28, GROUND - hh * 0.6); c.closePath(); c.fill(); }
         c.fillStyle = '#5b8a3a'; c.fillRect(0, GROUND - 8, W, 8);
+        street([[14, 26, '#e9dfc6'], [12, 30, '#d8ccb0'], [15, 24, '#e2d6bc'], [13, 32, '#d3c6a8'], [14, 28, '#e9dfc6'], [12, 26, '#dccfb4'], [16, 30, '#e2d6bc']], 'mansard');   // Paris
       } else if (kind === 'italy') {                                     // greener hills and umbrella pines
         S.hills.forEach((h, i) => { c.fillStyle = ['#7fa04a', '#5f8a3a', '#46702a'][i]; c.beginPath(); c.moveTo(0, GROUND); for (let x = 0; x <= W; x += 4) c.lineTo(x, h.base - Math.sin((x + h.off) / 30 + h.phase) * h.amp * 0.6); c.lineTo(W, GROUND); c.closePath(); c.fill(); });
         for (let x = ((-d * 0.6) % 70 + 70) % 70; x < W; x += 70) { c.fillStyle = '#5a4a38'; c.fillRect(x + 4, GROUND - 22, 2, 14); c.fillStyle = '#2f5a2a'; c.beginPath(); c.ellipse(x + 5, GROUND - 24, 9, 5, 0, 0, Math.PI * 2); c.fill(); }
+        street([[13, 22, '#d9a56a'], [11, 26, '#c98a5a'], [14, 20, '#e0b070'], [12, 24, '#b57a4a'], [13, 22, '#d9a56a'], [11, 28, '#c48c5c'], [15, 20, '#e6b878']], 'tile');   // an Italian street of ochre houses
       } else {                                                           // Tuscany: hills, three layers, rolling by at different speeds, with cypresses on the nearest
         S.hills.forEach((h, i) => {
         c.fillStyle = [C.hill1, C.hill2, C.hill3][i];
@@ -191,7 +229,7 @@
         api.text(c, 'LEFT / RIGHT · THEN START', W / 2, 220, C.dim, 'center'); return;
       }
       scene(c);
-      if (S.mode === 'ready') { c.fillStyle = 'rgba(20,12,6,.75)'; c.fillRect(16, 100, W - 32, 80); c.strokeStyle = C.gold; c.strokeRect(16.5, 100.5, W - 33, 79); api.text(c, 'TAP OR SPACE TO LIFT', W / 2, 112, C.text, 'center'); api.text(c, 'NEW YORK TO SIENA · ' + GOAL + ' RINGS', W / 2, 124, C.gold, 'center'); api.text(c, 'STORMS AND BIRDS COST A LIFE', W / 2, 136, C.dim, 'center'); big(c, 'READY?', W / 2, 152, C.gold); }
+      if (S.mode === 'ready') { c.fillStyle = 'rgba(20,12,6,.75)'; c.fillRect(16, 100, W - 32, 80); c.strokeStyle = C.gold; c.strokeRect(16.5, 100.5, W - 33, 79); api.text(c, 'TAP OR SPACE TO LIFT', W / 2, 112, C.text, 'center'); api.text(c, 'SAN FRANCISCO TO SIENA · ' + GOAL + ' RINGS', W / 2, 124, C.gold, 'center'); api.text(c, 'STORMS AND BIRDS COST A LIFE', W / 2, 136, C.dim, 'center'); big(c, 'READY?', W / 2, 152, C.gold); }
       if (S.mode === 'over') { c.fillStyle = 'rgba(20,12,6,.8)'; c.fillRect(0, 100, W, 80); big(c, 'DIVERTED', W / 2, 112, C.red); api.text(c, S.rings + ' RINGS · SCORE ' + Math.floor(S.score), W / 2, 140, C.text, 'center'); api.text(c, 'START TO FLY AGAIN', W / 2, 160, C.dim, 'center'); }
       if (S.mode === 'won') { c.fillStyle = 'rgba(20,12,6,.8)'; c.fillRect(0, 96, W, 96); big(c, 'ARRIVED', W / 2, 108, C.gold); api.text(c, 'SIENA · WELCOME TO THE WEDDING', W / 2, 134, C.text, 'center'); api.text(c, 'SCORE ' + Math.floor(S.score), W / 2, 150, C.gold, 'center'); api.text(c, 'START TO FLY AGAIN', W / 2, 176, C.dim, 'center'); }
     }

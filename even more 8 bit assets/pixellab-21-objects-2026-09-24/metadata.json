@@ -1,0 +1,764 @@
+{
+  "objects": [
+    {
+      "id": "1b707a2e-47df-447b-8ab6-f5e92a2bae39",
+      "name": "base",
+      "prompt": "8-bit NES pixel art Italian Renaissance villa, front view, cream walls, terracotta roof, a row of arched windows, a tall cypress tree either side, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_Italian_Re.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "e1e3517e-a886-4c45-ab90-c731840996f2",
+      "name": "base",
+      "prompt": "8-bit NES pixel art Leaning Tower of Pisa, front view, white marble tiers of arches, leaning to the right, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_Leaning_To.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "69dab383-ef4d-4679-9830-d98160079ca3",
+      "name": "base",
+      "prompt": "8-bit NES pixel art Colosseum in Rome, front view, cream stone with rows of arches, partly ruined on the left, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_Colosseum.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "d7f7546a-c95c-4d56-9512-a97662a46c48",
+      "name": "base",
+      "prompt": "8-bit NES pixel art blue whale surfacing, side view, spouting a column of water, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_blue_whale.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "5471c9ea-cfa6-41d7-82b4-2c89caf98e88",
+      "name": "base",
+      "prompt": "8-bit NES pixel art blue whale surfacing, side view, spouting a column of water, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_blue_whale_2.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "9a0fa54f-5885-45c4-8472-73d7e969bbd2",
+      "name": "base",
+      "prompt": "8-bit NES pixel art Eiffel Tower, front view, brown iron lattice, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_Eiffel_Tow.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "54bfb4d8-ee32-426f-bc58-57f39d5e5b40",
+      "name": "base",
+      "prompt": "8-bit NES pixel art Eiffel Tower, front view, brown iron lattice, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_Eiffel_Tow_2.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "e799b0b9-0eb0-4221-81c0-9fafba2f1b5d",
+      "name": "base",
+      "prompt": "-bit NES pixel art ocean liner, side view sailing right, black hull, white upper decks, two red funnels with smoke, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/-bit_NES_pixel_art_ocean_liner.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "c6b1881e-cb6d-4a98-9fc5-135230fa586e",
+      "name": "base",
+      "prompt": "8-bit NES pixel art New York skyline at dusk, a row of dark skyscrapers with lit yellow windows, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_New_York_s.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "84f869a3-cb44-44b8-9f1f-cfc2308c5bbd",
+      "name": "base",
+      "prompt": "8-bit NES pixel art New York skyline at dusk, a row of dark skyscrapers with lit yellow windows, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_New_York_s_2.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "79820d99-9461-4b8f-bc74-5d407a786b61",
+      "name": "base",
+      "prompt": "8-bit NES pixel art New York skyline at dusk, a row of dark skyscrapers with lit yellow windows, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_New_York_s_3.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "648d492f-9aca-4f23-905b-83dec7da5e59",
+      "name": "base",
+      "prompt": "8-bit NES pixel art New York skyline at dusk, a row of dark skyscrapers with lit yellow windows, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_New_York_s_4.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "44e9b762-c123-4202-a3a6-852f90eccdd2",
+      "name": "base",
+      "prompt": "8-bit NES pixel art New York skyline at dusk, a row of dark skyscrapers with lit yellow windows, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_New_York_s_5.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "3cc547f7-6657-4977-8029-28645298ca5d",
+      "name": "base",
+      "prompt": "8-bit NES pixel art New York skyline at dusk, a row of dark skyscrapers with lit yellow windows, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_New_York_s_6.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "c28f5248-89d0-4d5e-a047-98b6a111e42a",
+      "name": "base",
+      "prompt": "8-bit NES pixel art Statue of Liberty, front view, green copper, torch raised, on a small stone pedestal, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_Statue_of.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "8bec8ee8-8b8b-49f2-a30b-09040f0710c6",
+      "name": "base",
+      "prompt": "8-bit NES pixel art Statue of Liberty, front view, green copper, torch raised, on a small stone pedestal, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_Statue_of_2.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "523571a4-e979-4e82-bb20-d680724c3188",
+      "name": "base",
+      "prompt": "8-bit NES pixel art of Golden Gate Bridge, 1-pixel dark outline, flat colours, transparent background, multiple angles (front and side views)",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_of_Golden.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "d26cda59-2fea-414b-a26e-8db02c5919ab",
+      "name": "base",
+      "prompt": "8-bit NES pixel art flying seagull, SIDE VIEW, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_flying_sea.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "adf0b767-e29e-4586-b980-a4a75275fdb1",
+      "name": "base",
+      "prompt": "8-bit NES pixel art flying seagull, SIDE VIEW, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_flying_sea_2.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "143a69a3-22d8-402c-8077-143edfea1c3d",
+      "name": "base",
+      "prompt": "8-bit NES pixel art flying seagull, SIDE VIEW, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_flying_sea_3.png"
+      },
+      "animations": {}
+    },
+    {
+      "id": "b1f0c2ec-39eb-47de-9443-1e40f0ee610e",
+      "name": "base",
+      "prompt": "8-bit NES pixel art dark grey storm cloud with a yellow lightning bolt below it, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_dark_grey.png"
+      },
+      "animations": {}
+    }
+  ],
+  "groups": [
+    {
+      "group_id": "8bae89b2-9389-4d40-b6c4-42fbfcfbe64e",
+      "folder": "objects/8-bit_NES_pixel_art_Italian_Re",
+      "objects": [
+        {
+          "id": "1b707a2e-47df-447b-8ab6-f5e92a2bae39",
+          "name": "base",
+          "prompt": "8-bit NES pixel art Italian Renaissance villa, front view, cream walls, terracotta roof, a row of arched windows, a tall cypress tree either side, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_Italian_Re.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "57da4ca9-7f6c-40d9-b257-450850e5afa3",
+      "folder": "objects/8-bit_NES_pixel_art_Leaning_To",
+      "objects": [
+        {
+          "id": "e1e3517e-a886-4c45-ab90-c731840996f2",
+          "name": "base",
+          "prompt": "8-bit NES pixel art Leaning Tower of Pisa, front view, white marble tiers of arches, leaning to the right, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_Leaning_To.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "35c443d8-0c9e-40a8-80ce-b4182506156e",
+      "folder": "objects/8-bit_NES_pixel_art_Colosseum",
+      "objects": [
+        {
+          "id": "69dab383-ef4d-4679-9830-d98160079ca3",
+          "name": "base",
+          "prompt": "8-bit NES pixel art Colosseum in Rome, front view, cream stone with rows of arches, partly ruined on the left, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_Colosseum.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "4dba05a2-f7e3-439b-a9d6-a61f94ef3cec",
+      "folder": "objects/8-bit_NES_pixel_art_blue_whale",
+      "objects": [
+        {
+          "id": "d7f7546a-c95c-4d56-9512-a97662a46c48",
+          "name": "base",
+          "prompt": "8-bit NES pixel art blue whale surfacing, side view, spouting a column of water, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_blue_whale.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "2011ed95-995a-4a8b-b4b3-c5dc98a40a2f",
+      "folder": "objects/8-bit_NES_pixel_art_blue_whale_2",
+      "objects": [
+        {
+          "id": "5471c9ea-cfa6-41d7-82b4-2c89caf98e88",
+          "name": "base",
+          "prompt": "8-bit NES pixel art blue whale surfacing, side view, spouting a column of water, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_blue_whale_2.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "6d7a98df-26bb-4424-90a4-1b60a86d7c78",
+      "folder": "objects/8-bit_NES_pixel_art_Eiffel_Tow",
+      "objects": [
+        {
+          "id": "9a0fa54f-5885-45c4-8472-73d7e969bbd2",
+          "name": "base",
+          "prompt": "8-bit NES pixel art Eiffel Tower, front view, brown iron lattice, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_Eiffel_Tow.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "77cbfebe-bb2a-4478-aff4-797fa96d3058",
+      "folder": "objects/8-bit_NES_pixel_art_Eiffel_Tow_2",
+      "objects": [
+        {
+          "id": "54bfb4d8-ee32-426f-bc58-57f39d5e5b40",
+          "name": "base",
+          "prompt": "8-bit NES pixel art Eiffel Tower, front view, brown iron lattice, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_Eiffel_Tow_2.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "651970fd-f60a-42ce-95dc-5ee51f578323",
+      "folder": "objects/-bit_NES_pixel_art_ocean_liner",
+      "objects": [
+        {
+          "id": "e799b0b9-0eb0-4221-81c0-9fafba2f1b5d",
+          "name": "base",
+          "prompt": "-bit NES pixel art ocean liner, side view sailing right, black hull, white upper decks, two red funnels with smoke, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/-bit_NES_pixel_art_ocean_liner.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "d9f37ae5-ee09-433b-9a84-c7a39d889e9b",
+      "folder": "objects/8-bit_NES_pixel_art_New_York_s",
+      "objects": [
+        {
+          "id": "c6b1881e-cb6d-4a98-9fc5-135230fa586e",
+          "name": "base",
+          "prompt": "8-bit NES pixel art New York skyline at dusk, a row of dark skyscrapers with lit yellow windows, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_New_York_s.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "3f27d37f-d4f2-4b3a-a108-49777c14cdd8",
+      "folder": "objects/8-bit_NES_pixel_art_New_York_s_2",
+      "objects": [
+        {
+          "id": "84f869a3-cb44-44b8-9f1f-cfc2308c5bbd",
+          "name": "base",
+          "prompt": "8-bit NES pixel art New York skyline at dusk, a row of dark skyscrapers with lit yellow windows, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_New_York_s_2.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "8367eb9f-a730-42eb-9407-f40795f9e3ec",
+      "folder": "objects/8-bit_NES_pixel_art_New_York_s_3",
+      "objects": [
+        {
+          "id": "79820d99-9461-4b8f-bc74-5d407a786b61",
+          "name": "base",
+          "prompt": "8-bit NES pixel art New York skyline at dusk, a row of dark skyscrapers with lit yellow windows, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_New_York_s_3.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "d6096ca4-38e3-49e7-b240-c7592e9016c9",
+      "folder": "objects/8-bit_NES_pixel_art_New_York_s_4",
+      "objects": [
+        {
+          "id": "648d492f-9aca-4f23-905b-83dec7da5e59",
+          "name": "base",
+          "prompt": "8-bit NES pixel art New York skyline at dusk, a row of dark skyscrapers with lit yellow windows, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_New_York_s_4.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "efbe9383-fe50-4f6e-935f-00391618a110",
+      "folder": "objects/8-bit_NES_pixel_art_New_York_s_5",
+      "objects": [
+        {
+          "id": "44e9b762-c123-4202-a3a6-852f90eccdd2",
+          "name": "base",
+          "prompt": "8-bit NES pixel art New York skyline at dusk, a row of dark skyscrapers with lit yellow windows, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_New_York_s_5.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "0bf8cb11-c7f1-4351-a151-ece9dc51681e",
+      "folder": "objects/8-bit_NES_pixel_art_New_York_s_6",
+      "objects": [
+        {
+          "id": "3cc547f7-6657-4977-8029-28645298ca5d",
+          "name": "base",
+          "prompt": "8-bit NES pixel art New York skyline at dusk, a row of dark skyscrapers with lit yellow windows, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_New_York_s_6.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "1aad7244-717f-4d9c-873c-7c54cd16b7ee",
+      "folder": "objects/8-bit_NES_pixel_art_Statue_of",
+      "objects": [
+        {
+          "id": "c28f5248-89d0-4d5e-a047-98b6a111e42a",
+          "name": "base",
+          "prompt": "8-bit NES pixel art Statue of Liberty, front view, green copper, torch raised, on a small stone pedestal, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_Statue_of.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "3ec9ed8f-3781-4ddf-9709-938e2f759f66",
+      "folder": "objects/8-bit_NES_pixel_art_Statue_of_2",
+      "objects": [
+        {
+          "id": "8bec8ee8-8b8b-49f2-a30b-09040f0710c6",
+          "name": "base",
+          "prompt": "8-bit NES pixel art Statue of Liberty, front view, green copper, torch raised, on a small stone pedestal, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_Statue_of_2.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "004c6015-1e2f-4ec2-9485-7729ee48262e",
+      "folder": "objects/8-bit_NES_pixel_art_of_Golden",
+      "objects": [
+        {
+          "id": "523571a4-e979-4e82-bb20-d680724c3188",
+          "name": "base",
+          "prompt": "8-bit NES pixel art of Golden Gate Bridge, 1-pixel dark outline, flat colours, transparent background, multiple angles (front and side views)",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_of_Golden.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "21ce6500-8ee5-4a92-b1cf-89df34a50d37",
+      "folder": "objects/8-bit_NES_pixel_art_flying_sea",
+      "objects": [
+        {
+          "id": "d26cda59-2fea-414b-a26e-8db02c5919ab",
+          "name": "base",
+          "prompt": "8-bit NES pixel art flying seagull, SIDE VIEW, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_flying_sea.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "58ecc87e-85ec-4a21-b5bd-421f1f25c8c8",
+      "folder": "objects/8-bit_NES_pixel_art_flying_sea_2",
+      "objects": [
+        {
+          "id": "adf0b767-e29e-4586-b980-a4a75275fdb1",
+          "name": "base",
+          "prompt": "8-bit NES pixel art flying seagull, SIDE VIEW, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_flying_sea_2.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "39493299-1882-4f00-b537-1e1f17ced808",
+      "folder": "objects/8-bit_NES_pixel_art_flying_sea_3",
+      "objects": [
+        {
+          "id": "143a69a3-22d8-402c-8077-143edfea1c3d",
+          "name": "base",
+          "prompt": "8-bit NES pixel art flying seagull, SIDE VIEW, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_flying_sea_3.png"
+          },
+          "animations": {}
+        }
+      ]
+    },
+    {
+      "group_id": "393f6b75-9307-401c-bba3-55976d600565",
+      "folder": "objects/8-bit_NES_pixel_art_dark_grey",
+      "objects": [
+        {
+          "id": "b1f0c2ec-39eb-47de-9443-1e40f0ee610e",
+          "name": "base",
+          "prompt": "8-bit NES pixel art dark grey storm cloud with a yellow lightning bolt below it, 1-pixel dark outline, flat colours, transparent background",
+          "size": {
+            "width": 48,
+            "height": 48
+          },
+          "directions": 1,
+          "view": "low top-down",
+          "rotations": {
+            "unknown": "rotations/8-bit_NES_pixel_art_dark_grey.png"
+          },
+          "animations": {}
+        }
+      ]
+    }
+  ],
+  "export_version": "1.1",
+  "export_date": "2026-09-24T22:34:49.640994"
+}

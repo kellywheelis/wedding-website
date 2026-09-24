@@ -45,8 +45,8 @@
       villa: pic('villa', (c, x, y, w, h) => { c.fillStyle = '#e9dfc6'; c.fillRect(x, y + h * 0.4, w, h * 0.6); c.fillStyle = '#b3513a'; c.fillRect(x - 2, y + h * 0.3, w + 4, h * 0.12); c.fillStyle = C.cypress; [-8, w + 4].forEach((dx) => { c.fillRect(x + dx, y + h * 0.15, 4, h * 0.85); }); }) };
     const stand = (col) => (c, f, x, y) => { c.fillStyle = col; c.fillRect(x + 11, y + 8, 10, 20); c.fillStyle = '#f1c9a5'; c.fillRect(x + 12, y + 4, 8, 7); };
     const sheets = { bride: api.sheet('/assets/game/bride.png', 32, 32, 9, stand('#fbf5ea')), groom: api.sheet('/assets/game/groom.png', 32, 32, 9, stand('#2b2520')) };
-    const S = {};
-    function reset() { Object.assign(S, { mode: 'title', who: 'bride', sel: 0, t: 0, lives: 3, score: 0, rings: 0, best: 0, streak: 0, clean: true, ready: 0, msg: null, msgT: 0, p: { y: 120, vy: 0, hit: 0, tilt: 0 }, things: [], spawn: 1.2, dist: 0, landed: 0, hills: [], stage: 0, seam: -100, caption: STAGES[0].name, captionT: 3, marks: [] });
+    const S = {}, WON_TITLE = 'ARRIVED', OVER_TITLE = 'DIVERTED';
+    function reset() { Object.assign(S, { boarded: false, mode: 'title', who: 'bride', sel: 0, t: 0, lives: 3, score: 0, rings: 0, best: 0, streak: 0, clean: true, ready: 0, msg: null, msgT: 0, p: { y: 120, vy: 0, hit: 0, tilt: 0 }, things: [], spawn: 1.2, dist: 0, landed: 0, hills: [], stage: 0, seam: -100, caption: STAGES[0].name, captionT: 3, marks: [] });
       for (let i = 0; i < 3; i++) S.hills.push({ off: 0, speed: 8 + i * 8, amp: 10 + i * 6, phase: i * 1.7, base: GROUND - 10 - i * 14 }); }
     reset();
     STAGES.forEach((st) => st.marks.forEach((m) => { m.done = false; }));
@@ -57,7 +57,9 @@
     const hitBox = (ax, ay, aw, ah, bx, by, bw, bh) => ax < bx + bw && ax + aw > bx && ay < by + bh && ay + ah > by;
 
     function update(dt, input) {
-      S.t += dt; const p = S.p;
+      S.t += dt;
+      if (Arcade.board.on) { Arcade.board.update(dt, input); return; }
+      if ((S.mode === 'over' || S.mode === 'won') && !S.boarded) { S.boarded = true; Arcade.board.open('flight', S.score, { title: S.mode === 'won' ? WON_TITLE : OVER_TITLE, sub: S.rings + ' RINGS' + (S.clean ? ' · CLEAN FLIGHT' : '') }); return; } const p = S.p;
       if (S.mode === 'title') { if (input.hit('start') || input.hit('jump')) S.mode = 'select'; return; }
       if (S.mode === 'select') { if (input.hit('left') || input.hit('right')) S.sel = 1 - S.sel; if (input.hit('start') || input.hit('jump')) { S.who = S.sel ? 'groom' : 'bride'; S.mode = 'ready'; S.ready = 2.4; } return; }
       if (S.mode === 'ready') { S.ready -= dt; if (S.ready <= 0 || input.hit('jump')) { S.mode = 'play'; p.vy = -70; } return; }
@@ -236,6 +238,9 @@
       api.text(c, (typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches) ? 'JUMP LIFTS' : 'SPACE LIFTS', W / 2, 238, C.dim, 'center');
     }
     function draw(c) {
+      drawGame(c); Arcade.board.draw(c);
+    }
+    function drawGame(c) {
       if (S.mode === 'title') { drawTitle(c, S.t); return; }
       if (S.mode === 'select') {
         c.fillStyle = C.dark; c.fillRect(0, 0, W, H); big(c, 'CHOOSE YOUR', W / 2, 60, C.gold); big(c, 'PILOT', W / 2, 80, C.gold);
@@ -248,8 +253,8 @@
       }
       scene(c);
       if (S.mode === 'ready') { c.fillStyle = 'rgba(20,12,6,.75)'; c.fillRect(16, 100, W - 32, 80); c.strokeStyle = C.gold; c.strokeRect(16.5, 100.5, W - 33, 79); api.text(c, 'TAP OR SPACE TO LIFT', W / 2, 112, C.text, 'center'); api.text(c, 'SAN FRANCISCO TO SIENA · ' + GOAL + ' RINGS', W / 2, 124, C.gold, 'center'); api.text(c, 'STREAK RINGS · CATCH BOUQUETS', W / 2, 136, C.dim, 'center'); big(c, 'READY?', W / 2, 152, C.gold); }
-      if (S.mode === 'over') { c.fillStyle = 'rgba(20,12,6,.8)'; c.fillRect(0, 100, W, 80); big(c, 'DIVERTED', W / 2, 112, C.red); api.text(c, S.rings + ' RINGS · SCORE ' + Math.floor(S.score), W / 2, 140, C.text, 'center'); api.text(c, 'START TO FLY AGAIN', W / 2, 160, C.dim, 'center'); }
-      if (S.mode === 'won') { c.fillStyle = 'rgba(20,12,6,.8)'; c.fillRect(0, 96, W, 96); big(c, 'ARRIVED', W / 2, 108, C.gold); api.text(c, 'SIENA · WELCOME TO THE WEDDING', W / 2, 134, C.text, 'center'); api.text(c, 'SCORE ' + Math.floor(S.score) + (S.clean ? ' · CLEAN FLIGHT' : ''), W / 2, 150, C.gold, 'center'); api.text(c, 'START TO FLY AGAIN', W / 2, 176, C.dim, 'center'); }
+      if (S.mode === 'over' && !Arcade.board.on) { c.fillStyle = 'rgba(20,12,6,.8)'; c.fillRect(0, 100, W, 80); big(c, 'DIVERTED', W / 2, 112, C.red); api.text(c, S.rings + ' RINGS · SCORE ' + Math.floor(S.score), W / 2, 140, C.text, 'center'); api.text(c, 'START TO FLY AGAIN', W / 2, 160, C.dim, 'center'); }
+      if (S.mode === 'won' && !Arcade.board.on) { c.fillStyle = 'rgba(20,12,6,.8)'; c.fillRect(0, 96, W, 96); big(c, 'ARRIVED', W / 2, 108, C.gold); api.text(c, 'SIENA · WELCOME TO THE WEDDING', W / 2, 134, C.text, 'center'); api.text(c, 'SCORE ' + Math.floor(S.score) + (S.clean ? ' · CLEAN FLIGHT' : ''), W / 2, 150, C.gold, 'center'); api.text(c, 'START TO FLY AGAIN', W / 2, 176, C.dim, 'center'); }
     }
     return { update, draw, drawTitle, debug: { S, start(who) { reset(); STAGES.forEach((st) => st.marks.forEach((m) => { m.done = false; })); S.who = who || 'bride'; S.mode = 'play'; } } };
   } };

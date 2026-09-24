@@ -19,15 +19,17 @@
       glass: pic('champagne', (c, x, y) => drawMap(c, GLASS, x, y, PAL)), cake: pic('cake', (c, x, y) => drawMap(c, CAKE, x, y, PAL)), pigeon: pic('pigeon-flying', (c, x, y) => drawMap(c, PIGEON, x, y, PAL)) };
     const stand = (col) => (c, f, x, y) => { c.fillStyle = col; c.fillRect(x + 11, y + 8, 10, 20); c.fillStyle = '#f1c9a5'; c.fillRect(x + 12, y + 4, 8, 7); };
     const sheets = { bride: api.sheet('/assets/game/bride.png', 32, 32, 9, stand('#fbf5ea')), groom: api.sheet('/assets/game/groom.png', 32, 32, 9, stand('#2b2520')) };
-    const S = {};
-    function reset() { Object.assign(S, { mode: 'title', who: 'bride', sel: 0, t: 0, lives: 3, score: 0, caught: 0, left: LEN, ready: 0, msg: null, msgT: 0, items: [], spawn: 1, p: { x: 112, dir: 1, anim: 0, hit: 0, moving: false } }); }
+    const S = {}, WON_TITLE = 'TIME!', OVER_TITLE = 'CAKED';
+    function reset() { Object.assign(S, { boarded: false, mode: 'title', who: 'bride', sel: 0, t: 0, lives: 3, score: 0, caught: 0, left: LEN, ready: 0, msg: null, msgT: 0, items: [], spawn: 1, p: { x: 112, dir: 1, anim: 0, hit: 0, moving: false } }); }
     reset();
     const other = () => (S.who === 'bride' ? 'groom' : 'bride');
     const say = (m, t = 1) => { S.msg = m; S.msgT = t; };
     const pickKind = () => { const total = KINDS.reduce((a, k) => a + k[1], 0); let r = Math.random() * total; return KINDS.find((k) => (r -= k[1]) < 0) || KINDS[0]; };
 
     function update(dt, input) {
-      S.t += dt; const p = S.p;
+      S.t += dt;
+      if (Arcade.board.on) { Arcade.board.update(dt, input); return; }
+      if ((S.mode === 'over' || S.mode === 'won') && !S.boarded) { S.boarded = true; Arcade.board.open('bouquet', S.score, { title: S.mode === 'won' ? WON_TITLE : OVER_TITLE, sub: S.caught + ' BOUQUETS' }); return; } const p = S.p;
       if (S.mode === 'title') { if (input.hit('start') || input.hit('jump')) S.mode = 'select'; return; }
       if (S.mode === 'select') { if (input.hit('left') || input.hit('right')) S.sel = 1 - S.sel; if (input.hit('start') || input.hit('jump')) { S.who = S.sel ? 'groom' : 'bride'; S.mode = 'ready'; S.ready = 3.2; } return; }
       if (S.mode === 'ready') { S.ready -= dt; if (S.ready <= 0 || input.hit('start') || input.hit('jump')) S.mode = 'play'; return; }
@@ -87,6 +89,9 @@
       if (Math.floor(t * 2) % 2) api.text(c, 'PRESS START', W / 2, 232, C.gold, 'center');
     }
     function draw(c) {
+      drawGame(c); Arcade.board.draw(c);
+    }
+    function drawGame(c) {
       if (S.mode === 'title') { drawTitle(c, S.t); return; }
       if (S.mode === 'select') {
         c.fillStyle = C.sky; c.fillRect(0, 0, W, H); big(c, 'CHOOSE YOUR', W / 2, 60, C.gold); big(c, 'PLAYER', W / 2, 80, C.gold);
@@ -109,8 +114,8 @@
         api.text(c, 'THEY COST A LIFE', 112, 180, C.dim, 'center');
         big(c, 'READY?', W / 2, 194, C.gold);
       }
-      if (S.mode === 'over') { c.fillStyle = 'rgba(20,12,6,.8)'; c.fillRect(0, 100, W, 80); big(c, 'CAKED', W / 2, 112, C.red); api.text(c, 'SCORE ' + Math.floor(S.score) + ' · ' + S.caught + ' BOUQUETS', W / 2, 140, C.text, 'center'); api.text(c, 'START TO TRY AGAIN', W / 2, 160, C.dim, 'center'); }
-      if (S.mode === 'won') { c.fillStyle = 'rgba(20,12,6,.8)'; c.fillRect(0, 96, W, 96); big(c, 'TIME!', W / 2, 108, C.gold); api.text(c, S.caught + ' BOUQUETS · SCORE ' + Math.floor(S.score), W / 2, 134, C.text, 'center'); api.text(c, S.caught >= 12 ? "YOU'RE NEXT." : S.caught >= 6 ? 'A GOOD OMEN.' : 'THE PIGEONS WON.', W / 2, 150, C.gold, 'center'); api.text(c, 'START TO PLAY AGAIN', W / 2, 176, C.dim, 'center'); }
+      if (S.mode === 'over' && !Arcade.board.on) { c.fillStyle = 'rgba(20,12,6,.8)'; c.fillRect(0, 100, W, 80); big(c, 'CAKED', W / 2, 112, C.red); api.text(c, 'SCORE ' + Math.floor(S.score) + ' · ' + S.caught + ' BOUQUETS', W / 2, 140, C.text, 'center'); api.text(c, 'START TO TRY AGAIN', W / 2, 160, C.dim, 'center'); }
+      if (S.mode === 'won' && !Arcade.board.on) { c.fillStyle = 'rgba(20,12,6,.8)'; c.fillRect(0, 96, W, 96); big(c, 'TIME!', W / 2, 108, C.gold); api.text(c, S.caught + ' BOUQUETS · SCORE ' + Math.floor(S.score), W / 2, 134, C.text, 'center'); api.text(c, S.caught >= 12 ? "YOU'RE NEXT." : S.caught >= 6 ? 'A GOOD OMEN.' : 'THE PIGEONS WON.', W / 2, 150, C.gold, 'center'); api.text(c, 'START TO PLAY AGAIN', W / 2, 176, C.dim, 'center'); }
     }
     return { update, draw, drawTitle, debug: { S, start(who) { reset(); S.who = who || 'bride'; S.mode = 'play'; } } };
   } };

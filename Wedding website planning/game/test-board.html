@@ -1,0 +1,15 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:#000}</style></head><body>
+<script>
+// a fake scoreboard API, so the board can be looked at without the server
+const FAKE = { italy: [['KLW', 2450], ['AJA', 2210], ['VUT', 1980], ['MOM', 1500], ['DAD', 1200]] };
+window.fetch = async (url, opts) => { const g = new URL(url, location.href).searchParams.get('game') || JSON.parse(opts.body).game; const top = (FAKE[g] || []).map(([name, score]) => ({ name, score, when: 0 }));
+  if (opts && opts.method === 'POST') { const b = JSON.parse(opts.body); top.push({ name: b.name, score: b.score, when: 1 }); top.sort((a, c) => c.score - a.score); const rank = top.findIndex((e) => e.when === 1) + 1; return { json: async () => ({ top: top.slice(0, 10), rank }) }; }
+  return { json: async () => ({ top }) }; };
+</script>
+<script src="arcade.js"></script><script src="italy.js"></script>
+<script>
+const q = new URLSearchParams(location.search), phase = q.get('phase') || 'enter';
+Arcade.launch('italy'); const g = Arcade.current.inst.debug; g.start('bride'); g.S.score = 2300; g.S.mode = 'won'; Arcade.step(2, []);
+if (phase === 'board') setTimeout(() => { Arcade.step(1, ['start']); setTimeout(() => Arcade.step(40, []), 300); }, 300);
+if (phase === 'menu') { Arcade.launch('menu'); }
+</script></body></html>

@@ -60,9 +60,9 @@
     const itemArt = (id) => id === 'passport' ? ART.passport : id === 'ticket' ? ART.ticket : (S.who === 'bride' ? ART.bouquet : ART.ring);
     const ITEM_SIZE = { passport: [14, 19], ticket: [21, 13], outfit: S => S.who === 'bride' ? [21, 24] : [16, 18] };
     const itemWH = (id) => { const v = ITEM_SIZE[id]; return typeof v === 'function' ? v(S) : v; };
-    const S = {};
+    const S = {}, WON_TITLE = 'YOU MADE IT', OVER_TITLE = 'MISSED THE FLIGHT';
     function reset() {
-      Object.assign(S, { mode: 'title', who: 'bride', sel: 0, t: 0, lives: 3, score: 0, bonus: 5000, items: {}, msg: null, msgT: 0,
+      Object.assign(S, { boarded: false, mode: 'title', who: 'bride', sel: 0, t: 0, lives: 3, score: 0, bonus: 5000, items: {}, msg: null, msgT: 0,
         p: { x: 20, y: PLATS[0].y, plat: 0, vy: 0, air: false, climb: null, dir: 1, anim: 0, hit: 0, slow: 0, slip: 0, safe: 0, won: false },
         cases: [], planes: [], drips: [], vespa: null, cloud: { x: 60, dir: 1, t: 0 },
         tCase: 1.5, tPlane: 2, tVespa: 3, ready: 0 });
@@ -76,6 +76,8 @@
 
     function update(dt, input) {
       S.t += dt;
+      if (Arcade.board.on) { Arcade.board.update(dt, input); return; }
+      if ((S.mode === 'over' || S.mode === 'won') && !S.boarded) { S.boarded = true; Arcade.board.open('italy', S.score, { title: S.mode === 'won' ? WON_TITLE : OVER_TITLE, sub: '' }); return; }
       if (S.mode === 'title') { if (input.hit('start') || input.hit('jump')) { S.mode = 'select'; } return; }
       if (S.mode === 'select') {
         if (input.hit('left') || input.hit('right')) S.sel = 1 - S.sel;
@@ -210,6 +212,9 @@
       api.text(c, (typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches) ? 'THE BUTTONS MOVE AND JUMP' : 'ARROWS MOVE · SPACE JUMPS', W / 2, 268, C.dim, 'center');
     }
     function draw(c) {
+      drawGame(c); Arcade.board.draw(c);
+    }
+    function drawGame(c) {
       if (S.mode === 'title') { drawTitle(c, S.t); return; }
       if (S.mode === 'select') {
         c.fillStyle = C.bg; c.fillRect(0, 0, W, H);
@@ -224,8 +229,8 @@
       }
       scene(c);
       if (S.mode === 'ready') { c.fillStyle = 'rgba(20,12,6,.6)'; c.fillRect(0, 120, W, 40); big(c, 'READY?', W / 2, 132, C.gold); }
-      if (S.mode === 'over') { c.fillStyle = 'rgba(20,12,6,.8)'; c.fillRect(0, 100, W, 80); big(c, 'MISSED', W / 2, 112, C.red); big(c, 'THE FLIGHT', W / 2, 132, C.red); api.text(c, 'SCORE ' + Math.floor(S.score) + ' · START TO TRY AGAIN', W / 2, 160, C.text, 'center'); }
-      if (S.mode === 'won') { c.fillStyle = 'rgba(20,12,6,.8)'; c.fillRect(0, 96, W, 96); big(c, 'YOU MADE IT!', W / 2, 108, C.gold); api.text(c, 'SEE YOU IN SIENA', W / 2, 134, C.text, 'center'); api.text(c, '24 APRIL 2027', W / 2, 146, C.text, 'center'); api.text(c, 'SCORE ' + Math.floor(S.score), W / 2, 166, C.gold, 'center'); api.text(c, 'START TO PLAY AGAIN', W / 2, 180, C.dim, 'center'); }
+      if (S.mode === 'over' && !Arcade.board.on) { c.fillStyle = 'rgba(20,12,6,.8)'; c.fillRect(0, 100, W, 80); big(c, 'MISSED', W / 2, 112, C.red); big(c, 'THE FLIGHT', W / 2, 132, C.red); api.text(c, 'SCORE ' + Math.floor(S.score) + ' · START TO TRY AGAIN', W / 2, 160, C.text, 'center'); }
+      if (S.mode === 'won' && !Arcade.board.on) { c.fillStyle = 'rgba(20,12,6,.8)'; c.fillRect(0, 96, W, 96); big(c, 'YOU MADE IT!', W / 2, 108, C.gold); api.text(c, 'SEE YOU IN SIENA', W / 2, 134, C.text, 'center'); api.text(c, '24 APRIL 2027', W / 2, 146, C.text, 'center'); api.text(c, 'SCORE ' + Math.floor(S.score), W / 2, 166, C.gold, 'center'); api.text(c, 'START TO PLAY AGAIN', W / 2, 180, C.dim, 'center'); }
     }
     return { update: wrapUpdate, draw, drawTitle, debug: { S, start(who) { reset(); S.who = who || 'bride'; S.mode = 'play'; } } };
   } };

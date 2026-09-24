@@ -12,3 +12,5 @@ Wedding website planning/doc-page.js
 Wedding website planning/image-slot.js
 Wedding website planning/support.js
 .DS_Store
+.agents/
+.claude/

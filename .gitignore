@@ -9,3 +9,9 @@ Wedding website planning/tools/harness/.work/
 8bit bride and groom/
 plain plane/
 bouquet 8 bit/
+
+node_modules/
+
+# dropped by the Upstash marketplace install; not part of the site
+.agents/
+.claude/

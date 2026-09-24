@@ -32,9 +32,9 @@
     // the top-down figures: 9 frames of 32x32 (idle/walk for north, south, east, west, then knocked down); code-drawn stand-ins until the sheets load
     const stand = (col) => (c, f, x, y) => { c.fillStyle = col; c.fillRect(x + 11, y + 8, 10, 20); c.fillStyle = '#f1c9a5'; c.fillRect(x + 12, y + 4, 8, 7); };
     const sheets = { bride: api.sheet('/assets/game/bride-topdown.png', 32, 32, 9, stand('#fbf5ea')), groom: api.sheet('/assets/game/groom-topdown.png', 32, 32, 9, stand('#2b2520')) };
-    const S = {};
+    const S = {}, WON_TITLE = 'YOU MADE IT', OVER_TITLE = 'RUN OVER BY SIENA';
     function reset() {
-      Object.assign(S, { mode: 'title', who: 'bride', sel: 0, t: 0, lives: 3, score: 0, bonus: 3000, best: 0, ready: 0, msg: null, msgT: 0,
+      Object.assign(S, { boarded: false, mode: 'title', who: 'bride', sel: 0, t: 0, lives: 3, score: 0, bonus: 3000, best: 0, ready: 0, msg: null, msgT: 0,
         p: { col: 6, row: 0, x: 0, y: 0, fx: 0, fy: 0, hop: 0, dir: 'n', hit: 0, safe: 0, won: false }, lanes: {} });
       S.p.x = S.p.fx = colX(S.p.col); S.p.y = S.p.fy = rowY(0);
       Object.keys(LANES).forEach((r) => { const L = LANES[r]; S.lanes[r] = []; for (let x = -40; x < W + 40; x += L.gap) S.lanes[r].push({ x: x + Math.random() * 20, look: Math.floor(Math.random() * 4) }); });
@@ -47,7 +47,9 @@
     const hurt = () => { if (S.p.hit > 0) return; S.p.hit = 1.3; S.lives--; };
 
     function update(dt, input) {
-      S.t += dt; const p = S.p;
+      S.t += dt;
+      if (Arcade.board.on) { Arcade.board.update(dt, input); return; }
+      if ((S.mode === 'over' || S.mode === 'won') && !S.boarded) { S.boarded = true; Arcade.board.open('piazza', S.score, { title: S.mode === 'won' ? WON_TITLE : OVER_TITLE, sub: '' }); return; } const p = S.p;
       if (S.mode === 'title') { if (input.hit('start') || input.hit('jump')) S.mode = 'select'; return; }
       if (S.mode === 'select') {
         if (input.hit('left') || input.hit('right')) S.sel = 1 - S.sel;
@@ -142,6 +144,9 @@
       api.text(c, (typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches) ? 'THE BUTTONS HOP' : 'ARROWS HOP', W / 2, 270, C.dim, 'center');
     }
     function draw(c) {
+      drawGame(c); Arcade.board.draw(c);
+    }
+    function drawGame(c) {
       if (S.mode === 'title') { drawTitle(c, S.t); return; }
       if (S.mode === 'select') {
         c.fillStyle = C.dark; c.fillRect(0, 0, W, H); big(c, 'CHOOSE YOUR', W / 2, 60, C.gold); big(c, 'PLAYER', W / 2, 80, C.gold);
@@ -154,8 +159,8 @@
       }
       scene(c);
       if (S.mode === 'ready') { c.fillStyle = 'rgba(20,12,6,.6)'; c.fillRect(0, 120, W, 40); big(c, 'READY?', W / 2, 132, C.gold); }
-      if (S.mode === 'over') { c.fillStyle = 'rgba(20,12,6,.8)'; c.fillRect(0, 100, W, 80); big(c, 'RUN OVER', W / 2, 112, C.red); big(c, 'BY SIENA', W / 2, 132, C.red); api.text(c, 'SCORE ' + Math.floor(S.score) + ' · START TO TRY AGAIN', W / 2, 160, C.text, 'center'); }
-      if (S.mode === 'won') { c.fillStyle = 'rgba(20,12,6,.8)'; c.fillRect(0, 96, W, 96); big(c, 'YOU MADE IT!', W / 2, 108, C.gold); api.text(c, 'THE DUOMO, AND THE BEST', W / 2, 134, C.text, 'center'); api.text(c, 'GELATO IN SIENA IS NEXT DOOR', W / 2, 146, C.text, 'center'); api.text(c, 'SCORE ' + Math.floor(S.score), W / 2, 166, C.gold, 'center'); api.text(c, 'START TO CROSS AGAIN', W / 2, 180, C.dim, 'center'); }
+      if (S.mode === 'over' && !Arcade.board.on) { c.fillStyle = 'rgba(20,12,6,.8)'; c.fillRect(0, 100, W, 80); big(c, 'RUN OVER', W / 2, 112, C.red); big(c, 'BY SIENA', W / 2, 132, C.red); api.text(c, 'SCORE ' + Math.floor(S.score) + ' · START TO TRY AGAIN', W / 2, 160, C.text, 'center'); }
+      if (S.mode === 'won' && !Arcade.board.on) { c.fillStyle = 'rgba(20,12,6,.8)'; c.fillRect(0, 96, W, 96); big(c, 'YOU MADE IT!', W / 2, 108, C.gold); api.text(c, 'THE DUOMO, AND THE BEST', W / 2, 134, C.text, 'center'); api.text(c, 'GELATO IN SIENA IS NEXT DOOR', W / 2, 146, C.text, 'center'); api.text(c, 'SCORE ' + Math.floor(S.score), W / 2, 166, C.gold, 'center'); api.text(c, 'START TO CROSS AGAIN', W / 2, 180, C.dim, 'center'); }
     }
     return { update, draw, drawTitle, debug: { S, start(who) { reset(); S.who = who || 'bride'; S.mode = 'play'; } } };
   } };

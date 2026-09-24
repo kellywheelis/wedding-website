@@ -376,6 +376,14 @@ glide down and land. Scoring spreads by skill: consecutive rings multiply (x2..x
 Eiffel, Colosseum, Pisa; Paris (a mansard block as the landmark, two Haussmann fronts tiled as the street) and Florence (the Duomo, with a
 rooftops file passing first) are the owner's too; the code-drawn streets remain as fallbacks.
 
+The scoreboard (25 Sept 2026): `api/scores.js` at the repo root is a Vercel serverless function backed by
+Upstash Redis (created through Vercel's marketplace; its env vars are injected by Vercel). GET returns the top
+ten for a game; POST takes { game, name (3 letters), score }, refuses a short list of words and scores above a
+per-game ceiling, rate-limits by address, keeps the best hundred in a sorted set, and returns the board and the
+rank. In the shell, `Arcade.board` handles the ENTER YOUR INITIALS screen and the board; each game opens it once
+at 'over'/'won' (`S.boarded`), defers update() to it while it is on, and draws it last. The menu shows each
+game's top three. `game/test-board.html` mocks the API for looking at the screens.
+
 All games live in one cabinet (the arcade menu); still to come on the same shell: The Seating Chart.
 
 ## 5. Known loose ends / ideas not yet done

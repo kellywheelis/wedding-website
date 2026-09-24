@@ -123,16 +123,68 @@
   });
   // for tests: run the open game forward by `steps` frames with these keys held (deterministic, no timers)
   Arcade.step = (steps, keys) => { if (!game) return; Object.keys(held).forEach((k) => { held[k] = false; }); (keys || []).forEach((k) => { held[k] = true; pressed[k] = true; }); for (let i = 0; i < steps; i++) { game.inst.update(STEP, input); Object.keys(pressed).forEach((k) => { delete pressed[k]; }); } (keys || []).forEach((k) => { held[k] = false; }); };
+  // ---- the scoreboard: shared by every game. A game calls Arcade.board.open(gameId, score, opts) at its end:
+  // an ENTER YOUR INITIALS screen (left/right change the letter, up/down move along, start posts; or skip),
+  // then the top ten with the new entry lit. The shell draws it over the game and takes the keys meanwhile.
+  const API = '/api/scores';
+  const cache = {};                                                          // top tens by game, for the menu
+  Arcade.board = {
+    async fetch(id) { try { const r = await fetch(API + '?game=' + id); const j = await r.json(); cache[id] = j.top || []; return cache[id]; } catch (e) { return cache[id] || []; } },
+    top(id) { return cache[id] || []; },
+    async post(id, name, score) { try { const r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ game: id, name, score }) }); const j = await r.json(); if (j.top) cache[id] = j.top; return j; } catch (e) { return { error: 'offline' }; } },
+    // the overlay state; a game's draw() calls Arcade.board.draw(c) last, and its update() returns early while Arcade.board.on
+    on: false, phase: 'enter', id: null, score: 0, letters: [0, 0, 0], at: 0, rank: null, t: 0, posted: false, when: 0,
+    open(id, score, opts = {}) { const b = Arcade.board; b.on = true; b.phase = 'enter'; b.id = id; b.score = Math.floor(score); b.letters = b.last ? b.last.slice() : [0, 0, 0]; b.at = 0; b.rank = null; b.t = 0; b.posted = false; b.title = opts.title || 'YOU MADE IT'; b.sub = opts.sub || ''; Arcade.board.fetch(id); },
+    close() { const b = Arcade.board; b.on = false; if (b.onClose) { const f = b.onClose; b.onClose = null; f(); } },
+    update(dt, input) {
+      const b = Arcade.board; b.t += dt; if (!b.on) return;
+      if (b.phase === 'enter') {
+        if (input.hit('left')) b.letters[b.at] = (b.letters[b.at] + 25) % 26;
+        if (input.hit('right')) b.letters[b.at] = (b.letters[b.at] + 1) % 26;
+        if (input.hit('up')) b.at = (b.at + 2) % 3;
+        if (input.hit('down')) b.at = (b.at + 1) % 3;
+        if (input.hit('jump')) { if (b.at < 2) b.at++; else b.submit(); }
+        if (input.hit('start')) b.submit();
+      } else if (b.phase === 'board') { if (b.t > 0.6 && (input.hit('start') || input.hit('jump'))) b.close(); }
+    },
+    async submit() { const b = Arcade.board; const name = b.letters.map((n) => String.fromCharCode(65 + n)).join(''); b.last = b.letters.slice(); b.phase = 'posting'; b.t = 0;
+      const j = await b.post(b.id, name, b.score); b.rank = j.rank || null; b.posted = !j.error; b.when = Date.now(); b.phase = 'board'; b.t = 0; },
+    draw(c) {
+      const b = Arcade.board; if (!b.on) return; const W = c.canvas.width, H = c.canvas.height;
+      c.fillStyle = 'rgba(20,12,6,.86)'; c.fillRect(0, 0, W, H); c.fillStyle = '#7a1a3c'; c.fillRect(0, 0, W, 10); c.fillRect(0, H - 10, W, 10);
+      const big = (s, y, col, k = 2) => { c.save(); c.translate(W / 2, y); c.scale(k, k); drawText(c, s, 0, 0, col, 'center'); c.restore(); };
+      if (b.phase === 'enter' || b.phase === 'posting') {
+        big(b.title, 40, '#e8c07a'); if (b.sub) drawText(c, b.sub, W / 2, 62, '#a79c85', 'center');
+        drawText(c, 'SCORE ' + b.score, W / 2, 80, '#f4efe1', 'center');
+        drawText(c, 'ENTER YOUR INITIALS', W / 2, 108, '#e8c07a', 'center');
+        b.letters.forEach((n, i) => { const x = W / 2 - 30 + i * 30, y = 132; if (i === b.at && Math.floor(b.t * 3) % 2 === 0) { c.fillStyle = '#7a1a3c'; c.fillRect(x - 12, y - 6, 24, 30); }
+          c.save(); c.translate(x, y); c.scale(3, 3); drawText(c, String.fromCharCode(65 + n), 0, 0, i === b.at ? '#f4efe1' : '#a79c85', 'center'); c.restore(); c.fillStyle = '#e8c07a'; c.fillRect(x - 9, y + 24, 18, 1); });
+        drawText(c, b.phase === 'posting' ? 'POSTING...' : 'LEFT/RIGHT LETTER · JUMP NEXT · START POSTS', W / 2, 176, '#a79c85', 'center');
+        const top = b.top(b.id); if (top.length) { drawText(c, 'TO BEAT: ' + top[0].name + ' ' + top[0].score, W / 2, 196, '#a79c85', 'center'); }
+      } else {
+        big('HIGH SCORES', 30, '#e8c07a');
+        const top = b.top(b.id);
+        if (!top.length) drawText(c, b.posted ? 'YOU ARE THE FIRST' : 'THE BOARD IS OFFLINE', W / 2, 120, '#f4efe1', 'center');
+        top.slice(0, 10).forEach((e, i) => { const y = 56 + i * 16, mine = b.posted && b.rank === i + 1; if (mine) { c.fillStyle = '#7a1a3c'; c.fillRect(30, y - 3, W - 60, 13); }
+          drawText(c, String(i + 1).padStart(2, ' '), 44, y, mine ? '#f4efe1' : '#a79c85', 'right'); drawText(c, e.name, 62, y, mine ? '#f4efe1' : '#f4efe1'); drawText(c, String(e.score), W - 44, y, mine ? '#e8c07a' : '#f4efe1', 'right'); });
+        if (b.posted && b.rank && b.rank > 10) drawText(c, 'YOU CAME ' + b.rank + (b.rank % 10 === 1 && b.rank !== 11 ? 'ST' : b.rank % 10 === 2 && b.rank !== 12 ? 'ND' : b.rank % 10 === 3 && b.rank !== 13 ? 'RD' : 'TH') + ' · SCORE ' + b.score, W / 2, 222, '#e8c07a', 'center');
+        if (!b.posted) drawText(c, 'SCORE ' + b.score + ' · NOT POSTED', W / 2, 222, '#a79c85', 'center');
+        if (Math.floor(b.t * 2) % 2) drawText(c, 'PRESS START', W / 2, 250, '#e8c07a', 'center');
+      }
+    }
+  };
   // ---- the menu: the cabinet's list of games. Registered games are playable; the planned ones show as coming soon.
   Arcade.menuList = [['italy', 'Getting to Italy'], ['piazza', 'Cross the Piazza'], ['bouquet', 'Catch the Bouquet'], ['flight', 'Flight to Siena'], ['seating', 'The Seating Chart']];
   Arcade.games.menu = { title: 'The Arcade', w: 224, h: 288, create(api) {
     let sel = 0, t = 0; const titles = {};
     const playable = () => Arcade.menuList.filter(([id]) => Arcade.games[id]);
+    Arcade.menuList.forEach(([id]) => { if (Arcade.games[id]) Arcade.board.fetch(id); });
     const list = (c, y0, cursor) => Arcade.menuList.forEach(([id, name], i) => {
-      const on = !!Arcade.games[id], y = y0 + i * 26;
+      const on = !!Arcade.games[id], y = y0 + i * 30;
+      if (on) { const t = Arcade.board.top(id).slice(0, 3); if (t.length) api.text(c, t.map((e) => e.name + ' ' + e.score).join('  ·  '), 112, y + 13, '#8a7a5a', 'center'); }
       if (cursor && on && playable()[sel] && playable()[sel][0] === id) { c.fillStyle = '#7a1a3c'; c.fillRect(28, y - 5, 168, 16); api.text(c, '>', 36, y, '#e8c07a'); }
       api.text(c, name, 112, y, on ? '#f4efe1' : '#5c534a', 'center');
-      if (!on) api.text(c, 'COMING SOON', 112, y + 8, '#5c534a', 'center');
+      if (!on) api.text(c, 'COMING SOON', 112, y + 13, '#5c534a', 'center');
     });
     const header = (c) => { c.fillStyle = '#140c06'; c.fillRect(0, 0, 224, 288); c.fillStyle = '#7a1a3c'; c.fillRect(0, 0, 224, 10); c.fillRect(0, 278, 224, 10);
       c.save(); c.translate(112, 40); c.scale(3, 3); api.text(c, 'THE ARCADE', 0, 0, '#e8c07a', 'center'); c.restore();
@@ -141,10 +193,10 @@
       update(dt, input) { t += dt; const p = playable(); if (!p.length) return;
         if (input.hit('up')) sel = (sel + p.length - 1) % p.length; if (input.hit('down')) sel = (sel + 1) % p.length;
         if (input.hit('start') || input.hit('jump')) Arcade.launch(p[sel][0], { back: 'menu' }); },
-      draw(c) { header(c); list(c, 104, true); if (Math.floor(t * 2) % 2) api.text(c, 'UP / DOWN · START TO PLAY', 112, 236, '#e8c07a', 'center'); api.text(c, 'ESC RETURNS HERE', 112, 256, '#a79c85', 'center'); },
+      draw(c) { header(c); list(c, 96, true); if (Math.floor(t * 2) % 2) api.text(c, 'UP / DOWN · START TO PLAY', 112, 236, '#e8c07a', 'center'); api.text(c, 'ESC RETURNS HERE', 112, 256, '#a79c85', 'center'); },
       // the frame's loop: the list, then each game's own title in turn, six seconds apiece
       drawTitle(c, tt) { const ids = playable().map(([id]) => id), k = Math.floor(tt / 6) % (ids.length + 1);
-        if (k === 0) { header(c); list(c, 104, false); if (Math.floor(tt * 2) % 2) api.text(c, 'PRESS START', 112, 236, '#e8c07a', 'center'); return; }
+        if (k === 0) { header(c); list(c, 96, false); if (Math.floor(tt * 2) % 2) api.text(c, 'PRESS START', 112, 236, '#e8c07a', 'center'); return; }
         const id = ids[k - 1]; if (!titles[id]) titles[id] = Arcade.games[id].create(Arcade.api(Arcade.games[id])); titles[id].drawTitle(c, tt); }
     };
   } };

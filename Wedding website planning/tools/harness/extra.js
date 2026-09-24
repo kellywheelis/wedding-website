@@ -368,3 +368,15 @@
     tag.style.cssText = 'position:fixed;left:8px;top:60px;z-index:99;background:#000;color:#0f0;font:13px monospace;padding:6px 10px;white-space:pre';
     tag.textContent = out.join('\n'); document.body.appendChild(tag);
   }, 16000); }
+{ const q = new URLSearchParams(location.search);
+  // dump=1 : every text and picture table, as JSON in a <pre>, for the mobile edition to be built from
+  if (q.has('dump')) setTimeout(() => {
+    const strip = (o) => JSON.parse(JSON.stringify(o, (k, v) => (typeof v === 'number' || typeof v === 'string' || typeof v === 'boolean' || v === null || Array.isArray(v) || (v && v.constructor === Object)) ? v : undefined));
+    const out = { STATIONS: strip(STATIONS), DETAIL_PICTURES: strip(DETAIL_PICTURES), ATRIUM_PICTURES: strip(ATRIUM_PICTURES), W1_PICTURES: strip(W1_PICTURES), W2_PICTURES: strip(W2_PICTURES),
+      SCULPTURE_NOTES: strip(SCULPTURE_NOTES), SCULPTURES: strip(SCULPTURES), CARDS: strip(CARDS), SECTION_LABEL: strip(SECTION_LABEL), SECTION_STOP: strip(SECTION_STOP),
+      credits: [...document.querySelectorAll('#creditsList li, #creditsList p, #creditsList div')].map((n) => n.textContent.trim()).filter(Boolean) };
+    const pre = document.createElement('pre'); pre.id = 'dump'; pre.textContent = JSON.stringify(out); document.body.appendChild(pre);
+  }, 800); }
+{ const q = new URLSearchParams(location.search);
+  // clean=1 : no interface at all, for postcards of the rooms
+  if (q.has('clean')) { const s = document.createElement('style'); s.textContent = '#topLeft,#turn,#hint,#sections,#back,[data-fwd],[data-back],#nav,#label,#motto{display:none!important}'; document.head.appendChild(s); } }

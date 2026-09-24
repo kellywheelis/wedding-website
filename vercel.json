@@ -1,7 +1,19 @@
 {
+  "redirects": [
+    {
+      "source": "/",
+      "has": [{ "type": "header", "key": "user-agent", "value": ".*(iPhone|iPod|Android.*Mobile|Windows Phone|Mobi).*" }],
+      "missing": [{ "type": "query", "key": "desktop" }],
+      "destination": "/mobile/",
+      "permanent": false
+    },
+    { "source": "/mobile", "destination": "/mobile/", "permanent": false }
+  ],
   "rewrites": [
     { "source": "/", "destination": "/Wedding%20website%20planning/The%20Gallery%203D.html" },
     { "source": "/gallery3d.js", "destination": "/Wedding%20website%20planning/gallery3d.js" },
-    { "source": "/assets/:path*", "destination": "/Wedding%20website%20planning/assets/:path*" }
+    { "source": "/assets/:path*", "destination": "/Wedding%20website%20planning/assets/:path*" },
+    { "source": "/mobile/", "destination": "/Wedding%20website%20planning/mobile/index.html" },
+    { "source": "/mobile/:path*", "destination": "/Wedding%20website%20planning/mobile/:path*" }
   ]
 }

@@ -286,6 +286,35 @@ No scans of Villa Cetinale's own sculpture exist online (searched). See `assets/
   the table keep-out (should be 0) and how far off the stop it ended (should be 0).
 - A warm point-light **glow** follows the mouse in the gallery.
 
+## 4b. The mobile edition (`mobile/`, live at kaweddinggallery.com/mobile/) — 23 Sept 2026
+
+Phones are sent here instead of the 3D build: Vercel does it before the page loads (a `redirects` rule in the
+root `vercel.json` on the user-agent: iPhone, Android phones with "Mobile", etc.; tablets and desktops are not
+matched), and the 3D page has a two-line fallback for other hosts. `/?desktop` on the address keeps a phone on
+the 3D build; the mobile page's footer links there.
+
+It is a scrolling exhibition guide, not a port: the doors (the same markup as the 3D entry, restyled for
+portrait), then a chapter per room (Atrium, Wing I, Wing II, Exhibit Details), each with a "postcard" rendered
+from the 3D build as its header, every painting in a CSS gilt frame with its write-up (tap = lightbox), every
+sculpture as a postcard with its write-up, the save-the-date as a working wheel (front panel drawn to a canvas
+with the window cut out, `img/vol-wheel.png` turning behind it; tap advances a plate, drag spins, "turn it
+over" shows the monogram back), the pop-up invitation (doors open on tap, the villa's three layers shift with
+the phone's tilt, the tab draws the card out), the seven detail sections with their wall-text cards, and RSVP.
+
+- **Text lives in one place.** `mobile/content.js` is GENERATED from the 3D build's own tables: run the harness
+  with `dump=1` (`tools/harness/extra.js`) and the python in the session log, or simply re-run the generator
+  after editing `gallery3d.js`. Do not hand-edit content.js; the atrium's `NOTES` are the one exception (copied
+  into the generator).
+- **Pictures**: `mobile/img/` holds phone-sized copies (`sips`, 1400 px and 700 px `-s` versions for srcset) of
+  every painting, the card assets, and the postcards (`room-*.jpg`, `sc-*.jpg`) rendered with the harness at
+  900x1200 with `clean=1&slow=1` (`tools/harness/shotp.sh OUT URL W H SCALE BUDGET`).
+- **Checking it**: `tools/harness/.work/phone.html?p=?open%23sec-schedule` frames the page in a true 390 px
+  viewport (headless Chrome will not go narrower than 500 px on its own); `?open` skips the doors, `?dbg`
+  lists anything wider than the screen.
+- Benchmarks: iPhone 14 (390 px) and Pixel 10 Pro (412 px); about 1 MB to first paint, images lazy.
+- To adapt it towards a touch version of the 3D gallery later: keep the redirect, and point `/mobile/` at
+  whatever replaces this page.
+
 ## 5. Known loose ends / ideas not yet done
 
 - `PROCESS.md` "Still to do": real artwork for the wing side paintings (currently colour

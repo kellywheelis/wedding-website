@@ -6,6 +6,11 @@
 <title>The Gallery</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<script>
+// phones go to the mobile edition (Vercel does this before the page loads; this is the fallback for other hosts).
+// `?desktop` on the address keeps you here.
+if (!/[?&]desktop/.test(location.search) && /iPhone|iPod|Android.*Mobile|Windows Phone|Mobi/i.test(navigator.userAgent) && Math.min(screen.width, screen.height) < 700) location.replace('/mobile/');
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
 <script type="importmap">
 {

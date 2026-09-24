@@ -11,8 +11,8 @@
   const C = { text: '#f4efe1', gold: '#e8c07a', dim: '#a79c85', burg: '#7a1a3c', red: '#c0392b', white: '#fbf7ee', street: '#4a4137', kerb: '#8a8378', line: '#d8ccb0', brick: '#a8503a', brick2: '#b8604a', brick3: '#8f4130', stone: '#e9dfc6', marble: '#f4efe1', dark: '#2b2520', cream: '#f3ecdc' };
   // rows: what runs along them, which way, how fast, and how far apart
   const LANES = {
-    1: { kind: 'vespa', dir: -1, speed: 70, gap: 90, w: 24, h: 14 }, 2: { kind: 'fiat', dir: 1, speed: 46, gap: 100, w: 26, h: 14 }, 3: { kind: 'vespa', dir: 1, speed: 88, gap: 120, w: 24, h: 14 }, 4: { kind: 'fiat', dir: -1, speed: 52, gap: 84, w: 26, h: 14 },
-    6: { kind: 'tour', dir: 1, speed: 24, gap: 140, w: 46, h: 16 }, 7: { kind: 'pigeon', dir: -1, speed: 40, gap: 70, w: 12, h: 10 }, 8: { kind: 'nonna', dir: 1, speed: 20, gap: 110, w: 16, h: 18 }, 9: { kind: 'tour', dir: -1, speed: 30, gap: 120, w: 46, h: 16 }
+    1: { kind: 'vespa', dir: -1, speed: 70, gap: 90, w: 24, h: 16 }, 2: { kind: 'fiat', dir: 1, speed: 46, gap: 100, w: 27, h: 18 }, 3: { kind: 'vespa', dir: 1, speed: 88, gap: 120, w: 24, h: 16 }, 4: { kind: 'fiat', dir: -1, speed: 52, gap: 84, w: 27, h: 18 },
+    6: { kind: 'tour', dir: 1, speed: 24, gap: 140, w: 46, h: 20 }, 7: { kind: 'pigeon', dir: -1, speed: 40, gap: 70, w: 14, h: 10 }, 8: { kind: 'nonna', dir: 1, speed: 20, gap: 110, w: 14, h: 22 }, 9: { kind: 'tour', dir: -1, speed: 30, gap: 120, w: 46, h: 20 }
   };
   // ---- things drawn in code until their sprites arrive
   const FIAT = ['......ccccccccc.......', '....ccwwwwwwwwwcc.....', '...ccwwccccccwwwcc....', '..cccccccccccccccccc..', '.cccccccccccccccccccc.', '.ccccccccccccccccccccc', '..eee.cccccccccc.eee..', '..eee............eee..'];
@@ -25,9 +25,10 @@
 
   Arcade.games.piazza = { title: 'Cross the Piazza', w: W, h: H, create(api) {
     const pic = (n, fb) => api.image('/assets/game/' + n + '.png', fb);
-    const ART = { vespa: pic('vespa', (c, x, y, w, h) => { c.fillStyle = C.red; c.fillRect(x + 2, y + 4, w - 4, h - 6); }), fiat: pic('fiat', (c, x, y, w, h, fl) => drawMap(c, FIAT, x + 1, y + 3, PAL, fl)),
-      tourist: pic('tourist', (c, x, y, w, h, fl) => drawMap(c, TOURIST, x, y + 6, PAL, fl)), nonna: pic('nonna', (c, x, y, w, h, fl) => drawMap(c, NONNA, x + 4, y + 4, PAL, fl)),
-      pigeon: pic('pigeon', (c, x, y, w, h, fl) => drawMap(c, PIGEON, x, y + 2, PAL, fl)), cart: pic('gelato', (c, x, y, w, h) => drawMap(c, CART, x, y, PAL)) };
+    // the owner's sprites: four Fiats and two tourists for variety (each object picks one), the standing pigeon, the nonna, the cart, the Duomo door
+    const ART = { vespa: pic('vespa', (c, x, y, w, h) => { c.fillStyle = C.red; c.fillRect(x + 2, y + 4, w - 4, h - 6); }), fiats: [1, 2, 3, 4].map((i) => pic('fiat' + i, (c, x, y, w, h, fl) => drawMap(c, FIAT, x + 1, y + 3, PAL, fl))),
+      tourists: [1, 2].map((i) => pic('tourist' + i, (c, x, y, w, h, fl) => drawMap(c, TOURIST, x, y + 6, PAL, fl))), nonna: pic('nonna', (c, x, y, w, h, fl) => drawMap(c, NONNA, x + 4, y + 4, PAL, fl)),
+      pigeon: pic('pigeon', (c, x, y, w, h, fl) => drawMap(c, PIGEON, x, y + 2, PAL, fl)), cart: pic('gelato', (c, x, y, w, h) => drawMap(c, CART, x, y, PAL)), duomo: pic('duomo') };
     // the top-down figures: 9 frames of 32x32 (idle/walk for north, south, east, west, then knocked down); code-drawn stand-ins until the sheets load
     const stand = (col) => (c, f, x, y) => { c.fillStyle = col; c.fillRect(x + 11, y + 8, 10, 20); c.fillStyle = '#f1c9a5'; c.fillRect(x + 12, y + 4, 8, 7); };
     const sheets = { bride: api.sheet('/assets/game/bride-topdown.png', 32, 32, 9, stand('#fbf5ea')), groom: api.sheet('/assets/game/groom-topdown.png', 32, 32, 9, stand('#2b2520')) };
@@ -36,7 +37,7 @@
       Object.assign(S, { mode: 'title', who: 'bride', sel: 0, t: 0, lives: 3, score: 0, bonus: 3000, best: 0, ready: 0, msg: null, msgT: 0,
         p: { col: 6, row: 0, x: 0, y: 0, fx: 0, fy: 0, hop: 0, dir: 'n', hit: 0, won: false }, lanes: {} });
       S.p.x = S.p.fx = colX(S.p.col); S.p.y = S.p.fy = rowY(0);
-      Object.keys(LANES).forEach((r) => { const L = LANES[r]; S.lanes[r] = []; for (let x = -40; x < W + 40; x += L.gap) S.lanes[r].push({ x: x + Math.random() * 20 }); });
+      Object.keys(LANES).forEach((r) => { const L = LANES[r]; S.lanes[r] = []; for (let x = -40; x < W + 40; x += L.gap) S.lanes[r].push({ x: x + Math.random() * 20, look: Math.floor(Math.random() * 4) }); });
     }
     const colX = (col) => col * COL;                                  // 14 columns of 16 px
     reset();
@@ -73,8 +74,8 @@
       Object.keys(LANES).forEach((r) => { const L = LANES[r]; let lane = S.lanes[r]; lane.forEach((o) => { o.x += L.dir * L.speed * dt; });
         // whatever has left the far side goes; a new one joins at the near side once there is a gap for it
         lane = S.lanes[r] = lane.filter((o) => o.x > -60 && o.x < W + 60);
-        if (L.dir > 0) { const lo = Math.min(...lane.map((o) => o.x), Infinity); if (lo > -50 + L.gap) lane.push({ x: -50 - Math.random() * 30 }); }
-        else { const hi = Math.max(...lane.map((o) => o.x), -Infinity); if (hi < W + 50 - L.gap) lane.push({ x: W + 50 + Math.random() * 30 }); } });
+        if (L.dir > 0) { const lo = Math.min(...lane.map((o) => o.x), Infinity); if (lo > -50 + L.gap) lane.push({ x: -50 - Math.random() * 30, look: Math.floor(Math.random() * 4) }); }
+        else { const hi = Math.max(...lane.map((o) => o.x), -Infinity); if (hi < W + 50 - L.gap) lane.push({ x: W + 50 + Math.random() * 30, look: Math.floor(Math.random() * 4) }); } });
       // ---- collisions
       if (p.hit <= 0 && S.mode === 'play' && LANES[p.row]) {
         const L = LANES[p.row], px = p.x + 10, py = p.y + 6, pw = 12, ph = 12;
@@ -87,14 +88,14 @@
       c.fillStyle = C.dark; c.fillRect(0, 0, W, H);
       // the Duomo across the top two rows: striped marble, a doorway in the middle
       c.fillStyle = C.marble; c.fillRect(0, rowY(11), W, ROW); for (let y = rowY(11) + 3; y < rowY(11) + ROW; y += 6) { c.fillStyle = C.dark; c.fillRect(0, y, W, 2); }
-      c.fillStyle = C.burg; c.fillRect(100, rowY(11) - 2, 24, ROW + 2); c.fillStyle = C.dark; c.fillRect(102, rowY(11), 20, ROW); c.fillStyle = '#3a2a22'; c.fillRect(104, rowY(11) + 4, 16, ROW - 4);
-      api.text(c, 'IL DUOMO', 112, rowY(11) - 9, C.gold, 'center');
+      if (ART.duomo.ok) ART.duomo.draw(c, 112 - 19, TOP, 38, ROW * 2 + 2, false); else { c.fillStyle = C.burg; c.fillRect(100, rowY(11) - 2, 24, ROW + 2); c.fillStyle = C.dark; c.fillRect(102, rowY(11), 20, ROW); }
       c.fillStyle = C.stone; c.fillRect(0, rowY(10), W, ROW); c.fillStyle = '#cfc4a8'; for (let x = 0; x < W; x += 16) c.fillRect(x, rowY(10) + 10, 8, 1);   // the steps
+      api.text(c, 'IL DUOMO', 8, rowY(10) + 3, '#8a7a4a');
       // the Campo: brick, in soft fans
       for (let r = 6; r <= 9; r++) { c.fillStyle = r % 2 ? C.brick : C.brick2; c.fillRect(0, rowY(r), W, ROW); c.fillStyle = C.brick3; for (let x = (r % 2) * 8; x < W; x += 16) c.fillRect(x, rowY(r) + 11, 8, 1); }
       // the pavement between, with the gelato cart
       c.fillStyle = C.stone; c.fillRect(0, rowY(5), W, ROW); c.fillStyle = C.kerb; c.fillRect(0, rowY(5) + ROW - 2, W, 2); c.fillRect(0, rowY(5), W, 1);
-      ART.cart.draw(c, 176, rowY(5) + 2, 24, 18, false);
+      ART.cart.draw(c, 192, rowY(5) - 6, null, 28, false);                                   // the cart, at its own proportion, its canopy just above the pavement
       api.text(c, 'PIAZZA DEL CAMPO', 8, rowY(5) + 8, C.dim);
       // the streets
       c.fillStyle = C.street; c.fillRect(0, rowY(4), W, ROW * 4);
@@ -107,10 +108,10 @@
       Object.keys(LANES).forEach((r) => { const L = LANES[r], y = rowY(r) + (ROW - L.h) / 2, flip = L.dir > 0;
         S.lanes[r].forEach((o) => {
           if (L.kind === 'vespa') ART.vespa.draw(c, o.x, y, L.w, L.h, !flip);
-          else if (L.kind === 'fiat') ART.fiat.draw(c, o.x, y, L.w, L.h, !flip);
-          else if (L.kind === 'tour') [0, 12, 24, 36].forEach((dx, i) => ART.tourist.draw(c, o.x + dx, y - 2 + (Math.floor(S.t * 4 + i) % 2), 10, 18, !flip));
-          else if (L.kind === 'nonna') ART.nonna.draw(c, o.x, y - 2, 16, 20, !flip);
-          else if (L.kind === 'pigeon') ART.pigeon.draw(c, o.x, y + (Math.floor(S.t * 6) % 2), 12, 10, !flip);
+          else if (L.kind === 'fiat') ART.fiats[o.look].draw(c, o.x, y, L.w, L.h, !flip);      // the Fiats face right as drawn
+          else if (L.kind === 'tour') [0, 12, 24, 36].forEach((dx, i) => ART.tourists[(o.look + i) % 2].draw(c, o.x + dx, y - 1 + (Math.floor(S.t * 4 + i) % 2), 10, 20, !flip));
+          else if (L.kind === 'nonna') ART.nonna.draw(c, o.x, y, null, 22, !flip);          // so does the nonna
+          else if (L.kind === 'pigeon') ART.pigeon.draw(c, o.x, y + (Math.floor(S.t * 6) % 2), 14, 10, !flip);
         }); });
     }
     function hud(c) {
@@ -122,7 +123,7 @@
     const frameFor = (p) => p.hit > 0 ? 8 : { n: 0, s: 2, e: 4, w: 6 }[p.dir] + (p.hop > 0 ? 1 : 0);
     function scene(c) {
       ground(c); lanes(c);
-      sheets[other()].draw(c, S.mode === 'won' ? 2 : 2, 96, rowY(11) - 8, false);
+      sheets[other()].draw(c, 2, 96, rowY(11) - 6, false);
       const p = S.p; sheets[S.who].draw(c, frameFor(p), Math.round(p.x) - 8, Math.round(p.y) - 8, false);
       hud(c);
       if (S.msgT > 0 && S.msg) { const y = Math.max(TOP + 4, p.y - 14); c.fillStyle = C.white; c.fillRect(p.x - 22, y - 2, 60, 10); api.text(c, S.msg, p.x + 8, y, C.burg, 'center'); }
@@ -133,8 +134,8 @@
       big(c, 'CROSS THE', W / 2, 46, C.gold, 3); big(c, 'PIAZZA', W / 2, 72, C.gold, 3);
       api.text(c, 'ANTHONY ALVAREZ & KELLY WHEELIS', W / 2, 104, C.dim, 'center');
       c.fillStyle = C.brick; c.fillRect(0, 124, W, 60); c.fillStyle = C.brick3; for (let x = 0; x < W; x += 16) { c.fillRect(x, 140, 8, 1); c.fillRect(x + 8, 160, 8, 1); }
-      const vx = ((t * 70) % 300) - 40; ART.vespa.draw(c, vx, 150, 24, 14, false);
-      const fx = W - ((t * 50) % 300); ART.fiat.draw(c, fx, 128, 26, 14, true);
+      const vx = ((t * 70) % 300) - 40; ART.vespa.draw(c, vx, 150, 24, 16, false);
+      const fx = W - ((t * 50) % 300); ART.fiats[2].draw(c, fx, 126, 27, 18, true);
       sheets.bride.draw(c, 2 + (Math.floor(t * 5) % 2), 84, 188, false); sheets.groom.draw(c, 2 + (Math.floor(t * 5) % 2), 116, 188, false);   // facing out
       api.text(c, 'FROM THE CAMPO TO THE DUOMO,', W / 2, 228, C.text, 'center'); api.text(c, 'ONE HOP AT A TIME.', W / 2, 238, C.text, 'center');
       if (Math.floor(t * 2) % 2) api.text(c, 'PRESS START', W / 2, 256, C.gold, 'center');

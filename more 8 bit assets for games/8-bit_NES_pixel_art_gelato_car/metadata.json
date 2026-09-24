@@ -1,0 +1,22 @@
+{
+  "group_id": "e243b943-87cb-4139-a1d9-7262fd691261",
+  "objects": [
+    {
+      "id": "76e0062b-2fdc-4963-858e-622a5ca26dd0",
+      "name": "base",
+      "prompt": "8-bit NES pixel art gelato cart, SIDE VIEW, red and white striped canopy, cream cart body with a row of pastel gelato tubs, two wheels, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_gelato_car.png"
+      },
+      "animations": {}
+    }
+  ],
+  "export_version": "1.1",
+  "export_date": "2026-09-24T20:06:22.796735"
+}

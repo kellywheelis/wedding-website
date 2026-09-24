@@ -107,7 +107,8 @@
         if (x1 >= 0) box = { x: x0, y: y0, w: x1 - x0 + 1, h: y1 - y0 + 1 }; };
       img.src = url;
       return { get ok() { return !!box; }, draw(c, x, y, w, h, flip) {
-        if (!box) { if (fallback) fallback(c, x, y, w, h); return; }
+        if (!box) { if (fallback) fallback(c, x, y, w || 16, h || 16); return; }
+        if (w == null) w = Math.round(h * box.w / box.h); if (h == null) h = Math.round(w * box.h / box.w);   // one size given: keep the picture's own proportion
         c.save(); c.imageSmoothingEnabled = false;
         if (flip) { c.translate(x + w, y); c.scale(-1, 1); c.drawImage(img, box.x, box.y, box.w, box.h, 0, 0, w, h); } else c.drawImage(img, box.x, box.y, box.w, box.h, x, y, w, h);
         c.restore();

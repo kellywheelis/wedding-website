@@ -11,12 +11,12 @@
   const PAL = { w: '#d9e8ef', y: '#f3dc9a', c: '#f3ecdc', p: '#eeb0b8', g: '#8a8a94', o: '#d9a93f' };
   const drawMap = (c, map, x, y, pal) => map.forEach((row, ry) => { for (let rx = 0; rx < row.length; rx++) { const k = row[rx]; if (k === '.' || !pal[k]) continue; c.fillStyle = pal[k]; c.fillRect(x + rx, y + ry, 1, 1); } });
   // what falls: kind, how often, how big, what it is worth (or costs)
-  const KINDS = [['bouquet', 42, 16, 18, 100], ['ring', 8, 14, 16, 300], ['glass', 20, 8, 10, 50], ['cake', 18, 10, 10, -1], ['pigeon', 12, 12, 8, -1]];
+  const KINDS = [['bouquet', 42, 16, 18, 100], ['ring', 8, 14, 16, 300], ['glass', 20, 7, 20, 50], ['cake', 18, 16, 16, -1], ['pigeon', 12, 18, 14, -1]];
 
   Arcade.games.bouquet = { title: 'Catch the Bouquet', w: W, h: H, create(api) {
     const pic = (n, fb) => api.image('/assets/game/' + n + '.png', fb);
     const ART = { bouquet: pic('bouquet', (c, x, y) => { c.fillStyle = '#eeb0b8'; c.fillRect(x + 3, y, 10, 8); c.fillStyle = '#4a6a34'; c.fillRect(x + 7, y + 8, 2, 10); }), ring: pic('ring', (c, x, y) => { c.fillStyle = C.gold; c.fillRect(x + 2, y + 4, 10, 10); c.fillStyle = C.sky; c.fillRect(x + 5, y + 7, 4, 4); }),
-      glass: pic('champagne', (c, x, y) => drawMap(c, GLASS, x, y, PAL)), cake: pic('cake', (c, x, y) => drawMap(c, CAKE, x, y, PAL)), pigeon: pic('pigeon', (c, x, y) => drawMap(c, PIGEON, x, y, PAL)) };
+      glass: pic('champagne', (c, x, y) => drawMap(c, GLASS, x, y, PAL)), cake: pic('cake', (c, x, y) => drawMap(c, CAKE, x, y, PAL)), pigeon: pic('pigeon-flying', (c, x, y) => drawMap(c, PIGEON, x, y, PAL)) };
     const stand = (col) => (c, f, x, y) => { c.fillStyle = col; c.fillRect(x + 11, y + 8, 10, 20); c.fillStyle = '#f1c9a5'; c.fillRect(x + 12, y + 4, 8, 7); };
     const sheets = { bride: api.sheet('/assets/game/bride.png', 32, 32, 9, stand('#fbf5ea')), groom: api.sheet('/assets/game/groom.png', 32, 32, 9, stand('#2b2520')) };
     const S = {};
@@ -101,10 +101,10 @@
       if (S.mode === 'ready') {
         c.fillStyle = 'rgba(20,12,6,.88)'; c.fillRect(16, 78, W - 32, 132); c.strokeStyle = C.gold; c.lineWidth = 1; c.strokeRect(16.5, 78.5, W - 33, 131);
         api.text(c, 'CATCH', 112, 88, C.gold, 'center');
-        ART.bouquet.draw(c, 56, 100, 16, 18, false); ART.ring.draw(c, 104, 101, 14, 16, false); ART.glass.draw(c, 156, 104, 8, 10, false);
+        ART.bouquet.draw(c, 56, 100, 16, 18, false); ART.ring.draw(c, 104, 101, 14, 16, false); ART.glass.draw(c, 156, 99, 7, 20, false);
         api.text(c, 'BOUQUET', 64, 122, C.text, 'center'); api.text(c, 'RING', 111, 122, C.text, 'center'); api.text(c, 'CHAMPAGNE', 160, 122, C.text, 'center');
         api.text(c, 'DODGE', 112, 140, C.red, 'center');
-        ART.cake.draw(c, 80, 152, 10, 10, false); ART.pigeon.draw(c, 130, 153, 12, 8, false);
+        ART.cake.draw(c, 77, 149, 16, 16, false); ART.pigeon.draw(c, 127, 150, 18, 14, false);
         api.text(c, 'CAKE', 85, 168, C.text, 'center'); api.text(c, 'PIGEON', 136, 168, C.text, 'center');
         api.text(c, 'THEY COST A LIFE', 112, 180, C.dim, 'center');
         big(c, 'READY?', W / 2, 194, C.gold);

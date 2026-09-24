@@ -1,0 +1,22 @@
+{
+  "group_id": "78ac9dbc-a78d-4c8b-a68b-53c7af39df75",
+  "objects": [
+    {
+      "id": "01e14995-f483-4e1b-8b0c-55ebd9981728",
+      "name": "base",
+      "prompt": "8-bit NES pixel art striped black and white marble cathedral doorway, front view, a round rose window above the arch, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_striped_bl.png"
+      },
+      "animations": {}
+    }
+  ],
+  "export_version": "1.1",
+  "export_date": "2026-09-24T20:05:46.817399"
+}

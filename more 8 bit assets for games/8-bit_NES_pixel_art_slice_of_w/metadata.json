@@ -1,0 +1,22 @@
+{
+  "group_id": "39ef98c0-531a-4b15-8568-a2110efca163",
+  "objects": [
+    {
+      "id": "2a503bf5-2823-41ea-a43f-6539077846d5",
+      "name": "base",
+      "prompt": "8-bit NES pixel art slice of white wedding cake on its side, three tiers visible, pink icing between the layers, a small strawberry on top, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_slice_of_w.png"
+      },
+      "animations": {}
+    }
+  ],
+  "export_version": "1.1",
+  "export_date": "2026-09-24T20:05:55.212774"
+}

@@ -1,0 +1,22 @@
+{
+  "group_id": "37b5a2f0-71e5-472a-883c-64283eb6a27b",
+  "objects": [
+    {
+      "id": "167e7719-5755-4eab-bf2d-9d3908c23f39",
+      "name": "base",
+      "prompt": "SIDE VIEW of 8-bit NES pixel art vintage Fiat 500 car, driving to the right,  round headlamp, small wheels, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/SIDE_VIEW_of_8-bit_NES_pixel_a.png"
+      },
+      "animations": {}
+    }
+  ],
+  "export_version": "1.1",
+  "export_date": "2026-09-24T20:06:05.143903"
+}

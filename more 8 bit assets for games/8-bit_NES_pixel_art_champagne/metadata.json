@@ -1,0 +1,22 @@
+{
+  "group_id": "ba1b5ac0-23ce-485b-b661-4ed9f3764ea9",
+  "objects": [
+    {
+      "id": "2f67ef77-bcbf-4a3e-a9f3-c25e7adce353",
+      "name": "base",
+      "prompt": "8-bit NES pixel art champagne flute, upright, long chamber,  pale gold champagne with a few bubbles, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_champagne.png"
+      },
+      "animations": {}
+    }
+  ],
+  "export_version": "1.1",
+  "export_date": "2026-09-24T20:05:53.393900"
+}

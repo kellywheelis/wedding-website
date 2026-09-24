@@ -1,0 +1,22 @@
+{
+  "group_id": "037b8f4d-bf10-4b23-85f5-ef94a35bbbb8",
+  "objects": [
+    {
+      "id": "0afc9474-5c06-4a2f-a8fa-379a7a8b94d3",
+      "name": "base",
+      "prompt": "8-bit NES pixel art tourist, side view walking to the right, sun hat, camera on a strap, shorts and sandals, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_tourist_s.png"
+      },
+      "animations": {}
+    }
+  ],
+  "export_version": "1.1",
+  "export_date": "2026-09-24T20:06:39.221408"
+}

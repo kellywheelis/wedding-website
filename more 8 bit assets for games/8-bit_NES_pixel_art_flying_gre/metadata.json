@@ -1,0 +1,22 @@
+{
+  "group_id": "e7d43c53-57a0-45b4-9b54-ba7da2fd3ac9",
+  "objects": [
+    {
+      "id": "8af46757-13b4-4fdc-9aa8-d407deabebe4",
+      "name": "base",
+      "prompt": "8-bit NES pixel art flying grey pigeon, side view, orange feet, 1-pixel dark outline, flat colours, transparent background",
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/8-bit_NES_pixel_art_flying_gre.png"
+      },
+      "animations": {}
+    }
+  ],
+  "export_version": "1.1",
+  "export_date": "2026-09-24T20:06:09.031352"
+}

@@ -2606,8 +2606,7 @@ function markRoom(room) {
   // the step-back button shows everywhere except the atrium's own stop
   const home = idx === ROOM_ENTRY.atrium;
   const back = el('back');
-  if (home) { back.style.opacity = '0'; back.style.pointerEvents = 'none'; back.style.display = 'none'; }   // gone, so Turn around takes the corner
-  else { back.style.display = ''; back.style.pointerEvents = 'auto'; requestAnimationFrame(() => { back.style.opacity = '1'; }); }
+  back.style.opacity = home ? '0.35' : '1'; back.style.pointerEvents = home ? 'none' : 'auto';   // at the entrance there is nowhere back to go: dimmed, in its place
   // no turning round with the save-the-date or the invitation in your hands
   const holding = STATIONS[idx].back === 'detTable';
   el('sections').style.display = room === 'det' ? 'flex' : 'none';
@@ -2642,6 +2641,28 @@ el('back').addEventListener('click', () => {
 document.querySelectorAll('[data-room]').forEach((b) => {
   b.addEventListener('click', () => goTo(ROOM_ENTRY[b.getAttribute('data-room')]));
 });
+// look left or right (side: 1 = left, -1 = right): go to the nearest stop in this room that faces that way and is
+// not behind you (the atrium's walls, a wing's side wall, the next section along in the details room); if there
+// is none, a quarter turn on the spot
+function sideStep(side) {
+  if (leg || queue.length) return;
+  const here = roomAt(), want = cam.yaw + side * Math.PI / 2, fwd = { x: -Math.sin(want), z: -Math.cos(want) };
+  if (Math.abs(shortAngle(want, STATIONS[idx].yaw) - want) < 0.3) { goTo(idx); return; }   // turned away from your own stop: face it again
+  let best = null, bestD = Infinity;
+  STATIONS.forEach((s, i) => {
+    if (i === idx || s.room !== here) return;
+    if (Math.abs(shortAngle(want, s.yaw) - want) > 0.9) return;                       // must face roughly that way
+    const dx = s.x - cam.x, dz = s.z - cam.z;
+    if (dx * fwd.x + dz * fwd.z < -2.0) return;                                        // not well behind you (a stop a metre back still counts)
+    const d = Math.hypot(dx, dz) + (s.tour === false ? 1.5 : 0);                       // prefer the wall stops to close-ups
+    if (d < bestD) { bestD = d; best = i; }
+  });
+  if (best !== null) { goTo(best); return; }
+  wantPitch = 0; wantEye = EYE; hideMotto(); paintLabel(STATIONS[idx]);
+  queue.push({ kind: 'turn', yaw: want, pitch: 0, eye: EYE, ms: 1200 });
+}
+el('left').addEventListener('click', () => sideStep(1));
+el('right').addEventListener('click', () => sideStep(-1));
 // walking the tour skips stops that are only reached by clicking their picture
 function tourStep(dir) {
   let n = idx + dir;
@@ -2671,8 +2692,11 @@ el('more').addEventListener('click', () => { if (el('more').dataset.game) openAr
 el('card').addEventListener('click', (e) => { if (e.target === el('card') || e.target.id === 'cardClose') closeCard(); });
 window.addEventListener('keydown', (e) => {
   if (el('card').style.display === 'grid') { if (e.key === 'Escape') closeCard(); return; }   // no walking about behind an open card
-  if (e.key === 'ArrowRight' || e.key === 'ArrowUp') tourStep(1);
-  if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') tourStep(-1);
+  if (window.Arcade && Arcade.open) return;                        // the arcade has the keys while a game is open
+  if (e.key === 'ArrowUp') tourStep(1);
+  if (e.key === 'ArrowDown') el('back').click();
+  if (e.key === 'ArrowLeft') sideStep(1);
+  if (e.key === 'ArrowRight') sideStep(-1);
 });
 
 let mottoTimer = null;

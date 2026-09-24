@@ -272,6 +272,11 @@ No scans of Villa Cetinale's own sculpture exist online (searched). See `assets/
   turn taken on the spot first, the final turn to face the stop given more of the path the bigger it is, the
   view levelling and the stop's own tilt/height folded into the same motion, and the view never swinging faster
   than ~125 deg/s. A route with no walking (Turn around) still runs as a plain turn step.
+- Navigation (24 Sept 2026): a compass round the "Go ahead" hint at the bottom centre (`#compass`): up = Walk on
+  (`tourStep(1)`, kept as `[data-fwd]`), down = Step back (`#back`, dimmed at the atrium's own stop), left/right =
+  `sideStep(+1/-1)`: the nearest stop in the room that faces ~90 degrees that way and is not behind you (wall stops
+  preferred over close-ups), else a quarter turn on the spot. The arrow keys do the same. Turn around stays bottom
+  right. The old Step back / Walk on pills at the top are gone. Harness: `steps=goto:id,left,right,fwd,back,...`.
 - Mouse-look (`LOOK`, `updateLook()`): the view leans up to ~6 deg sideways and ~3 deg up/down towards the
   cursor, easing back when it leaves the canvas; applied only at draw time (`camera.rotation` = cam + LOOK), so
   nothing about stops or routes sees it. Off while the save-the-date or invitation is held. The harness's

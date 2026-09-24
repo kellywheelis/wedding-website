@@ -50,6 +50,8 @@ if (!/[?&]desktop/.test(location.search) && /iPhone|iPod|Android.*Mobile|Windows
   :root { --cur: url("assets/cursor.png") 3 3, auto; --cur-on: url("assets/cursor-on.png") 3 3, pointer; }   /* pre-rendered PNGs: an SVG cursor is re-rasterised on every change, which flashes the default arrow */
   html, body, #view { cursor: var(--cur); }
   button { cursor: var(--cur-on) !important; }
+  .cbtn { width: 40px; height: 40px; border-radius: 50%; background: rgba(26,18,8,.55); backdrop-filter: blur(2px); border: 1px solid rgba(232,192,122,.7); color: #F2E6C9; display: grid; place-items: center; padding: 0; transition: opacity 400ms ease, background 200ms ease; }
+  .cbtn:hover { background: rgba(232,192,122,.22); }
   /* the info panel's text eases in afresh each time it changes, so a new write-up catches the eye */
   @keyframes labelIn { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: none; } }
   #label .fresh { animation: labelIn 900ms ease both; }
@@ -59,10 +61,6 @@ if (!/[?&]desktop/.test(location.search) && /iPhone|iPod|Android.*Mobile|Windows
 <body>
 <div id="shell">
   <div id="stage"><canvas id="view"></canvas>
-    <div id="topLeft" style="position:absolute;left:clamp(12px,2vw,24px);top:clamp(12px,2vw,24px);z-index:12;display:flex;flex-wrap:wrap;gap:10px;max-width:calc(100% - 200px)">
-      <button id="back" aria-label="Step back" style="height:42px;padding:0 clamp(14px,2vw,20px);border-radius:22px;background:rgba(26,18,8,.55);backdrop-filter:blur(2px);border:1px solid rgba(232,192,122,.7);color:#F2E6C9;font-size:11px;letter-spacing:.24em;text-transform:uppercase;cursor:pointer;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity 500ms ease;display:none">&larr;&nbsp; Step back</button>
-    </div>
-    <button data-fwd="1" aria-label="Walk forward" style="position:absolute;right:clamp(12px,2vw,24px);top:clamp(12px,2vw,24px);z-index:12;height:42px;padding:0 clamp(14px,2vw,20px);border-radius:22px;background:rgba(26,18,8,.55);backdrop-filter:blur(2px);border:1px solid rgba(232,192,122,.7);color:#F2E6C9;font-size:11px;letter-spacing:.24em;text-transform:uppercase;cursor:pointer;white-space:nowrap">Walk on &nbsp;&rarr;</button>
     <button id="turn" aria-label="Turn around" style="position:absolute;right:clamp(12px,2vw,24px);bottom:clamp(10px,1.6vw,18px);z-index:12;height:42px;padding:0 clamp(14px,2vw,20px);border-radius:22px;background:rgba(26,18,8,.55);backdrop-filter:blur(2px);border:1px solid rgba(232,192,122,.7);color:#F2E6C9;font-size:11px;letter-spacing:.24em;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:opacity 500ms ease">&#8634;&nbsp; Turn around</button>
     <div id="sections" style="position:absolute;left:50%;top:clamp(12px,2vw,24px);transform:translateX(-50%);z-index:11;display:none;gap:5px;flex-wrap:wrap;justify-content:center;max-width:calc(100% - 340px)">
       <button data-card="main" data-stop="detMain" style="background:rgba(26,18,8,.55);backdrop-filter:blur(2px);border:1px solid rgba(232,192,122,.95);box-shadow:0 0 0 1px rgba(26,18,8,.5),inset 0 0 0 1px rgba(232,192,122,.35);color:#F2DFA8;height:34px;padding:0 10px;border-radius:17px;font-size:9px;letter-spacing:.15em;text-transform:uppercase;white-space:nowrap">Details</button>
@@ -73,7 +71,13 @@ if (!/[?&]desktop/.test(location.search) && /iPhone|iPod|Android.*Mobile|Windows
       <button data-card="policies" data-stop="detFrontR" style="background:rgba(26,18,8,.55);backdrop-filter:blur(2px);border:1px solid rgba(232,192,122,.95);box-shadow:0 0 0 1px rgba(26,18,8,.5),inset 0 0 0 1px rgba(232,192,122,.35);color:#F2DFA8;height:34px;padding:0 10px;border-radius:17px;font-size:9px;letter-spacing:.15em;text-transform:uppercase;white-space:nowrap">Policies</button>
       <button data-card="registry" data-stop="detShop" style="background:rgba(26,18,8,.55);backdrop-filter:blur(2px);border:1px solid rgba(232,192,122,.95);box-shadow:0 0 0 1px rgba(26,18,8,.5),inset 0 0 0 1px rgba(232,192,122,.35);color:#F2DFA8;height:34px;padding:0 10px;border-radius:17px;font-size:9px;letter-spacing:.15em;text-transform:uppercase;white-space:nowrap">RSVP</button>
     </div>
-    <p id="hint" style="position:absolute;left:50%;bottom:clamp(10px,1.6vw,18px);transform:translateX(-50%);z-index:12;margin:0;padding:6px 18px;border-radius:18px;background:rgba(26,18,8,.5);backdrop-filter:blur(2px);font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:clamp(15px,1.3vw,18px);color:#F2DFA8;white-space:nowrap;pointer-events:none">Go ahead &ndash; touch the art</p>
+    <div id="compass" style="position:absolute;left:50%;bottom:clamp(10px,1.6vw,18px);transform:translateX(-50%);z-index:12;display:grid;grid-template-columns:40px auto 40px;grid-template-rows:40px auto 40px;align-items:center;justify-items:center;gap:3px 6px">
+      <button data-fwd="1" style="grid-area:1/2" aria-label="Walk on" class="cbtn"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 11V3M3 7l4-4 4 4"/></svg></button>
+      <button id="left" style="grid-area:2/1" aria-label="Look left" class="cbtn"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 7H3M7 3L3 7l4 4"/></svg></button>
+      <p id="hint" style="grid-area:2/2;margin:0;padding:6px 18px;border-radius:18px;background:rgba(26,18,8,.5);backdrop-filter:blur(2px);font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:clamp(15px,1.3vw,18px);color:#F2DFA8;white-space:nowrap;pointer-events:none">Go ahead &ndash; touch the art</p>
+      <button id="right" style="grid-area:2/3" aria-label="Look right" class="cbtn"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h8M7 3l4 4-4 4"/></svg></button>
+      <button id="back" style="grid-area:3/2" aria-label="Step back" class="cbtn"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3v8M3 7l4 4 4-4"/></svg></button>
+    </div>
   </div>
 
   <div id="label" style="position:relative;z-index:12;flex:none;padding:0 clamp(14px,3vw,34px);opacity:0;transition:opacity 700ms ease">

@@ -379,7 +379,7 @@
   }, 800); }
 { const q = new URLSearchParams(location.search);
   // clean=1 : no interface at all, for postcards of the rooms
-  if (q.has('clean')) { const s = document.createElement('style'); s.textContent = '#topLeft,#turn,#hint,#sections,#back,[data-fwd],[data-back],#nav,#label,#motto{display:none!important}'; document.head.appendChild(s); } }
+  if (q.has('clean')) { const s = document.createElement('style'); s.textContent = '#topLeft,#turn,#hint,#compass,#sections,#back,[data-fwd],[data-back],#nav,#label,#motto{display:none!important}'; document.head.appendChild(s); } }
 { const q = new URLSearchParams(location.search);
   if (q.has('arcadecheck')) { const p = ATRIUM_PICTURES[4]; const st = STATIONS[ST[p.stop]]; document.title = 'arcade:' + !!window.Arcade + ' games:' + (window.Arcade ? Object.keys(Arcade.games).join(',') : '-') + ' stop:' + st.id + ' game:' + st.game + ' mat:' + (scene.children.find((o) => o.userData.station === ST[p.stop]) ? scene.children.find((o) => o.userData.station === ST[p.stop]).children[1].material.map.constructor.name : '?'); } }
 { const q = new URLSearchParams(location.search);
@@ -404,3 +404,16 @@
     tag.textContent = 'idx=' + idx + ' (' + STATIONS[idx].id + ') probe.station=' + p.station + ' game=' + (p.station !== undefined ? STATIONS[p.station].game : '-') + ' leg=' + (leg ? leg.kind : null) + ' queue=' + queue.length + ' -> Arcade.open=' + (window.Arcade ? Arcade.open : 'no arcade');
     document.body.appendChild(tag);
   }, 6000); }
+{ const q = new URLSearchParams(location.search);
+  // steps=goto:id,left,right,fwd,back,... : play a sequence of compass presses, settling after each, and report where each lands
+  if (q.has('steps')) setTimeout(() => {
+    const out = [], raf = window.requestAnimationFrame, now = performance.now, draw = renderer.render;
+    let fake = now.call(performance); window.requestAnimationFrame = () => 0; performance.now = () => fake; renderer.render = () => {};
+    const settle = () => { for (let i = 0; i < 900 && (i < 2 || leg || queue.length || !settled()); i++) { fake += 40; frame(fake); } };
+    q.get('steps').split(',').forEach((st) => {
+      if (st.startsWith('goto:')) goTo(ST[st.slice(5)]); else if (st === 'left') sideStep(1); else if (st === 'right') sideStep(-1); else if (st === 'fwd') tourStep(1); else if (st === 'back') el('back').click();
+      settle(); out.push(st.padEnd(14) + '-> ' + STATIONS[idx].id.padEnd(12) + ' cam ' + cam.x.toFixed(1) + ',' + cam.z.toFixed(1) + ' yaw ' + (cam.yaw * 180 / Math.PI).toFixed(0) + 'deg');
+    });
+    window.requestAnimationFrame = raf; performance.now = now; renderer.render = draw;
+    const tag = document.createElement('div'); tag.style.cssText = 'position:fixed;left:8px;top:60px;z-index:99;background:#000;color:#0f0;font:13px monospace;padding:6px 10px;white-space:pre'; tag.textContent = out.join('\n'); document.body.appendChild(tag);
+  }, 1500); }

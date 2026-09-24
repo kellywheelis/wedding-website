@@ -339,8 +339,14 @@ gallery3d.js); closing it walks back to the atrium. The mobile edition has a car
 Vercel serves `/game/*`. Test page: `game/test.html?sim=title|select|run` (`run` steps the game deterministically
 with `Arcade.step`, no timers; headless Chrome's timers are unreliable). Harness: `.work/game` is a symlink.
 
-Ideas agreed for later, on the same shell: Cross the piazza (Frogger, in Travel), Catch the bouquet (Wing I),
-The seating chart (Tetris-like, Wing II).
+`game/piazza.js` — CROSS THE PIAZZA, a Frogger: twelve rows of 22 px from Via di Citta up to the Duomo's door:
+four street lanes (Vespas, Fiat 500s), the Campo pavement with a gelato cart, four piazza lanes (tour groups,
+pigeons, a nonna), the steps, the door with the other half of the couple. Hop a column or a row per key press;
+`LANES` sets each row's kind, direction, speed and gap. Sprites: `bride-topdown.png`/`groom-topdown.png` (9 frames
+of 32x32: idle/walk facing N, S, E, W, then knocked down, assembled from the PixelLab rotations). Still code-drawn
+until the owner's files arrive: `fiat.png`, `tourist.png`, `nonna.png`, `pigeon.png`, `gelato.png`.
+
+All games live in one cabinet (the arcade menu); still to come on the same shell: Catch the Bouquet, The Seating Chart.
 
 ## 5. Known loose ends / ideas not yet done
 

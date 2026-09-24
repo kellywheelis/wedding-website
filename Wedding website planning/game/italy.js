@@ -136,7 +136,7 @@
       const cl = S.cloud; cl.x += cl.dir * 26 * dt; if (cl.x < 20 || cl.x > 190) cl.dir *= -1; cl.t -= dt; if (cl.t <= 0) { cl.t = 1.25; S.drips.push({ x: cl.x + 8, y: PLATS[2].y - 22 }); }
       S.drips.forEach((d) => { d.y += 125 * dt; }); S.drips = S.drips.filter((d) => d.y < PLATS[2].y);
       S.tVespa -= dt; if (S.tVespa <= 0 && !S.vespa) { S.tVespa = 4.5 + Math.random() * 2; S.vespa = { x: -26, scored: false }; }
-      if (S.vespa) { S.vespa.x += 150 * dt; if (S.vespa.x > 232) S.vespa = null; }
+      if (S.vespa) { S.vespa.x += 115 * dt; if (S.vespa.x > 232) S.vespa = null; }
       // ---- collisions and jump scoring
       if (p.hit <= 0 && S.mode === 'play') {
         const px = p.x - 4, py = p.y - 14, pw = 8, ph = 14;                   // the body, not the head: a jump under a platform must not clip what rolls along it

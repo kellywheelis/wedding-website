@@ -1333,7 +1333,7 @@ function slabLabelCanvas() {
   const slab = new THREE.Mesh(new THREE.BoxGeometry(SW, SH, SD), acrylic);
   slab.position.z = SD / 2 + 0.006;
   const well = new THREE.Mesh(new THREE.PlaneGeometry(SW - 0.02, SH - 0.02), new THREE.MeshStandardMaterial({ color: '#f5f2ea', roughness: 0.7 }));   // the white inner sleeve
-  well.position.z = 0.004;                                                       // the sleeve, card and label sit 8 mm apart: closer, and their edges flicker as you move
+  well.position.z = 0.009;                                                       // just behind the card and label, inside the acrylic, so the three stay together from any angle
   const ct = new THREE.CanvasTexture(cardFaceCanvas());
   ct.colorSpace = THREE.SRGBColorSpace; ct.anisotropy = 8;
   const card = new THREE.Mesh(new THREE.PlaneGeometry(CW, CH), new THREE.MeshStandardMaterial({ map: ct, roughness: 0.55 }));
@@ -1372,7 +1372,7 @@ function slabLabelCanvas() {
 // and inside, the three things he runs on: a Peach Red Bull, Hot Ones' Last Dab, and a pack of Marlboro Southern Cuts.
 (function emergencyCase() {
   const g = new THREE.Group();
-  const CW = 0.46, CH = 0.56, CD = 0.15;
+  const CW = 0.46, CH = 0.44, CD = 0.15;
   const red = new THREE.MeshStandardMaterial({ color: '#b3202a', roughness: 0.38, metalness: 0.15 });
   const cream = new THREE.MeshStandardMaterial({ color: '#f1ece1', roughness: 0.7 });
   const back = new THREE.Mesh(new THREE.BoxGeometry(CW - 0.02, CH - 0.02, 0.012), cream);
@@ -1387,7 +1387,7 @@ function slabLabelCanvas() {
   floor.position.set(0, -CH / 2 + 0.033, CD / 2 - 0.004);
   g.add(floor);
   const shelf = new THREE.Mesh(new THREE.BoxGeometry(CW - 0.07, 0.012, CD - 0.045), cream);   // the ledge they stand on
-  const shelfY = -CH / 2 + 0.12, shelfZ = (CD - 0.045) / 2 + 0.012;
+  const shelfY = -CH / 2 + 0.09, shelfZ = (CD - 0.045) / 2 + 0.012;
   shelf.position.set(0, shelfY, shelfZ);
   g.add(shelf);
   const items = new THREE.Group();                                                // the three of them, built at life size and shown a third larger
@@ -1487,8 +1487,7 @@ function slabLabelCanvas() {
   const packSide = new THREE.MeshStandardMaterial({ color: '#17120f', roughness: 0.5 });
   photo('assets/case-pack.png', (im) => {                                         // the real Southern Cut pack is copper: the photo on the front, copper round the sides
     packSide.color.set('#b5762f'); x = pc.getContext('2d');
-    const h = im.height / im.width * 224; x.drawImage(im, 0, 0, 224, h);              // the photo shows the top of the pack...
-    x.fillStyle = '#b5762f'; x.fillRect(0, h - 1, 224, 361 - h);                      // ...and its copper carries on down to the bottom
+    x.drawImage(im, 0, 0, 224, 360);                                                  // the owner's straight-on photo of the front, edge to edge
     pTex.needsUpdate = true;
   });
   const pack = new THREE.Mesh(new THREE.BoxGeometry(0.056, 0.09, 0.023), [packSide, packSide, packSide, packSide, new THREE.MeshStandardMaterial({ map: pTex, roughness: 0.5 }), packSide]);
@@ -1496,18 +1495,29 @@ function slabLabelCanvas() {
   items.add(pack);
   // the glass, with the warning painted on it
   const gc = document.createElement('canvas');
-  gc.width = 460; gc.height = 560;
+  gc.width = 460; gc.height = 440;
   x = gc.getContext('2d');
-  x.fillStyle = 'rgba(205,228,240,.16)'; x.fillRect(0, 0, 460, 560);
+  x.fillStyle = 'rgba(205,228,240,.16)'; x.fillRect(0, 0, 460, 440);
   x.fillStyle = 'rgba(255,255,255,.1)'; poly(x, [[60, 0], [150, 0], [0, 190], [0, 100]], 'rgba(255,255,255,.1)');
-  x.fillStyle = '#c41e2a'; x.textAlign = 'center'; x.font = '700 27px Arial';
+  x.fillStyle = '#c41e2a'; x.textAlign = 'center';
   if ('letterSpacing' in x) x.letterSpacing = '1px';
-  x.fillText('IN CASE OF EMERGENCY', 230, 52);
-  x.font = '700 44px Arial'; x.fillText('BREAK GLASS', 230, 532);
+  x.font = '700 36px Arial'; x.fillText('BREAK GLASS', 230, 426);
   const glassTex = new THREE.CanvasTexture(gc); glassTex.colorSpace = THREE.SRGBColorSpace;
   const glass = new THREE.Mesh(new THREE.PlaneGeometry(CW - 0.06, CH - 0.06), new THREE.MeshStandardMaterial({ map: glassTex, transparent: true, roughness: 0.05, metalness: 0.1, depthWrite: false }));
   glass.position.z = CD - 0.004;
   g.add(glass);
+  // IN CASE OF EMERGENCY in white on the red top bar, as a real case has it, so it reads whatever is behind the glass
+  const bc = document.createElement('canvas');
+  bc.width = 920; bc.height = 60;
+  x = bc.getContext('2d');
+  x.fillStyle = '#b3202a'; x.fillRect(0, 0, 920, 60);
+  x.fillStyle = '#ffffff'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.font = '700 40px Arial';
+  if ('letterSpacing' in x) x.letterSpacing = '4px';
+  x.fillText('IN CASE OF EMERGENCY', 460, 32);
+  const barTex = new THREE.CanvasTexture(bc); barTex.colorSpace = THREE.SRGBColorSpace; barTex.anisotropy = 8;
+  const barFace = new THREE.Mesh(new THREE.PlaneGeometry(CW, 0.03), new THREE.MeshStandardMaterial({ map: barTex, roughness: 0.38, metalness: 0.15 }));
+  barFace.position.set(0, CH / 2 - 0.015, CD + 0.001);
+  g.add(barFace);
   // the hammer on its chain, hung at the right of the case
   const steel = new THREE.MeshStandardMaterial({ color: '#4d4f52', roughness: 0.35, metalness: 0.8 });
   const hx = CW / 2 + 0.065, hz = CD - 0.02, wood = new THREE.MeshStandardMaterial({ color: '#2b211c', roughness: 0.55 });   // hung level with the glass, so it shows from in front

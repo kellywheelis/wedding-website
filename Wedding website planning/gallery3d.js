@@ -37,23 +37,20 @@ const STATIONS = [
   { id: 'anthony', x: 0, z: GALLERY_Z, yaw: -Math.PI / 2, room: 'atrium', accent: '#C9A667',
     eyebrow: 'The atrium · Anthony', title: 'Anthony',
     body: 'Photographs to come.', meta: 'Placeholder' },
-  { id: 'anthony1', x: 0, z: GALLERY_Z + 1.3, yaw: -Math.PI / 2, room: 'atrium', accent: '#C9A667', tour: false, back: 'anthony',
-    eyebrow: 'The atrium · Anthony', title: 'Anthony',
-    body: 'Photographs to come.', meta: 'Placeholder' },
   { id: 'anthony2', x: 0, z: GALLERY_Z - 1.3, yaw: -Math.PI / 2, eye: 2.12, room: 'atrium', accent: '#C9A667', tour: false, back: 'anthony', game: 'menu',
     eyebrow: 'The atrium · Anthony · interactive installation', title: 'The Arcade',
     body: 'Five playable pieces. Getting to Italy, Cross the Piazza, Catch the Bouquet, Flight to Siena, and The Seating Chart. Arrows move, space jumps. Click the frame again to play.',
     meta: 'Anthony Alvarez & Kelly Wheelis, 2026 · interactive installation · Esc steps away' },
   // his artifacts: close-ups a step in from the wall stops (the pieces are small), reached by clicking them from his wall
-  { id: 'anthonyCard', x: 2.02, z: GALLERY_Z + 1.3, yaw: -Math.PI / 2, eye: 1.08, pitch: -0.25, room: 'atrium', accent: '#C9A667', tour: false, back: 'anthony',
+  { id: 'anthonyCard', x: 1.95, z: GALLERY_Z + 1.05, yaw: -Math.PI / 2, eye: 1.75, pitch: 0.18, room: 'atrium', accent: '#C9A667', tour: false, back: 'anthony',
     eyebrow: 'The atrium · Anthony · from the collection', title: 'Destiny HERO – Diamond Dude',
     body: 'Anthony is a card battler of some notoriety, with experience that runs across numerous titles and competitions. This is his favorite card, slabbed and graded, hung where a portrait would go. Ask him about it, and allow time.',
     meta: 'Yu-Gi-Oh! trading card, graded slab · from the collection of Anthony Alvarez' },
-  { id: 'anthonyCase', x: 1.75, z: GALLERY_Z - 1.3, yaw: -Math.PI / 2, eye: 1.2, pitch: -0.28, room: 'atrium', accent: '#C9A667', tour: false, back: 'anthony',
+  { id: 'anthonyCase', x: 1.75, z: GALLERY_Z + 1.75, yaw: -Math.PI / 2, eye: 1.75, pitch: 0.1, room: 'atrium', accent: '#C9A667', tour: false, back: 'anthony',
     eyebrow: 'The atrium · Anthony · in case of emergency', title: 'The Essentials',
     body: 'It is widely known that Anthony runs on three things: a Peach Red Bull, Hot Ones’ Last Dab, and Marlboro Southern Cuts. One of each, kept behind glass with a hammer, for the day the supply runs out.',
     meta: 'Mixed media behind glass, with hammer · please do not actually break the glass' },
-  { id: 'anthonyAmelia', x: 1.2, z: GALLERY_Z + 0.5, yaw: -1.87, eye: 1.1, pitch: -0.3, room: 'atrium', accent: '#C9A667', tour: false, back: 'anthony',
+  { id: 'anthonyAmelia', x: 1.2, z: GALLERY_Z + 1.1, yaw: -1.87, eye: 1.45, pitch: -0.22, room: 'atrium', accent: '#C9A667', tour: false, back: 'anthony',
     eyebrow: 'The atrium · Anthony · the first gift', title: 'Amelia',
     body: 'The first gift Kelly ever gave Anthony: a brick-built Amelia, put together stud by stud. The muse is still slightly wary of her tiny brick doppelganger.',
     meta: 'Micro-brick model, built by Kelly Wheelis · Siena marble plinth' },
@@ -1179,7 +1176,6 @@ const ATRIUM_PICTURES = [
   { who: 'kelly', stop: 'kelly1', dz: 1.3, y: 2.12, w: 0.8, h: 1.05, blank: true },
   { who: 'kelly', stop: 'kelly2', dz: -1.3, y: 1.88, w: 0.8, h: 1.05, blank: true },
   { who: 'anthony', stop: 'anthony', dz: 0, y: 2.0, w: 1.15, h: 1.5, blank: true },
-  { who: 'anthony', stop: 'anthony1', dz: 1.3, y: 1.88, w: 0.8, h: 1.05, blank: true },
   { who: 'anthony', stop: 'anthony2', dz: -1.3, y: 2.12, w: 0.84, h: 1.08, blank: true }   // the arcade screen: 224 x 288, so 7:9
 ];
 ATRIUM_PICTURES.forEach((p, i) => {
@@ -1369,7 +1365,7 @@ function slabLabelCanvas() {
   const step = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.47, 0.008), walnutTable);
   step.position.set(0, -0.02, 0.026);
   g.add(board, step);
-  hangArtifact(g, GALLERY_Z + 1.3, 0.95, 'anthonyCard');
+  hangArtifact(g, GALLERY_Z + 1.05, 1.95, 'anthonyCard');   // where the right-hand frame was, at eye level
 })();
 
 // 2. IN CASE OF EMERGENCY BREAK GLASS: a red steel case under the arcade with a glass front and a hammer on a chain,
@@ -1529,7 +1525,7 @@ function slabLabelCanvas() {
   face.position.z = 0.0065;
   plate.add(face); plate.position.set(0, -CH / 2 - 0.075, 0.006);
   g.add(plate);
-  hangArtifact(g, GALLERY_Z - 1.3, 1.0, 'anthonyCase');
+  hangArtifact(g, GALLERY_Z + 1.75, 1.95, 'anthonyCase');   // beside the slab
 })();
 
 // ---- raised gilt numerals above the wing arches, built from bars and serifs
@@ -1833,18 +1829,18 @@ function instancer(geo, mat) {
     }, undefined, () => console.warn('Amelia did not load'));
   }).catch(() => console.warn('sculpture loader unavailable for Amelia'));
   const g = new THREE.Group();
-  [[0.52, 0.1, 0.52, 0.05], [0.44, 0.3, 0.44, 0.25], [0.5, 0.08, 0.5, 0.44]].forEach(([w, h, d, y]) => {   // a small low square plinth, just her footprint, in the busts' pedestals' style
+  [[0.42, 0.1, 0.42, 0.05], [0.34, 0.72, 0.34, 0.46], [0.4, 0.08, 0.4, 0.86]].forEach(([w, h, d, y]) => {   // a slim square plinth to waist height, her paws near its edges, in the busts' pedestals' style
     const p = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), plinthMat);
     p.position.y = y; g.add(p);
   });
-  dog.position.y = 0.48; dog.rotation.y = Math.PI * 0.75;              // she stands diagonally, nose toward the plinth's front-left corner, her plume to the room
+  dog.position.y = 0.9; dog.rotation.y = Math.PI * 0.75;              // she stands diagonally, nose toward the plinth's front-left corner              // she stands diagonally, nose toward the plinth's front-left corner, her plume to the room
   g.add(dog);
   const plate = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.055, 0.012), brass);   // her name, on the plinth's face
   const face = new THREE.Mesh(new THREE.PlaneGeometry(0.26, 0.055), new THREE.MeshStandardMaterial({ map: plaqueTexture('AMELIA', 84), roughness: 0.45, metalness: 0.15 }));
   face.position.z = 0.0065;
-  plate.add(face); plate.position.set(-0.226, 0.3, 0); plate.rotation.y = -Math.PI / 2;
+  plate.add(face); plate.position.set(-0.176, 0.765, 0); plate.rotation.y = -Math.PI / 2;   // just under the cap, as a museum plate sits
   g.add(plate);
-  g.position.set(2.15, 0, GALLERY_Z + 0.8);                           // on the floor between his main frame and the small frame to its right, clear of his name plaque and of the slab
+  g.position.set(2.15, 0, GALLERY_Z + 1.4);                           // on the floor below the slab and the case
   g.userData.station = ST.anthony;
   g.userData.closer = ST.anthonyAmelia;
   scene.add(g);

@@ -91,13 +91,14 @@ internet connection is needed.
   close to the swatch under the warm lamps), pale dado, gilt cornice, **coved ceiling** with a
   placeholder sky panel, 14-frame salon hang (`DETAIL_PICTURES`), centre table, three gilt
   consoles, four Roman busts, two large statues flanking the principal picture.
-- **Atrium galleries**: three frames a side (`ATRIUM_PICTURES`) — Kelly on the LEFT wall,
-  Anthony on the RIGHT — each with an engraved brass name plaque (`GALLERY_NAMES`).
+- **Atrium galleries**: three frames on Kelly's wall (LEFT), two on Anthony's (RIGHT: the main frame and
+  the arcade; his right-hand frame was removed on 25 Sept 2026 to make room for his artifacts) —
+  `ATRIUM_PICTURES` — each wall with an engraved brass name plaque (`GALLERY_NAMES`).
 - **Anthony's artifacts** (25 Sept 2026, `hangArtifact`): a graded slab of his favourite card,
-  Destiny HERO – Diamond Dude, on brass clips on a walnut trophy plaque under his right-hand frame
+  Destiny HERO – Diamond Dude, on brass clips on a walnut trophy plaque at eye level to the right of his main frame
   (`cardSlab`; the card face is `assets/diamond-dude.png`, the owner's image of the real card; if that
-  file is missing the drawing in `cardFaceCanvas` shows instead); and an IN CASE OF EMERGENCY BREAK
-  GLASS case under the arcade (`emergencyCase`: Peach Red Bull, Last Dab, Southern Cuts, hammer on a
+  file is missing the drawing in `cardFaceCanvas` shows instead); and, beside it, an IN CASE OF EMERGENCY BREAK
+  GLASS case (`emergencyCase`: Peach Red Bull, Last Dab, Southern Cuts, hammer on a
   chain; the three carry the owner's product images `assets/case-can.png`, `case-sauce.png`,
   `case-pack.png`, with drawn stand-ins if a file is missing). The third is
   Amelia, their dog: a JEKCA Japanese Spitz brick model (ST19PT31) the owner built (her first gift to him).
@@ -268,7 +269,7 @@ No scans of Villa Cetinale's own sculpture exist online (searched). See `assets/
 **Navigation**
 - Stops (`STATIONS`) are referred to by **id**, never by index (`ST.w1`, `ST.detTable`, …).
   `tour: false` marks stops reached only by clicking (skipped by Walk on / arrow keys).
-  Ids: atrium, kelly, kelly1, kelly2, anthony, anthony1, anthony2, w1, w1close, w1a, w1b, w2,
+  Ids: atrium, kelly, kelly1, kelly2, anthony, anthony2, w1, w1close, w1a, w1b, w2,
   w1graces, w1amaryllis, w1union, w1mars, w2close, w2a, w2b, w2utrecht, w2ruoppolo, w2parnassus, w2nastagio, det, detL, detR, detLclose, detRclose, detTable, detMain, detSchedule, detTravel, detStay, detFrontL, detFrontR, detShop, detClose, detVolvelle, detInvite.
 - A stop may name where Step back leads (`back: 'detTable'`); otherwise Step back goes to the room's entry stop, then the atrium.
 - Click **doorways** (invisible arch-shaped panes), **pictures/frames/plaques/the table**

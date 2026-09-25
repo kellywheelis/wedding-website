@@ -263,16 +263,19 @@ const loader = new THREE.TextureLoader();
 // the loading line along the top edge, and the note at the foot of the doors: every texture and model goes through
 // three's default manager, so its progress is the collection's
 (function loading() {
-  const bar = document.getElementById('loadbar'), note = document.getElementById('loadnote');
+  const bar = document.getElementById('loadbar'), note = document.getElementById('hanging'), enter = document.getElementById('enter');
   if (!bar) return;
   let done = false;
-  THREE.DefaultLoadingManager.onProgress = (url, n, total) => { if (!done) bar.style.width = Math.round(100 * n / Math.max(total, 1)) + '%'; };
-  THREE.DefaultLoadingManager.onLoad = () => {
+  const ready = () => {                                                   // "Hanging the collection…" fades out where the button will be, and "Open the doors" fades in
+    if (done) return;
     done = true; bar.style.width = '100%';
-    setTimeout(() => { bar.style.opacity = '0'; note.style.opacity = '0'; }, 500);
-    setTimeout(() => { bar.remove(); note.remove(); }, 1600);
+    setTimeout(() => { bar.style.opacity = '0'; if (note) note.style.opacity = '0'; }, 400);
+    setTimeout(() => { bar.remove(); if (note) note.remove(); if (enter) { const t = document.getElementById('enterText'); if (t) t.style.opacity = '1'; enter.style.pointerEvents = 'auto'; } }, 1300);   // the box stays; only the words swap
   };
-  setTimeout(() => { if (!done) note.textContent = 'Hanging the collection\u2026 a moment more'; }, 8000);
+  THREE.DefaultLoadingManager.onProgress = (url, n, total) => { if (!done) bar.style.width = Math.round(100 * n / Math.max(total, 1)) + '%'; };
+  THREE.DefaultLoadingManager.onLoad = ready;
+  setTimeout(() => { if (!done && note) note.textContent = 'Hanging the collection\u2026 a moment more'; }, 8000);
+  setTimeout(ready, 45000);                                               // and never keep anyone at the door longer than this
 })();
 const tex = (src, rx, ry) => {
   const t = loader.load(src);
@@ -2536,11 +2539,12 @@ const WEDDING = new Date(2027, 3, 24, 16, 0, 0), SITE_OPENED = new Date(2026, 8,
 const HOURGLASS = { sandTop: null, sandBottom: null, stream: null, plaque: null, plaqueText: '', grains: null, fall: 0, gm: new THREE.Matrix4() };
 function tickSand(t) {                                                   // the grains fall at a steady rate, each a little off the thread's axis
   const gr = HOURGLASS.grains; if (!gr || !HOURGLASS.stream.visible) return;
-  const L = HOURGLASS.fall, n = gr.count, speed = 0.45;                    // metres per second
+  const L = HOURGLASS.fall, n = gr.count, speed = 0.6;                     // metres per second
   for (let i = 0; i < n; i++) {
-    const phase = ((t / 1000) * speed / L + i / n) % 1;
-    const y = L / 2 - phase * L, a = i * 2.4;
-    HOURGLASS.gm.makeTranslation(Math.cos(a) * 0.0025, y, Math.sin(a) * 0.0025);
+    const phase = ((t / 1000) * speed / L + i / n + (i * 0.37) % 0.02) % 1;   // a steady fall, the grains staggered so they do not march
+    const y = -phase * phase * L, a = i * 2.4;                            // from the neck down to the pile, faster as they fall, as sand does
+    const spread = 0.0012 + 0.004 * phase * phase;                       // close to the thread at the neck, spreading a little by the time they land
+    HOURGLASS.gm.makeTranslation(Math.cos(a) * spread, y, Math.sin(a) * spread);
     gr.setMatrixAt(i, HOURGLASS.gm);
   }
   gr.instanceMatrix.needsUpdate = true;
@@ -2584,8 +2588,9 @@ function tickSand(t) {                                                   // the 
   const bottom = new THREE.Mesh(sandGeo(true, -H2 * 0.3, 0.03), sandMat); bottom.position.y = H2 / 2; g.add(bottom);
   // the falling sand: a thin thread, and a run of grains sliding down it that wrap round, so the fall is seen to move
   const stream = new THREE.Group(); stream.position.y = H2 / 2; g.add(stream);
-  const thread = new THREE.Mesh(new THREE.CylinderGeometry(0.0022, 0.003, H2 * 0.36, 8), sandMat); stream.add(thread);
-  const grains = new THREE.InstancedMesh(new THREE.SphereGeometry(0.0045, 6, 5), sandMat, 22); stream.add(grains);
+  const thread = new THREE.Mesh(new THREE.CylinderGeometry(0.0012, 0.002, 1, 8), sandMat); stream.add(thread);   // unit length: scaled to reach the pile
+  HOURGLASS.thread = thread;
+  const grains = new THREE.InstancedMesh(new THREE.SphereGeometry(0.0022, 6, 5), sandMat, 90); stream.add(grains);
   HOURGLASS.grains = grains; HOURGLASS.fall = H2 * 0.36;
   HOURGLASS.sandGeo = sandGeo;
   HOURGLASS.sandTop = top; HOURGLASS.sandBottom = bottom; HOURGLASS.stream = stream;
@@ -2614,6 +2619,9 @@ function setHourglass() {
   const topLevel = 0.03 + (span - 0.06) * (0.08 + 0.72 * left), botLevel = -span + 0.02 + (span - 0.05) * (0.1 + 0.7 * (1 - left));
   HOURGLASS.sandTop.geometry.dispose(); HOURGLASS.sandTop.geometry = HOURGLASS.sandGeo(false, topLevel, Math.min(0.04, topLevel * 0.5));
   HOURGLASS.sandBottom.geometry.dispose(); HOURGLASS.sandBottom.geometry = HOURGLASS.sandGeo(true, botLevel, Math.min(0.05, (botLevel + span) * 0.5));
+  const peakY = botLevel + Math.min(0.05, (botLevel + span) * 0.5);      // the pile's peak, from the neck (negative: below it)
+  HOURGLASS.fall = -peakY + 0.006;                                        // the stream runs from just below the neck to the peak
+  if (HOURGLASS.thread) { HOURGLASS.thread.scale.y = HOURGLASS.fall; HOURGLASS.thread.position.y = -HOURGLASS.fall / 2; }
   HOURGLASS.stream.visible = left > 0 && left < 1;
   const days = Math.max(0, Math.ceil((WEDDING - now) / 86400000));
   const text = String(days);

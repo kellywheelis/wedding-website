@@ -54,7 +54,7 @@
     document.head.appendChild(css); document.body.appendChild(root);
     canvas = root.querySelector('.ar-screen'); ctx = canvas.getContext('2d');
     root.querySelector('.ar-x').addEventListener('click', Arcade.close);
-    canvas.addEventListener('pointerdown', () => { if (Arcade.board && Arcade.board.on && Arcade.board.phase === 'enter' && entry && root.classList.contains('touch')) entry.focus(); });
+    root.addEventListener('pointerup', () => { if (Arcade.board && Arcade.board.on && Arcade.board.phase === 'enter' && entry) { entry.focus({ preventScroll: true }); } });   // any tap while entering brings the keyboard (a phone only raises it from a real tap)
     root.querySelectorAll('.ar-pad button').forEach((b) => {
       const k = b.dataset.k;
       b.addEventListener('pointerdown', (e) => { e.preventDefault(); b.setPointerCapture(e.pointerId); down(k); });
@@ -170,7 +170,7 @@
         drawText(c, 'ENTER YOUR INITIALS', W / 2, 108, '#e8c07a', 'center');
         b.letters.forEach((n, i) => { const x = W / 2 - 30 + i * 30, y = 132; if (i === b.at && Math.floor(b.t * 3) % 2 === 0) { c.fillStyle = '#7a1a3c'; c.fillRect(x - 12, y - 6, 24, 30); }
           c.save(); c.translate(x, y); c.scale(3, 3); drawText(c, String.fromCharCode(65 + n), 0, 0, i === b.at ? '#f4efe1' : '#a79c85', 'center'); c.restore(); c.fillStyle = '#e8c07a'; c.fillRect(x - 9, y + 24, 18, 1); });
-        drawText(c, b.phase === 'posting' ? 'POSTING...' : (root && root.classList.contains('touch') ? 'TYPE THREE LETTERS · START POSTS' : 'TYPE THEM · ENTER POSTS'), W / 2, 176, '#a79c85', 'center');
+        drawText(c, b.phase === 'posting' ? 'POSTING...' : (root && root.classList.contains('touch') ? 'TAP THE LETTERS TO TYPE · START POSTS' : 'TYPE THEM · ENTER POSTS'), W / 2, 176, '#a79c85', 'center');
         const top = b.top(b.id); if (top.length) { drawText(c, 'TO BEAT: ' + top[0].name + ' ' + top[0].score, W / 2, 196, '#a79c85', 'center'); }
       } else {
         big('HIGH SCORES', 30, '#e8c07a');
@@ -190,11 +190,11 @@
   function showEntry() {
     if (!root) return;
     if (!entry) { entry = document.createElement('input'); entry.type = 'text'; entry.maxLength = 3; entry.autocapitalize = 'characters'; entry.autocomplete = 'off'; entry.setAttribute('aria-label', 'Your initials');
-      entry.style.cssText = 'position:absolute;left:50%;top:50%;width:1px;height:1px;opacity:0;border:0;padding:0;font-size:16px';
+      entry.style.cssText = 'position:absolute;left:50%;top:38%;width:140px;height:60px;margin-left:-70px;opacity:0.01;border:0;padding:0;font-size:16px;background:transparent;color:transparent;caret-color:transparent;z-index:5';
       entry.addEventListener('input', () => { const v = entry.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 3); const b = Arcade.board; for (let i = 0; i < 3; i++) if (v[i]) b.letters[i] = v.charCodeAt(i) - 65; b.at = Math.min(2, v.length); if (v.length === 3) { entry.value = v; } });
       entry.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); Arcade.board.submit(); } });
       root.appendChild(entry); }
-    entry.value = ''; if (root.classList.contains('touch')) setTimeout(() => entry.focus(), 50);
+    entry.value = ''; if (!root.classList.contains('touch')) return; try { entry.focus({ preventScroll: true }); } catch (e) {}
   }
   function hideEntry() { if (entry) { entry.blur(); entry.value = ''; } }
   // ---- the menu: the cabinet's list of games. Registered games are playable; the planned ones show as coming soon.

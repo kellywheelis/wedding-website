@@ -20,7 +20,8 @@
       if (e.key === 'Backspace') { Arcade.board.back(); e.preventDefault(); return; }
       if (e.key === 'Enter') { Arcade.board.submit(); e.preventDefault(); return; }
     }
-    const k = KEYS[e.key]; if (k) { down(k); e.preventDefault(); } if (e.key === 'Escape') Arcade.close();
+    const k = KEYS[e.key]; if (k) { down(k); e.preventDefault(); }
+    if (e.key === 'Escape') { if (Arcade.board && Arcade.board.on) Arcade.board.close(); else Arcade.close(); }   // Esc leaves the board first (no post), then the arcade
   });
   window.addEventListener('keyup', (e) => { const k = KEYS[e.key]; if (k) up(k); });
 
@@ -53,7 +54,7 @@
       #arcade .ar-start{width:88px;height:30px;font-size:10px!important;letter-spacing:.2em}`;
     document.head.appendChild(css); document.body.appendChild(root);
     canvas = root.querySelector('.ar-screen'); ctx = canvas.getContext('2d');
-    root.querySelector('.ar-x').addEventListener('click', Arcade.close);
+    root.querySelector('.ar-x').addEventListener('click', () => { if (Arcade.board && Arcade.board.on) Arcade.board.close(); else Arcade.close(); });
     root.addEventListener('pointerup', () => { if (Arcade.board && Arcade.board.on && Arcade.board.phase === 'enter' && entry) { entry.focus({ preventScroll: true }); } });   // any tap while entering brings the keyboard (a phone only raises it from a real tap)
     root.querySelectorAll('.ar-pad button').forEach((b) => {
       const k = b.dataset.k;
@@ -170,7 +171,7 @@
         drawText(c, 'ENTER YOUR INITIALS', W / 2, 108, '#e8c07a', 'center');
         b.letters.forEach((n, i) => { const x = W / 2 - 30 + i * 30, y = 132; if (i === b.at && Math.floor(b.t * 3) % 2 === 0) { c.fillStyle = '#7a1a3c'; c.fillRect(x - 12, y - 6, 24, 30); }
           c.save(); c.translate(x, y); c.scale(3, 3); drawText(c, String.fromCharCode(65 + n), 0, 0, i === b.at ? '#f4efe1' : '#a79c85', 'center'); c.restore(); c.fillStyle = '#e8c07a'; c.fillRect(x - 9, y + 24, 18, 1); });
-        drawText(c, b.phase === 'posting' ? 'POSTING...' : (root && root.classList.contains('touch') ? 'TAP THE LETTERS TO TYPE · START POSTS' : 'TYPE THEM · ENTER POSTS'), W / 2, 176, '#a79c85', 'center');
+        drawText(c, b.phase === 'posting' ? 'POSTING...' : (root && root.classList.contains('touch') ? 'TAP THE LETTERS TO TYPE · START POSTS · X SKIPS' : 'TYPE THEM · ENTER POSTS · ESC SKIPS'), W / 2, 176, '#a79c85', 'center');
         const top = b.top(b.id); if (top.length) { drawText(c, 'TO BEAT: ' + top[0].name + ' ' + top[0].score, W / 2, 196, '#a79c85', 'center'); }
       } else {
         big('HIGH SCORES', 30, '#e8c07a');
@@ -180,7 +181,8 @@
           drawText(c, String(i + 1).padStart(2, ' '), 44, y, mine ? '#f4efe1' : '#a79c85', 'right'); drawText(c, e.name, 62, y, mine ? '#f4efe1' : '#f4efe1'); drawText(c, String(e.score), W - 44, y, mine ? '#e8c07a' : '#f4efe1', 'right'); });
         if (b.posted && b.rank && b.rank > 10) drawText(c, 'YOU CAME ' + b.rank + (b.rank % 10 === 1 && b.rank !== 11 ? 'ST' : b.rank % 10 === 2 && b.rank !== 12 ? 'ND' : b.rank % 10 === 3 && b.rank !== 13 ? 'RD' : 'TH') + ' · SCORE ' + b.score, W / 2, 222, '#e8c07a', 'center');
         if (!b.posted) drawText(c, 'SCORE ' + b.score + ' · NOT POSTED', W / 2, 222, '#a79c85', 'center');
-        if (Math.floor(b.t * 2) % 2) drawText(c, 'PRESS START', W / 2, 250, '#e8c07a', 'center');
+        if (Math.floor(b.t * 2) % 2) drawText(c, 'PRESS START', W / 2, 244, '#e8c07a', 'center');
+        drawText(c, root && root.classList.contains('touch') ? 'X LEAVES THE SCOREBOARD' : 'ESC LEAVES THE SCOREBOARD', W / 2, 258, '#a79c85', 'center');
       }
     }
   };

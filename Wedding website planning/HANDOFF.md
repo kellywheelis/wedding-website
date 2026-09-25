@@ -365,7 +365,7 @@ of 32x32: idle/walk facing N, S, E, W, then knocked down, assembled from the Pix
 until the owner's files arrive: `fiat.png`, `tourist.png`, `nonna.png`, `pigeon.png`, `gelato.png`.
 
 `game/bouquet.js` — CATCH THE BOUQUET: night on the terrace; bouquets (+100), rings (+300) and champagne (+50)
-fall, cake and pigeons cost a life; 45 seconds, quickening (`KINDS` sets each thing's odds, size and worth).
+fall (consecutive bouquet catches multiply, x2 to x5; a drop resets), cake and pigeons cost a life; 45 seconds, quickening (`KINDS` sets each thing's odds, size and worth).
 Uses the side-view sheets. Code-drawn until files arrive: `champagne.png`, `cake.png`, `pigeon.png`.
 
 `game/flight.js` — FLIGHT TO SIENA, a one-button flier: space/jump lifts the plane (`plane-plain.png`, the pilot's

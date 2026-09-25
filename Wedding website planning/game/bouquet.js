@@ -20,7 +20,7 @@
     const stand = (col) => (c, f, x, y) => { c.fillStyle = col; c.fillRect(x + 11, y + 8, 10, 20); c.fillStyle = '#f1c9a5'; c.fillRect(x + 12, y + 4, 8, 7); };
     const sheets = { bride: api.sheet('/assets/game/bride.png', 32, 32, 9, stand('#fbf5ea')), groom: api.sheet('/assets/game/groom.png', 32, 32, 9, stand('#2b2520')) };
     const S = {}, WON_TITLE = 'TIME!', OVER_TITLE = 'CAKED';
-    function reset() { Object.assign(S, { boarded: false, mode: 'title', who: 'bride', sel: 0, t: 0, lives: 3, score: 0, caught: 0, left: LEN, ready: 0, msg: null, msgT: 0, items: [], spawn: 1, p: { x: 112, dir: 1, anim: 0, hit: 0, moving: false } }); }
+    function reset() { Object.assign(S, { boarded: false, mode: 'title', who: 'bride', sel: 0, t: 0, lives: 3, score: 0, caught: 0, streak: 0, left: LEN, ready: 0, msg: null, msgT: 0, items: [], spawn: 1, p: { x: 112, dir: 1, anim: 0, hit: 0, moving: false } }); }
     reset();
     const other = () => (S.who === 'bride' ? 'groom' : 'bride');
     const say = (m, t = 1) => { S.msg = m; S.msgT = t; };
@@ -49,9 +49,12 @@
         if (it.done) return;
         if (it.x < px + pw && it.x + it.w > px && it.y < py + ph && it.y + it.h > py && p.hit <= 0) {
           it.done = true;
-          if (it.worth > 0) { S.score += it.worth; if (it.kind === 'bouquet') S.caught++; say(it.kind === 'ring' ? 'A RING!' : it.kind === 'glass' ? 'CIN CIN' : 'CAUGHT!', 0.8); }
+          if (it.worth > 0) {
+            if (it.kind === 'bouquet') { S.caught++; S.streak = Math.min(5, S.streak + 1); S.score += it.worth * S.streak; say(S.streak > 1 ? 'X' + S.streak + '!' : 'CAUGHT!', 0.8); }   // a run of bouquets multiplies, up to x5
+            else { S.score += it.worth; say(it.kind === 'ring' ? 'A RING!' : 'CIN CIN', 0.8); }
+          }
           else { S.lives--; p.hit = 1; say(it.kind === 'pigeon' ? 'PIGEON!' : 'CAKE!', 1); if (S.lives <= 0) S.mode = 'over'; }
-        } else if (it.y > FLOOR) { it.done = true; if (it.kind === 'bouquet') say('MISSED', 0.5); }
+        } else if (it.y > FLOOR) { it.done = true; if (it.kind === 'bouquet') { S.streak = 0; say('MISSED', 0.5); } }   // a dropped bouquet ends the run
       });
       S.items = S.items.filter((it) => !it.done);
     }
@@ -66,7 +69,7 @@
     }
     function hud(c) {
       c.fillStyle = C.burg; c.fillRect(0, 0, W, TOP);
-      api.text(c, 'SCORE ' + Math.floor(S.score), 4, 3, C.text); api.text(c, 'BOUQUETS ' + S.caught, 4, 13, C.gold);
+      api.text(c, 'SCORE ' + Math.floor(S.score), 4, 3, C.text); api.text(c, 'BOUQUETS ' + S.caught + (S.streak > 1 ? '  X' + S.streak : ''), 4, 13, C.gold);
       api.text(c, Math.ceil(S.left) + 'S', 112, 8, C.text, 'center');
       for (let i = 0; i < 3; i++) { c.fillStyle = i < S.lives ? C.red : '#4a2a2a'; c.fillRect(W - 8 - i * 8, 5, 5, 4); c.fillRect(W - 7 - i * 8, 4, 3, 1); }
     }
@@ -111,7 +114,7 @@
         api.text(c, 'DODGE', 112, 140, C.red, 'center');
         ART.cake.draw(c, 77, 149, 16, 16, false); ART.pigeon.draw(c, 127, 150, 18, 14, false);
         api.text(c, 'CAKE', 85, 168, C.text, 'center'); api.text(c, 'PIGEON', 136, 168, C.text, 'center');
-        api.text(c, 'THEY COST A LIFE', 112, 180, C.dim, 'center');
+        api.text(c, 'THEY COST A LIFE · CATCH IN A ROW FOR X2..X5', 112, 180, C.dim, 'center');
         big(c, 'READY?', W / 2, 194, C.gold);
       }
       if (S.mode === 'over' && !Arcade.board.on) { c.fillStyle = 'rgba(20,12,6,.8)'; c.fillRect(0, 100, W, 80); big(c, 'CAKED', W / 2, 112, C.red); api.text(c, 'SCORE ' + Math.floor(S.score) + ' · ' + S.caught + ' BOUQUETS', W / 2, 140, C.text, 'center'); api.text(c, 'START TO TRY AGAIN', W / 2, 160, C.dim, 'center'); }

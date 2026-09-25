@@ -132,6 +132,16 @@ internet connection is needed.
   close-up stop (`hiddenHit`/`atHiddenStop`) calls `foundHidden`, which names it in the panel and counts it in the
   tally as a bonus line, "Hidden bonus features" with three stars that fill gold (localStorage `ka-found`; the works
   count stays 54). Over a hidden pet, from its stop, the pointer becomes a magnifying glass (`assets/cursor-find.png`, `--cur-find`).
+- **The bottom panel, slimmed** (25 Sept 2026): the room buttons are 32 px tall with gold arrows between
+  Atrium → Wing I → Wing II → Details (`.navarrow`, decorative: the buttons are still the way you move; Credits
+  sits outside the chain), tighter to the panel's bottom edge; the text box is `font * 5.2 + 44px` (was 6.48 + 54)
+  and the panel's padding smaller, so the panel is about 27% of the window instead of 35% and the picture sits
+  nearer the centre of the view. The compass sits on the stage's bottom edge. With the room gained, the close-up stops
+  moved in: the wings' principal works are seen from 1.95 m (`CLOSE_X` 10.45, was 2.4 m), the wings' side pictures
+  from 1.15 m (was 1.83), the salon hang from `max(0.95h, 0.55w)` clamped 0.9–2.3 m (was 1.25h/0.72w, 1.2–3.0), with the
+  eye at the picture's centre (clamp raised to 2.9) so the tall-hung ones sit level; the artifacts are seen level too.
+  The tally sits bottom-left of the stage. The compass no longer steps to the corner at details-room close-ups
+  (the owner wants it in one place, always).
 - Gilt numerals **I** and **II** above the wing arches (solid bars, not text).
 - Architectural dressing: cornices, atrium pilasters, arch surrounds with keystones, bosses, the
   inside face of the entrance doors on the atrium's back wall.
@@ -314,8 +324,8 @@ No scans of Villa Cetinale's own sculpture exist online (searched). See `assets/
   than ~125 deg/s. A route with no walking (Turn around) still runs as a plain turn step.
 - Navigation (24 Sept 2026): a compass (a cross of arrows round the "Go ahead" hint, `#compass`) at the bottom
   centre of the view, sized compactly (28 px arrows, ~80 px tall) so it sits in the band under the walls'
-  "click here" buttons at the details-room stops even on a 760 px-high window; at a details-room picture close-up (`pic<n>` stops) it moves to the bottom-left
-  corner (`#compass.corner`, set in `markRoom`), since the wall's button then sits at the bottom centre: up = Walk on
+  "click here" buttons at the details-room stops even on a 760 px-high window. (It used to move to the bottom-left
+  corner at a details-room picture close-up; the owner asked on 25 Sept 2026 that it never move, so it stays put): up = Walk on
   (`tourStep(1)`, kept as `[data-fwd]`), down = Step back (`#back`, dimmed at the atrium's own stop), left/right =
   `sideStep(+1/-1)`: the nearest stop in the room that faces ~90 degrees that way and is not behind you (wall stops
   preferred over close-ups), else a quarter turn on the spot. The arrow keys do the same. Turn around stays bottom

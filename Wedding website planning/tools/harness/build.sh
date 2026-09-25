@@ -7,7 +7,7 @@ mkdir -p "$W" && ln -sfn "$P/assets" "$W/assets" && ln -sfn "$P/game" "$W/game"
 python3 - "$P/The Gallery 3D.html" "$W/index.html" <<'PY'
 import re,sys
 s=open(sys.argv[1]).read()
-s=s.replace('</head>','<style>#gate,#label,#nav,#motto{display:none !important}</style><script>window.addEventListener("error",function(e){var d=document.createElement("pre");d.style.cssText="position:fixed;left:0;top:0;z-index:999;background:#000;color:#f66;font:13px monospace;padding:6px;white-space:pre-wrap";d.textContent="ERROR "+e.message+" @ "+e.filename+":"+e.lineno;document.body.appendChild(d)})</script></head>',1)
+s=s.replace('</head>','<style>#gate,#motto{display:none !important}</style><script>window.addEventListener("error",function(e){var d=document.createElement("pre");d.style.cssText="position:fixed;left:0;top:0;z-index:999;background:#000;color:#f66;font:13px monospace;padding:6px;white-space:pre-wrap";d.textContent="ERROR "+e.message+" @ "+e.filename+":"+e.lineno;document.body.appendChild(d)})</script></head>',1)
 s=re.sub(r"<script>\n// every script is stamped.*?</script>", '<script src="game/arcade.js"></script><script src="game/italy.js"></script><script src="game/piazza.js"></script><script src="game/bouquet.js"></script><script type="module" src="gallery3d.js"></script>', s, flags=re.S)
 open(sys.argv[2],'w').write(s)
 PY

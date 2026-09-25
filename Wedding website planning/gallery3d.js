@@ -16,7 +16,7 @@ const P = {
   detX: 5             // details room half-width
 };
 
-const CLOSE_X = 10.0;         // where you stand for a close look at a wing's principal work, 2.4 m from it
+const CLOSE_X = 10.45;        // where you stand for a close look at a wing's principal work, 1.95 m from it
 const GALLERY_Z = -2.6;      // centre of the two atrium mini galleries, along the hall
 
 const STATIONS = [
@@ -42,11 +42,11 @@ const STATIONS = [
     body: 'Five playable pieces. Getting to Italy, Cross the Piazza, Catch the Bouquet, Flight to Siena, and The Seating Chart. Arrows move, space jumps. Click the frame again to play.',
     meta: 'Anthony Alvarez & Kelly Wheelis, 2026 · interactive installation · Esc steps away' },
   // his artifacts: close-ups a step in from the wall stops (the pieces are small), reached by clicking them from his wall
-  { id: 'anthonyCard', x: 1.95, z: GALLERY_Z + 1.05, yaw: -Math.PI / 2, eye: 1.75, pitch: 0.18, room: 'atrium', accent: '#C9A667', tour: false, back: 'anthony',
+  { id: 'anthonyCard', x: 1.95, z: GALLERY_Z + 1.05, yaw: -Math.PI / 2, eye: 1.95, pitch: 0, room: 'atrium', accent: '#C9A667', tour: false, back: 'anthony',
     eyebrow: 'The atrium · Anthony · from the collection', title: 'Destiny HERO – Diamond Dude',
     body: 'Anthony is a card battler of some notoriety, with experience that runs across numerous titles and competitions. This is his favorite card, slabbed and graded, hung where a portrait would go. Ask him about it, and allow time.',
     meta: 'Yu-Gi-Oh! trading card, graded slab · from the collection of Anthony Alvarez' },
-  { id: 'anthonyCase', x: 1.75, z: GALLERY_Z + 1.75, yaw: -Math.PI / 2, eye: 1.75, pitch: 0.1, room: 'atrium', accent: '#C9A667', tour: false, back: 'anthony',
+  { id: 'anthonyCase', x: 1.75, z: GALLERY_Z + 1.75, yaw: -Math.PI / 2, eye: 1.95, pitch: 0, room: 'atrium', accent: '#C9A667', tour: false, back: 'anthony',
     eyebrow: 'The atrium · Anthony · in case of emergency', title: 'The Essentials',
     body: 'It is widely known that Anthony runs on three things: a Peach Red Bull, Hot Sauce, and Marlboro Southern Cuts. One of each, kept behind glass with a hammer, just in case. He plans to cut back after the wedding and quit in time, at which point this becomes a museum piece in the truest sense.',
     meta: 'Mixed media behind glass, with hammer · please do not actually break the glass' },
@@ -73,19 +73,19 @@ const STATIONS = [
     meta: 'Ink on paper · 2027' },
 
   // Wing I's four side pictures, up close: reached by clicking a picture from its wall's stop; Step back returns there
-  { id: 'w1graces', x: -7.8, z: -8.1, yaw: 0, eye: 2.0, room: 'w1', accent: '#93AEA2', tour: false, back: 'w1a',
+  { id: 'w1graces', x: -7.8, z: -8.78, yaw: 0, eye: 2.0, room: 'w1', accent: '#93AEA2', tour: false, back: 'w1a',
     eyebrow: 'Wing I · The Procession · the bridal party', title: 'The Three Graces',
     body: 'Every girl needs her squad. The Graces have attended Venus since antiquity: they do the hair, carry the flowers and keep the secrets. The original bridal party. #girlgang',
     meta: 'Francesco Furini, c. 1633 · Hermitage, St Petersburg' },
-  { id: 'w1amaryllis', x: -5.9, z: -8.1, yaw: 0, eye: 2.0, room: 'w1', accent: '#93AEA2', tour: false, back: 'w1a',
+  { id: 'w1amaryllis', x: -5.9, z: -8.78, yaw: 0, eye: 2.0, room: 'w1', accent: '#93AEA2', tour: false, back: 'w1a',
     eyebrow: 'Wing I · The Procession', title: 'Amaryllis and Mirtillo',
     body: 'A kissing contest, judged by nymphs, and the winner is crowned with flowers. We are not holding a contest. There will be a kiss.',
     meta: 'Anthony van Dyck, c. 1631–32 · Gothenburg Museum of Art' },
-  { id: 'w1union', x: -5.9, z: -6.9, yaw: Math.PI, eye: 2.0, room: 'w1', accent: '#93AEA2', tour: false, back: 'w1b',
+  { id: 'w1union', x: -5.9, z: -6.22, yaw: Math.PI, eye: 2.0, room: 'w1', accent: '#93AEA2', tour: false, back: 'w1b',
     eyebrow: 'Wing I · The Vows', title: 'Happy Union',
     body: 'Veronese’s recipe for a happy union: an olive branch, a crown of myrtle, and a dog at your feet for fidelity. We have the dogs covered.',
     meta: 'Paolo Veronese, c. 1575 · National Gallery, London' },
-  { id: 'w1mars', x: -7.75, z: -6.9, yaw: Math.PI, eye: 2.0, room: 'w1', accent: '#93AEA2', tour: false, back: 'w1b',
+  { id: 'w1mars', x: -7.75, z: -6.22, yaw: Math.PI, eye: 2.0, room: 'w1', accent: '#93AEA2', tour: false, back: 'w1b',
     eyebrow: 'Wing I · The Vows', title: 'Mars and Venus United by Love',
     body: 'Cupid is tying their legs together with a ribbon. The vows do pretty much the same job, with fewer knots.',
     meta: 'Paolo Veronese, 1570s · The Metropolitan Museum of Art, New York' },
@@ -108,20 +108,20 @@ const STATIONS = [
     meta: 'Performance · ongoing' },
 
   // "The Banquet" wall's two still lifes, up close
-  { id: 'w2utrecht', x: 5.9, z: -8.1, yaw: 0, eye: 2.0, room: 'w2', accent: '#D19A6E', tour: false, back: 'w2a',
+  { id: 'w2utrecht', x: 5.9, z: -8.78, yaw: 0, eye: 2.0, room: 'w2', accent: '#D19A6E', tour: false, back: 'w2a',
     eyebrow: 'Wing II · The Banquet', title: 'Banquet Still Life',
     body: 'A lobster, a game pie, a lute, a macaw, a monkey helping himself to the cherries, and a small white dog pretending not to watch. Our seating plan is slightly more orderly. The dog situation is about the same. It hangs in Amsterdam, which is the real reason it is here: it’s where Anthony proposed, on our second trip there. We have a soft spot.',
     meta: 'Adriaen van Utrecht, 1644 · Rijksmuseum, Amsterdam' },
-  { id: 'w2ruoppolo', x: 7.85, z: -8.1, yaw: 0, eye: 2.0, room: 'w2', accent: '#D19A6E', tour: false, back: 'w2a',
+  { id: 'w2ruoppolo', x: 7.85, z: -8.78, yaw: 0, eye: 2.0, room: 'w2', accent: '#D19A6E', tour: false, back: 'w2a',
     eyebrow: 'Wing II · The Banquet', title: 'Still Life with Fruit',
     body: 'A watermelon split open on a blue-and-white plate, figs, peaches, and a melon nobody has gotten around to yet. Neapolitan still life is mostly an argument for dessert. We agree with it.',
     meta: 'Giovan Battista Ruoppolo, 1650–1699' },
   // "The Dancing" wall's two pictures, up close (as Wing I's): click a picture from the wall's stop; Step back returns there
-  { id: 'w2parnassus', x: 5.8, z: -6.9, yaw: Math.PI, eye: 2.0, room: 'w2', accent: '#D19A6E', tour: false, back: 'w2b',
+  { id: 'w2parnassus', x: 5.8, z: -6.22, yaw: Math.PI, eye: 2.0, room: 'w2', accent: '#D19A6E', tour: false, back: 'w2b',
     eyebrow: 'Wing II · The Dancing', title: 'Parnassus',
     body: 'Apollo is on the lyre, the nine Muses have formed a circle, and nobody needed to be asked twice. This is the dance floor we are aiming for. Pegasus is optional.',
     meta: 'Andrea Mantegna, 1497 · Musée du Louvre, Paris' },
-  { id: 'w2nastagio', x: 7.75, z: -6.9, yaw: Math.PI, eye: 2.0, room: 'w2', accent: '#D19A6E', tour: false, back: 'w2b',
+  { id: 'w2nastagio', x: 7.75, z: -6.22, yaw: Math.PI, eye: 2.0, room: 'w2', accent: '#D19A6E', tour: false, back: 'w2b',
     eyebrow: 'Wing II · The Dancing', title: 'The Wedding Banquet',
     body: 'Painted as a wedding present in 1483: long tables, a loggia open to the hills, and the waiters arriving in formation. The story that leads up to this feast is best not told at a wedding. The catering, however, is exactly right.',
     meta: 'Sandro Botticelli, 1483 · The Story of Nastagio degli Onesti, IV' },
@@ -493,8 +493,8 @@ function ornateFrame(w, h, style = 'gilt') {
   g.add(moulding);
   if (plain) {                                                        // the gilt slip, a narrow band round the picture's edge, and no carving
     [[w + fw * 0.16, fw * 0.08, 0, h / 2 + fw * 0.04], [w + fw * 0.16, fw * 0.08, 0, -h / 2 - fw * 0.04], [fw * 0.08, h, -w / 2 - fw * 0.04, 0], [fw * 0.08, h, w / 2 + fw * 0.04, 0]].forEach(([bw, bh, bx, by]) => {
-      const slip = new THREE.Mesh(new THREE.BoxGeometry(bw, bh, fw * 0.12), giltPlain);
-      slip.position.set(bx, by, fw * 0.14); g.add(slip);
+      const slip = new THREE.Mesh(new THREE.BoxGeometry(bw, bh, fw * 0.16), giltPlain);   // stands well proud of the moulding: sharing its plane made the line flicker as you move
+      slip.position.set(bx, by, fw * 0.27); g.add(slip);
     });
     g.userData.pictureZ = fw * 0.1 + 0.003;
     return g;
@@ -1132,10 +1132,10 @@ DETAIL_PICTURES.forEach((p, i) => {
   grp.userData.station = ST[SECTION_STOP[p.sec]];
   if (p.note && p.src) {
     // a close-up stop in front of the picture, at its own height, as near as its size allows; Step back returns to the section
-    const d = THREE.MathUtils.clamp(Math.max(1.25 * p.h, 0.72 * p.w), 1.2, 3.0);
+    const d = THREE.MathUtils.clamp(Math.max(0.95 * p.h, 0.55 * p.w), 0.9, 2.3);
     const at = { left: [-DET.x + d, p.at, Math.PI / 2], right: [DET.x - d, p.at, -Math.PI / 2], front: [p.at, DET.zF - d, Math.PI], back: [p.at, DET.zB + d, 0] }[p.wall];
     const id = 'pic' + i;
-    STATIONS.push({ id, x: at[0], z: at[1], yaw: at[2], eye: THREE.MathUtils.clamp(p.y, 1.3, 2.6), room: 'det', card: secStop.card, tour: false, back: secStop.id,
+    STATIONS.push({ id, x: at[0], z: at[1], yaw: at[2], eye: THREE.MathUtils.clamp(p.y, 1.3, 2.9), room: 'det', card: secStop.card, tour: false, back: secStop.id,
       accent: '#C9A667', eyebrow: 'Exhibit details · ' + SECTION_LABEL[p.sec], title: p.note[0], body: p.note[1], meta: p.note[2] });
     ST[id] = STATIONS.length - 1;
     grp.userData.closer = ST[id];
@@ -3050,7 +3050,6 @@ function markRoom(room) {
   // no turning round with the save-the-date or the invitation in your hands
   const holding = STATIONS[idx].back === 'detTable';
   el('sections').style.display = room === 'det' ? 'flex' : 'none';
-  el('compass').classList.toggle('corner', room === 'det' && /^pic\d+$/.test(STATIONS[idx].id));   // a picture close-up here: the compass steps aside to the corner
   document.querySelectorAll('#sections button').forEach((b) => {
     const on = b.dataset.card === (STATIONS[idx].card || '');
     b.style.background = on ? 'rgba(232,192,122,.26)' : 'rgba(26,18,8,.55)';

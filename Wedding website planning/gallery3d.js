@@ -44,6 +44,19 @@ const STATIONS = [
     eyebrow: 'The atrium · Anthony · interactive installation', title: 'The Arcade',
     body: 'Five playable pieces. Getting to Italy, Cross the Piazza, Catch the Bouquet, Flight to Siena, and The Seating Chart. Arrows move, space jumps. Click the frame again to play.',
     meta: 'Anthony Alvarez & Kelly Wheelis, 2026 · interactive installation · Esc steps away' },
+  // his artifacts: close-ups a step in from the wall stops (the pieces are small), reached by clicking them from his wall
+  { id: 'anthonyCard', x: 2.02, z: GALLERY_Z + 1.3, yaw: -Math.PI / 2, eye: 1.08, pitch: -0.25, room: 'atrium', accent: '#C9A667', tour: false, back: 'anthony',
+    eyebrow: 'The atrium · Anthony · from the collection', title: 'Destiny HERO – Diamond Dude',
+    body: 'Anthony is a card battler of some notoriety, with experience that runs across numerous titles and competitions. This is his favorite card, slabbed and graded, hung where a portrait would go. Ask him about it, and allow time.',
+    meta: 'Yu-Gi-Oh! trading card, graded slab · from the collection of Anthony Alvarez' },
+  { id: 'anthonyCase', x: 1.75, z: GALLERY_Z - 1.3, yaw: -Math.PI / 2, eye: 1.2, pitch: -0.28, room: 'atrium', accent: '#C9A667', tour: false, back: 'anthony',
+    eyebrow: 'The atrium · Anthony · in case of emergency', title: 'The Essentials',
+    body: 'It is widely known that Anthony runs on three things: a Peach Red Bull, Hot Ones’ Last Dab, and Marlboro Southern Cuts. One of each, kept behind glass with a hammer, for the day the supply runs out.',
+    meta: 'Mixed media behind glass, with hammer · please do not actually break the glass' },
+  { id: 'anthonyAmelia', x: 1.2, z: GALLERY_Z + 0.5, yaw: -1.87, eye: 1.1, pitch: -0.3, room: 'atrium', accent: '#C9A667', tour: false, back: 'anthony',
+    eyebrow: 'The atrium · Anthony · the first gift', title: 'Amelia',
+    body: 'The first gift Kelly ever gave Anthony: a brick-built Amelia, put together stud by stud. The muse is still slightly wary of her tiny brick doppelganger.',
+    meta: 'Micro-brick model, built by Kelly Wheelis · Siena marble plinth' },
 
   { id: 'w1', x: -1150 * U, z: -7.5, yaw: Math.PI / 2, room: 'w1', accent: '#93AEA2',
     eyebrow: 'Wing I · principal work', title: 'The Birth of Venus',
@@ -1230,6 +1243,295 @@ Object.keys(GALLERY_NAMES).forEach((who) => {
   scene.add(g);
 });
 
+// ---- Anthony's artifacts, on his wall. Each is a group whose local +z faces into the hall and whose origin sits on
+// the wall face; a click takes you to his wall, a second click steps you in close (as the small frames do).
+const ARTIFACT_WALL = { x: P.corrX - 0.004, rotY: -Math.PI / 2 };
+function hangArtifact(g, z, y, closeId) {
+  g.position.set(ARTIFACT_WALL.x, y, z);
+  g.rotation.y = ARTIFACT_WALL.rotY;
+  g.userData.station = ST.anthony;
+  g.userData.closer = ST[closeId];
+  scene.add(g);
+}
+function wrapLines(x, text, maxW) {           // break a run of text into lines that fit a canvas width
+  const words = text.split(' '), lines = [];
+  let line = '';
+  words.forEach((w) => { const t = line ? line + ' ' + w : w; if (x.measureText(t).width > maxW && line) { lines.push(line); line = w; } else line = t; });
+  if (line) lines.push(line);
+  return lines;
+}
+function poly(x, pts, col) { x.beginPath(); pts.forEach(([px, py], i) => (i ? x.lineTo(px, py) : x.moveTo(px, py))); x.closePath(); x.fillStyle = col; x.fill(); }
+
+// 1. his favourite card, Destiny HERO - Diamond Dude, in a graded slab on brass clips under the right-hand frame.
+// The card face is drawn here in the style of the game's effect monsters; a straight-on photo of the real card
+// saved as assets/diamond-dude.png replaces the drawing (it should be the whole card, borders included).
+function cardFaceCanvas() {
+  const c = document.createElement('canvas');
+  c.width = 420; c.height = 612;
+  const x = c.getContext('2d');
+  x.fillStyle = '#c8733b'; x.fillRect(0, 0, 420, 612);                             // the burnt-orange frame of an effect monster
+  x.strokeStyle = '#7a3e18'; x.lineWidth = 6; x.strokeRect(3, 3, 414, 606);
+  x.fillStyle = '#f0e4c9'; x.fillRect(24, 22, 372, 44);                              // name plate
+  x.fillStyle = '#1a1410'; x.font = '600 19px Georgia'; x.textAlign = 'left'; x.textBaseline = 'middle';
+  x.fillText('Destiny HERO - Diamond Dude', 30, 44);
+  x.fillStyle = '#2b1c3a'; x.beginPath(); x.arc(376, 44, 15, 0, Math.PI * 2); x.fill();   // attribute: DARK
+  x.fillStyle = '#e9d3ff'; x.font = '700 9px Georgia'; x.textAlign = 'center'; x.fillText('DARK', 376, 45);
+  for (let k = 0; k < 4; k++) {                                                      // level 4: four stars
+    const sx = 384 - k * 26, sy = 84, pts = [];
+    for (let i = 0; i < 10; i++) { const r = i % 2 ? 4.5 : 10.5, a = -Math.PI / 2 + i * Math.PI / 5; pts.push([sx + Math.cos(a) * r, sy + Math.sin(a) * r]); }
+    x.fillStyle = '#8a4a10'; x.beginPath(); x.arc(sx, sy, 12, 0, Math.PI * 2); x.fill();
+    poly(x, pts, '#f3b53b');
+  }
+  x.fillStyle = '#f0e4c9'; x.fillRect(30, 100, 360, 360);                            // the art: a crystal hero on a dark ground
+  const g = x.createLinearGradient(0, 106, 0, 454); g.addColorStop(0, '#171b38'); g.addColorStop(1, '#3d1f49');
+  x.fillStyle = g; x.fillRect(36, 106, 348, 348);
+  const glow = x.createRadialGradient(210, 280, 10, 210, 280, 170); glow.addColorStop(0, 'rgba(160,210,255,.45)'); glow.addColorStop(1, 'rgba(160,210,255,0)');
+  x.fillStyle = glow; x.fillRect(36, 106, 348, 348);
+  const cx = 210, cy = 285;
+  poly(x, [[cx - 40, cy + 60], [cx - 12, cy + 60], [cx - 20, cy + 150], [cx - 52, cy + 150]], '#8fb6d9');    // legs
+  poly(x, [[cx + 12, cy + 60], [cx + 40, cy + 60], [cx + 52, cy + 150], [cx + 20, cy + 150]], '#7ea6cc');
+  poly(x, [[cx - 70, cy - 30], [cx - 122, cy + 34], [cx - 100, cy + 46], [cx - 58, cy - 4]], '#a7cbe8');   // arms
+  poly(x, [[cx + 70, cy - 30], [cx + 122, cy + 34], [cx + 100, cy + 46], [cx + 58, cy - 4]], '#8fb6d9');
+  poly(x, [[cx, cy - 70], [cx + 70, cy - 30], [cx + 40, cy + 70], [cx - 40, cy + 70], [cx - 70, cy - 30]], '#c9e3f5');   // the diamond torso, faceted
+  poly(x, [[cx, cy - 70], [cx + 70, cy - 30], [cx, cy + 10]], '#a7cbe8');
+  poly(x, [[cx, cy - 70], [cx - 70, cy - 30], [cx, cy + 10]], '#e6f3fb');
+  poly(x, [[cx - 70, cy - 30], [cx, cy + 10], [cx - 40, cy + 70]], '#8fb6d9');
+  poly(x, [[cx + 70, cy - 30], [cx, cy + 10], [cx + 40, cy + 70]], '#6f9bc4');
+  poly(x, [[cx, cy - 132], [cx + 34, cy - 114], [cx + 34, cy - 80], [cx, cy - 62], [cx - 34, cy - 80], [cx - 34, cy - 114]], '#dbeefb');   // the head, a cut stone
+  poly(x, [[cx - 26, cy - 102], [cx + 26, cy - 102], [cx + 22, cy - 90], [cx - 22, cy - 90]], '#2a2f55');                                 // visor
+  [[120, 150, 5], [300, 170, 4], [110, 400, 3], [320, 420, 5], [250, 130, 3]].forEach(([sx, sy, r]) => {                                 // glints
+    poly(x, [[sx, sy - r * 2.2], [sx + r * 0.6, sy], [sx, sy + r * 2.2], [sx - r * 0.6, sy]], 'rgba(255,255,255,.85)');
+    poly(x, [[sx - r * 2.2, sy], [sx, sy + r * 0.6], [sx + r * 2.2, sy], [sx, sy - r * 0.6]], 'rgba(255,255,255,.85)');
+  });
+  x.fillStyle = '#f0e4c9'; x.fillRect(24, 472, 372, 116);                            // type and effect
+  x.fillStyle = '#1a1410'; x.textAlign = 'left'; x.textBaseline = 'alphabetic';
+  x.font = '700 13px Georgia'; x.fillText('[Warrior / Effect]', 32, 492);
+  x.font = '11px Georgia';
+  wrapLines(x, 'Once per turn, you can look at the top card of your Deck. If it is a Normal Spell Card, send it to the Graveyard, and during the Main Phase 1 of your next turn, activate its effect.', 356)
+    .forEach((l, i) => x.fillText(l, 32, 510 + i * 14));
+  x.strokeStyle = '#1a1410'; x.lineWidth = 1.2; x.beginPath(); x.moveTo(32, 560); x.lineTo(388, 560); x.stroke();
+  x.font = '700 13px Georgia'; x.textAlign = 'right'; x.fillText('ATK/1400    DEF/1600', 388, 578);
+  x.font = '9px Georgia'; x.textAlign = 'left'; x.fillStyle = '#3a2a1a'; x.fillText('DESTINY HERO', 32, 600);
+  return c;
+}
+function slabLabelCanvas() {
+  const c = document.createElement('canvas');
+  c.width = 512; c.height = 200;
+  const x = c.getContext('2d');
+  x.fillStyle = '#fbfaf6'; x.fillRect(0, 0, 512, 200);
+  x.fillStyle = BURGUNDY_PAINT; x.fillRect(0, 0, 512, 16);
+  x.fillStyle = '#1a1410'; x.textAlign = 'left'; x.textBaseline = 'alphabetic';
+  x.font = '700 26px Arial'; x.fillText('YU-GI-OH!  DESTINY HERO', 22, 70);
+  x.font = '600 26px Arial'; x.fillText('DIAMOND DUDE', 22, 110);
+  x.font = '500 17px Arial'; x.fillStyle = '#5a5048'; x.fillText('EFFECT MONSTER  ·  CERT. 24042027', 22, 154);
+  x.strokeStyle = '#1a1410'; x.lineWidth = 3; x.strokeRect(392, 40, 96, 130);
+  x.fillStyle = '#1a1410'; x.textAlign = 'center';
+  x.font = '700 64px Arial'; x.fillText('10', 440, 118);
+  x.font = '700 18px Arial'; x.fillText('GEM MT', 440, 150);
+  return c;
+}
+(function cardSlab() {
+  const g = new THREE.Group();
+  const SW = 0.22, SH = 0.35, SD = 0.016, CW = 0.166, CH = 0.242;                // the slab, and the card inside it (2.6 x life)
+  const acrylic = new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.04, metalness: 0.05, transparent: true, opacity: 0.2, depthWrite: false });
+  const slab = new THREE.Mesh(new THREE.BoxGeometry(SW, SH, SD), acrylic);
+  slab.position.z = SD / 2 + 0.006;
+  const well = new THREE.Mesh(new THREE.PlaneGeometry(SW - 0.02, SH - 0.02), new THREE.MeshStandardMaterial({ color: '#f5f2ea', roughness: 0.7 }));   // the white inner sleeve
+  well.position.z = 0.004;                                                       // the sleeve, card and label sit 8 mm apart: closer, and their edges flicker as you move
+  const ct = new THREE.CanvasTexture(cardFaceCanvas());
+  ct.colorSpace = THREE.SRGBColorSpace; ct.anisotropy = 8;
+  const card = new THREE.Mesh(new THREE.PlaneGeometry(CW, CH), new THREE.MeshStandardMaterial({ map: ct, roughness: 0.55 }));
+  card.position.set(0, -0.037, 0.012);                                         // clear of the label above it: where the two overlapped, the card's top edge flickered
+  const img = new Image();                                                       // the real card, if a photo of it has been supplied
+  img.onload = () => { const t = new THREE.Texture(img); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; t.needsUpdate = true; card.material.map = t; card.material.needsUpdate = true; };
+  img.src = 'assets/diamond-dude.png';
+  const lt = new THREE.CanvasTexture(slabLabelCanvas());
+  lt.colorSpace = THREE.SRGBColorSpace; lt.anisotropy = 8;
+  const label = new THREE.Mesh(new THREE.PlaneGeometry(0.195, 0.076), new THREE.MeshStandardMaterial({ map: lt, roughness: 0.6 }));
+  label.position.set(0, SH / 2 - 0.047, 0.012);
+  g.add(well, card, label, slab);
+  [[-1, -1], [1, -1], [0, 1]].forEach(([sx, sy]) => {                             // brass clips: two at the foot, one at the crown
+    const clip = new THREE.Mesh(new THREE.BoxGeometry(0.028, 0.012, SD + 0.02), brass);
+    clip.position.set(sx * (SW / 2 - 0.03), sy * (SH / 2 + 0.006), SD / 2 + 0.006);
+    const lip = new THREE.Mesh(new THREE.BoxGeometry(0.028, 0.018, 0.006), brass);
+    lip.position.set(sx * (SW / 2 - 0.03), sy * (SH / 2 - 0.004), SD + 0.009);
+    g.add(clip, lip);
+  });
+  const plate = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.06, 0.012), brass);   // a small plaque below
+  const face = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.06), new THREE.MeshStandardMaterial({ map: plaqueTexture('DIAMOND DUDE', 84), roughness: 0.45, metalness: 0.15 }));
+  face.position.z = 0.0065;
+  plate.add(face); plate.position.set(0, -SH / 2 - 0.06, 0.006);
+  g.add(plate);
+  // all of it mounted on a walnut plaque with a stepped edge, as a trophy is
+  g.children.forEach((c) => { c.position.z += 0.03; });
+  const board = new THREE.Mesh(new THREE.BoxGeometry(0.33, 0.5, 0.022), walnutTable);
+  board.position.set(0, -0.02, 0.011);
+  const step = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.47, 0.008), walnutTable);
+  step.position.set(0, -0.02, 0.026);
+  g.add(board, step);
+  hangArtifact(g, GALLERY_Z + 1.3, 0.95, 'anthonyCard');
+})();
+
+// 2. IN CASE OF EMERGENCY BREAK GLASS: a red steel case under the arcade with a glass front and a hammer on a chain,
+// and inside, the three things he runs on: a Peach Red Bull, Hot Ones' Last Dab, and a pack of Marlboro Southern Cuts.
+(function emergencyCase() {
+  const g = new THREE.Group();
+  const CW = 0.46, CH = 0.56, CD = 0.15;
+  const red = new THREE.MeshStandardMaterial({ color: '#b3202a', roughness: 0.38, metalness: 0.15 });
+  const cream = new THREE.MeshStandardMaterial({ color: '#f1ece1', roughness: 0.7 });
+  const back = new THREE.Mesh(new THREE.BoxGeometry(CW - 0.02, CH - 0.02, 0.012), cream);
+  back.position.z = 0.006;
+  g.add(back);
+  [[0, CH / 2 - 0.015, CW, 0.03], [0, -CH / 2 + 0.015, CW, 0.03], [-CW / 2 + 0.015, 0, 0.03, CH - 0.06], [CW / 2 - 0.015, 0, 0.03, CH - 0.06]].forEach(([bx, by, bw, bh]) => {
+    const bar = new THREE.Mesh(new THREE.BoxGeometry(bw, bh, CD), red);
+    bar.position.set(bx, by, CD / 2);
+    g.add(bar);
+  });
+  const floor = new THREE.Mesh(new THREE.BoxGeometry(CW - 0.06, 0.006, CD - 0.02), cream);     // the case is cream inside, floor included
+  floor.position.set(0, -CH / 2 + 0.033, CD / 2 - 0.004);
+  g.add(floor);
+  const shelf = new THREE.Mesh(new THREE.BoxGeometry(CW - 0.07, 0.012, CD - 0.045), cream);   // the ledge they stand on
+  const shelfY = -CH / 2 + 0.12, shelfZ = (CD - 0.045) / 2 + 0.012;
+  shelf.position.set(0, shelfY, shelfZ);
+  g.add(shelf);
+  const items = new THREE.Group();                                                // the three of them, built at life size and shown a third larger
+  items.position.set(0, shelfY + 0.006, shelfZ); items.scale.setScalar(1.3);
+  g.add(items);
+  const top = 0;
+  // The three are drawn after the real things. A straight-on photo of each, saved in assets/ as case-can.png (the can's
+  // front), case-sauce.png (the bottle's label) or case-pack.png (the pack's front), replaces the drawing.
+  const photo = (src, onto) => { const im = new Image(); im.onload = () => onto(im); im.src = src; };
+  // A photograph of a cylinder is a projection: the print at angle a round the can lands at sin(a) across the picture.
+  // This runs that backwards, column by column, so that the picture wrapped round the front half of a cylinder looks
+  // exactly like the photograph again when seen from the front
+  const unwrap = (ctx, im, x0, w, h) => { for (let i = 0; i < w; i++) { const sx = Math.min(im.width - 1, im.width / 2 * (1 + Math.sin(-Math.PI / 2 + Math.PI * (i + 0.5) / w))); ctx.drawImage(im, sx, 0, 1, im.height, x0 + i, 0, 1, h); } };
+  // the can: Red Bull's Peach Edition, cream and peach, the sun and the two bulls, the red script, a peach
+  const cc = document.createElement('canvas');
+  cc.width = 512; cc.height = 360;
+  let x = cc.getContext('2d');
+  const cg = x.createLinearGradient(0, 0, 0, 360); cg.addColorStop(0, '#f8ead6'); cg.addColorStop(0.55, '#f5d9bb'); cg.addColorStop(1, '#efb98f');
+  x.fillStyle = cg; x.fillRect(0, 0, 512, 360);
+  const bull = (cx, cy, s, dir) => {                                              // a charging bull in profile, head down, as a red silhouette
+    const pts = [[0, 30], [14, 16], [40, 8], [66, 12], [82, 22], [92, 8], [98, 12], [90, 26], [100, 34], [96, 42], [82, 40], [78, 58], [70, 58], [66, 44], [42, 44], [38, 60], [30, 60], [30, 46], [14, 48], [6, 60], [0, 58], [6, 44]];
+    poly(x, pts.map(([px, py]) => [cx + dir * (px - 50) * s, cy + (py - 34) * s]), '#c8102e');
+  };
+  x.fillStyle = '#f5c518'; x.beginPath(); x.arc(256, 92, 26, 0, Math.PI * 2); x.fill();   // the sun (the front of a can shows two fifths of its wrap, so everything sits within 200 px)
+  bull(226, 96, 0.52, 1); bull(286, 96, 0.52, -1);
+  x.fillStyle = '#c8102e'; x.textAlign = 'center'; x.font = 'italic 700 36px Georgia';
+  x.fillText('Red Bull', 256, 166);
+  x.fillStyle = '#2a2a2a'; x.font = '700 11px Arial';
+  if ('letterSpacing' in x) x.letterSpacing = '2px';
+  x.fillText('THE PEACH EDITION', 256, 190);
+  if ('letterSpacing' in x) x.letterSpacing = '0px';
+  x.fillStyle = '#f0925a'; x.beginPath(); x.arc(256, 268, 32, 0, Math.PI * 2); x.fill();   // the peach, with its crease and leaf
+  x.fillStyle = '#e46b45'; x.beginPath(); x.arc(266, 275, 24, 0, Math.PI * 2); x.fill();
+  x.fillStyle = '#f7b98e'; x.beginPath(); x.arc(245, 258, 9, 0, Math.PI * 2); x.fill();
+  x.strokeStyle = '#c9553a'; x.lineWidth = 3; x.beginPath(); x.moveTo(256, 238); x.quadraticCurveTo(248, 268, 260, 298); x.stroke();
+  poly(x, [[258, 238], [284, 224], [292, 236], [268, 246]], '#6aa64a');
+  x.fillStyle = '#8a6b52'; x.font = '600 9px Arial'; x.fillText('ENERGY DRINK', 256, 330);
+  const canTex = new THREE.CanvasTexture(cc); canTex.colorSpace = THREE.SRGBColorSpace;
+  // the real can is hot pink all round. A photo flattens the front half of a can: wrapped back on, it has to span less
+  // than a quarter turn to face you whole
+  photo('assets/case-can.png', (im) => { x = cc.getContext('2d'); x.fillStyle = '#e63a86'; x.fillRect(0, 0, 512, 360); unwrap(x, im, 128, 256, 360); canTex.needsUpdate = true; });   // the photo round the front half, pink round the back
+  const silver = new THREE.MeshStandardMaterial({ color: '#cfd3d6', roughness: 0.3, metalness: 0.8 });
+  const can = new THREE.Mesh(new THREE.CylinderGeometry(0.031, 0.031, 0.135, 28), [new THREE.MeshStandardMaterial({ map: canTex, roughness: 0.35, metalness: 0.4 }), silver, silver]);
+  can.position.set(-0.115, top + 0.0675, 0); can.rotation.y = Math.PI + 0.12;     // a cylinder's seam is at the front: turn the picture round to face out
+  const rim = new THREE.Mesh(new THREE.TorusGeometry(0.029, 0.003, 8, 28), silver);
+  rim.rotation.x = Math.PI / 2; rim.position.set(-0.115, top + 0.135, 0);
+  items.add(can, rim);
+  // the hot sauce: a small bottle of orange sauce, black label, a yellow cap with a yellow seal down the neck
+  const dark = new THREE.MeshStandardMaterial({ color: '#e0731c', roughness: 0.3, metalness: 0.05 });
+  const black = new THREE.MeshStandardMaterial({ color: '#f2c318', roughness: 0.45 });
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.026, 0.026, 0.095, 24), dark);
+  body.position.set(0, top + 0.0475, 0);
+  const shoulder = new THREE.Mesh(new THREE.CylinderGeometry(0.011, 0.026, 0.022, 24), dark);
+  shoulder.position.set(0, top + 0.106, 0);
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.0125, 0.0125, 0.03, 16), black);
+  neck.position.set(0, top + 0.13, 0);
+  const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.0135, 0.0135, 0.022, 16), black);
+  cap.position.set(0, top + 0.153, 0);
+  // its label, after the real one: the HOT ONES band on top, THE LAST DAB in white on black, the flame
+  const lc = document.createElement('canvas');
+  lc.width = 320; lc.height = 128;
+  x = lc.getContext('2d');
+  x.fillStyle = '#111111'; x.fillRect(0, 0, 320, 128);
+  x.fillStyle = '#f4efe6'; x.fillRect(0, 0, 320, 26);
+  x.fillStyle = '#111111'; x.textAlign = 'center'; x.font = '900 13px Arial';
+  if ('letterSpacing' in x) x.letterSpacing = '1px';
+  x.fillText('HOT ONES', 160, 19);
+  poly(x, [[160, 34], [174, 56], [169, 58], [182, 78], [160, 68], [138, 78], [151, 58], [146, 56]], '#e8402a');   // the flame
+  poly(x, [[160, 50], [167, 62], [160, 71], [153, 62]], '#f7b32b');
+  x.fillStyle = '#f5f0e6'; x.font = '900 14px Arial'; x.fillText('THE LAST DAB', 160, 102);
+  if ('letterSpacing' in x) x.letterSpacing = '0px';
+  x.fillStyle = '#c9c2b4'; x.font = '600 7px Arial'; x.fillText('HOT SAUCE', 160, 117);
+  if ('letterSpacing' in x) x.letterSpacing = '0px';
+  const labTex = new THREE.CanvasTexture(lc); labTex.colorSpace = THREE.SRGBColorSpace;
+  photo('assets/case-sauce.png', (im) => { x = lc.getContext('2d'); x.fillStyle = '#111111'; x.fillRect(0, 0, 320, 128); unwrap(x, im, 80, 160, 128); labTex.needsUpdate = true; });
+  const lab = new THREE.Mesh(new THREE.CylinderGeometry(0.0265, 0.0265, 0.07, 24, 1, true), new THREE.MeshStandardMaterial({ map: labTex, roughness: 0.6 }));
+  lab.position.set(0, top + 0.05, 0); lab.rotation.y = Math.PI;
+  items.add(body, shoulder, neck, cap, lab);
+  // the cigarettes: Marlboro Southern Cut, a black pack, the roof in tobacco-brown wood grain, the white script
+  const pc = document.createElement('canvas');
+  pc.width = 224; pc.height = 360;
+  x = pc.getContext('2d');
+  x.fillStyle = '#0f0d0c'; x.fillRect(0, 0, 224, 360);
+  const wg = x.createLinearGradient(0, 0, 224, 0); wg.addColorStop(0, '#5a3a22'); wg.addColorStop(0.5, '#8a5a30'); wg.addColorStop(1, '#4e3320');
+  poly(x, [[0, 0], [224, 0], [224, 96], [112, 168], [0, 96]], wg);                  // the roof
+  for (let i = 0; i < 40; i++) { x.strokeStyle = 'rgba(0,0,0,' + (0.08 + Math.random() * 0.12) + ')'; x.lineWidth = 1 + Math.random() * 2; x.beginPath(); const yy = Math.random() * 170; x.moveTo(0, yy); x.bezierCurveTo(70, yy + 6, 150, yy - 6, 224, yy + 3); x.stroke(); }   // the grain
+  x.save(); x.beginPath(); x.rect(0, 0, 224, 168); x.clip(); x.fillStyle = '#0f0d0c'; poly(x, [[0, 96], [112, 168], [224, 96], [224, 360], [0, 360]], '#0f0d0c'); x.restore();
+  x.strokeStyle = '#c9a25a'; x.lineWidth = 2; x.beginPath(); x.moveTo(0, 96); x.lineTo(112, 168); x.lineTo(224, 96); x.stroke();
+  x.fillStyle = '#e8d6a6'; x.textAlign = 'center';
+  x.font = '600 11px Georgia'; if ('letterSpacing' in x) x.letterSpacing = '3px'; x.fillText('SOUTHERN CUT', 112, 205);
+  if ('letterSpacing' in x) x.letterSpacing = '0px';
+  x.fillStyle = '#f4f1ea'; x.font = '700 40px Georgia'; x.fillText('Marlboro', 112, 258);
+  x.fillStyle = '#c9a25a'; x.beginPath(); x.arc(112, 292, 9, 0, Math.PI * 2); x.fill();   // the crest
+  x.fillStyle = '#0f0d0c'; x.font = '700 9px Georgia'; x.fillText('M', 112, 296);
+  x.fillStyle = '#9c8a63'; x.font = '600 10px Georgia'; x.fillText('20 CLASS A CIGARETTES', 112, 336);
+  const pTex = new THREE.CanvasTexture(pc); pTex.colorSpace = THREE.SRGBColorSpace;
+  const packSide = new THREE.MeshStandardMaterial({ color: '#17120f', roughness: 0.5 });
+  photo('assets/case-pack.png', (im) => {                                         // the real Southern Cut pack is copper: the photo on the front, copper round the sides
+    packSide.color.set('#b5762f'); x = pc.getContext('2d');
+    const h = im.height / im.width * 224; x.drawImage(im, 0, 0, 224, h);              // the photo shows the top of the pack...
+    x.fillStyle = '#b5762f'; x.fillRect(0, h - 1, 224, 361 - h);                      // ...and its copper carries on down to the bottom
+    pTex.needsUpdate = true;
+  });
+  const pack = new THREE.Mesh(new THREE.BoxGeometry(0.056, 0.09, 0.023), [packSide, packSide, packSide, packSide, new THREE.MeshStandardMaterial({ map: pTex, roughness: 0.5 }), packSide]);
+  pack.position.set(0.115, top + 0.045, 0);
+  items.add(pack);
+  // the glass, with the warning painted on it
+  const gc = document.createElement('canvas');
+  gc.width = 460; gc.height = 560;
+  x = gc.getContext('2d');
+  x.fillStyle = 'rgba(205,228,240,.16)'; x.fillRect(0, 0, 460, 560);
+  x.fillStyle = 'rgba(255,255,255,.1)'; poly(x, [[60, 0], [150, 0], [0, 190], [0, 100]], 'rgba(255,255,255,.1)');
+  x.fillStyle = '#c41e2a'; x.textAlign = 'center'; x.font = '700 27px Arial';
+  if ('letterSpacing' in x) x.letterSpacing = '1px';
+  x.fillText('IN CASE OF EMERGENCY', 230, 52);
+  x.font = '700 44px Arial'; x.fillText('BREAK GLASS', 230, 532);
+  const glassTex = new THREE.CanvasTexture(gc); glassTex.colorSpace = THREE.SRGBColorSpace;
+  const glass = new THREE.Mesh(new THREE.PlaneGeometry(CW - 0.06, CH - 0.06), new THREE.MeshStandardMaterial({ map: glassTex, transparent: true, roughness: 0.05, metalness: 0.1, depthWrite: false }));
+  glass.position.z = CD - 0.004;
+  g.add(glass);
+  // the hammer on its chain, hung at the right of the case
+  const steel = new THREE.MeshStandardMaterial({ color: '#4d4f52', roughness: 0.35, metalness: 0.8 });
+  const hx = CW / 2 + 0.065, hz = CD - 0.02, wood = new THREE.MeshStandardMaterial({ color: '#2b211c', roughness: 0.55 });   // hung level with the glass, so it shows from in front
+  const chain = new THREE.Mesh(new THREE.CylinderGeometry(0.0025, 0.0025, 0.09, 8), steel);
+  chain.position.set(hx, CH / 2 - 0.06, hz);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(0.008, 0.002, 8, 16), steel);
+  ring.position.set(hx, CH / 2 - 0.012, hz);
+  const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.007, 0.14, 12), wood);
+  handle.position.set(hx, CH / 2 - 0.175, hz);
+  const head = new THREE.Mesh(new THREE.BoxGeometry(0.052, 0.022, 0.022), steel);
+  head.position.set(hx, CH / 2 - 0.245, hz);
+  g.add(chain, ring, handle, head);
+  const plate = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.06, 0.012), brass);   // a small plaque below
+  const face = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.06), new THREE.MeshStandardMaterial({ map: plaqueTexture('THE ESSENTIALS', 84), roughness: 0.45, metalness: 0.15 }));
+  face.position.z = 0.0065;
+  plate.add(face); plate.position.set(0, -CH / 2 - 0.075, 0.006);
+  g.add(plate);
+  hangArtifact(g, GALLERY_Z - 1.3, 1.0, 'anthonyCase');
+})();
+
 // ---- raised gilt numerals above the wing arches, built from bars and serifs
 function numeral(count, sx) {
   const g = new THREE.Group();
@@ -1511,6 +1813,43 @@ function instancer(geo, mat) {
     }
   };
 }
+// ---- Anthony's third artifact: Amelia, the first gift: a JEKCA brick model of their dog (the Japanese Spitz set,
+// ST19PT31), on a Siena marble plinth between his frames. The model is assets/sculpture/amelia.glb: a 3D generation
+// from the maker's three product renders (front, left, right; Tripo via Magnific, 25 Sept 2026), reduced with
+// tools/reduce_glb.py, which bakes its texture (the black nose and eyes) into vertex colours. Shown at about
+// two and a half times the set's size, half a metre long.
+(function amelia() {
+  const dog = new THREE.Group();
+  const LENGTH = 0.5;
+  import('three/addons/loaders/GLTFLoader.js').then(({ GLTFLoader }) => {
+    new GLTFLoader().load('assets/sculpture/amelia.glb', (gltf) => {
+      const m = gltf.scene;
+      m.traverse((o) => { if (o.isMesh) { o.material = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.55 }); } });
+      const box = new THREE.Box3().setFromObject(m), size = box.getSize(new THREE.Vector3()), c = box.getCenter(new THREE.Vector3());
+      const k = LENGTH / size.x;                                       // her length runs along the model's x, nose toward +x
+      m.scale.setScalar(k);
+      m.position.set(-c.x * k, -box.min.y * k, -c.z * k);              // centred on her footprint, standing on the plinth top
+      dog.add(m);
+    }, undefined, () => console.warn('Amelia did not load'));
+  }).catch(() => console.warn('sculpture loader unavailable for Amelia'));
+  const g = new THREE.Group();
+  [[0.52, 0.1, 0.52, 0.05], [0.44, 0.3, 0.44, 0.25], [0.5, 0.08, 0.5, 0.44]].forEach(([w, h, d, y]) => {   // a small low square plinth, just her footprint, in the busts' pedestals' style
+    const p = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), plinthMat);
+    p.position.y = y; g.add(p);
+  });
+  dog.position.y = 0.48; dog.rotation.y = Math.PI * 0.75;              // she stands diagonally, nose toward the plinth's front-left corner, her plume to the room
+  g.add(dog);
+  const plate = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.055, 0.012), brass);   // her name, on the plinth's face
+  const face = new THREE.Mesh(new THREE.PlaneGeometry(0.26, 0.055), new THREE.MeshStandardMaterial({ map: plaqueTexture('AMELIA', 84), roughness: 0.45, metalness: 0.15 }));
+  face.position.z = 0.0065;
+  plate.add(face); plate.position.set(-0.226, 0.3, 0); plate.rotation.y = -Math.PI / 2;
+  g.add(plate);
+  g.position.set(2.15, 0, GALLERY_Z + 0.8);                           // on the floor between his main frame and the small frame to its right, clear of his name plaque and of the slab
+  g.userData.station = ST.anthony;
+  g.userData.closer = ST.anthonyAmelia;
+  scene.add(g);
+})();
+
 // a leaf at `pos`, its length pointing along `dir`, rolled at random about that direction
 function addLeaf(inst, pos, dir, size, color, rnd) {
   const q = new THREE.Quaternion().setFromUnitVectors(Y_AXIS, dir.clone().normalize());
@@ -2371,6 +2710,13 @@ function planRoute(n) {
   const at = { x: cam.x, z: cam.z };       // where the plan has got to so far
   const here = roomAt();
   const facing = (yaw) => Math.abs(shortAngle(cam.yaw, yaw) - cam.yaw) < 0.01;
+
+  // stepping back from a close-up at an atrium wall to the stop in front of it: a plain step back, no turning round
+  if (here === 'atrium' && t.room === 'atrium' && at.x !== 0 && t.x === 0 && Math.abs(shortAngle(cam.yaw, t.yaw) - cam.yaw) < 0.6 && Math.hypot(t.x - at.x, t.z - at.z) < 3) {
+    pushMove(t.x, t.z);
+    pushTurn(t.yaw);
+    return;
+  }
 
   if (here === 'det' && t.room === 'det') {
     // inside the details room you cross the floor freely. A short move to a stop that faces the way

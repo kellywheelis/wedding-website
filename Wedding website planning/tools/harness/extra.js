@@ -3,6 +3,8 @@
   if (q.has('x')) cam.x = +q.get('x');
   if (q.has('z')) cam.z = +q.get('z');
   if (q.has('yaw')) cam.yaw = +q.get('yaw');
+  if (q.has('eye')) { cam.eye = wantEye = +q.get('eye'); }   // eye=1.0 : the camera's height off the floor (a crouch, for looking at small things closely)
+  if (q.has('pitch')) { cam.pitch = wantPitch = +q.get('pitch'); }
   // headless virtual time never ticks the animation, so step it by hand after an action
   const settle = () => {
     const raf = window.requestAnimationFrame, now = performance.now, draw = renderer.render;
@@ -418,3 +420,17 @@
     window.requestAnimationFrame = raf; performance.now = now; renderer.render = draw;
     const tag = document.createElement('div'); tag.style.cssText = 'position:fixed;left:8px;top:60px;z-index:99;background:#000;color:#0f0;font:13px monospace;padding:6px 10px;white-space:pre'; tag.textContent = out.join('\n'); document.body.appendChild(tag);
   }, 1500); }
+{ const q = new URLSearchParams(location.search);
+  // hits=fx,fy : list the first eight things the click ray meets at that point of the frame, nearest first
+  if (q.has('hits')) setTimeout(() => {
+    const [fx, fy] = q.get('hits').split(',').map(Number), r = canvas.getBoundingClientRect();
+    camera.position.set(cam.x, cam.eye, cam.z); camera.rotation.set(cam.pitch, cam.yaw, 0, 'YXZ'); camera.updateMatrixWorld();
+    raycaster.setFromCamera(new THREE.Vector2(fx * 2 - 1, -(fy * 2 - 1)), camera);
+    const out = raycaster.intersectObjects(scene.children, true).slice(0, 8).map((h) => {
+      const chain = []; for (let o = h.object; o; o = o.parent) chain.push((o.type || '?') + (o.geometry ? ':' + o.geometry.type.replace('Geometry', '') : '') + (Object.keys(o.userData).length ? '{' + Object.keys(o.userData).join(',') + '}' : ''));
+      return h.distance.toFixed(3) + ' at ' + h.point.x.toFixed(2) + ',' + h.point.y.toFixed(2) + ',' + h.point.z.toFixed(2) + '  ' + chain.join(' < ');
+    });
+    const tag = document.createElement('div');
+    tag.style.cssText = 'position:fixed;left:8px;top:150px;z-index:99;background:#000;color:#ff0;font:13px monospace;padding:4px 8px;white-space:pre';
+    tag.textContent = out.join('\n') || 'no hits'; document.body.appendChild(tag);
+  }, 6500); }

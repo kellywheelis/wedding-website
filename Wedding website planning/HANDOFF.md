@@ -41,6 +41,7 @@ Everything that matters lives in one subfolder:
 | `assets/sculpture/` | The ten real sculpture scans (`.glb`) + `SOURCES.md` (where each came from, licence, how it was converted). |
 | `assets/door-walnut-*.jpg` | Generated walnut grain for the entry doors (`tools/make_walnut_textures.html` regenerates them). |
 | `tools/convert_scan.py` | Turns a raw museum scan (`.stl`/`.obj`, often 100 MB+) into a small `.glb`. No dependencies. |
+| `tools/reduce_glb.py` | Shrinks a generated, textured `.glb` (image-to-3D output) into a small vertex-coloured one. Uses macOS `sips` for the texture. |
 | `tools/harness/` | The screenshot/test harness (see §6). **Use it — it is how changes get verified.** |
 | `HANDOFF.md` | This file. |
 | `PROCESS.md` | The owner's creative-process document: concept, what was rejected and why, the building as built. |
@@ -92,6 +93,22 @@ internet connection is needed.
   consoles, four Roman busts, two large statues flanking the principal picture.
 - **Atrium galleries**: three frames a side (`ATRIUM_PICTURES`) — Kelly on the LEFT wall,
   Anthony on the RIGHT — each with an engraved brass name plaque (`GALLERY_NAMES`).
+- **Anthony's artifacts** (25 Sept 2026, `hangArtifact`): a graded slab of his favourite card,
+  Destiny HERO – Diamond Dude, on brass clips on a walnut trophy plaque under his right-hand frame
+  (`cardSlab`; the card face is `assets/diamond-dude.png`, the owner's image of the real card; if that
+  file is missing the drawing in `cardFaceCanvas` shows instead); and an IN CASE OF EMERGENCY BREAK
+  GLASS case under the arcade (`emergencyCase`: Peach Red Bull, Last Dab, Southern Cuts, hammer on a
+  chain; the three carry the owner's product images `assets/case-can.png`, `case-sauce.png`,
+  `case-pack.png`, with drawn stand-ins if a file is missing). The third is
+  Amelia, their dog: a JEKCA Japanese Spitz brick model (ST19PT31) the owner built (her first gift to him).
+  Hand-building her from photos never matched (a day lost to it, 25 Sept); she is now
+  `assets/sculpture/amelia.glb`, a 3D generation from the maker's three product renders (front, left,
+  right; Tripo via the Magnific connector), reduced from 57 MB to 4.5 MB with `tools/reduce_glb.py`, which
+  clusters the mesh like `convert_scan.py` and bakes the texture (black nose and eyes) into vertex colours.
+  `amelia()` loads it with GLTFLoader, scales it to half a metre long, and stands it on a small Siena marble plinth on the floor
+  between his main frame and the small frame to its right, an AMELIA plaque on the plinth. Each piece clicks like a small frame: first click to
+  his wall, second to a close-up stop (`anthonyCard`, `anthonyCase`, `anthonyAmelia`, a step in from
+  the wall; `planRoute` steps straight back out again without turning round).
 - Gilt numerals **I** and **II** above the wing arches (solid bars, not text).
 - Architectural dressing: cornices, atrium pilasters, arch surrounds with keystones, bosses, the
   inside face of the entrance doors on the atrium's back wall.

@@ -63,6 +63,7 @@ if (!/[?&]desktop/.test(location.search) && /iPhone|iPod|Android.*Mobile|Windows
 <body>
 <div id="shell">
   <div id="stage"><canvas id="view"></canvas>
+<div id="tally" style="position:absolute;left:14px;top:12px;z-index:14;opacity:0;transition:opacity 900ms ease;padding:4px 12px;border-radius:12px;background:rgba(26,18,8,.5);backdrop-filter:blur(2px);font-family:'Cormorant Garamond',Georgia,serif;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#F2DFA8;pointer-events:none;white-space:nowrap"></div>
 <div id="motto" style="position:absolute;inset:0;z-index:20;display:grid;place-items:center;padding:clamp(60px,12vh,120px) clamp(20px,6vw,70px) clamp(20px,6vw,70px);pointer-events:none;opacity:0;transition:opacity 2200ms ease">
   <div style="max-width:min(760px,94vw);text-align:center;padding:clamp(36px,6vw,80px) clamp(40px,8vw,110px);background:radial-gradient(ellipse closest-side,rgba(251,246,232,.7) 0%,rgba(251,246,232,.54) 50%,rgba(251,246,232,0) 100%)">
     <p style="margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;font-style:italic;font-size:clamp(24px,3.6vw,42px);line-height:1.26;background:linear-gradient(104deg,#8a6518 0%,#a67d24 24%,#96711e 50%,#a67d24 76%,#8a6518 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 1px 0 rgba(255,250,235,.7)) drop-shadow(0 1px 2px rgba(70,48,8,.45))">&ldquo;I am a museum of everything I&rsquo;ve ever loved&hellip;&rdquo;</p>
@@ -134,6 +135,8 @@ if (!/[?&]desktop/.test(location.search) && /iPhone|iPod|Android.*Mobile|Windows
 </div>
 
 <!-- ENTRANCE -->
+<div id="loadbar" style="position:fixed;left:0;top:0;height:3px;width:0;z-index:72;background:linear-gradient(90deg,#A98436,#F3DFA6,#D8B368);box-shadow:0 0 6px rgba(243,223,166,.6);transition:width 400ms ease,opacity 900ms ease;pointer-events:none"></div>
+<div id="loadnote" style="position:fixed;left:0;right:0;bottom:3.2vh;z-index:72;text-align:center;font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:15px;letter-spacing:.04em;color:#D9C48C;text-shadow:0 1px 2px rgba(0,0,0,.7);transition:opacity 900ms ease;pointer-events:none">Hanging the collection&hellip;</div>
 <div id="gate" style="position:fixed;inset:0;z-index:70">
   <div id="doorL" style="position:absolute;left:0;top:0;width:50.4%;height:100%;overflow:hidden;background:#3A2A1A url(assets/door-walnut-stile.jpg) center/cover;border-right:5px solid #140C06;box-shadow:inset -24px 0 44px -26px rgba(0,0,0,.95);transition:transform 2200ms cubic-bezier(.58,0,.2,1)">
     <div style="position:absolute;left:12%;right:12%;background:url(assets/door-walnut-rail.jpg) center/cover;box-shadow:-1px 0 0 rgba(0,0,0,.5),1px 0 0 rgba(0,0,0,.5);top:0;height:9%"></div>

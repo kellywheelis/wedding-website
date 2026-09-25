@@ -104,7 +104,7 @@ const STATIONS = [
     meta: 'Still life · perishable · hours undecided' },
   { id: 'w2b', x: 6.8, z: -7.5, yaw: Math.PI, room: 'w2', accent: '#D19A6E',
     eyebrow: 'Wing II · complementary work', title: 'The Dancing',
-    body: 'Three Graces, minimum. Participation is not optional but skill is not required.',
+    body: 'Three Graces, minimum. Participation is not optional but skill is not required. Kelly will dance. Anthony will dance after a Peach Red Bull.',
     meta: 'Performance · ongoing' },
 
   // "The Banquet" wall's two still lifes, up close
@@ -259,6 +259,20 @@ const camera = new THREE.PerspectiveCamera(70, 1, 0.22, 120);   // near 0.22: th
 camera.position.set(0, EYE, 0);
 
 const loader = new THREE.TextureLoader();
+// the loading line along the top edge, and the note at the foot of the doors: every texture and model goes through
+// three's default manager, so its progress is the collection's
+(function loading() {
+  const bar = document.getElementById('loadbar'), note = document.getElementById('loadnote');
+  if (!bar) return;
+  let done = false;
+  THREE.DefaultLoadingManager.onProgress = (url, n, total) => { if (!done) bar.style.width = Math.round(100 * n / Math.max(total, 1)) + '%'; };
+  THREE.DefaultLoadingManager.onLoad = () => {
+    done = true; bar.style.width = '100%';
+    setTimeout(() => { bar.style.opacity = '0'; note.style.opacity = '0'; }, 500);
+    setTimeout(() => { bar.remove(); note.remove(); }, 1600);
+  };
+  setTimeout(() => { if (!done) note.textContent = 'Hanging the collection\u2026 a moment more'; }, 8000);
+})();
 const tex = (src, rx, ry) => {
   const t = loader.load(src);
   t.colorSpace = THREE.SRGBColorSpace;
@@ -450,29 +464,41 @@ function ornateOvalFrame(w, h) {
   g.userData.pictureZ = fw * 0.1 + 0.003;
   return g;
 }
-function ornateFrame(w, h) {
-  const fw = THREE.MathUtils.clamp(0.085 + 0.036 * Math.max(w, h), 0.12, 0.25), tile = 0.34;
+// a plainer moulding: a flat ogee, hung in ebonised wood with a gilt slip at the picture's edge, as a salon mixes with its gilt
+const PLAIN_PROFILE = [[0, 0.06], [0, 0.18], [0.08, 0.22], [0.22, 0.24], [0.5, 0.3], [0.78, 0.26], [0.93, 0.18], [1, 0.1], [1, 0]];
+const ebonyMat = new THREE.MeshStandardMaterial({ color: '#1e1713', roughness: 0.32, metalness: 0.05 });
+function ornateFrame(w, h, style = 'gilt') {
+  const plain = style === 'plain', PROFILE = plain ? PLAIN_PROFILE : FRAME_PROFILE;
+  const fw = THREE.MathUtils.clamp(0.085 + 0.036 * Math.max(w, h), 0.12, 0.25) * (plain ? 0.8 : 1), tile = 0.34;
   const arc = [0];
-  for (let k = 1; k < FRAME_PROFILE.length; k++) arc.push(arc[k - 1] + Math.hypot(FRAME_PROFILE[k][0] - FRAME_PROFILE[k - 1][0], FRAME_PROFILE[k][1] - FRAME_PROFILE[k - 1][1]));
+  for (let k = 1; k < PROFILE.length; k++) arc.push(arc[k - 1] + Math.hypot(PROFILE[k][0] - PROFILE[k - 1][0], PROFILE[k][1] - PROFILE[k - 1][1]));
   const verts = [], uvs = [], index = [];
   // each side runs between two corners; every profile point pushes both corners outwards by the same amount, which is the mitre
   [[-1, -1, 1, -1], [1, -1, 1, 1], [1, 1, -1, 1], [-1, 1, -1, -1]].forEach(([ax, ay, bx, by]) => {
     const base = verts.length / 3, len = (ax !== bx ? w : h);
-    FRAME_PROFILE.forEach(([o, z], k) => {
+    PROFILE.forEach(([o, z], k) => {
       const e = o * fw, v = arc[k] / arc[arc.length - 1];
       verts.push(ax * (w / 2 + e), ay * (h / 2 + e), z * fw, bx * (w / 2 + e), by * (h / 2 + e), z * fw);
       uvs.push(-(len / 2 + e) / tile, v, (len / 2 + e) / tile, v);
     });
-    for (let k = 0; k < FRAME_PROFILE.length - 1; k++) { const q = base + k * 2; index.push(q, q + 2, q + 1, q + 1, q + 2, q + 3); }   // wound to face the room
+    for (let k = 0; k < PROFILE.length - 1; k++) { const q = base + k * 2; index.push(q, q + 2, q + 1, q + 1, q + 2, q + 3); }   // wound to face the room
   });
   const geo = new THREE.BufferGeometry();
   geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
   geo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
   geo.setIndex(index);
   geo.computeVertexNormals();
-  const g = new THREE.Group(), moulding = new THREE.Mesh(geo, giltMat);
+  const g = new THREE.Group(), moulding = new THREE.Mesh(geo, plain ? ebonyMat : giltMat);
   moulding.name = 'frame'; moulding.castShadow = true;
   g.add(moulding);
+  if (plain) {                                                        // the gilt slip, a narrow band round the picture's edge, and no carving
+    [[w + fw * 0.16, fw * 0.08, 0, h / 2 + fw * 0.04], [w + fw * 0.16, fw * 0.08, 0, -h / 2 - fw * 0.04], [fw * 0.08, h, -w / 2 - fw * 0.04, 0], [fw * 0.08, h, w / 2 + fw * 0.04, 0]].forEach(([bw, bh, bx, by]) => {
+      const slip = new THREE.Mesh(new THREE.BoxGeometry(bw, bh, fw * 0.12), giltPlain);
+      slip.position.set(bx, by, fw * 0.14); g.add(slip);
+    });
+    g.userData.pictureZ = fw * 0.1 + 0.003;
+    return g;
+  }
   const leaf = (px, py, ang, s) => {                                 // one carved leaf, lying on the frame
     const m = new THREE.Mesh(new THREE.SphereGeometry(1, 12, 8), giltPlain);
     m.scale.set(s * 0.95, s * 0.36, s * 0.26); m.rotation.z = ang; m.position.set(px + Math.cos(ang) * s * 0.7, py + Math.sin(ang) * s * 0.7, fw * 0.6);
@@ -972,9 +998,9 @@ const walnutTable = new THREE.MeshStandardMaterial({ map: tex('assets/door-walnu
     cl.addColorStop(0, 'rgba(255,246,228,' + (0.10 + Math.random() * 0.16) + ')'); cl.addColorStop(1, 'rgba(255,246,228,0)');
     x.fillStyle = cl; x.fillRect(bx - br, by - br, br * 2, br * 2);
   }
-  const skyTex = new THREE.CanvasTexture(cv);
-  skyTex.colorSpace = THREE.SRGBColorSpace;
-  const panel = new THREE.Mesh(new THREE.PlaneGeometry(pw, pd), new THREE.MeshBasicMaterial({ map: skyTex }));
+  const skyTex = tex('assets/det-ceiling-tiepolo.jpg');                 // Tiepolo's sketch for a ceiling (the Met), turned to lie along the room
+  skyTex.wrapS = skyTex.wrapT = THREE.ClampToEdgeWrapping; skyTex.anisotropy = 8;
+  const panel = new THREE.Mesh(new THREE.PlaneGeometry(pw, pd), new THREE.MeshBasicMaterial({ map: skyTex, color: '#e8e2d6' }));
   panel.rotation.x = Math.PI / 2;
   panel.position.set(0, top, (z0 + z1) / 2);
   scene.add(panel);
@@ -1001,9 +1027,9 @@ const DETAIL_PICTURES = [
   // LEFT WALL, entrance side. 2 The schedule: April above; time and the feast beneath
   { wall: 'left', at: DET.zMid + 2.85, y: 2.745, w: 2.0, h: 1.012, sec: 'schedule', src: 'assets/det-april-triumph-of-venus.jpg',
     note: ['April (The Triumph of Venus)', 'From a room in Ferrara that paints the year month by month. April belongs to Venus: she arrives on a barge drawn by swans, lovers gather on the banks, and the three Graces look on. We took the hint about the month.', 'Francesco del Cossa, c. 1470 · Palazzo Schifanoia, Ferrara'] },
-  { wall: 'left', at: DET.zMid + 3.45, y: 1.64, w: 0.85, h: 0.607, sec: 'schedule', src: 'assets/det-dance-to-the-music-of-time.jpg', crop: [0.05, 0.09, 0.96, 0.89],       // trimmed inside its shaped edge
+  { frame: 'plain', wall: 'left', at: DET.zMid + 3.45, y: 1.64, w: 0.85, h: 0.607, sec: 'schedule', src: 'assets/det-dance-to-the-music-of-time.jpg', crop: [0.05, 0.09, 0.96, 0.89],       // trimmed inside its shaped edge
     note: ['A Dance to the Music of Time', 'Father Time plays the lyre and the Seasons dance to it. The small cupid in the corner is holding the hourglass, which makes him the one keeping us to schedule.', 'Follower of Laurent de La Hyre, 17th century'] },
-  { wall: 'left', at: DET.zMid + 2.26, y: 1.64, w: 0.95, h: 0.396, sec: 'schedule', src: 'assets/det-banquet-of-cupid-and-psyche.jpg', crop: [0.115, 0.255, 0.995, 0.7],   // the banquet panel alone, without the ceiling round it
+  { frame: 'plain', wall: 'left', at: DET.zMid + 2.26, y: 1.64, w: 0.95, h: 0.396, sec: 'schedule', src: 'assets/det-banquet-of-cupid-and-psyche.jpg', crop: [0.115, 0.255, 0.995, 0.7],   // the banquet panel alone, without the ceiling round it
     note: ['The Wedding Banquet of Cupid and Psyche', 'Every god on Olympus came to the wedding. It is painted on a ceiling as if it were a tapestry stretched overhead: Bacchus pours, the Graces see to the perfume, and the Hours scatter flowers. Even up there, dinner ran to a timetable.', 'Raphael and workshop, 1518 · Villa Farnesina, Rome'] },
   // LEFT WALL, far side. 3 Travel: "Pegasus, Centaurs & Chariots", with Galatea's dolphins in the middle
   { wall: 'left', at: DET.zMid - 0.03, y: 2.3, w: 0.8, h: 1.2, sec: 'travel', src: 'assets/det-pegasus-and-mercury.jpg',
@@ -1023,9 +1049,9 @@ const DETAIL_PICTURES = [
   // ENTRANCE WALL, left. 5 Advanced logistics: terrain above; weather and the seasons beneath. Kept left of x -2.2, clear of the bust
   { wall: 'front', at: -3.5, y: 2.85, w: 2.1, h: 0.823, sec: 'logistics', src: 'assets/det-good-government-countryside.jpg',
     note: ['The Effects of Good Government in the Countryside', 'The hills round Siena, painted a short drive from the villa nearly seven hundred years ago, and they have hardly changed: white roads, vineyards, and rather more slope than it looks. Pack shoes accordingly.', 'Ambrogio Lorenzetti, 1338–39 · Palazzo Pubblico, Siena'] },
-  { wall: 'front', at: -3.955, y: 1.74, w: 1.1, h: 0.848, sec: 'logistics', src: 'assets/det-storm-on-a-mediterranean-coast.jpg',
+  { frame: 'plain', wall: 'front', at: -3.955, y: 1.74, w: 1.1, h: 0.848, sec: 'logistics', src: 'assets/det-storm-on-a-mediterranean-coast.jpg',
     note: ['A Storm on a Mediterranean Coast', 'The weather forecast, worst case. Late April in Tuscany is usually gentle, but Vernet made a career out of what happens when it is not. Bring a layer.', 'Claude-Joseph Vernet, 1767 · J. Paul Getty Museum, Los Angeles'] },
-  { wall: 'front', at: -2.785, y: 1.74, w: 0.59, h: 0.869, sec: 'logistics', src: 'assets/det-four-seasons.jpg',
+  { frame: 'plain', wall: 'front', at: -2.785, y: 1.74, w: 0.59, h: 0.869, sec: 'logistics', src: 'assets/det-four-seasons.jpg',
     note: ['Allegory of the Four Seasons', 'Spring, Summer, Autumn and Winter, crowded into one frame. Late April can manage three of them in a day.', 'Bartolomeo Manfredi, c. 1610 · Dayton Art Institute'] },
   // ENTRANCE WALL, right. 6 Guest policies
   { wall: 'front', at: 3.4, y: 2.4, w: 1.75, h: 1.21, sec: 'policies', src: 'assets/det-court-of-gonzaga.jpg',
@@ -1051,7 +1077,7 @@ function studyTexture(i, aspect, blank) {
 // an ornate gilt frame round a picture; `src` hangs an image, otherwise a placeholder
 function framedPicture(p, i) {
   const grp = new THREE.Group();
-  const frame = p.oval ? ornateOvalFrame(p.w, p.h) : ornateFrame(p.w, p.h);
+  const frame = p.oval ? ornateOvalFrame(p.w, p.h) : ornateFrame(p.w, p.h, p.frame);
   frame.position.z = -0.07;
   let picGeo = new THREE.PlaneGeometry(p.w, p.h);
   if (p.oval) {                                                      // an elliptical canvas, its picture mapped as if it were the full rectangle
@@ -2340,6 +2366,7 @@ const SCULPTURES = {
     ['The Effects of Good Government in the Countryside, Ambrogio Lorenzetti, 1338–39', 'Palazzo Pubblico, Siena · public domain'],
     ['The Dream of St Ursula, Vittore Carpaccio, 1495', 'Gallerie dell’Accademia, Venice · public domain'],
     ['The Court of Gonzaga (Camera degli Sposi), Andrea Mantegna, 1465–74', 'Palazzo Ducale, Mantua · public domain'],
+    ['Allegory of the Planets and Continents (sketch for a ceiling), Giovanni Battista Tiepolo, 1752', 'The Metropolitan Museum of Art, New York · public domain'],
     ['Pop-Up Invitation, Truong Hoai Vu', 'vuth.art · illustration and paper engineering, shown with the artist’s permission'],
     ...Object.values(SCULPTURES).map((c) => [c.title, c.credit + ' · simplified for the web, shared under the same licence'])
   ];
@@ -2461,11 +2488,20 @@ function levelBase(model) {
             accent: look[0], eyebrow: look[1], title: n[0], body: n[1], meta: n[2] });
           ST[sid] = STATIONS.length - 1;
           g.userData.station = ST[sid];
+          if (typeof paintTally === 'function') paintTally();
         }
       }, undefined, () => console.warn('sculpture did not load, keeping the placeholder:', cfg.src));
     });
   }).catch(() => console.warn('sculpture loader unavailable, keeping the placeholders'));
 })();
+
+// ---- a spot on each of the large statues, from high on the wall behind the viewer's shoulder, so they stand out of the room's wash
+[[-1.85, 4.6, 0, 1.2], [1.9, 4.6, 0, 1.2], [-1830 * U, P.wingFarZ + 0.43, 0, 1.4], [1830 * U, P.wingFarZ + 0.43, 0, 1.4], [-2.5, DET.zB + 0.62, 0, 1.4], [2.5, DET.zB + 0.62, 0, 1.4]].forEach(([x, z, _, aim]) => {
+  const sp = new THREE.SpotLight('#fff1d6', 14, 7, 0.42, 0.6, 1.3);
+  sp.position.set(x * 0.55, H - 0.2, z + (z > 0 ? -2.2 : 2.2));      // up near the vault, in front of the statue, toward the room's centre
+  sp.target.position.set(x, aim, z);
+  scene.add(sp, sp.target);
+});
 
 // ---- signage drawn to canvas, hung as brass lettering
 function signTexture(lines, w, h) {
@@ -2930,7 +2966,22 @@ function startLeg() {
 
 // ---------------------------------------------------------------- ui
 const el = (id) => document.getElementById(id);
+// ---- the collection tally: how many of the works you have stood in front of, by title, kept between visits
+const SEEN = new Set((() => { try { return JSON.parse(localStorage.getItem('ka-seen') || '[]'); } catch (e) { return []; } })());
+function tallyTotal() { return new Set(STATIONS.filter((s) => s.id !== 'atrium').map((s) => s.title)).size; }   // distinct works; the sculptures join once their scans have loaded
+function paintTally() {
+  const t = el('tally'); if (!t) return;
+  const total = tallyTotal(), seen = [...SEEN].filter((x) => STATIONS.some((s) => s.title === x)).length;
+  t.textContent = seen >= total ? 'Collection \u00b7 every work seen' : 'Collection \u00b7 ' + seen + ' of ' + total;
+}
+function noteSeen(st) {
+  if (st.id === 'atrium' || SEEN.has(st.title)) return;
+  SEEN.add(st.title);
+  try { localStorage.setItem('ka-seen', JSON.stringify([...SEEN])); } catch (e) { /* private mode: the tally lasts the visit */ }
+  paintTally();
+}
 function paintLabel(st) {
+  noteSeen(st);
   el('eyebrow').textContent = st.eyebrow;
   el('eyebrow').style.color = st.accent;
   el('title').textContent = st.title;
@@ -2948,7 +2999,9 @@ function paintLabel(st) {
     n.classList.add('fresh');
   });
 }
+const HINTS = { atrium: 'Go ahead \u2013 touch the art', w1: 'Touch a work to walk up to it', w2: 'Touch a work to walk up to it', det: 'Touch a frame to read its card' };
 function markRoom(room) {
+  if (el('hint') && HINTS[room]) el('hint').textContent = HINTS[room];
   document.querySelectorAll('[data-room]').forEach((b) => {
     const on = b.getAttribute('data-room') === room;
     b.style.background = on ? 'rgba(232,192,122,.16)' : 'transparent';
@@ -3054,7 +3107,7 @@ window.addEventListener('keydown', (e) => {
 
 let mottoTimer = null;
 let navShown = false;                                              // the compass and Turn around wait until the motto has gone
-function showNav() { navShown = true; el('compass').style.opacity = '1'; markRoom(STATIONS[idx].room); }
+function showNav() { navShown = true; el('compass').style.opacity = '1'; if (el('tally')) { paintTally(); el('tally').style.opacity = '1'; } markRoom(STATIONS[idx].room); }
 function hideMotto() {
   clearTimeout(mottoTimer);
   el('motto').style.opacity = '0';

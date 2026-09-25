@@ -110,6 +110,14 @@ internet connection is needed.
   between his main frame and the small frame to its right, an AMELIA plaque on the plinth. Each piece clicks like a small frame: first click to
   his wall, second to a close-up stop (`anthonyCard`, `anthonyCase`, `anthonyAmelia`, a step in from
   the wall; `planRoute` steps straight back out again without turning round).
+- **25 Sept 2026 review batch**: a loading line along the top edge and "Hanging the collection…" at the
+  foot of the doors while textures and models load (`loading()`, three's DefaultLoadingManager); a
+  **collection tally** top-left of the view ("Collection · 7 of 54", distinct stop titles, kept in
+  localStorage `ka-seen`; `paintTally`/`noteSeen`); the pill's hint changes by room (`HINTS`); the
+  details room's ceiling is Tiepolo's *Allegory of the Planets and Continents* sketch
+  (`assets/det-ceiling-tiepolo.jpg`, the Met, turned to lie along the room); a second frame style,
+  ebonised with a gilt slip (`ornateFrame(w, h, 'plain')`, `PLAIN_PROFILE`; `frame: 'plain'` on five of
+  the salon hang's smaller pictures); a spot on each of the six large statues.
 - Gilt numerals **I** and **II** above the wing arches (solid bars, not text).
 - Architectural dressing: cornices, atrium pilasters, arch surrounds with keystones, bosses, the
   inside face of the entrance doors on the atrium's back wall.

@@ -241,9 +241,16 @@ No scans of Villa Cetinale's own sculpture exist online (searched). See `assets/
   walk-up stops and write-ups too (21 Sept 2026): `SCULPTURE_NOTES` entries make a stop for any spot; the loader
   works out the room and the wall from the spot's position (`room`, `back`, accent and eyebrow follow the room).
 - The four corner pedestals hold bust-sized pieces: a Roman head of Ariadne (Musée Saint-Raymond, Toulouse, CC BY —
-  the reclining Sleeping Ariadne cast was tried first and rejected as too big for a bust plinth), Antinous as Dionysus (the Bacchus reference: the owner does not drink and
-  wants guests told to enjoy the wine anyway), Beatrice d'Este and Isabella of Aragon (two Renaissance brides, either
-  side of the entrance arch). Bernini's Costanza Bonarelli replaced the Laurana woman in Wing II. The owner did NOT
+  the reclining Sleeping Ariadne cast was tried first and rejected as too big for a bust plinth), at the far left;
+  Beatrice d'Este and Antinous as Dionysus (the Bacchus reference: the owner does not drink and wants guests told
+  to enjoy the wine anyway) either side of the entrance arch, welcoming; and on the far-right pedestal, since
+  25 Sept 2026, **the hourglass** (`hourglass()`): a brass-framed glass whose sand runs from the site's opening
+  (18 Sept 2026) to the wedding, with UNTIL SIENA · n DAYS engraved on a plaque on the pedestal's face, refreshed
+  every minute (`setHourglass`, `WEDDING`; the sand masses are lathed from the bulb's own profile so their surface
+  meets the glass, and the top bulb never quite fills nor the bottom quite empties, so both read as sand in glass); it has a stop of its own (`sc_hourglass`, made at build time, with a
+  write-up in STATIONS) and clicks like a sculpture. Bacchus's and Ariadne's write-ups point at each other across
+  the room; Apollo's was rewritten. Isabella of Aragon was removed the same day (the owner did not like her;
+  `isabella.glb` stays in assets/sculpture, unused). Bernini's Costanza Bonarelli replaced the Laurana woman in Wing II. The owner did NOT
   want full-size statues shrunk to fit these pedestals (a shrunk Dancing Faun was tried and rejected), and does not
   want the Roman portrait busts back. No Cupid and Psyche scan exists in any open collection (searched).
 - Scans face whichever way they were captured: `turn` (radians) spins each to face the room; set by eye from renders,

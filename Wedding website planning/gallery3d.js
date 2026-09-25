@@ -2360,11 +2360,9 @@ const SCULPTURES = {
     credit: '3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons' },
   detEndL: { src: 'assets/sculpture/ariadne-head.glb', height: 0.7, turn: Math.PI, title: 'Head of Ariadne (Musée Saint-Raymond, Toulouse)',
     credit: '3D scan by Musée Saint-Raymond / Scan the World · CC BY · via Wikimedia Commons' },
-  detEndR: { src: 'assets/sculpture/antinous-dionysus.glb', height: 0.78, turn: -Math.PI * 0.4, title: 'Antinous as Dionysus (cast of the Vatican marble)',
+  detEntryR: { src: 'assets/sculpture/antinous-dionysus.glb', height: 0.78, turn: 0, title: 'Antinous as Dionysus (cast of the Vatican marble)',
     credit: '3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons' },
   detEntryL: { src: 'assets/sculpture/beatrice.glb', height: 0.66, turn: 0, title: 'Beatrice d’Este, after Gian Cristoforo Romano (cast of the Louvre marble)',
-    credit: '3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons' },
-  detEntryR: { src: 'assets/sculpture/isabella.glb', height: 0.62, title: 'Isabella of Aragon, attributed to Francesco Laurana (cast)',
     credit: '3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons' },
 };
 // the Credits panel: the paintings, then every sculpture scan with the attribution its licence asks for
@@ -2414,16 +2412,15 @@ const SCULPTURES = {
 
 // write-ups for the sculpture in the details room: click a statue or bust and this fills the bottom panel
 const SCULPTURE_NOTES = {
-  detStatueL: ['Apollo Belvedere', 'The most admired statue in the world for about three hundred years: Apollo, a moment after loosing an arrow, watching it land. Goethe wept. Napoleon stole it. It is here because a wedding needs at least one guest who has just hit his mark.', 'Roman copy after Leochares, c. 120–140 · Vatican Museums (cast at Statens Museum for Kunst, Copenhagen)'],
+  detStatueL: ['Apollo Belvedere', 'For three hundred years this was the most famous statue in the world. Apollo has just loosed an arrow and is watching it land; he already knows it has struck. Goethe wept in front of it, Napoleon carried it off to Paris, and every art student in Europe drew it. He stands by the curtain because he is the god of light, music and poetry, all three of which we have booked. He is also the only guest who has ever hit his mark on the first try, and we hope his aim is contagious.', 'Roman copy after Leochares, c. 120–140 · Vatican Museums (cast at Statens Museum for Kunst, Copenhagen)'],
   detStatueR: ['Diana of Versailles', 'Apollo’s twin sister, reaching over her shoulder for an arrow, with a stag at her side. Goddess of the hunt, the moon and the countryside, which makes her the patron of everyone driving through the Tuscan hills after dark.', 'Roman copy after Leochares, 1st–2nd century · Musée du Louvre, Paris (cast: Musées d’art et d’histoire de Genève)'],
-  detEndL: ['Ariadne', 'Abandoned on an island by the man she had just saved, she lay down and slept. Bacchus found her there, married her, and set her wedding crown in the sky as a constellation. He is across the room, in the opposite corner, still wearing the ivy. Things turned out fine.', 'Roman, 2nd century · Musée Saint-Raymond, Toulouse'],
-  detEndR: ['Antinous as Dionysus', 'Ivy and grapes in his hair: the god of wine, as the emperor Hadrian had his beloved Antinous portrayed. A confession: neither of us drinks. A request: please do not let that stop you. Tuscany makes some of the best wine on earth, and somebody has to enjoy it on our behalf.', 'Roman, c. 130–138 · Vatican Museums (cast at Statens Museum for Kunst, Copenhagen)'],
+  detEndL: ['Ariadne', 'Abandoned on an island by the man she had just saved, she lay down and slept. Bacchus found her there, married her, and set her wedding crown in the sky as a constellation. He is at the door as you came in, still wearing the ivy. Things turned out fine.', 'Roman, 2nd century · Musée Saint-Raymond, Toulouse'],
+  detEntryR: ['Antinous as Dionysus', 'Ivy and grapes in his hair: the god of wine, as the emperor Hadrian had his beloved Antinous portrayed, at the door to welcome you in. A confession: neither of us drinks. A request: please do not let that stop you. Tuscany makes some of the best wine on earth, and somebody has to enjoy it on our behalf. His bride, Ariadne, is at the far end of the room.', 'Roman, c. 130–138 · Vatican Museums (cast at Statens Museum for Kunst, Copenhagen)'],
   detEntryL: ['Beatrice d’Este', 'Married at fifteen to the Duke of Milan, and by twenty running the most brilliant court in Italy: Leonardo worked for her husband, and the poets worked for her. A Renaissance bride, at the door to welcome you in.', 'After Gian Cristoforo Romano, c. 1490 · Musée du Louvre, Paris (cast at Statens Museum for Kunst, Copenhagen)'],
   w1statue: ['Venus with the Apple', 'The apple is the prize from the Judgement of Paris: three goddesses, one young man, and a choice between power, wisdom and love. He chose love, and she has held on to the apple ever since. We are not saying he was right about everything. He was right about that.', 'Bertel Thorvaldsen, 1809 · Statens Museum for Kunst, Copenhagen'],
   w1small: ['Cupid Playing the Lyre', 'Between assignments, Cupid has put the bow down and picked up a lyre. He is in the ceremony wing for a reason: he has offered to play. There will be real musicians as well. He asked first.', 'Bertel Thorvaldsen · Statens Museum for Kunst, Copenhagen'],
   w2statue: ['Venus Italica', 'When Napoleon carried the Medici Venus off to Paris, Florence commissioned Canova to make a replacement. She was so loved that when the original came home, they kept both. She is stepping out of her bath and reaching for a towel, which is roughly the energy of getting ready for a party. This is the reception wing. Take your time.', 'Antonio Canova, 1804–12 · Galleria Palatina, Florence; this version Musée d’art et d’histoire, Geneva'],
-  w2bust: ['Costanza Bonarelli', 'Bernini carved the woman he loved the way nobody had carved anyone before: hair undone, collar open, halfway through saying something. No commission, no flattery, no goddess. Just a man looking at a woman. The rest of their story is not a wedding story. The look is.', 'Gian Lorenzo Bernini, c. 1636–38 · Museo Nazionale del Bargello, Florence (cast at Statens Museum for Kunst)'],
-  detEntryR: ['Isabella of Aragon', 'Beatrice’s cousin by marriage and, for a few years, her rival for the same palace in Milan. The two of them are on either side of this door, which is the closest they have stood to each other in five hundred years. They are behaving.', 'Attributed to Francesco Laurana, c. 1490 (cast at Statens Museum for Kunst, Copenhagen)']
+  w2bust: ['Costanza Bonarelli', 'Bernini carved the woman he loved the way nobody had carved anyone before: hair undone, collar open, halfway through saying something. No commission, no flattery, no goddess. Just a man looking at a woman. The rest of their story is not a wedding story. The look is.', 'Gian Lorenzo Bernini, c. 1636–38 · Museo Nazionale del Bargello, Florence (cast at Statens Museum for Kunst)']
 };
 const marbleScan = new THREE.MeshStandardMaterial({ color: '#ece6d9', roughness: 0.55 });
 // stand a scan flat: fit a plane through its lowest vertices (the underside of its base) and rotate the whole
@@ -2530,6 +2527,103 @@ function levelBase(model) {
   sp.target.position.set(x, aim, z);
   scene.add(sp, sp.target);
 });
+
+// ---- the hourglass: on the pedestal in the far right corner, the sand running down to the day. A brass frame of
+// two plates and four turned columns holds the glass; the sand's top cone sinks and the bottom cone grows as the date
+// nears (the whole glass is the time from the site's opening, 18 Sept 2026, to 24 April 2027), with a thin stream
+// between them. The countdown is engraved on a brass plaque on the pedestal's face and kept to the day.
+const WEDDING = new Date(2027, 3, 24, 16, 0, 0), SITE_OPENED = new Date(2026, 8, 18);
+const HOURGLASS = { sandTop: null, sandBottom: null, stream: null, plaque: null, plaqueText: '', grains: null, fall: 0, gm: new THREE.Matrix4() };
+function tickSand(t) {                                                   // the grains fall at a steady rate, each a little off the thread's axis
+  const gr = HOURGLASS.grains; if (!gr || !HOURGLASS.stream.visible) return;
+  const L = HOURGLASS.fall, n = gr.count, speed = 0.45;                    // metres per second
+  for (let i = 0; i < n; i++) {
+    const phase = ((t / 1000) * speed / L + i / n) % 1;
+    const y = L / 2 - phase * L, a = i * 2.4;
+    HOURGLASS.gm.makeTranslation(Math.cos(a) * 0.0025, y, Math.sin(a) * 0.0025);
+    gr.setMatrixAt(i, HOURGLASS.gm);
+  }
+  gr.instanceMatrix.needsUpdate = true;
+}
+(function hourglass() {
+  const spot = SCULPTURE_SPOTS.detEndR; if (!spot) return;
+  const g = new THREE.Group();
+  const glass = new THREE.MeshPhysicalMaterial({ color: '#ffffff', roughness: 0.02, metalness: 0.1, transparent: true, opacity: 0.1, side: THREE.DoubleSide, depthWrite: false, clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 1.5 });   // near-colourless glass: read by its highlights, not its tint
+  const sandMat = new THREE.MeshStandardMaterial({ color: '#d9b571', roughness: 0.95 });
+  const H2 = 0.8, R = 0.145;                                                // the whole piece: four-fifths of a metre tall
+  // the glass: two bulbs turned as one profile, waisted in the middle
+  const prof = [];
+  for (let i = 0; i <= 80; i++) {
+    const t = i / 80, y = (t - 0.5) * H2 * 0.84, u = (t * 2) % 1;
+    // an antique profile: from the plate, a short flat shoulder, then a broad belly low in the bulb, drawing out to a long slender neck
+    const d = t < 0.5 ? u : 1 - u;                                          // 0 at the plate, 1 at the neck, for either bulb
+    const belly = Math.sin(Math.min(1, d / 0.32) * Math.PI / 2);            // full width by a third of the way in
+    const draw = d < 0.32 ? 1 : Math.pow(1 - (d - 0.32) / 0.68, 1.6);        // then a long taper to the neck
+    prof.push(new THREE.Vector2(R * belly * (0.18 + 0.82 * draw) + 0.006, y));
+  }
+  const bulbs = new THREE.Mesh(new THREE.LatheGeometry(prof, 48), glass); bulbs.position.y = H2 / 2; g.add(bulbs);
+  // the frame: two brass plates and four columns
+  [[H2 - 0.02], [0.02]].forEach(([y]) => { const plate = new THREE.Mesh(new THREE.CylinderGeometry(R + 0.03, R + 0.03, 0.02, 32), brass); plate.position.y = y; g.add(plate); });
+  for (let k = 0; k < 4; k++) {
+    const a = k * Math.PI / 2 + Math.PI / 4, col = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, H2 - 0.04, 12), brass);
+    col.position.set(Math.cos(a) * (R + 0.015), H2 / 2, Math.sin(a) * (R + 0.015)); g.add(col);
+    [0.06, H2 - 0.06].forEach((y) => { const knop = new THREE.Mesh(new THREE.SphereGeometry(0.012, 10, 8), brass); knop.position.set(Math.cos(a) * (R + 0.015), y, Math.sin(a) * (R + 0.015)); g.add(knop); });
+  }
+  // the sand: each mass is turned from the same profile as the bulb it sits in, so its edge always meets the glass.
+  // The top mass fills the upper bulb from its neck up to a level, with a dip (the funnel) at the centre; the bottom
+  // mass fills the lower bulb from its base up to a level, with a peak at the centre. Both are rebuilt as the level moves.
+  const bulbR = (y) => { const t = y / (H2 * 0.84) + 0.5, u = (t * 2) % 1, d = t < 0.5 ? u : 1 - u; const belly = Math.sin(Math.min(1, d / 0.32) * Math.PI / 2), draw = d < 0.32 ? 1 : Math.pow(1 - (d - 0.32) / 0.68, 1.6); return R * belly * (0.18 + 0.82 * draw) + 0.006; };   // the glass's radius at height y (from the neck)
+  const sandGeo = (lower, level, peak) => {                                 // a lathe: the bulb wall from the neck (or base) to `level`, then the surface back to the axis
+    const pts = [];
+    const y0 = lower ? -H2 * 0.42 + 0.004 : 0.012, y1 = lower ? level : level;
+    if (lower) { for (let i = 0; i <= 16; i++) { const y = y0 + (y1 - y0) * i / 16; pts.push(new THREE.Vector2(Math.max(0.002, bulbR(y) - 0.004), y)); } pts.push(new THREE.Vector2(0, y1 + peak)); }
+    else { pts.push(new THREE.Vector2(0.002, y0)); for (let i = 0; i <= 16; i++) { const y = y0 + (y1 - y0) * i / 16; pts.push(new THREE.Vector2(Math.max(0.002, bulbR(y) - 0.004), y)); } pts.push(new THREE.Vector2(0, y1 - peak)); }
+    const g = new THREE.LatheGeometry(lower ? pts : pts.reverse(), 40); g.computeVertexNormals(); return g;
+  };
+  const top = new THREE.Mesh(sandGeo(false, H2 * 0.3, 0.03), sandMat); top.position.y = H2 / 2; g.add(top);
+  const bottom = new THREE.Mesh(sandGeo(true, -H2 * 0.3, 0.03), sandMat); bottom.position.y = H2 / 2; g.add(bottom);
+  // the falling sand: a thin thread, and a run of grains sliding down it that wrap round, so the fall is seen to move
+  const stream = new THREE.Group(); stream.position.y = H2 / 2; g.add(stream);
+  const thread = new THREE.Mesh(new THREE.CylinderGeometry(0.0022, 0.003, H2 * 0.36, 8), sandMat); stream.add(thread);
+  const grains = new THREE.InstancedMesh(new THREE.SphereGeometry(0.0045, 6, 5), sandMat, 22); stream.add(grains);
+  HOURGLASS.grains = grains; HOURGLASS.fall = H2 * 0.36;
+  HOURGLASS.sandGeo = sandGeo;
+  HOURGLASS.sandTop = top; HOURGLASS.sandBottom = bottom; HOURGLASS.stream = stream;
+  g.position.y = spot.top; g.rotation.y = -Math.PI * 0.3;
+  spot.group.add(g);
+  // the plaque on the pedestal's face, toward the room
+  const plaqueRows = (n, word) => [[0.3, 170, [[word, '600', 4]]], [0.7, 380, [[n, '700', 2]]], [0.93, 170, [['UNTIL SIENA', '600', 4]]]];   // three lines filling the plate: DAYS / the number / UNTIL SIENA
+  const plaque = engravedPlaque(0.34, 0.24, plaqueRows('', 'DAYS'));
+  plaque.position.set(0, 0.62, 0.192); spot.group.add(plaque);           // flat on the shaft's face (the shaft is 0.38 deep: its face is at 0.19)
+  HOURGLASS.plaqueRows = plaqueRows;
+  HOURGLASS.plaque = plaque;
+  const fx = spot.group.position.x, fz = spot.group.position.z, sx = fx - 0.55, sz = fz + 1.75;                  // the stop: in front of the pedestal and a little toward the room's centre, near enough to read the plaque
+  STATIONS.push({ id: 'sc_hourglass', x: sx, z: sz, yaw: Math.atan2(sx - fx, sz - fz), eye: 1.3, pitch: -0.12, room: 'det', tour: false, back: 'det',
+    accent: '#C9A667', eyebrow: 'Exhibit details \u00b7 the countdown', title: 'The Hourglass',
+    body: 'The sand began to run the day this gallery opened and will finish on the afternoon of the twenty-fourth of April. Every grain in the lower bulb is a day already spent getting ready; every grain above is one still to come. The plaque keeps the count, in case you are the sort who checks. We are.',
+    meta: 'Brass and glass, 2026 \u00b7 the count is kept to the day' });
+  ST.sc_hourglass = STATIONS.length - 1;
+  spot.group.traverse((o) => { o.userData.station = ST.sc_hourglass; });
+  setHourglass();
+})();
+function setHourglass() {
+  if (!HOURGLASS.sandTop) return;
+  const now = new Date(), total = WEDDING - SITE_OPENED, left = Math.max(0, Math.min(1, (WEDDING - now) / total));   // 1 = all the sand still above
+  const H2 = 0.8, span = H2 * 0.42;                                          // each bulb runs from the neck to 0.42 of the height
+  // the sand's level in each bulb, from the neck: the top bulb never quite fills and the bottom never quite empties, so both read as sand in glass
+  const topLevel = 0.03 + (span - 0.06) * (0.08 + 0.72 * left), botLevel = -span + 0.02 + (span - 0.05) * (0.1 + 0.7 * (1 - left));
+  HOURGLASS.sandTop.geometry.dispose(); HOURGLASS.sandTop.geometry = HOURGLASS.sandGeo(false, topLevel, Math.min(0.04, topLevel * 0.5));
+  HOURGLASS.sandBottom.geometry.dispose(); HOURGLASS.sandBottom.geometry = HOURGLASS.sandGeo(true, botLevel, Math.min(0.05, (botLevel + span) * 0.5));
+  HOURGLASS.stream.visible = left > 0 && left < 1;
+  const days = Math.max(0, Math.ceil((WEDDING - now) / 86400000));
+  const text = String(days);
+  if (text !== HOURGLASS.plaqueText && HOURGLASS.plaque) {
+    HOURGLASS.plaqueText = text;
+    const fresh = engravedPlaque(0.34, 0.24, HOURGLASS.plaqueRows(text, days === 1 ? 'DAY' : 'DAYS'));
+    HOURGLASS.plaque.children[1].material = fresh.children[1].material;   // the engraved face; the brass plate stays
+  }
+}
+setInterval(setHourglass, 60000);
 
 // ---- signage drawn to canvas, hung as brass lettering
 function signTexture(lines, w, h) {
@@ -4203,7 +4297,7 @@ function frame(now) {
   updateVolvelle();
   updateInvitation();
   if (shopRack) shopRack.rotation.y += 0.003;                      // the postcard rack turns idly
-  tickCurtain();
+  tickCurtain(); tickSand(performance.now());
   updatePointer();
   renderer.render(scene, camera);
   requestAnimationFrame(frame);

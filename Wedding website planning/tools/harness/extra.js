@@ -453,3 +453,12 @@
     out.getContext('2d').drawImage(c, 0, 0, out.width, out.height);
     document.body.innerHTML = ''; document.body.style.background = '#000'; out.style.cssText = 'position:fixed;left:0;top:0'; document.body.appendChild(out);
   }, 6000); }
+{ const q = new URLSearchParams(location.search);
+  // hg=1 : report the hourglass stop's index and the station tags on its pedestal
+  if (q.has('hg')) setTimeout(() => {
+    const spot = SCULPTURE_SPOTS.detEndR, tags = new Set(); spot.group.traverse((o) => tags.add(o.userData.station));
+    const tag = document.createElement('div');
+    tag.style.cssText = 'position:fixed;left:8px;top:150px;z-index:99;background:#000;color:#ff0;font:14px monospace;padding:4px 8px;white-space:pre';
+    tag.textContent = 'ST.sc_hourglass=' + ST.sc_hourglass + ' STATIONS[' + ST.sc_hourglass + '].id=' + (STATIONS[ST.sc_hourglass] || {}).id + ' ST.detStay=' + ST.detStay + '\npedestal tags: ' + [...tags].join(',') + ' group.pos=' + spot.group.position.toArray().map((v) => v.toFixed(2));
+    document.body.appendChild(tag);
+  }, 3000); }

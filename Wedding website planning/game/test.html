@@ -22,7 +22,7 @@ if (sim === 'play' || sim === 'win' || sim === 'over') { seq.push([600, () => ke
 seq.forEach(([t, f]) => setTimeout(f, t));
 // ?sim=run : start straight into play as the groom and step the game deterministically: walk right, climb, walk left, jump
 if (sim === 'fly') { const g = Arcade.current.inst.debug; g.start(q.get('who') || 'groom'); const st = Arcade.step; for (let i = 0; i < 14; i++) { st(1, ['jump']); st(26, []); } document.title = 'rings ' + g.S.rings + ' lives ' + g.S.lives + ' y ' + Math.round(g.S.p.y) + ' things ' + g.S.things.length; }
-if (sim === 'seat') { const g = Arcade.current.inst.debug; g.start(); const st = Arcade.step; for (let i = 0; i < 12; i++) { st(1, [i % 3 === 0 ? 'left' : 'right']); st(1, ['up']); st(1, ['jump']); st(30, []); } document.title = 'tables ' + g.S.tables + ' score ' + g.S.score + ' mode ' + g.S.mode + ' filled ' + g.S.grid.flat().filter(Boolean).length; }
+if (sim === 'seat') { const g = Arcade.current.inst.debug; g.start(); const st = Arcade.step; for (let i = 0; i < 10; i++) { const side = i % 2 ? 'right' : 'left', n = 1 + (i % 4); for (let k = 0; k < n; k++) st(1, [side]); if (i % 3 === 0) st(1, ['up']); st(1, ['jump']); st(45, []); } document.title = 'tables ' + g.S.tables + ' score ' + g.S.score + ' mode ' + g.S.mode + ' filled ' + g.S.grid.flat().filter(Boolean).length; }
 if (sim === 'run') { const g = Arcade.current.inst.debug; g.start(q.get('who') || 'groom'); const st = Arcade.step;
   st(170, ['right']); st(100, ['up']); st(60, ['left']); st(1, ['jump']); st(20, []); st(40, ['left']); st(10, []);
   document.title = 'x' + Math.round(g.S.p.x) + ' y' + Math.round(g.S.p.y) + ' plat' + g.S.p.plat + ' lives' + g.S.lives + ' score' + g.S.score + ' items' + Object.keys(g.S.items).join(',') + ' cases' + g.S.cases.length; }
@@ -31,3 +31,5 @@ if (sim === 'run') { const g = Arcade.current.inst.debug; g.start(q.get('who') |
 <script>if (sim === 'ready') { const g = Arcade.current.inst.debug; g.start(q.get('who') || 'bride'); g.S.mode = "ready"; g.S.ready = 999; }</script>
 <script>// ?sim=fly&rings=N : jump straight to N rings (to see a later stage), then fly a little
 if (sim === 'fly' && q.get('rings')) { const g = Arcade.current.inst.debug; g.S.rings = +q.get('rings'); g.S.stage = 0; for (let i = 0; i < 6; i++) { Arcade.step(1, ['jump']); Arcade.step(26, []); } }</script>
+<script>// ?sim=settle : fill a pew all but one seat, then seat the last guest, and stop mid-settle
+if (sim === 'settle') { const g = Arcade.current.inst.debug; g.start(); const S = g.S; for (let x = 0; x < 7; x++) S.grid[13][x] = { col: '#93aea2', kind: {} }; S.piece = { name: 'A PLUS-ONE', cells: [[0, 0]], col: '#f4efe1', x: 7, y: 0 }; Arcade.step(1, ['jump']); Arcade.step(6, []); }</script>

@@ -384,10 +384,14 @@ rank. In the shell, `Arcade.board` handles the ENTER YOUR INITIALS screen and th
 at 'over'/'won' (`S.boarded`), defers update() to it while it is on, and draws it last. The menu shows each
 game's top three. `game/test-board.html` mocks the API for looking at the screens.
 
-`game/seating.js` — THE SEATING CHART, a falling-blocks puzzle: guest groups as tetrominoes (`KINDS`, a colour per
-kind), a 10 x 20 hall, rows are tables (clear = 100/300/500/800 x level), plus-ones (single cells) and Nonna (a
-slow domino worth double) arrive now and then, the level rises every ten tables. Up turns, space hard-drops, a
-ghost shows the landing. No character select: it is the hosts' game.
+`game/seating.js` — THE SEATING CHART, a falling-blocks puzzle set in a chapel: guest groups (`KINDS` — a couple,
+the family, four friends, the wedding party, colleagues, the cousins, the in-laws, the odd plus-one) fall as
+tetrominoes of little pixel guests (`figure()`: women and men by seed, four hairstyles, dress or shirt-and-tie)
+into 8 x 14 pews split by an aisle (`sx()`). A full pew sits and shuffles forward (100/300/500/800 x level),
+each seat is +10, a couple seated together +50 and a heart; 96 guests seated wins (vows, +1000 and the hearts).
+Level rises every six pews. Up turns, down hurries, space seats. HUD is one burgundy line on top (seated, pews,
+score, hearts), NEXT sits left of the altar, the "X HAVE ARRIVED" caption under the pews. No named guests and no
+bride/groom sprites (the owner asked for both). No character select: it is the hosts' game.
 
 All five games live in one cabinet (the arcade menu).
 

@@ -118,6 +118,20 @@ internet connection is needed.
   (`assets/det-ceiling-tiepolo.jpg`, the Met, turned to lie along the room); a second frame style,
   ebonised with a gilt slip (`ornateFrame(w, h, 'plain')`, `PLAIN_PROFILE`; `frame: 'plain'` on five of
   the salon hang's smaller pictures); a spot on each of the six large statues.
+- **The three who hid** (25 Sept 2026): Kelly paints her pets into prints, so three of the family are painted
+  into three of the pictures in each painter's manner and left unmarked: Amelia (white spitz) in the flowers at
+  Mercury's feet in *Primavera*; Mishka (Nenets herding laika), head and shoulders, lying with Van Dyck's own hound in the bottom-right
+  corner of *Amaryllis and Mirtillo* (Wing I); Trogdor (sulcata tortoise) on the road among the mule trains in
+  Lorenzetti's *Good Government* (Logistics wall). Amelia was inpainted into the panel (Magnific, Nano Banana) with her photos as references; Mishka was generated
+  in Van Dyck's manner, placed, and then finished by the owner herself in Photoshop (her patch is the final word:
+  do not regenerate or move him); Trogdor was generated with the fresco as style reference, cut out and composited. The
+  results are pasted into the picture files (`assets/primavera.jpg`,
+  `w1-amaryllis-and-mirtillo.jpg`, `det-good-government-countryside.jpg`; the untouched originals are not in the repo —
+  re-download from the sources in the Credits panel if ever needed). `HIDDEN` in gallery3d.js holds each one's box
+  on its picture and its write-up; `markHidden` tags the canvas meshes; a click on the animal from the picture's own
+  close-up stop (`hiddenHit`/`atHiddenStop`) calls `foundHidden`, which names it in the panel and counts it in the
+  tally as a bonus line, "Hidden bonus features" with three stars that fill gold (localStorage `ka-found`; the works
+  count stays 54). Over a hidden pet, from its stop, the pointer becomes a magnifying glass (`assets/cursor-find.png`, `--cur-find`).
 - Gilt numerals **I** and **II** above the wing arches (solid bars, not text).
 - Architectural dressing: cornices, atrium pilasters, arch surrounds with keystones, bosses, the
   inside face of the entrance doors on the atrium's back wall.

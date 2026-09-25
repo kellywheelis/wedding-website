@@ -865,6 +865,28 @@ function column(x, z) {
 [-1, 1].forEach((sx) => { column(sx * (P.corrX - 0.32), P.wingFarZ + 0.55); });
 
 // ---- artwork
+// ---- three of the family, painted into three of the pictures in each painter's own manner (the owner's habit: she
+// paints her pets into prints). Nothing marks them; a click on the animal itself, from the picture's own stop, names the
+// find in the panel and counts it in the tally. `at` is the animal's box on the picture, as fractions from its top-left.
+const HIDDEN = {
+  'assets/primavera.jpg': { at: [0.073, 0.82, 0.165, 0.975], stop: 'w2close', accent: '#D19A6E', eyebrow: 'Wing II \u00b7 found', title: 'Amelia, in the orchard',
+    body: 'Botticelli did not paint a dog at Mercury\u2019s feet. Kelly regularly paints her pets into other people\u2019s pictures, and Amelia saw no reason to be left out of this iconic party. In fact, she thinks she is the guest of honor.', meta: 'One of three. The other two are elsewhere in the building.' },
+  'assets/w1-amaryllis-and-mirtillo.jpg': { at: [0.84, 0.86, 0.99, 0.985], stop: 'w1amaryllis', accent: '#93AEA2', eyebrow: 'Wing I \u00b7 found', title: 'Mishka, with the hound',
+    body: 'A hound in the corner, resting against Amaryllis\u2019s hand. Mishka, the definition of a Velcro dog, is not asleep. He is keeping an eye on the party and refuses to be left out.', meta: 'One of three. The other two are elsewhere in the building.' },
+  'assets/det-good-government-countryside.jpg': { at: [0.66, 0.9, 0.725, 0.985], stop: 'detFrontL', accent: '#A79C85', eyebrow: 'Exhibit details \u00b7 found', title: 'Trogdor, on the road to Siena',
+    body: 'On Lorenzetti\u2019s white road, among the mule trains, a sulcata tortoise is making for the villa at his own pace. Trogdor set off some time ago. He will get there\u2026 eventually.', meta: 'One of three. The other two are elsewhere in the building.' }
+};
+const FOUND = new Set((() => { try { return JSON.parse(localStorage.getItem('ka-found') || '[]'); } catch (e) { return []; } })());
+function markHidden(mesh, src) { if (HIDDEN[src]) mesh.userData.hidden = src; }
+// a click on a picture that hides one: is it on the animal? (uv from the raycast; the picture's v runs bottom-up)
+function hiddenHit(hit) {
+  const src = hit.object.userData.hidden;
+  if (!src || !hit.uv) return null;
+  const h = HIDDEN[src], u = hit.uv.x, v = 1 - hit.uv.y, pad = 0.03;
+  return u >= h.at[0] - pad && u <= h.at[2] + pad && v >= h.at[1] - pad && v <= h.at[3] + pad ? h : null;
+}
+const atHiddenStop = (h) => STATIONS[idx].id === h.stop || (h.closeIdx !== undefined && idx === h.closeIdx);   // the picture's own close-up, or the stop named
+
 function painting(src, aspect, w, x, z, rotY, station, closer, y = 1.95) {
   const h = w / aspect;
   const grp = new THREE.Group();
@@ -877,6 +899,7 @@ function painting(src, aspect, w, x, z, rotY, station, closer, y = 1.95) {
   );
   canvasMesh.name = 'canvas';
   canvasMesh.position.z = -0.045 + frame.userData.pictureZ;
+  markHidden(canvasMesh, src);
   grp.add(canvasMesh);
   grp.position.set(x, y, z);
   grp.rotation.y = rotY;
@@ -1087,6 +1110,7 @@ function framedPicture(p, i) {
     picGeo.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
   }
   const pic = new THREE.Mesh(picGeo, new THREE.MeshStandardMaterial({ map: p.src ? tex(p.src) : studyTexture(i, p.w / p.h, p.blank), roughness: 0.62 }));
+  if (p.src) markHidden(pic, p.src);
   pic.position.z = -0.07 + frame.userData.pictureZ;
   if (p.src) {
     const t = pic.material.map;
@@ -1115,6 +1139,7 @@ DETAIL_PICTURES.forEach((p, i) => {
       accent: '#C9A667', eyebrow: 'Exhibit details · ' + SECTION_LABEL[p.sec], title: p.note[0], body: p.note[1], meta: p.note[2] });
     ST[id] = STATIONS.length - 1;
     grp.userData.closer = ST[id];
+    if (HIDDEN[p.src]) HIDDEN[p.src].closeIdx = ST[id];              // a hidden pet in this picture is found from this close-up
   }
 });
 
@@ -2972,10 +2997,20 @@ function tallyTotal() { return new Set(STATIONS.filter((s) => s.id !== 'atrium')
 function paintTally() {
   const t = el('tally'); if (!t) return;
   const total = tallyTotal(), seen = [...SEEN].filter((x) => STATIONS.some((s) => s.title === x)).length;
-  t.textContent = seen >= total ? 'Collection \u00b7 every work seen' : 'Collection \u00b7 ' + seen + ' of ' + total;
+  const found = [...FOUND].filter((x) => HIDDEN[x]).length, n = Object.keys(HIDDEN).length;
+  // the three finds are a bonus under the count: hollow stars that fill in gold
+  const stars = Array.from({ length: n }, (_, i) => '<span style="color:' + (i < found ? '#E8C07A' : 'rgba(242,223,168,.45)') + '">' + (i < found ? '\u2605' : '\u2606') + '</span>').join('');
+  t.innerHTML = (seen >= total ? 'Collection \u00b7 every work seen' : 'Collection \u00b7 ' + seen + ' of ' + total) + '<span style="display:block;font-size:11px;letter-spacing:.14em;margin-top:2px">Hidden bonuses ' + stars + '</span>';
+}
+function foundHidden(h) {
+  const src = Object.keys(HIDDEN).find((k) => HIDDEN[k] === h);
+  if (!FOUND.has(src)) { FOUND.add(src); try { localStorage.setItem('ka-found', JSON.stringify([...FOUND])); } catch (e) { /* the find lasts the visit */ } }
+  paintTally();
+  const n = [...FOUND].filter((x) => HIDDEN[x]).length;
+  paintLabel({ ...h, id: 'hidden', meta: n >= 3 ? 'All three found.' : n === 2 ? 'Two of three found. One more is hiding.' : h.meta });
 }
 function noteSeen(st) {
-  if (st.id === 'atrium' || SEEN.has(st.title)) return;
+  if (st.id === 'atrium' || st.id === 'hidden' || SEEN.has(st.title)) return;
   SEEN.add(st.title);
   try { localStorage.setItem('ka-seen', JSON.stringify([...SEEN])); } catch (e) { /* private mode: the tally lasts the visit */ }
   paintTally();
@@ -3198,6 +3233,8 @@ function onHeldItem(e) {
 }
 canvas.addEventListener('click', (e) => {
   const p = probe(e.clientX, e.clientY);
+  // a hidden pet, clicked from its picture's own stop: name the find (a click elsewhere on the picture does what it always did)
+  if (p.surface) { const h = hiddenHit(p.surface); if (h && atHiddenStop(h)) { foundHidden(h); return; } }
   // holding something and clicking away from it: put it down (a click on something else walks there, which puts it down too)
   if ((volHeld() || invHeld()) && !onHeldItem(e) && !p.room && p.station === undefined && !p.cardKey && !p.note) { goTo(ST.detTable); return; }
   if (p.room) goTo(ROOM_ENTRY[p.room]);
@@ -3239,7 +3276,9 @@ function updatePointer() {
   if (pointer.inside && (pointer.moved || (!busy && pointer.recheck))) {   // not on every frame of a walk: the ray test is the dearest thing in the frame
     pointer.moved = false;
     const p = probe(pointer.x, pointer.y);
+    const onPet = p.surface && hiddenHit(p.surface) && atHiddenStop(hiddenHit(p.surface));   // the hidden pets: the pointer lights up over them only from their picture's stop
     const cur = volHeld() && p.surface && isVolvelle(p.surface.object) ? (volDrag ? 'grabbing' : 'grab')
+      : onPet ? 'var(--cur-find)'
       : p.room || p.station !== undefined || p.note || p.cardKey || (invHeld() && p.surface && p.surface.object.userData.invite) ? 'var(--cur-on)'
       : LOOK.turning ? (LOOK.turning > 0 ? 'e-resize' : 'w-resize') : '';
     if (canvas.style.cursor !== cur) canvas.style.cursor = cur;        // only when it changes: re-setting a cursor makes some browsers flash the default arrow

@@ -228,7 +228,7 @@ if (!/[?&]desktop/.test(location.search) && /iPhone|iPod|Android.*Mobile|Windows
 </script>
 <script>
 // every script is stamped with the load time, so a browser never serves a stale copy after a change
-['game/arcade.js', 'game/italy.js', 'game/piazza.js', 'game/bouquet.js', 'game/flight.js'].forEach(function (f) { document.write('<script src="' + f + '?v=' + Date.now() + '"><\/script>'); });
+['game/arcade.js', 'game/italy.js', 'game/piazza.js', 'game/bouquet.js', 'game/flight.js', 'game/seating.js'].forEach(function (f) { document.write('<script src="' + f + '?v=' + Date.now() + '"><\/script>'); });
 document.write('<script type="module" src="gallery3d.js?v=' + Date.now() + '"><\/script>');
 </script>
 </body>

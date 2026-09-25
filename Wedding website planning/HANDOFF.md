@@ -384,7 +384,12 @@ rank. In the shell, `Arcade.board` handles the ENTER YOUR INITIALS screen and th
 at 'over'/'won' (`S.boarded`), defers update() to it while it is on, and draws it last. The menu shows each
 game's top three. `game/test-board.html` mocks the API for looking at the screens.
 
-All games live in one cabinet (the arcade menu); still to come on the same shell: The Seating Chart.
+`game/seating.js` — THE SEATING CHART, a falling-blocks puzzle: guest groups as tetrominoes (`KINDS`, a colour per
+kind), a 10 x 20 hall, rows are tables (clear = 100/300/500/800 x level), plus-ones (single cells) and Nonna (a
+slow domino worth double) arrive now and then, the level rises every ten tables. Up turns, space hard-drops, a
+ghost shows the landing. No character select: it is the hosts' game.
+
+All five games live in one cabinet (the arcade menu).
 
 ## 5. Known loose ends / ideas not yet done
 

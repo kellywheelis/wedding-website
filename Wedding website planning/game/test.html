@@ -7,6 +7,7 @@
 <script src="piazza.js"></script>
 <script src="bouquet.js"></script>
 <script src="flight.js"></script>
+<script src="seating.js"></script>
 <script>
 // ?game=italy&sim=title|select|play|win|over : opens the game and, for the play cases, drives it with scripted key presses
 // so the harness can screenshot the level with the player mid-climb; ?touch=1 shows the phone controls.
@@ -21,6 +22,7 @@ if (sim === 'play' || sim === 'win' || sim === 'over') { seq.push([600, () => ke
 seq.forEach(([t, f]) => setTimeout(f, t));
 // ?sim=run : start straight into play as the groom and step the game deterministically: walk right, climb, walk left, jump
 if (sim === 'fly') { const g = Arcade.current.inst.debug; g.start(q.get('who') || 'groom'); const st = Arcade.step; for (let i = 0; i < 14; i++) { st(1, ['jump']); st(26, []); } document.title = 'rings ' + g.S.rings + ' lives ' + g.S.lives + ' y ' + Math.round(g.S.p.y) + ' things ' + g.S.things.length; }
+if (sim === 'seat') { const g = Arcade.current.inst.debug; g.start(); const st = Arcade.step; for (let i = 0; i < 12; i++) { st(1, [i % 3 === 0 ? 'left' : 'right']); st(1, ['up']); st(1, ['jump']); st(30, []); } document.title = 'tables ' + g.S.tables + ' score ' + g.S.score + ' mode ' + g.S.mode + ' filled ' + g.S.grid.flat().filter(Boolean).length; }
 if (sim === 'run') { const g = Arcade.current.inst.debug; g.start(q.get('who') || 'groom'); const st = Arcade.step;
   st(170, ['right']); st(100, ['up']); st(60, ['left']); st(1, ['jump']); st(20, []); st(40, ['left']); st(10, []);
   document.title = 'x' + Math.round(g.S.p.x) + ' y' + Math.round(g.S.p.y) + ' plat' + g.S.p.plat + ' lives' + g.S.lives + ' score' + g.S.score + ' items' + Object.keys(g.S.items).join(',') + ' cases' + g.S.cases.length; }

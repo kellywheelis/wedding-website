@@ -4,8 +4,8 @@
 // Names are three letters A-Z; a short list of words is refused; each address may post a few times a minute.
 import { Redis } from '@upstash/redis';
 
-const GAMES = new Set(['italy', 'piazza', 'bouquet', 'flight']);
-const MAX = { italy: 30000, piazza: 10000, bouquet: 20000, flight: 20000 };   // above these a score cannot be genuine
+const GAMES = new Set(['italy', 'piazza', 'bouquet', 'flight', 'seating']);
+const MAX = { italy: 30000, piazza: 10000, bouquet: 20000, flight: 20000, seating: 200000 };   // above these a score cannot be genuine
 const BAD = new Set(['ASS', 'FUK', 'FUC', 'FCK', 'CUM', 'DIK', 'DIC', 'COK', 'TIT', 'FAG', 'NIG', 'KKK', 'SEX', 'JEW', 'GAY', 'DIE', 'POO', 'PEE', 'WTF', 'FUX', 'PIS', 'VAG', 'HOE', 'SLT', 'CNT']);
 const redis = new Redis({ url: process.env.KV_REST_API_URL, token: process.env.KV_REST_API_TOKEN });   // the names Vercel's KV integration injects
 

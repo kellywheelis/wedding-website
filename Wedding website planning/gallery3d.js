@@ -42,7 +42,7 @@ const STATIONS = [
     body: 'Photographs to come.', meta: 'Placeholder' },
   { id: 'anthony2', x: 0, z: GALLERY_Z - 1.3, yaw: -Math.PI / 2, eye: 2.12, room: 'atrium', accent: '#C9A667', tour: false, back: 'anthony', game: 'menu',
     eyebrow: 'The atrium · Anthony · interactive installation', title: 'The Arcade',
-    body: 'Four playable pieces. Getting to Italy, Cross the Piazza, Catch the Bouquet, and Flight to Siena. Choose the bride or the groom; arrows move, space jumps. Click the frame again to play.',
+    body: 'Five playable pieces. Getting to Italy, Cross the Piazza, Catch the Bouquet, Flight to Siena, and The Seating Chart. Arrows move, space jumps. Click the frame again to play.',
     meta: 'Anthony Alvarez & Kelly Wheelis, 2026 · interactive installation · Esc steps away' },
 
   { id: 'w1', x: -1150 * U, z: -7.5, yaw: Math.PI / 2, room: 'w1', accent: '#93AEA2',

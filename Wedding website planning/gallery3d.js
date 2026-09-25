@@ -131,7 +131,7 @@ const STATIONS = [
     body: 'Every other work in the building is already hung. This frame is kept for our guests: you are the last piece of the collection, and the one we built the rest around.',
     meta: 'Empty frame, gilt · on loan from the future' },
   // Walk on visits the room in this order: the centrepiece, the table, then sections 1 to 7
-  { id: 'detTable', look: 'free', x: 0, z: -13.95, yaw: 0, pitch: -0.5, room: 'det', accent: '#C9A667',
+  { id: 'detTable', look: 'free', x: 0, z: -13.6, yaw: 0, pitch: -0.5, room: 'det', accent: '#C9A667',
     eyebrow: 'Exhibit details · the table', title: 'On the table',
     body: 'The save-the-date and the invitation are here to be handled. Click the save-the-date to pick it up and turn the wheel; click the invitation to open its doors and look inside.', meta: 'Please touch' },
   // the six sections on the walls: you stand before the group, raised to the height of its pictures (`eye`)
@@ -161,7 +161,7 @@ const STATIONS = [
     meta: 'After Andrea Mantegna, Camera degli Sposi, 1465–74 · Palazzo Ducale, Mantua' },
   // the gift-shop stand under the main frame on the end wall: postcards (the RSVP) and the registry note.
   // You reach it from the main frame's close-up (or by clicking it from anywhere in the room); Step back returns there.
-  { id: 'detShop', x: 0, z: -17.35, yaw: 0, pitch: -0.36, room: 'det', card: 'registry', accent: '#C9A667', back: 'detClose',
+  { id: 'detShop', x: 0, z: -17.0, yaw: 0, pitch: -0.36, room: 'det', card: 'registry', accent: '#C9A667', back: 'detClose',
     eyebrow: 'Exhibit details · 7 · the gift shop', title: 'Registry, Extras & RSVP',
     body: 'Every museum ends in the gift shop, and so does this one. Pick a postcard, write on the back whether you are coming, and post it in the box: that is the RSVP. The card on the counter says what we would like instead of presents, and the guide next to it says where to eat.',
     meta: 'Postcards · the RSVP box · the registry note' },
@@ -171,12 +171,12 @@ const STATIONS = [
     body: 'Every other work in the building is already hung. This frame is kept for our guests: you are the last piece of the collection, and the one we built the rest around.',
     meta: 'Empty frame, gilt · on loan from the future' },
   // the save-the-date, picked up off the table: same standing spot, and Step back puts it down again
-  { id: 'detVolvelle', x: 0, z: -13.95, yaw: 0, pitch: -0.5, room: 'det', accent: '#C9A667', tour: false, back: 'detTable',
+  { id: 'detVolvelle', x: 0, z: -13.6, yaw: 0, pitch: -0.5, room: 'det', accent: '#C9A667', tour: false, back: 'detTable',
     eyebrow: 'Exhibit details · on the table', title: 'Save the Date',
     body: 'Kelly Wheelis, 2026. A volvelle: a wheel that turns behind a window. Drag the wheel round, or click the card, to change the picture in the frame.',
     meta: 'Paper, ink, gold foil and brass · edition of 100' },
   // the pop-up invitation, picked up off the table: same standing spot as the save-the-date
-  { id: 'detInvite', x: 0, z: -13.95, yaw: 0, pitch: -0.5, room: 'det', accent: '#C9A667', tour: false, back: 'detTable',
+  { id: 'detInvite', x: 0, z: -13.6, yaw: 0, pitch: -0.5, room: 'det', accent: '#C9A667', tour: false, back: 'detTable',
     eyebrow: 'Exhibit details · on the table', title: 'The Invitation',
     body: 'Illustrated by Truong Hoai Vu. A pop-up diorama of Villa Cetinale: click the doors to open them, move the mouse to look inside, and click the tab at the top to draw out the card.',
     meta: 'Truong Hoai Vu · vuth.art · Paper and ink' }
@@ -235,6 +235,7 @@ const CARDS = {
     { h: 'Children', p: [TBC] },
     { h: 'On the day: who to call', p: [TBC] } ] },
   registry: { title: 'Registry & Extras', sections: [
+    { h: 'RSVP', p: ['Pick a postcard from the rack, turn it over, and post it in the letterbox.'] },
     { h: 'Gifts', p: ['Our no-physical-gifts note. ' + TBC] },
     { h: 'A local guide', p: ['Sights, food and things to do nearby. ' + TBC] } ] }
 };
@@ -1121,8 +1122,10 @@ function framedPicture(p, i) {
   scene.add(grp);
   return grp;
 }
+let mainFrame = null;                                  // the end wall's centrepiece, which the curtain hangs over
 DETAIL_PICTURES.forEach((p, i) => {
   const grp = framedPicture(p, i);
+  if (p.wall === 'back' && p.at === 0) mainFrame = grp;
   const off = 0.075;                               // stand the frame just off the wall (and the dado line)
   if (p.wall === 'back') { grp.position.set(p.at, p.y, DET.zB + off); }
   if (p.wall === 'front') { grp.position.set(p.at, p.y, DET.zF - off); grp.rotation.y = Math.PI; }
@@ -1666,7 +1669,7 @@ place(reservedPlinth('STATUE', 'detStatueL'), -2.5, DET.zB + 0.62, 0);   // larg
 place(reservedPlinth('STATUE', 'detStatueR', 0.96, 0.74), 2.5, DET.zB + 0.62, 0);   // Diana's base is 0.88 x 0.65
 place(sculpturePedestal('detEntryL', 1.1, 0.5, 0.5), -2.15, DET.zF - 0.5, Math.PI);   // flanking the entrance arch, facing into the room
 place(sculpturePedestal('detEntryR', 1.1, 0.5, 0.5), 2.15, DET.zF - 0.5, Math.PI);
-table(0, DET.zMid - 0.9, 0, 2.4, 1.2, marbleStatuary, walnutTable, 6).userData.station = ST.detTable;           // centre table
+table(0, DET.zMid - 0.55, 0, 2.4, 1.2, marbleStatuary, walnutTable, 6).userData.station = ST.detTable;           // centre table
 // gilt consoles under the side walls' principal pictures (the end wall's place is taken by the gift-shop stand)
 
 // ---- room lighting: four warm pools, and an unshadowed picture light on each principal work
@@ -2678,7 +2681,7 @@ pictureLight(P.wingEndX - 0.6, H - 0.5, -7.5, P.wingEndX, 1.95, -7.5, true, 15, 
   pictureLight(p.x, H - 0.5, wallZ + (far ? 0.6 : -0.6), p.x, p.y, wallZ, big, big ? 13 : 10, p.y + h / 2 + fw, p.w * 0.62, big ? 2 : 1);
 });
 
-pictureLight(0, H - 0.14, DET.zB + 1.0, 0, 2.55, DET.zB, false, 7, 3.84, 1.9);
+// (the centrepiece had a picture light; it washed out the gilt lettering behind the curtain, so it is gone — 25 Sept 2026)
 
 // warm pools down the corridor so the space reads as lit
 [[0, 10], [0, 6.5], [0, 3], [0, -0.5], [0, -4], [0, -7.5]].forEach(([x, z]) => {
@@ -2713,7 +2716,7 @@ function pushMove(x, z) { queue.push({ kind: 'move', x, z, ms: 1250 }); }
 function pushTurn(yaw) { queue.push({ kind: 'turn', yaw, ms: 1300 }); }
 
 // the centre table is the one thing standing in the open floor of the details room: walks go round it
-const TABLE_KEEPOUT = { x0: -1.5, x1: 1.5, z0: DET.zMid - 0.9 - 0.9, z1: DET.zMid - 0.9 + 0.9 };
+const TABLE_KEEPOUT = { x0: -1.5, x1: 1.5, z0: DET.zMid - 0.55 - 0.9, z1: DET.zMid - 0.55 + 0.9 };
 const DET_ENTRY = { x: 0, z: -12.5 };      // where the hall's centre line arrives in the details room
 function clearOfTable(ax, az, bx, bz) {
   for (let i = 1; i < 24; i++) {
@@ -3050,6 +3053,8 @@ function markRoom(room) {
   // no turning round with the save-the-date or the invitation in your hands
   const holding = STATIONS[idx].back === 'detTable';
   el('sections').style.display = room === 'det' ? 'flex' : 'none';
+  el('sections').style.opacity = room === 'det' && STATIONS[idx].id === 'detClose' ? '0' : '1';   // at the centrepiece the buttons fade, so the curtain and the reveal have the wall to themselves
+  el('sections').style.pointerEvents = room === 'det' && STATIONS[idx].id === 'detClose' ? 'none' : '';
   document.querySelectorAll('#sections button').forEach((b) => {
     const on = b.dataset.card === (STATIONS[idx].card || '');
     b.style.background = on ? 'rgba(232,192,122,.26)' : 'rgba(26,18,8,.55)';
@@ -3131,10 +3136,12 @@ const closeCard = () => { el('card').style.display = 'none'; };
 el('more').addEventListener('click', () => { if (el('more').dataset.game) openArcade(); else openCard(el('more').dataset.card); });
 el('card').addEventListener('click', (e) => { if (e.target === el('card') || e.target.id === 'cardClose') closeCard(); });
 window.addEventListener('keydown', (e) => {
+  if (el('postcard').style.display === 'grid') { if (e.key === 'Escape') closePostcards(); return; }
   if (el('card').style.display === 'grid') { if (e.key === 'Escape') closeCard(); return; }   // no walking about behind an open card
   if (window.Arcade && Arcade.open) return;                        // the arcade has the keys while a game is open
   if (e.key === 'ArrowUp') tourStep(1);
   if (e.key === 'ArrowDown') el('back').click();
+  if ((e.key === 'r' || e.key === 'R') && STATIONS[idx].id === 'detClose') closeCurtain();
   if (e.key === 'ArrowLeft') sideStep(1);
   if (e.key === 'ArrowRight') sideStep(-1);
 });
@@ -3232,6 +3239,8 @@ function onHeldItem(e) {
 }
 canvas.addEventListener('click', (e) => {
   const p = probe(e.clientX, e.clientY);
+  // the gift shop, clicked from its own stop: the postcards
+  if (p.surface && atShop(p.surface)) { openPostcards(); return; }
   // a hidden pet, clicked from its picture's own stop: name the find (a click elsewhere on the picture does what it always did)
   if (p.surface) { const h = hiddenHit(p.surface); if (h && atHiddenStop(h)) { foundHidden(h); return; } }
   // holding something and clicking away from it: put it down (a click on something else walks there, which puts it down too)
@@ -3275,10 +3284,11 @@ function updatePointer() {
   if (pointer.inside && (pointer.moved || (!busy && pointer.recheck))) {   // not on every frame of a walk: the ray test is the dearest thing in the frame
     pointer.moved = false;
     const p = probe(pointer.x, pointer.y);
-    const onPet = p.surface && hiddenHit(p.surface) && atHiddenStop(hiddenHit(p.surface));   // the hidden pets: the pointer lights up over them only from their picture's stop
+    const onPet = p.surface && hiddenHit(p.surface) && atHiddenStop(hiddenHit(p.surface));
+    const onShop = p.surface && atShop(p.surface);   // the hidden pets: the pointer lights up over them only from their picture's stop
     const cur = volHeld() && p.surface && isVolvelle(p.surface.object) ? (volDrag ? 'grabbing' : 'grab')
       : onPet ? 'var(--cur-find)'
-      : p.room || p.station !== undefined || p.note || p.cardKey || (invHeld() && p.surface && p.surface.object.userData.invite) ? 'var(--cur-on)'
+      : onShop || p.room || p.station !== undefined || p.note || p.cardKey || (invHeld() && p.surface && p.surface.object.userData.invite) ? 'var(--cur-on)'
       : LOOK.turning ? (LOOK.turning > 0 ? 'e-resize' : 'w-resize') : '';
     if (canvas.style.cursor !== cur) canvas.style.cursor = cur;        // only when it changes: re-setting a cursor makes some browsers flash the default arrow
     if (p.surface) {
@@ -3466,7 +3476,7 @@ function engravedPlaque(PW, PH, rows) {
 // little towards the middle of the room.
 const TABLE_TOP = 0.9;
 const volStand = new THREE.Group();
-volStand.position.set(-0.47, TABLE_TOP, DET.zMid - 0.9 + 0.26);
+volStand.position.set(-0.47, TABLE_TOP, DET.zMid - 0.55 + 0.26);
 volStand.rotation.y = 0.2;
 scene.add(volStand);
 const VOL_REST = { pos: new THREE.Vector3(), quat: new THREE.Quaternion() };
@@ -3671,7 +3681,7 @@ const INV_CARD = { s: 0.76, h: 0.76 / (1280 / 1232), stowZ: -0.012 };
 
 // ---- its stand, the partner of the save-the-date's on the other half of the table
 const invStand = new THREE.Group();
-invStand.position.set(0.5, TABLE_TOP, DET.zMid - 0.9 + 0.26);
+invStand.position.set(0.5, TABLE_TOP, DET.zMid - 0.55 + 0.26);
 invStand.rotation.y = -0.2;
 scene.add(invStand);
 const INV_REST = { pos: new THREE.Vector3(), quat: new THREE.Quaternion() };
@@ -3801,7 +3811,8 @@ let shopRack = null;
   ax.fillStyle = '#f4eee0'; ax.fillRect(0, 0, atlas.width, atlas.height);
   const atlasTex = new THREE.CanvasTexture(atlas);
   atlasTex.colorSpace = THREE.SRGBColorSpace; atlasTex.anisotropy = 8;
-  ['birth-of-venus', 'primavera', 'w1-three-graces', 'w1-happy-union', 'w1-mars-and-venus', 'w1-amaryllis-and-mirtillo', 'w2-parnassus', 'w2-nastagio-banquet',
+  // the postcards carry the pictures as the world knows them: the two with a pet painted in use their untouched originals
+  ['birth-of-venus', 'postcard-primavera', 'w1-three-graces', 'w1-happy-union', 'w1-mars-and-venus', 'postcard-amaryllis', 'w2-parnassus', 'w2-nastagio-banquet',
     'w2-banquet-still-life', 'w2-watermelon-still-life', 'fresco-venus-and-graces', 'fresco-liberal-arts'].forEach((name, i) => {
     const img = new Image();
     img.onload = () => {
@@ -3893,10 +3904,228 @@ let shopRack = null;
   tent.position.set(-0.03, Hc + 0.085, 0.19); tent.rotation.x = -0.35;
   g.add(tent);
 
-  g.position.set(0, 0, DET.zB + 0.03 + D / 2);                       // its front faces into the room
-  g.traverse((o) => { o.userData.station = ST.detShop; });
+  g.position.set(0, 0, DET.zB + 0.38 + D / 2);                       // its front faces into the room; stood a little off the wall, clear of the curtain's hem
+  g.traverse((o) => { o.userData.station = ST.detShop; o.userData.shop = true; });
   scene.add(g);
 })();
+
+// ---------------------------------------------------------------- the postcard (RSVP), the curtain, and SEE YOU IN SIENA
+// The gift shop's rack holds twelve postcards of the collection. Clicking the shop from its stop opens one: arrows flip
+// through them, "This one" turns it over to the written side (attending, plus-one, dietary, a note, the name), and
+// "Post it" stamps it. Posting also draws back the curtain over the end wall's centrepiece. For now a posted card is
+// kept in this browser only (`ka-rsvp`); the letterbox is not yet connected to a store — that is the next step.
+const POSTCARDS = [
+  ['birth-of-venus', 'The Birth of Venus · Botticelli'], ['postcard-primavera', 'Primavera · Botticelli'], ['w1-three-graces', 'The Three Graces · Furini'],
+  ['w1-happy-union', 'Happy Union · Veronese'], ['w1-mars-and-venus', 'Mars and Venus United by Love · Veronese'], ['postcard-amaryllis', 'Amaryllis and Mirtillo · Van Dyck'],
+  ['w2-parnassus', 'Parnassus · Mantegna'], ['w2-nastagio-banquet', 'The Wedding Banquet · Botticelli'], ['w2-banquet-still-life', 'Banquet Still Life · Van Utrecht'],
+  ['w2-watermelon-still-life', 'Still Life with Fruit · Ruoppolo'], ['fresco-venus-and-graces', 'Venus and the Three Graces · Botticelli'], ['fresco-liberal-arts', 'The Seven Liberal Arts · Botticelli']
+];
+let pcIndex = 0, pcSide = 'front';
+function atShop(hit) {
+  if (STATIONS[idx].id !== 'detShop' || leg || queue.length) return false;
+  for (let o = hit.object; o; o = o.parent) if (o.userData.shop) return true;
+  return false;
+}
+function showPostcard(i) {
+  pcIndex = (i + POSTCARDS.length) % POSTCARDS.length;
+  el('pcPic').style.backgroundImage = 'url(assets/' + POSTCARDS[pcIndex][0] + '.jpg)';
+  el('pcTitle').textContent = POSTCARDS[pcIndex][1];
+  el('pcCount').textContent = (pcIndex + 1) + ' of ' + POSTCARDS.length;
+}
+function pcTurn(side) {
+  pcSide = side;
+  el('pcCard').style.transform = side === 'back' ? 'rotateY(180deg)' : '';
+  el('pcNav').style.display = side === 'front' ? 'flex' : 'none';
+  el('pcBackNav').style.display = side === 'back' ? 'flex' : 'none';
+  el('pcEyebrow').textContent = side === 'back' ? 'The gift shop · your card' : 'The gift shop · postcards';
+  if (side === 'back') setTimeout(() => el('pcName').focus(), 900);
+}
+function openPostcards() {
+  const saved = (() => { try { return JSON.parse(localStorage.getItem('ka-rsvp') || 'null'); } catch (e) { return null; } })();
+  el('pcScene').style.display = ''; el('pcScene').style.opacity = '1'; el('pcScene').style.transform = '';
+  el('pcPosted').style.display = 'none';
+  if (saved) {                                                           // already posted from this browser: show it stamped
+    showPostcard(saved.card || 0);
+    el('pcName').value = saved.name || ''; el('pcPlus').value = saved.plus || ''; el('pcDiet').value = saved.diet || ''; el('pcNote').value = saved.note || '';
+    document.querySelectorAll('input[name=pcYes]').forEach((r) => { r.checked = r.value === saved.yes; });
+    pcTurn('back');
+    el('pcBackNav').style.display = 'none';
+    el('pcPosted').style.display = 'block';
+    el('pcPosted').textContent = 'Posted ' + new Date(saved.when).toLocaleDateString(undefined, { day: 'numeric', month: 'long' }) + '. Thank you — see you in Siena.';
+  } else { showPostcard(pcIndex); pcTurn('front'); }
+  el('postcard').style.display = 'grid';
+}
+function closePostcards() { el('postcard').style.display = 'none'; }
+function postCard() {
+  const yes = (document.querySelector('input[name=pcYes]:checked') || {}).value;
+  const name = el('pcName').value.trim();
+  if (!name || !yes) { el(!name ? 'pcName' : 'pcPost').focus(); el('pcPost').textContent = !name ? 'Your name, first' : 'Yes or no, first'; setTimeout(() => { el('pcPost').textContent = 'Post it'; }, 1800); return; }
+  const rsvp = { card: pcIndex, yes, name, plus: el('pcPlus').value.trim(), diet: el('pcDiet').value.trim(), note: el('pcNote').value.trim(), when: Date.now() };
+  try { localStorage.setItem('ka-rsvp', JSON.stringify(rsvp)); } catch (e) { /* private mode: it lasts the visit */ }
+  el('pcBackNav').style.display = 'none';
+  el('pcScene').style.transition = 'transform 900ms cubic-bezier(.5,0,.8,.4), opacity 900ms ease';
+  el('pcScene').style.transform = 'translateY(70vh) rotate(4deg)'; el('pcScene').style.opacity = '0';   // into the letterbox
+  setTimeout(() => {
+    el('pcScene').style.display = 'none';
+    el('pcPosted').style.display = 'block';
+    el('pcPosted').textContent = yes === 'yes' ? 'Posted. Thank you — see you in Siena.' : 'Posted. We\u2019re sorry to miss you.';
+    el('pcPosted').dataset.reveal = '1';                                 // either answer draws the curtain
+    CURTAIN.sorry = yes !== 'yes'; try { localStorage.setItem('ka-posted-answer', yes); } catch (e) { /* the visit */ }
+    if (CURTAIN.redraw) CURTAIN.redraw();                                // the words behind the curtain follow the answer
+  }, 950);
+}
+el('pcPrev').addEventListener('click', () => showPostcard(pcIndex - 1));
+el('pcNext').addEventListener('click', () => showPostcard(pcIndex + 1));
+el('pcChoose').addEventListener('click', () => pcTurn('back'));
+el('pcFlipBack').addEventListener('click', () => pcTurn('front'));
+el('pcPost').addEventListener('click', postCard);
+el('pcClose').addEventListener('click', () => {
+  closePostcards();
+  if (el('pcPosted').dataset.reveal) { el('pcPosted').dataset.reveal = ''; goTo(ST.detClose); setTimeout(() => revealCurtain(false), 900); }
+});
+el('postcard').addEventListener('click', (e) => { if (e.target === el('postcard')) closePostcards(); });
+el('pcScene').addEventListener('keydown', (e) => { if (e.key === 'Enter' && pcSide === 'back') postCard(); });
+
+// ---- the curtain: burgundy velvet in two halves under a fringed pelmet, hung over the end wall's centrepiece. It draws
+// back when a card is posted, and stays back on later visits from the same browser (`ka-posted`). Behind it: SEE YOU
+// IN SIENA, gilt lettering over a Sienese fresco of the hills toward the villa (assets/det-see-you-in-siena.jpg).
+const CURTAIN = { open: false, t: 0, from: 0, halves: [], ties: [], sorry: false, redraw: null };
+(function curtain() {
+  if (!mainFrame) return;
+  const p = DETAIL_PICTURES[0], z = 0.075 + 0.2, railY = p.h / 2 + 0.3, hemY = -p.h / 2 - 0.34;    // hung close over the frame's carving, out of reach of Apollo's hand   // in the frame's own space: the frame's own height, rail just above it
+  const drop = railY - 0.1 - hemY, halfW = p.w / 2 + 0.22;                                       // and its width: it clears the statues either side
+  const velvet = new THREE.MeshStandardMaterial({ color: '#3a0a1a', roughness: 0.95, side: THREE.DoubleSide });   // a deep wine velvet: darker than the burgundy wall, and nothing like the gilt
+  const rope = new THREE.MeshStandardMaterial({ color: '#c9a45c', roughness: 0.5, metalness: 0.3 });
+  // A half: a cloth hung from its outer edge. `gather` (0 closed .. 1 drawn) pulls it toward that edge: the folds deepen
+  // and multiply as the width shrinks, the hem lifts a little where the tieback holds it in, and the whole swells forward
+  const SEG = 180;
+  const cloth = (sd) => {
+    const g = new THREE.PlaneGeometry(halfW, drop, SEG, 24), pos = g.attributes.position, base = pos.array.slice();
+    const mesh = new THREE.Mesh(g, velvet);
+    mesh.userData.shape = (gather) => {
+      const w = 1 - 0.8 * gather;                                     // how much of the width the cloth now spans
+      for (let i = 0; i < pos.count; i++) {
+        const x0 = base[3 * i], y0 = base[3 * i + 1];
+        const u = x0 / halfW + 0.5, v = y0 / drop + 0.5;              // u: 0 at the inner (leading) edge .. 1 at the outer edge; v: 0 hem .. 1 rail
+        const outer = sd < 0 ? -0.5 : 0.5;                            // the outer edge's x (as a fraction of the half's width), which stays put
+        const nx = outer + ((u - 0.5) - outer) * w;                     // every point slides toward it as the cloth gathers
+        const folds = 6 + 8 * gather, amp = 0.05 + 0.13 * gather;
+        const wave = Math.cos(u * Math.PI * 2 * folds + 0.4) * 0.6 + Math.cos(u * Math.PI * 2 * folds * 2.3 + 1.7) * 0.4;
+        const belly = (1.1 - 0.35 * v);                               // a little fuller toward the hem
+        const waist = gather > 0 ? Math.exp(-Math.pow((v - 0.42) / 0.18, 2)) * gather : 0;   // the tieback pinches the cloth in at its height
+        const zf = wave * amp * belly * (1 - 0.55 * waist) + 0.02 + 0.06 * gather;
+        const lift = waist * 0.06 + gather * 0.04 * (1 - v);          // the hem lifts as the cloth bunches
+        pos.setXYZ(i, nx * halfW, y0 + lift, zf);
+      }
+      pos.needsUpdate = true; g.computeVertexNormals();
+    };
+    mesh.userData.shape(0);
+    return mesh;
+  };
+  // A tieback: a twisted rope round the gathered cloth, knotted at the front, with a tassel hanging from the knot
+  const tieback = (sd) => {
+    const g = new THREE.Group();
+    const curve = new THREE.CatmullRomCurve3([new THREE.Vector3(-0.2, 0.02, -0.02), new THREE.Vector3(-0.13, 0.04, 0.12), new THREE.Vector3(0, 0.03, 0.17), new THREE.Vector3(0.13, 0.04, 0.12), new THREE.Vector3(0.2, 0.02, -0.02)]);   // round the gathered cloth, hugging it
+    const strand = new THREE.Mesh(new THREE.TubeGeometry(curve, 48, 0.02, 10, false), rope);
+    const strand2 = strand.clone(); strand2.position.y = 0.028; strand2.rotation.x = 0.35;   // two strands, laid as a twist
+    const knot = new THREE.Mesh(new THREE.SphereGeometry(0.044, 14, 10), rope); knot.scale.set(1, 0.8, 0.9); knot.position.set(0, 0.02, 0.18);
+    const cord = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.22, 8), rope); cord.position.set(0, -0.11, 0.18);
+    const cap = new THREE.Mesh(new THREE.SphereGeometry(0.04, 14, 10), rope); cap.scale.y = 1.3; cap.position.set(0, -0.24, 0.18);
+    const collar = new THREE.Mesh(new THREE.TorusGeometry(0.036, 0.008, 8, 24), rope); collar.rotation.x = Math.PI / 2; collar.position.set(0, -0.28, 0.18);
+    const skirt = new THREE.Mesh(new THREE.CylinderGeometry(0.036, 0.062, 0.2, 18, 4, true), new THREE.MeshStandardMaterial({ color: '#c9a45c', roughness: 0.75, side: THREE.DoubleSide }));
+    skirt.position.set(0, -0.38, 0.18);
+    const threads = new THREE.Mesh(new THREE.CylinderGeometry(0.062, 0.05, 0.05, 18, 1, true), new THREE.MeshStandardMaterial({ color: '#a8863d', roughness: 0.85, side: THREE.DoubleSide }));
+    threads.position.set(0, -0.5, 0.18);
+    g.add(strand, strand2, knot, cord, cap, collar, skirt, threads);
+    g.userData.full = 0.7;                                              // its size when shown: the rope spans the gathered cloth, the tassel a hand and a half long
+    g.position.set(sd * (halfW - 0.2), railY - 0.1 - drop * 0.56, z + 0.06); g.scale.setScalar(0.001);
+    return g;
+  };
+  [-1, 1].forEach((sd) => {
+    const hinge = new THREE.Group();
+    hinge.position.set(0, railY - 0.1 - drop / 2, z);
+    const half = cloth(sd); half.position.x = sd * halfW / 2;
+    hinge.add(half); hinge.userData.half = half;
+    const tie = tieback(sd);
+    mainFrame.add(hinge, tie);
+    CURTAIN.halves.push(hinge); CURTAIN.ties.push(tie);
+  });
+  // the pelmet: a valance of the same velvet hanging in three swags, each a hung curve of cloth, with a gold fringe along its edge
+  const PW = halfW * 2 + 0.24, PH = 0.5, swags = 3;
+  const pelmetGeo = new THREE.PlaneGeometry(PW, PH, 150, 14), pp = pelmetGeo.attributes.position;
+  for (let i = 0; i < pp.count; i++) {
+    const u = pp.getX(i) / PW + 0.5, v = pp.getY(i) / PH + 0.5;      // v: 0 lower edge .. 1 rail
+    const sw = (u * swags) % 1, dip = Math.sin(sw * Math.PI);          // each swag sags in the middle
+    pp.setY(i, pp.getY(i) - dip * 0.18 * (1 - v));                    // the lower edge scallops
+    pp.setZ(i, dip * 0.16 * (1 - v * 0.6) + Math.cos(u * Math.PI * 2 * swags * 5) * 0.015 * (1 - v));   // and bellies out, with fine gathers
+  }
+  pelmetGeo.computeVertexNormals();
+  const pelmet = new THREE.Mesh(pelmetGeo, velvet);
+  pelmet.position.set(0, railY + 0.02, z + 0.02);
+  const fringePts = [];
+  for (let k = 0; k <= 150; k++) { const u = k / 150, sw = (u * swags) % 1, dip = Math.sin(sw * Math.PI); fringePts.push(new THREE.Vector3((u - 0.5) * PW, railY + 0.02 - PH / 2 - dip * 0.18, z + 0.02 + dip * 0.16)); }
+  const fringe = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(fringePts), 150, 0.03, 8, false), rope);   // the fringe's heading, as a gold cord along the scallops
+  const bullion = new THREE.Mesh(new THREE.PlaneGeometry(PW, 0.09, 150, 1), new THREE.MeshStandardMaterial({ color: '#c9a45c', roughness: 0.8, side: THREE.DoubleSide, alphaMap: (() => { const c = document.createElement('canvas'); c.width = 512; c.height = 16; const x = c.getContext('2d'); x.fillStyle = '#000'; x.fillRect(0, 0, 512, 16); x.fillStyle = '#fff'; for (let i = 0; i < 512; i += 4) x.fillRect(i, 0, 2, 16); const t = new THREE.CanvasTexture(c); t.wrapS = THREE.RepeatWrapping; t.repeat.x = 40; return t; })(), transparent: true }));
+  const bp = bullion.geometry.attributes.position;                    // the bullion fringe hangs from the cord, following the scallops
+  for (let i = 0; i < bp.count; i++) { const u = bp.getX(i) / PW + 0.5, sw = (u * swags) % 1, dip = Math.sin(sw * Math.PI); bp.setY(i, bp.getY(i) - dip * 0.18); bp.setZ(i, dip * 0.16); }
+  bullion.geometry.computeVertexNormals(); bullion.position.set(0, railY + 0.02 - PH / 2 - 0.06, z + 0.02);
+  const rail = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, PW + 0.3, 12), giltPlain);
+  rail.rotation.z = Math.PI / 2; rail.position.set(0, railY + 0.02 + PH / 2, z);
+  [-1, 1].forEach((sd) => { const finial = new THREE.Mesh(new THREE.SphereGeometry(0.06, 14, 10), giltPlain); finial.position.set(sd * (PW / 2 + 0.15), railY + 0.02 + PH / 2, z); mainFrame.add(finial); });
+  mainFrame.add(pelmet, fringe, bullion, rail);
+  [pelmet, fringe, bullion, rail, ...CURTAIN.halves, ...CURTAIN.ties].forEach((m) => m.traverse((o) => { o.userData.station = ST.detClose; }));
+  // what the curtain hides
+  const pic = mainFrame.children[1];
+  const draw = (img) => {
+    const c = document.createElement('canvas'); c.width = 2048; c.height = Math.round(2048 * p.h / p.w);
+    const x = c.getContext('2d');
+    if (img) { const k = Math.max(c.width / img.width, c.height / img.height), sw = c.width / k, sh = c.height / k; x.drawImage(img, (img.width - sw) / 2, (img.height - sh) / 2, sw, sh, 0, 0, c.width, c.height); }
+    else { const g = x.createLinearGradient(0, 0, 0, c.height); g.addColorStop(0, '#b8c4c6'); g.addColorStop(0.5, '#d9c9a2'); g.addColorStop(1, '#a58a5a'); x.fillStyle = g; x.fillRect(0, 0, c.width, c.height); }
+    const gilt = (text, px, y) => {                                    // raised gilt lettering: a soft cast shadow, a dark bevel below, the gold, a bright edge above
+      x.font = '700 ' + px + 'px "Cormorant Garamond", Georgia, serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
+      if ('letterSpacing' in x) x.letterSpacing = Math.round(px * 0.14) + 'px';
+      const cx = c.width / 2;
+      x.shadowColor = 'rgba(20,12,2,.7)'; x.shadowBlur = px * 0.22; x.shadowOffsetX = px * 0.05; x.shadowOffsetY = px * 0.1;
+      x.fillStyle = '#3d2a0a'; x.fillText(text, cx + px * 0.03, y + px * 0.04);   // the relief's dark under-edge, casting the shadow
+      x.shadowColor = 'transparent';
+      const g = x.createLinearGradient(0, y - px * 0.42, 0, y + px * 0.42);
+      g.addColorStop(0, '#f7e2a8'); g.addColorStop(0.2, '#d9b25a'); g.addColorStop(0.45, '#a8781f'); g.addColorStop(0.52, '#eacb7a'); g.addColorStop(0.66, '#8c5f14'); g.addColorStop(0.88, '#5e3f0c'); g.addColorStop(1, '#c9a24e');
+      x.fillStyle = g; x.fillText(text, cx, y);
+      x.lineWidth = Math.max(1.5, px * 0.014); x.strokeStyle = 'rgba(70,45,10,.75)'; x.strokeText(text, cx, y);   // a fine dark contour, as gilding on plaster has
+      x.lineWidth = Math.max(1, px * 0.01); x.strokeStyle = 'rgba(255,250,230,.8)'; x.strokeText(text, cx, y - px * 0.02);   // the light catching the top edge
+    };
+    if (CURTAIN.sorry) { gilt('WE’RE SORRY TO MISS YOU', 118, c.height * 0.2); gilt('IV · XXIV · MMXXVII', 70, c.height * 0.33); }
+    else { gilt('SEE YOU IN SIENA', 150, c.height * 0.2); gilt('IV · XXIV · MMXXVII', 70, c.height * 0.33); }
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
+    pic.material.map = t; pic.material.needsUpdate = true;
+  };
+  const img = new Image();
+  CURTAIN.redraw = () => draw(img.complete && img.naturalWidth ? img : null);
+  img.onload = () => document.fonts.load('700 150px "Cormorant Garamond"').then(() => draw(img), () => draw(img));
+  img.onerror = () => draw(null);
+  img.src = 'assets/det-see-you-in-siena.jpg';
+  try { CURTAIN.sorry = localStorage.getItem('ka-posted-answer') === 'no'; } catch (e) { /* nothing kept */ }
+  if (localStorage.getItem('ka-posted')) revealCurtain(true);
+})();
+function closeCurtain() {                                            // for the owner's testing: R at the centrepiece closes the curtain and forgets the post
+  try { localStorage.removeItem('ka-posted'); localStorage.removeItem('ka-rsvp'); localStorage.removeItem('ka-posted-answer'); } catch (e) { /* nothing kept */ }
+  CURTAIN.open = false; CURTAIN.t = 0; CURTAIN.sorry = false; setCurtain(0); if (CURTAIN.redraw) CURTAIN.redraw();
+}
+function revealCurtain(instant) {
+  if (!CURTAIN.halves.length) return;
+  try { localStorage.setItem('ka-posted', String(Date.now())); } catch (e) { /* the visit */ }
+  CURTAIN.open = true; CURTAIN.from = performance.now(); CURTAIN.t = instant ? 1 : 0;
+  if (instant) setCurtain(1);
+}
+function setCurtain(k) {
+  CURTAIN.halves.forEach((h) => { h.userData.half.userData.shape(k); });
+  CURTAIN.ties.forEach((t) => { t.scale.setScalar(Math.max(0.001, (k - 0.55) / 0.45) * t.userData.full); });
+}
+function tickCurtain() {
+  if (!CURTAIN.open || CURTAIN.t >= 1) return;
+  CURTAIN.t = Math.min(1, (performance.now() - CURTAIN.from) / 3400);
+  setCurtain(smooth(CURTAIN.t));
+}
 
 // ---------------------------------------------------------------- loop
 function resize() {
@@ -3931,7 +4160,7 @@ function updateLook(now) {
   LOOK.x += (tx - LOOK.x) * LOOK.ease;
   LOOK.y += (ty - LOOK.y) * LOOK.ease;
   const dt = Math.min(0.1, (now - LOOK.last) / 1000); LOOK.last = now;
-  const free = on && STATIONS[idx].look === 'free' && !leg && !queue.length && el('card').style.display !== 'grid';
+  const free = on && STATIONS[idx].look === 'free' && !leg && !queue.length && el('card').style.display !== 'grid' && el('postcard').style.display !== 'grid';
   const k = free ? Math.max(0, (Math.abs(u) - LOOK.edge) / (1 - LOOK.edge)) : 0;
   LOOK.turning = k > 0 ? Math.sign(u) : 0;
   if (k > 0) {                                                       // moved: keep reading what is under the cursor as the view turns
@@ -3974,6 +4203,7 @@ function frame(now) {
   updateVolvelle();
   updateInvitation();
   if (shopRack) shopRack.rotation.y += 0.003;                      // the postcard rack turns idly
+  tickCurtain();
   updatePointer();
   renderer.render(scene, camera);
   requestAnimationFrame(frame);

@@ -127,7 +127,9 @@ internet connection is needed.
   do not regenerate or move him); Trogdor was generated with the fresco as style reference, cut out and composited. The
   results are pasted into the picture files (`assets/primavera.jpg`,
   `w1-amaryllis-and-mirtillo.jpg`, `det-good-government-countryside.jpg`; the untouched originals are not in the repo —
-  re-download from the sources in the Credits panel if ever needed). `HIDDEN` in gallery3d.js holds each one's box
+  the three pet-bearing pictures' originals are kept as `assets/postcard-primavera.jpg`, `postcard-amaryllis.jpg` and
+  `postcard-good-government.jpg`; the postcards use the first two so they show the paintings as the world knows them,
+  and the third is there for the day the Lorenzetti is put on a postcard). `HIDDEN` in gallery3d.js holds each one's box
   on its picture and its write-up; `markHidden` tags the canvas meshes; a click on the animal from the picture's own
   close-up stop (`hiddenHit`/`atHiddenStop`) calls `foundHidden`, which names it in the panel and counts it in the
   tally as a bonus line, "Hidden bonus features" with three stars that fill gold (localStorage `ka-found`; the works
@@ -142,6 +144,27 @@ internet connection is needed.
   eye at the picture's centre (clamp raised to 2.9) so the tall-hung ones sit level; the artifacts are seen level too.
   The tally sits bottom-left of the stage. The compass no longer steps to the corner at details-room close-ups
   (the owner wants it in one place, always).
+- **The RSVP postcard and the curtain** (25 Sept 2026, step 1 of the RSVP). Clicking the gift shop (rack or
+  letterbox, `userData.shop`) from its own stop opens `#postcard`: the twelve postcards of the collection
+  (`POSTCARDS`, the front is the picture with the KA monogram in gilt at the corner and the title beneath;
+  arrows flip through), "This one" turns it over (CSS flip) to the written side: attending yes/no, plus-one,
+  dietary, a note, the name on the address side under a monogram stamp. "Post it" drops the card out of view
+  and stamps a thank-you; for now the card is kept only in that browser (`ka-rsvp`; a return visit shows it
+  posted). Steps 2 and 3 (the guest store and personal links) are still to do. A **curtain** of burgundy velvet
+  under a fringed pelmet hangs over the end wall's centrepiece (`curtain()`, two folded halves scaled about
+  their outer edges; gilt tiebacks appear as it gathers). Posting a "yes" and closing the card walks you to
+  the centrepiece and draws the curtain (`revealCurtain`, 3.4 s; `ka-posted` keeps it open on later visits).
+  Behind it: SEE YOU IN SIENA and the date in raised gilt lettering drawn over a Sienese fresco of the hills
+  (`assets/det-see-you-in-siena.jpg`, generated in Lorenzetti's manner with Magnific). Harness:
+  `postcard=front|back|posted&pc=n`, `reveal=1|no`, `noreveal=1`, `dumpreveal=1` (the panel texture alone). A "no"
+  reveals WE'RE SORRY TO MISS YOU instead (`CURTAIN.sorry`, `ka-posted-answer`); R at the centrepiece stop closes the
+  curtain and forgets the post, for testing. The wall buttons fade at the centrepiece stop. The curtain (rebuilt
+  25 Sept, evening): deep wine velvet; each half is a cloth whose `userData.shape(gather)` gathers it toward its outer
+  edge (folds deepen and multiply, the tieback pinches its waist, the hem lifts); the tiebacks are rope-and-tassel
+  groups that grow in as the cloth gathers; the pelmet is a valance hung in three swags with a gold cord and bullion
+  fringe, on a gilt rail with finials. The date reads IV · XXIV · MMXXVII. Harness: `half=0.5` for a part-drawn curtain. The centre table stands
+  at `DET.zMid - 0.55` (was -0.9) and the shop 0.35 m off the back wall, so the curtain (the frame's own height and
+  width, old-gold velvet with a burgundy fringe) clears both.
 - Gilt numerals **I** and **II** above the wing arches (solid bars, not text).
 - Architectural dressing: cornices, atrium pilasters, arch surrounds with keystones, bosses, the
   inside face of the entrance doors on the atrium's back wall.

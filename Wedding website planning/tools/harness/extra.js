@@ -434,3 +434,22 @@
     tag.style.cssText = 'position:fixed;left:8px;top:150px;z-index:99;background:#000;color:#ff0;font:13px monospace;padding:4px 8px;white-space:pre';
     tag.textContent = out.join('\n') || 'no hits'; document.body.appendChild(tag);
   }, 6500); }
+{ const q = new URLSearchParams(location.search);
+  // postcard=front|back|posted : open the gift shop's postcard (card n via pc=n); reveal=1 : the curtain drawn back, at once
+  if (q.has('postcard')) setTimeout(() => {
+    localStorage.removeItem('ka-rsvp'); openPostcards(); if (q.has('pc')) showPostcard(+q.get('pc'));
+    if (q.get('postcard') !== 'front') { pcTurn('back'); el('pcName').value = 'Kelly & Anthony'; document.querySelector('input[name=pcYes][value=yes]').checked = true; }
+    if (q.get('postcard') === 'posted') postCard();
+  }, 1500);
+  if (q.has('reveal')) setTimeout(() => { localStorage.removeItem('ka-posted'); if (q.get('reveal') === 'no') { CURTAIN.sorry = true; if (CURTAIN.redraw) CURTAIN.redraw(); } revealCurtain(true); }, 1500);
+  if (q.has('noreveal')) setTimeout(() => { localStorage.removeItem('ka-posted'); }, 100);
+  if (q.has('half')) setTimeout(() => { localStorage.removeItem('ka-posted'); setCurtain(+q.get('half')); }, 1500);   // half=0.5 : the curtain part-drawn
+}
+{ const q = new URLSearchParams(location.search);
+  // dumpreveal=1 : save the SEE YOU IN SIENA panel texture itself as a PNG data URL in a pre, to judge the lettering
+  if (q.has('dumpreveal')) setTimeout(() => {
+    const pic = mainFrame && mainFrame.children[1]; if (!pic || !pic.material.map || !pic.material.map.image || !pic.material.map.image.getContext) return;
+    const c = pic.material.map.image, out = document.createElement('canvas'); out.width = 1400; out.height = Math.round(1400 * c.height / c.width);
+    out.getContext('2d').drawImage(c, 0, 0, out.width, out.height);
+    document.body.innerHTML = ''; document.body.style.background = '#000'; out.style.cssText = 'position:fixed;left:0;top:0'; document.body.appendChild(out);
+  }, 6000); }

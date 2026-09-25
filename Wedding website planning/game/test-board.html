@@ -13,3 +13,5 @@ Arcade.launch('italy'); const g = Arcade.current.inst.debug; g.start('bride'); g
 if (phase === 'board') setTimeout(() => { Arcade.step(1, ['start']); setTimeout(() => Arcade.step(40, []), 300); }, 300);
 if (phase === 'menu') { Arcade.launch('menu'); }
 </script></body></html>
+<script>// ?phase=typed : type K, L, W, then Enter, as real key events; the title reports what the board holds
+if (phase === 'typed') setTimeout(() => { ['k', 'l', 'w'].forEach((k) => window.dispatchEvent(new KeyboardEvent('keydown', { key: k }))); const b = Arcade.board; document.title = 'letters ' + b.letters.map((n) => String.fromCharCode(65 + n)).join('') + ' at ' + b.at + ' phase ' + b.phase; window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' })); setTimeout(() => { document.title += ' -> ' + b.phase + ' rank ' + b.rank; Arcade.step(40, []); }, 400); }, 300);</script>

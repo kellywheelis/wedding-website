@@ -13,7 +13,15 @@
   const input = { held, pressed, is: (k) => !!held[k], hit: (k) => !!pressed[k] };
   const down = (k) => { if (!held[k]) pressed[k] = true; held[k] = true; };
   const up = (k) => { held[k] = false; };
-  window.addEventListener('keydown', (e) => { if (!Arcade.open) return; const k = KEYS[e.key]; if (k) { down(k); e.preventDefault(); } if (e.key === 'Escape') Arcade.close(); });
+  window.addEventListener('keydown', (e) => {
+    if (!Arcade.open) return;
+    if (Arcade.board && Arcade.board.on && Arcade.board.phase === 'enter') {   // typing the initials
+      if (/^[a-zA-Z]$/.test(e.key)) { Arcade.board.type(e.key.toUpperCase()); e.preventDefault(); return; }
+      if (e.key === 'Backspace') { Arcade.board.back(); e.preventDefault(); return; }
+      if (e.key === 'Enter') { Arcade.board.submit(); e.preventDefault(); return; }
+    }
+    const k = KEYS[e.key]; if (k) { down(k); e.preventDefault(); } if (e.key === 'Escape') Arcade.close();
+  });
   window.addEventListener('keyup', (e) => { const k = KEYS[e.key]; if (k) up(k); });
 
   // ---- the overlay
@@ -46,6 +54,7 @@
     document.head.appendChild(css); document.body.appendChild(root);
     canvas = root.querySelector('.ar-screen'); ctx = canvas.getContext('2d');
     root.querySelector('.ar-x').addEventListener('click', Arcade.close);
+    canvas.addEventListener('pointerdown', () => { if (Arcade.board && Arcade.board.on && Arcade.board.phase === 'enter' && entry && root.classList.contains('touch')) entry.focus(); });
     root.querySelectorAll('.ar-pad button').forEach((b) => {
       const k = b.dataset.k;
       b.addEventListener('pointerdown', (e) => { e.preventDefault(); b.setPointerCapture(e.pointerId); down(k); });
@@ -134,8 +143,10 @@
     async post(id, name, score) { try { const r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ game: id, name, score }) }); const j = await r.json(); if (j.top) cache[id] = j.top; return j; } catch (e) { return { error: 'offline' }; } },
     // the overlay state; a game's draw() calls Arcade.board.draw(c) last, and its update() returns early while Arcade.board.on
     on: false, phase: 'enter', id: null, score: 0, letters: [0, 0, 0], at: 0, rank: null, t: 0, posted: false, when: 0,
-    open(id, score, opts = {}) { const b = Arcade.board; b.on = true; b.phase = 'enter'; b.id = id; b.score = Math.floor(score); b.letters = b.last ? b.last.slice() : [0, 0, 0]; b.at = 0; b.rank = null; b.t = 0; b.posted = false; b.title = opts.title || 'YOU MADE IT'; b.sub = opts.sub || ''; Arcade.board.fetch(id); },
-    close() { const b = Arcade.board; b.on = false; if (b.onClose) { const f = b.onClose; b.onClose = null; f(); } },
+    open(id, score, opts = {}) { const b = Arcade.board; b.on = true; showEntry(); b.phase = 'enter'; b.id = id; b.score = Math.floor(score); b.letters = b.last ? b.last.slice() : [0, 0, 0]; b.at = 0; b.rank = null; b.t = 0; b.posted = false; b.title = opts.title || 'YOU MADE IT'; b.sub = opts.sub || ''; Arcade.board.fetch(id); },
+    type(ch) { const b = Arcade.board; b.letters[b.at] = ch.charCodeAt(0) - 65; if (b.at < 2) b.at++; },
+    back() { const b = Arcade.board; if (b.at > 0) b.at--; },
+    close() { const b = Arcade.board; b.on = false; hideEntry(); if (b.onClose) { const f = b.onClose; b.onClose = null; f(); } },
     update(dt, input) {
       const b = Arcade.board; b.t += dt; if (!b.on) return;
       if (b.phase === 'enter') {
@@ -147,7 +158,7 @@
         if (input.hit('start')) b.submit();
       } else if (b.phase === 'board') { if (b.t > 0.6 && (input.hit('start') || input.hit('jump'))) b.close(); }
     },
-    async submit() { const b = Arcade.board; const name = b.letters.map((n) => String.fromCharCode(65 + n)).join(''); b.last = b.letters.slice(); b.phase = 'posting'; b.t = 0;
+    async submit() { const b = Arcade.board; if (b.phase !== 'enter') return; hideEntry(); const name = b.letters.map((n) => String.fromCharCode(65 + n)).join(''); b.last = b.letters.slice(); b.phase = 'posting'; b.t = 0;
       const j = await b.post(b.id, name, b.score); b.rank = j.rank || null; b.posted = !j.error; b.when = Date.now(); b.phase = 'board'; b.t = 0; },
     draw(c) {
       const b = Arcade.board; if (!b.on) return; const W = c.canvas.width, H = c.canvas.height;
@@ -159,7 +170,7 @@
         drawText(c, 'ENTER YOUR INITIALS', W / 2, 108, '#e8c07a', 'center');
         b.letters.forEach((n, i) => { const x = W / 2 - 30 + i * 30, y = 132; if (i === b.at && Math.floor(b.t * 3) % 2 === 0) { c.fillStyle = '#7a1a3c'; c.fillRect(x - 12, y - 6, 24, 30); }
           c.save(); c.translate(x, y); c.scale(3, 3); drawText(c, String.fromCharCode(65 + n), 0, 0, i === b.at ? '#f4efe1' : '#a79c85', 'center'); c.restore(); c.fillStyle = '#e8c07a'; c.fillRect(x - 9, y + 24, 18, 1); });
-        drawText(c, b.phase === 'posting' ? 'POSTING...' : 'LEFT/RIGHT LETTER · JUMP NEXT · START POSTS', W / 2, 176, '#a79c85', 'center');
+        drawText(c, b.phase === 'posting' ? 'POSTING...' : (root && root.classList.contains('touch') ? 'TYPE THREE LETTERS · START POSTS' : 'TYPE THEM · ENTER POSTS'), W / 2, 176, '#a79c85', 'center');
         const top = b.top(b.id); if (top.length) { drawText(c, 'TO BEAT: ' + top[0].name + ' ' + top[0].score, W / 2, 196, '#a79c85', 'center'); }
       } else {
         big('HIGH SCORES', 30, '#e8c07a');
@@ -173,6 +184,19 @@
       }
     }
   };
+  // a real (invisible) text box, focused while initials are being entered, so a phone shows its keyboard; what is
+  // typed into it feeds the board's letters. On a desktop the keys are taken directly.
+  let entry = null;
+  function showEntry() {
+    if (!root) return;
+    if (!entry) { entry = document.createElement('input'); entry.type = 'text'; entry.maxLength = 3; entry.autocapitalize = 'characters'; entry.autocomplete = 'off'; entry.setAttribute('aria-label', 'Your initials');
+      entry.style.cssText = 'position:absolute;left:50%;top:50%;width:1px;height:1px;opacity:0;border:0;padding:0;font-size:16px';
+      entry.addEventListener('input', () => { const v = entry.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 3); const b = Arcade.board; for (let i = 0; i < 3; i++) if (v[i]) b.letters[i] = v.charCodeAt(i) - 65; b.at = Math.min(2, v.length); if (v.length === 3) { entry.value = v; } });
+      entry.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); Arcade.board.submit(); } });
+      root.appendChild(entry); }
+    entry.value = ''; if (root.classList.contains('touch')) setTimeout(() => entry.focus(), 50);
+  }
+  function hideEntry() { if (entry) { entry.blur(); entry.value = ''; } }
   // ---- the menu: the cabinet's list of games. Registered games are playable; the planned ones show as coming soon.
   Arcade.menuList = [['italy', 'Getting to Italy'], ['piazza', 'Cross the Piazza'], ['bouquet', 'Catch the Bouquet'], ['flight', 'Flight to Siena'], ['seating', 'The Seating Chart']];
   Arcade.games.menu = { title: 'The Arcade', w: 224, h: 288, create(api) {

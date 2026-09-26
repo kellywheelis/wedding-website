@@ -38,7 +38,7 @@ Everything that matters lives in one subfolder (apart from the deployment files 
 |---|---|
 | `The Gallery 3D.html` | **The live page.** Entry doors, motto, info panel, buttons, credits panel, import map. |
 | `gallery3d.js` | **The live build** — all of the 3D gallery (~4,300 lines, three.js 0.184, served from `assets/lib/three/`). |
-| `rsvp-admin.html`, `../api/guest.js`, `../api/admin.js`, `../api/_lib.js`, `../api/_private.js` | The RSVP and guest sign-in (§5, "The RSVP"): the owner's private page, and the server side at the repository root. The private wall texts live in `api/_private.js`. |
+| `rsvp-admin.html`, `../api/guest.js`, `../api/admin.js`, `../api/_lib.js`, `../api/_private.js`, `../api/_notify.js` | The RSVP and guest sign-in (§5, "The RSVP"): the owner's private page, and the server side at the repository root. The private wall texts live in `api/_private.js`; the reply emails in `api/_notify.js`. |
 | `tools/dev_server.mjs`, `tools/make_mobile_content.py` | A local stand-in for the live site with its api (§5); the phone guide's text builder (§4b). |
 | `assets/og-preview.jpg`, `assets/icons/` | The card a shared link shows (1200x630: the entry doors without their buttons, rendered with the harness's `gate=1&nobtn=1`), named in both pages' `og:` tags with absolute URLs; and the gilt KA on burgundy as the browser-tab icon, the home-screen icon (`apple-touch-icon.png`, 180 px) and `favicon.ico` (`vercel.json` also serves the last two at the site root). Both pages are titled "Kelly & Anthony · The Gallery". Added 26 Sept 2026. |
 | `assets/fonts/` | Cormorant Garamond and EB Garamond (SIL Open Font License, `OFL-*.txt`), hosted with the site since 26 Sept 2026: the woff2 files and `gallery.css` / `mobile.css`, fetched from Google Fonts' css2 API exactly as each page used to request them. Checked with Google Fonts blocked: the text renders identically. |
@@ -232,8 +232,8 @@ detail, so she gains least; re-converting her at more triangles would help.
 - Main frame, end wall: "The only thing missing from this exhibit is you" (kept for the guests), with the gift-shop
   stand (`giftShop`, stop `detShop`) under it: postcard rack, "POSTA · R.S.V.P." letterbox, registry card. The owner
   wants the RSVP to be a postcard drawn from the rack that flips to a writing side (the form) and is posted in the
-  letterbox. Step 1 of that was built on 25 Sept 2026 (see "The RSVP postcard and the curtain" above); a store for
-  the replies is still to come (§5): a static page cannot collect them.
+  letterbox. Step 1 of that was built on 25 Sept 2026 (see "The RSVP postcard and the curtain" above); the store for
+  the replies, guest sign-in and the private page followed on 26 Sept 2026 (§5, "The RSVP").
 - Layout (the owner's, 21 Sept): the END WALL carries only the main frame (she found clusters beside it too small).
   LEFT wall: 2 Schedule (entrance side) and 3 Travel (far side). RIGHT wall: 1 Main details (entrance side) and
   4 Accommodations, one good-sized picture (far side). ENTRANCE wall: 5 Logistics (left), 6 Guest policies (right).
@@ -261,7 +261,8 @@ detail, so she gains least; re-converting her at more triangles would help.
   text closes on a click outside it.
 - Pictures are `DETAIL_PICTURES` (`src`, optional `crop: [l, t, r, b]`). `tools/art-options.html` is the browsing
   page used to choose them.
-- Wall texts: `CARDS`, named by a stop's `card:`; the panel shows "Read the full details", which opens a cream
+- Wall texts: `CARD_TITLES` here, their text in `api/_private.js` (fetched after sign-in, §5 "The RSVP"), named by a
+  stop's `card:`; the panel shows "Read the full details", which opens a cream
   placard over the scene (Escape or a click outside closes it; arrow keys are ignored while it is open).
 
 **Sculpture in the details room** (22 Sept 2026)
@@ -599,17 +600,20 @@ All five games live in one cabinet (the arcade menu).
 
 ## 5. Known loose ends / ideas not yet done
 
-_Brought up to date 25 Sept 2026 (the repo at `3e55499`)._
+_Brought up to date 26 Sept 2026 (after `b5897ba`)._
 
 **Open, in whatever order the owner chooses**
 - **The guest list.** The RSVP is built (below, "The RSVP"); what waits is the owner's guest list (save-the-dates not
   yet out; the in-laws' names to come). She pastes it into her private page; per household: names, phone number(s),
   seats, events. Two sample households may be loaded on the live store for trying it; loading the real list replaces
-  them. Then she prints the invitation codes from the page for the packs.
+  them. Then she prints the invitation codes from the page for the packs. Her step-by-step guide to all of this is a
+  Claude Doc, "Guest List & RSVP: Setup Guide" (https://claude.ai/code/artifact/0874a20e-d028-4d36-b80d-c3a081a8c869);
+  keep it in step when the RSVP changes.
 
 **The RSVP** (built 26 Sept 2026; the owner's design throughout)
 - Anyone may walk the gallery; the wall texts (addresses, schedule, travel, hotels, policies, registry) and the RSVP
-  are for guests. A household signs in either by typing one of its phone numbers AND its own code (VENUS-4827, a word
+  are for guests. In the 3D gift shop anyone may flip through the postcards; "This one" (turning a card over to
+  write on it) asks for sign-in, then turns the chosen card over (the owner's wish, 26 Sept 2026). A household signs in either by typing one of its phone numbers AND its own code (VENUS-4827, a word
   from the gallery and four digits, printed in its invitation pack), or by scanning the QR code in the pack, a link
   `kaweddinggallery.com/?k=<key>` whose 22-character key signs it in with nothing typed (the key is not the printed
   code, so the code alone is never enough). She chose household codes over one shared code, and phone plus code on
@@ -637,23 +641,42 @@ _Brought up to date 25 Sept 2026 (the repo at `3e55499`)._
   the guest list paste box (tab- or comma-separated, header row optional, an optional Code column to keep chosen
   codes). Loading replaces the list but keeps each household's code, QR key and reply when its code, names or a phone
   number carries over; a household with no phone is allowed and can sign in only by QR.
+- The deadline (26 Sept 2026, the owner's choice: eight weeks before the wedding): replies close once Saturday,
+  February 27, 2027 has ended everywhere, noon UTC on the 28th (`RSVP_BY`, `RSVP_CLOSES` and `rsvpState` in
+  `api/_lib.js`). Every signed-in answer carries `rsvp: { open, by }`. After it `api/guest.js` refuses a reply (403,
+  with `rsvp`), and both cards (`openPostcards` in gallery3d.js, `showPosted` in mobile.js) show the posted card
+  without "Change my reply", or, to a household that never replied, a card's picture and "The RSVP closed on …;
+  please get in touch". Signing in and the details still work; the private page's Clear still works, but a cleared
+  household cannot post again. The Guest Policies card gives the date. To move it: `RSVP_CLOSES` and `RSVP_BY`, and
+  the Guest Policies text in `api/_private.js`.
+- Reply emails (26 Sept 2026, the owner's request): each posted or changed reply is emailed to the couple by
+  `api/_notify.js` through Resend's API (a plain `fetch`, no package; five seconds at most, and a failure is only
+  logged, never the guest's problem). The subject says who and what ("Changed RSVP from …: Yes, 3 of 4 seats"); a
+  change carries a "Before:" line. Off until the Vercel project has `RESEND_API_KEY` and `RSVP_NOTIFY_TO`. It sends
+  from Resend's test address, `onboarding@resend.dev`, which only reaches the Resend account's own email; to add
+  Anthony, verify kaweddinggallery.com with Resend and change `FROM`. The dev server prints the emails instead of
+  sending them (`DEV_MAIL=fail` plays a refusal).
 - Trying it locally: `tools/dev_server.mjs` runs the site and the api against an in-memory store (Node.js needed;
   none is installed on this Mac, a copy was used from the session's scratch folder). With `DEV_EXTRA=<folder>` it
-  also serves test pages at `/__test/` and gives them `window.__ka` (openPostcards, postCard, openCard, GUEST). The
-  harness has no server: `fakeguest=1|2` stands in a signed-in household for renders (`postcard=` uses it).
-- **The phone edition** (`mobile/`, §4b) is behind the 3D build: Anthony's artifacts, the three hidden pets, the
-  RSVP postcard and the hourglass are not in it yet.
+  also serves test pages at `/__test/` and gives them `window.__ka` (openPostcards, postCard, openCard, GUEST);
+  with `DEV_RSVP_CLOSED=N` the deadline falls N seconds after it starts (0: already past). The harness has no
+  server: `fakeguest=1|2` stands in a signed-in household for renders (`postcard=` uses it).
+- **Real-phone checks.** The phone edition caught up with the 3D build on 26 Sept 2026 (§4b: Anthony's artifacts,
+  the hourglass and the three who hid in `0f9ea7e`, the gallery view in `7c00b14`, the RSVP in `b5897ba`). On her
+  own phone the owner found the gallery view and the arcade's pause when held sideways working (26 Sept 2026). Not
+  yet tried on a real phone: scanning a printed invitation QR code.
 - **Photographs for the atrium walls.** The four photo frames (three on Kelly's wall, Anthony's main frame; his
   other frame is the arcade screen) are still empty (`blank: true` in `ATRIUM_PICTURES`), and their write-ups say
   "Photographs to come." (`meta: 'Placeholder'`).
 - **The two oval frames** either side of the centrepiece on the details room's end wall are empty.
-- **The wall texts** (`CARDS`, the "Read the full details" cards) are placeholder text, most of it "To be
-  confirmed."; the anecdotes in the pictures' and sculptures' write-ups are drafts.
+- **The wall texts** (the "Read the full details" cards; `CARDS` in `api/_private.js`, served only to signed-in
+  guests) are placeholder text, most of it "To be confirmed." (the RSVP deadline under Guest Policies was filled
+  in 26 Sept 2026); the anecdotes in the pictures' and sculptures' write-ups are drafts.
 - **Sound**: not started; the owner has not decided whether she wants it.
 
 **Offered, not done**
-- Pietra serena (grey stone) trim; compressing the sculpture files (about 26 MB in `assets/sculpture/`); moving the
-  details-room side-wall tour stops to the room's middle.
+- Pietra serena (grey stone) trim; moving the details-room side-wall tour stops to the room's middle.
+- An iPad check of the 3D build (graphics memory, see Housekeeping), which needs the owner's iPad.
 
 **Declined by the owner** (do not offer these again)
 - Petals drifting down in Wing I, and a walk whose pace scales with distance (short hops gentle, long crossings

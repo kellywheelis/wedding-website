@@ -200,7 +200,7 @@
   // with a phone number and their household's code from the invitation, or arrive by its QR code (?k=...), which signs
   // them in. The session (localStorage ka-guest) is shared with the 3D gallery. Inputs are never focused on their own, so
   // the keyboard comes up only when a guest taps into a field (the owner's rule: the RSVP and the initials, nowhere else).
-  const GUEST = { token: (() => { try { return localStorage.getItem('ka-guest') || ''; } catch (e) { return ''; } })(), household: null, reply: null, cards: null };
+  const GUEST = { token: (() => { try { return localStorage.getItem('ka-guest') || ''; } catch (e) { return ''; } })(), household: null, reply: null, cards: null, rsvp: null };
   let afterSignIn = null;
   const guestApi = async (method, body) => {
     const r = await fetch('/api/guest', { method, headers: { 'content-type': 'application/json', ...(GUEST.token ? { authorization: 'Bearer ' + GUEST.token } : {}) }, body: body ? JSON.stringify(body) : undefined });
@@ -231,8 +231,8 @@
   const paintGuest = () => {
     el('guestLine').innerHTML = GUEST.household ? `Signed in &middot; ${esc(GUEST.household.names)} &middot; <button type="button" data-signin>Sign out</button>` : `<button type="button" data-signin>Guests: sign in for the details and the RSVP</button>`;
   };
-  const signedIn = (d) => { GUEST.household = d.household; GUEST.reply = d.reply || null; GUEST.cards = d.cards || null; paintGuest(); };
-  const signedOut = () => { GUEST.token = ''; GUEST.household = GUEST.reply = GUEST.cards = null; try { localStorage.removeItem('ka-guest'); } catch (e) { /* nothing kept */ } paintGuest(); };
+  const signedIn = (d) => { GUEST.household = d.household; GUEST.reply = d.reply || null; GUEST.cards = d.cards || null; GUEST.rsvp = d.rsvp || null; paintGuest(); };
+  const signedOut = () => { GUEST.token = ''; GUEST.household = GUEST.reply = GUEST.cards = GUEST.rsvp = null; try { localStorage.removeItem('ka-guest'); } catch (e) { /* nothing kept */ } paintGuest(); };
   function openSignIn(why) {
     const inn = !!GUEST.household;
     el('siTitle').textContent = inn ? 'Signed in' : 'For our guests';
@@ -286,9 +286,11 @@
     el('rs').classList.add('open'); el('rs').scrollTop = 0; document.body.style.overflow = 'hidden';
   }
   function showPosted(on) {
-    const r = GUEST.reply;
-    el('rsForm').hidden = on; el('rsPosted').hidden = !on;
-    if (on) el('rsPostedTxt').textContent = 'Posted ' + new Date(r.when).toLocaleDateString(undefined, { day: 'numeric', month: 'long' }) + '. ' + (r.yes === 'yes' ? 'Thank you — see you in Siena.' : 'We’re sorry to miss you.');
+    const r = GUEST.reply, closed = !!GUEST.rsvp && !GUEST.rsvp.open;  // past the RSVP deadline (api/_lib.js): read, not posted
+    if (closed) on = true;
+    el('rsForm').hidden = on; el('rsPosted').hidden = !on; el('rsEdit').hidden = closed;
+    if (on) el('rsPostedTxt').textContent = r ? 'Posted ' + new Date(r.when).toLocaleDateString(undefined, { day: 'numeric', month: 'long' }) + '. ' + (r.yes === 'yes' ? 'Thank you — see you in Siena.' : 'We’re sorry to miss you.') +
+      (closed ? ' Replies are now closed; if anything changes, please get in touch with us.' : '') : 'The RSVP closed on ' + GUEST.rsvp.by + '. If you can still join us, please get in touch with us directly.';
   }
   const closeRsvp = () => { el('rs').classList.remove('open'); el('rsEv').classList.remove('open'); document.body.style.overflow = ''; };
   document.querySelectorAll('input[name=rsYes]').forEach((x) => x.addEventListener('change', yesNo));
@@ -312,6 +314,7 @@
       const { ok, status, d } = await guestApi('POST', { action: 'rsvp', reply });
       if (ok) { GUEST.reply = d.reply; document.activeElement && document.activeElement.blur(); showPosted(true); el('rs').scrollTop = 0; }
       else if (status === 401) { signedOut(); closeRsvp(); needGuest(openRsvp); }
+      else if (status === 403 && d.rsvp) { GUEST.rsvp = d.rsvp; document.activeElement && document.activeElement.blur(); showPosted(true); el('rs').scrollTop = 0; }   // the deadline passed while the card was open
       else el('rsMsg').textContent = d.error || 'Could not post. Try again.';
     } catch (e) { el('rsMsg').textContent = 'We could not reach the gallery. Please check your connection and try again.'; }
     el('rsPost').disabled = false; el('rsPost').textContent = 'Post it';

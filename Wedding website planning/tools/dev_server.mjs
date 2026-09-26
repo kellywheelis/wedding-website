@@ -26,6 +26,17 @@ class MemRedis {
   async ltrim(k, a, b) { const e = this.live(k); if (e) e.v = e.v.slice(a, b + 1); return 'OK'; }
 }
 globalThis.__DEV_REDIS__ = new MemRedis();
+// the RSVP's emails (api/_notify.js; start with RESEND_API_KEY and RSVP_NOTIFY_TO set to anything) are never sent from
+// here: they are printed in this window. DEV_MAIL=fail answers as Resend would a refusal, to see a reply still go through
+const realFetch = globalThis.fetch;
+globalThis.fetch = async (url, opts = {}) => {
+  if (!String(url).startsWith('https://api.resend.com/')) return realFetch(url, opts);
+  const m = JSON.parse(opts.body || '{}');
+  console.log('\n--- email (not sent) to ' + [].concat(m.to).join(', ') + '\nSubject: ' + m.subject + '\n\n' + m.text + '\n---');
+  return process.env.DEV_MAIL === 'fail' ? new Response('{"message":"refused (DEV_MAIL=fail)"}', { status: 422 }) : new Response('{"id":"dev"}', { status: 200 });
+};
+// DEV_RSVP_CLOSED=N: as if the RSVP deadline fell N seconds after this server started (0: it has already passed)
+if (process.env.DEV_RSVP_CLOSED) globalThis.__DEV_RSVP_CLOSES__ = Date.now() + 1000 * Number(process.env.DEV_RSVP_CLOSED);
 
 const vercel = JSON.parse(fs.readFileSync(path.join(ROOT, 'vercel.json'), 'utf8'));
 function route(p) {                                                 // vercel.json's rewrites, ":path*" and exact paths

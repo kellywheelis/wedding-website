@@ -3298,15 +3298,15 @@ document.querySelector('[data-fwd]').addEventListener('click', () => tourStep(1)
 // in on arrival. api/guest.js checks it all; nothing private is in this page's code. A device stays signed in:
 // localStorage `ka-guest` holds its session token (shared with the phone guide), and on each visit the household, its
 // reply and the private wall texts are fetched again.
-const GUEST = { token: (() => { try { return localStorage.getItem('ka-guest') || ''; } catch (e) { return ''; } })(), household: null, reply: null, cards: null };
+const GUEST = { token: (() => { try { return localStorage.getItem('ka-guest') || ''; } catch (e) { return ''; } })(), household: null, reply: null, cards: null, rsvp: null };
 let afterSignIn = null;
 async function guestApi(method, body) {
   const r = await fetch('/api/guest', { method, headers: { 'content-type': 'application/json', ...(GUEST.token ? { authorization: 'Bearer ' + GUEST.token } : {}) }, body: body ? JSON.stringify(body) : undefined });
   return { ok: r.ok, status: r.status, d: await r.json().catch(() => ({})) };
 }
-function signedIn(d) { GUEST.household = d.household; GUEST.reply = d.reply || null; GUEST.cards = d.cards || null; paintGuestBtn(); }
+function signedIn(d) { GUEST.household = d.household; GUEST.reply = d.reply || null; GUEST.cards = d.cards || null; GUEST.rsvp = d.rsvp || null; paintGuestBtn(); }
 function signedOut() {
-  GUEST.token = ''; GUEST.household = GUEST.reply = GUEST.cards = null;
+  GUEST.token = ''; GUEST.household = GUEST.reply = GUEST.cards = GUEST.rsvp = null;
   try { localStorage.removeItem('ka-guest'); } catch (e) { /* nothing kept */ }
   paintGuestBtn();
 }
@@ -4175,9 +4175,10 @@ let shopRack = null;
 // ---------------------------------------------------------------- the postcard (RSVP), the curtain, and SEE YOU IN SIENA
 // The gift shop's rack holds twelve postcards of the collection. Clicking the shop from its stop opens one: arrows flip
 // through them, "This one" turns it over to the written side (attending, plus-one, dietary, a note, the name), and
-// "Post it" stamps it. Posting also draws back the curtain over the end wall's centrepiece. The card is for signed-in
-// guests only (GUEST, above); "Post it" sends the reply to api/guest.js, and a guest who has posted sees their card
-// stamped, with "Change my reply" to post it again.
+// "Post it" stamps it. Posting also draws back the curtain over the end wall's centrepiece. Anyone may flip through the
+// rack; turning a card over to write on it is for signed-in guests (GUEST, above), so "This one" asks for sign-in first
+// (the owner's wish, 26 Sept 2026). "Post it" sends the reply to api/guest.js, and a guest who has posted sees their
+// card stamped, with "Change my reply" to post it again.
 const POSTCARDS = [
   ['birth-of-venus', 'The Birth of Venus · Botticelli'], ['postcard-primavera', 'Primavera · Botticelli'], ['w1-three-graces', 'The Three Graces · Furini'],
   ['w1-happy-union', 'Happy Union · Veronese'], ['w1-mars-and-venus', 'Mars and Venus United by Love · Veronese'], ['postcard-amaryllis', 'Amaryllis and Mirtillo · Van Dyck'],
@@ -4240,8 +4241,7 @@ function pcTurn(side) {
   if (side === 'back') setTimeout(() => el('pcName').focus(), 900);
 }
 function openPostcards() {
-  if (!GUEST.household) { needGuest(openPostcards, 'The RSVP is for our guests. Sign in with your phone number and the code from your invitation, and your card will be waiting.'); return; }
-  const saved = GUEST.reply;
+  const saved = GUEST.reply, closed = !!GUEST.rsvp && !GUEST.rsvp.open;   // past the RSVP deadline (api/_lib.js): read, not posted
   el('pcScene').style.display = ''; el('pcScene').style.opacity = '1'; el('pcScene').style.transform = '';
   el('pcPosted').style.display = 'none'; el('pcEdit').style.display = 'none';
   if (saved) {                                                           // already posted: their card, stamped, with the way to change it
@@ -4252,8 +4252,13 @@ function openPostcards() {
     setupGuestLines(); if (saved.yes === 'yes') el('pcSeats').value = String(saved.seats); yesNoChanged();
     pcTurn('back');
     el('pcBackNav').style.display = 'none';
-    el('pcPosted').style.display = 'block'; el('pcEdit').style.display = '';
-    el('pcPosted').textContent = 'Posted ' + new Date(saved.when).toLocaleDateString(undefined, { day: 'numeric', month: 'long' }) + '. ' + (saved.yes === 'yes' ? 'Thank you — see you in Siena.' : 'We’re sorry to miss you.');
+    el('pcPosted').style.display = 'block'; el('pcEdit').style.display = closed ? 'none' : '';
+    el('pcPosted').textContent = 'Posted ' + new Date(saved.when).toLocaleDateString(undefined, { day: 'numeric', month: 'long' }) + '. ' + (saved.yes === 'yes' ? 'Thank you — see you in Siena.' : 'We’re sorry to miss you.') +
+      (closed ? ' Replies are now closed; if anything changes, please get in touch with us.' : '');
+  } else if (closed) {                                                   // no reply, and too late: a card's picture and the word
+    showPostcard(pcIndex); pcTurn('front'); el('pcNav').style.display = 'none';
+    el('pcPosted').style.display = 'block';
+    el('pcPosted').textContent = 'The RSVP closed on ' + GUEST.rsvp.by + '. If you can still join us, please get in touch with us directly.';
   } else { el('pcName').value = ''; pcEvChosen = []; showPostcard(pcIndex); pcTurn('front'); setupGuestLines(); yesNoChanged(); }
   el('postcard').style.display = 'grid';
 }
@@ -4263,7 +4268,7 @@ el('pcEdit').addEventListener('click', () => {                           // back
 function closePostcards() { el('postcard').style.display = 'none'; }
 let posting = false;
 async function postCard() {
-  if (posting) return;
+  if (posting || (GUEST.rsvp && !GUEST.rsvp.open)) return;
   const yes = (document.querySelector('input[name=pcYes]:checked') || {}).value;
   const name = el('pcName').value.trim();
   const say = (t) => { el('pcPost').textContent = t; setTimeout(() => { el('pcPost').textContent = 'Post it'; }, 2600); };
@@ -4274,7 +4279,11 @@ async function postCard() {
   let res;
   try { res = await guestApi('POST', { action: 'rsvp', reply: rsvp }); } catch (e) { res = { ok: false, d: { error: 'Could not reach us. Try again.' } }; }
   posting = false;
-  if (!res.ok) { if (res.status === 401) { signedOut(); closePostcards(); needGuest(openPostcards); return; } say(res.d.error || 'Could not post. Try again.'); return; }
+  if (!res.ok) {
+    if (res.status === 401) { signedOut(); closePostcards(); needGuest(openPostcards); return; }
+    if (res.status === 403 && res.d.rsvp) { el('pcPost').textContent = 'Post it'; GUEST.rsvp = res.d.rsvp; openPostcards(); return; }   // the deadline passed while the card was open
+    say(res.d.error || 'Could not post. Try again.'); return;
+  }
   GUEST.reply = res.d.reply;
   el('pcPost').textContent = 'Post it';
   el('pcBackNav').style.display = 'none';
@@ -4291,7 +4300,13 @@ async function postCard() {
 }
 el('pcPrev').addEventListener('click', () => showPostcard(pcIndex - 1));
 el('pcNext').addEventListener('click', () => showPostcard(pcIndex + 1));
-el('pcChoose').addEventListener('click', () => pcTurn('back'));
+el('pcChoose').addEventListener('click', () => {
+  if (GUEST.household) { pcTurn('back'); return; }
+  needGuest(() => {                                                     // just signed in: their posted card, or the closed note, else this card turned over
+    const chosen = pcIndex; openPostcards();
+    if (!GUEST.reply && !(GUEST.rsvp && !GUEST.rsvp.open)) { showPostcard(chosen); pcTurn('back'); }
+  }, 'The RSVP is for our guests. Sign in with your phone number and the code from your invitation, and your card will be waiting.');
+});
 el('pcFlipBack').addEventListener('click', () => pcTurn('front'));
 el('pcPost').addEventListener('click', postCard);
 el('pcClose').addEventListener('click', () => {

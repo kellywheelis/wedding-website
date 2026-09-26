@@ -33,7 +33,7 @@ export const CARDS = {
     { h: 'Currency and tipping', p: [TBC] },
     { h: 'Mobile service, wifi and eSIMs', p: [TBC] } ] },
   policies: { title: 'Guest Policies', sections: [
-    { h: 'RSVP deadline', p: [TBC] },
+    { h: 'RSVP deadline', p: ['Please reply by Saturday, February 27, 2027, eight weeks before the wedding. The postcard closes after that day.'] },
     { h: 'Plus-ones', p: [TBC] },
     { h: 'Children', p: [TBC] },
     { h: 'On the day: who to call', p: [TBC] } ] },

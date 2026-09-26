@@ -30,6 +30,14 @@ export const EVENTS = [
   { id: 'brunch', name: 'Farewell brunch', day: 'Monday, April 26' },
 ];
 
+// the RSVP deadline, eight weeks before the wedding (the owner's choice, 26 Sept 2026). Replies close once Saturday,
+// February 27, 2027 has ended everywhere: noon UTC on the 28th is midnight on the world's last time zone (UTC-12), so no
+// guest is cut off early. After it a card can still be read but not posted or changed. The local dev server can set
+// __DEV_RSVP_CLOSES__ to try the closed card.
+export const RSVP_BY = 'Saturday, February 27';
+const RSVP_CLOSES = Date.UTC(2027, 1, 28, 12);
+export const rsvpState = () => ({ open: Date.now() < (globalThis.__DEV_RSVP_CLOSES__ ?? RSVP_CLOSES), by: RSVP_BY });
+
 // the private page's key: only its SHA-256 is here. The key itself was given to the owner (26 Sept 2026), not saved
 // anywhere in the project; to replace it, put the SHA-256 of a new key here
 const ADMIN_SHA256 = '72e7e255e655a8dd70b95bfd86041b8734f6d91faf550fa4934fc95c5ca5ac04';

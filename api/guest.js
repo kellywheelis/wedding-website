@@ -3,17 +3,19 @@
 //                                                         household and its code, VENUS-4827, any case or spacing)
 //   POST /api/guest { action: 'login', key }          -> the same, from the QR code's link (?k=...)
 //   GET  /api/guest  (Authorization: Bearer <token>)  -> { household, reply, cards }        (a returning device)
-//   POST /api/guest { action: 'rsvp', reply }  (token) -> { ok, reply }
+//   POST /api/guest { action: 'rsvp', reply }  (token) -> { ok, reply }   (and an email to the couple: _notify.js)
 //   POST /api/guest { action: 'logout' }       (token) -> { ok }
 // The household's seats and events decide what a reply may say: never more seats, never an event they are not invited to.
-import { redis, newToken, codeKey, phoneDigits, clip, ipOf, household, eventsOf, sessionHousehold, parse } from './_lib.js';
+// Every signed-in answer carries rsvp: { open, by } (the deadline, in _lib.js); once it has passed, a reply is refused (403).
+import { redis, newToken, codeKey, phoneDigits, clip, ipOf, household, eventsOf, sessionHousehold, parse, rsvpState } from './_lib.js';
 import { CARDS } from './_private.js';
+import { notifyReply } from './_notify.js';
 
 const SESSION_DAYS = 200;
 const TRIES = 10, TRY_WINDOW = 600;                                   // wrong guesses allowed per address, per 10 minutes
 
 const publicHousehold = (hh) => ({ names: hh.names, seats: hh.seats, events: eventsOf(hh) });
-async function signedIn(hh) { return { household: publicHousehold(hh), reply: parse(await redis.get('reply:' + hh.id)), cards: CARDS }; }
+async function signedIn(hh) { return { household: publicHousehold(hh), reply: parse(await redis.get('reply:' + hh.id)), cards: CARDS, rsvp: rsvpState() }; }
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
@@ -54,6 +56,8 @@ export default async function handler(req, res) {
   if (body.action === 'logout') { await redis.del('sess:' + s.token); return res.status(200).json({ ok: true }); }
 
   if (body.action === 'rsvp') {
+    const rsvp = rsvpState();
+    if (!rsvp.open) return res.status(403).json({ error: 'The RSVP closed on ' + rsvp.by + '. Please get in touch with us directly.', rsvp });
     const r = body.reply || {}, hh = s.hh;
     const yes = r.yes === 'yes' ? 'yes' : r.yes === 'no' ? 'no' : null;
     if (!yes) return res.status(400).json({ error: 'Yes or no, first.' });
@@ -64,9 +68,11 @@ export default async function handler(req, res) {
     const events = yes === 'yes' ? [...new Set((Array.isArray(r.events) ? r.events : []).map(String))].filter((e) => allowed.has(e)) : [];
     const reply = { yes, seats, of: hh.seats, events, name, plus: clip(r.plus, 200), diet: clip(r.diet), note: clip(r.note, 1000),
       card: Math.max(0, Math.min(40, Math.floor(Number(r.card)) || 0)), when: Date.now() };
+    const before = parse(await redis.get('reply:' + hh.id));
     await redis.set('reply:' + hh.id, JSON.stringify(reply));
     await redis.lpush('replylog', JSON.stringify({ id: hh.id, ...reply }));
     await redis.ltrim('replylog', 0, 1999);
+    await notifyReply(hh, reply, before);                            // an email to the couple, when it is set up (_notify.js)
     return res.status(200).json({ ok: true, reply });
   }
   return res.status(400).json({ error: 'unknown action' });

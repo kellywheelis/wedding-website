@@ -232,21 +232,26 @@
   // and where it ended relative to the stop
   if (q.has('trace')) setTimeout(() => {
     const out = [];
+    // bigturn=r / long=k : try other WALK settings (the on-the-spot turn threshold, radians; the long-walk speed-up)
+    if (q.has('bigturn')) WALK.bigTurn = +q.get('bigturn');
+    if (q.has('long')) WALK.long = +q.get('long');
     q.get('trace').split(',').forEach((id) => { try {
       goTo(ST[id]);
       const steps = lastSteps.map((s) => s.kind === 'turn' ? 'turn' : 'move').join('>') || '(none)';
+      const spot = queue.length > 1 && queue[0].kind === 'turn' && queue.some((s) => s.kind === 'path');   // the first turn is taken standing still
       const raf = window.requestAnimationFrame, now = performance.now, draw = renderer.render;
-      let fake = now.call(performance), n = 0, jump = 0, spin = 0, tbl = 0, px = cam.x, pz = cam.z, py = cam.yaw;
+      let fake = now.call(performance), n = 0, jump = 0, spin = 0, tbl = 0, fast = 0, px = cam.x, pz = cam.z, py = cam.yaw;
       window.requestAnimationFrame = () => 0; performance.now = () => fake; renderer.render = () => {};
       for (let i = 0; i < 900 && (i < 2 || leg || queue.length || !settled()); i++) {
         fake += 40; frame(fake); n++;
         jump = Math.max(jump, Math.hypot(cam.x - px, cam.z - pz)); spin = Math.max(spin, Math.abs(shortAngle(py, cam.yaw) - py));
+        if (Math.abs(shortAngle(py, cam.yaw) - py) > 0.0524) fast++;             // swinging faster than 75 deg/s this frame
         if (cam.x > TABLE_KEEPOUT.x0 && cam.x < TABLE_KEEPOUT.x1 && cam.z > TABLE_KEEPOUT.z0 && cam.z < TABLE_KEEPOUT.z1) tbl++;
         px = cam.x; pz = cam.z; py = cam.yaw;
       }
       window.requestAnimationFrame = raf; performance.now = now; renderer.render = draw;
       const t = STATIONS[ST[id]];
-      out.push(id.padEnd(12) + steps.padEnd(28) + (n * 0.04).toFixed(1) + 's  max step ' + (jump * 100).toFixed(1) + 'cm  max turn ' + (spin * 180 / Math.PI).toFixed(1) + 'deg/frame  table ' + tbl + '  off by ' + Math.hypot(cam.x - t.x, cam.z - t.z).toFixed(3) + 'm ' + (Math.abs(shortAngle(cam.yaw, t.yaw) - cam.yaw) * 180 / Math.PI).toFixed(1) + 'deg');
+      out.push(id.padEnd(12) + steps.padEnd(28) + (n * 0.04).toFixed(1) + 's  max step ' + (jump * 100).toFixed(1) + 'cm  max turn ' + (spin * 180 / Math.PI).toFixed(1) + 'deg/frame  table ' + tbl + '  off by ' + Math.hypot(cam.x - t.x, cam.z - t.z).toFixed(3) + 'm ' + (Math.abs(shortAngle(cam.yaw, t.yaw) - cam.yaw) * 180 / Math.PI).toFixed(1) + 'deg  fast-swing ' + (fast * 0.04).toFixed(2) + 's' + (spot ? '  turns on the spot first' : ''));
     } catch (e) { out.push(id + ' ERROR ' + e.message + ' @ ' + (e.stack || '').split('\n')[1]); } });
     const tag = document.createElement('div');
     tag.style.cssText = 'position:fixed;left:8px;top:60px;z-index:99;background:#000;color:#0f0;font:13px monospace;padding:6px 10px;white-space:pre';

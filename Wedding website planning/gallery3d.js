@@ -3024,7 +3024,10 @@ function planRoute(n) {
 // speed m/s; ramp: metres to get up to pace and to stop; slow: how much a corner slows you (0.45 = to 55%);
 // corner: corner radius in metres; bigTurn: radians, a first turn larger than this is taken on the spot;
 // turnRate: radians per ms, the fastest the view ever swings (~125 deg/s); lag: ms, how far the view trails its heading
-const WALK = { speed: 2.5, ramp: 1.3, minMs: 1100, corner: 0.9, slow: 0.4, bigTurn: 0.9, turnRate: 0.0022, lag: 130 };
+const WALK = { speed: 2.5, ramp: 1.3, minMs: 1100, corner: 0.9, slow: 0.5, bigTurn: 1.75, turnRate: 0.00157, lag: 130,
+  long: 0.45, longFrom: 3, longTo: 15 };   // a leg's top speed rises with its length, up to 45% faster from 15 m (26 Sept 2026)
+// turnRate (radians a millisecond) is the fastest the view ever swings, walking or turning on the spot: 90 deg/s. It was
+// 126 while walking and ~210 at the peak of Turn around; the owner found the turns whipped (26 Sept 2026)
 // "Reduce motion" (a system setting some people turn on because a moving view makes them unwell): the same routes,
 // turns and stops, but the view never glides. The frame on screen when a move begins is kept, laid over the view,
 // while the move runs eight times faster unseen beneath it; at the stop that kept picture dissolves into the new view
@@ -3098,28 +3101,35 @@ function compileWalk() {
   const L = cum[cum.length - 1];
   if (L < 0.005) { queue.push({ kind: 'turn', yaw: endYaw, ms: 1100 }); return; }
   const walk = { kind: 'path', poly, cum, L, endYaw, t0: 0, pf: cam.pitch, ef: cam.eye, pt: wantPitch, et: wantEye, level };
-  // pace: a steady walk that eases off through the corners and at both ends. Time is tabulated every 2 cm
+  // how far the view has to swing at the start and at the end, and how much of the path each gets. A very big first
+  // turn (over WALK.bigTurn, ~100 degrees: an about-face) is taken on the spot before setting off; a smaller one is taken while setting
+  // off; a big last turn starts early so it is never a whip
+  const h0 = alongPath(walk, 0).yaw, h1 = alongPath(walk, L).yaw;
+  const turn0 = Math.abs(shortAngle(cam.yaw, h0) - cam.yaw), turn1 = Math.abs(shortAngle(h1, endYaw) - h1);
+  const onSpot = turn0 > WALK.bigTurn;
+  walk.lookIn = onSpot ? 0.3 : Math.min(L * 0.45, 0.5 + 1.6 * turn0 / (Math.PI / 2));
+  walk.lookOut = Math.min(L * 0.6, 0.6 + 3.0 * turn1 / (Math.PI / 2));   // the last turn, to face the stop, begins early enough never to whip
+  const stepOff = !onSpot && turn0 > 0.9 ? walk.lookIn : 0;           // 50-100 degrees (taken on the spot until 26 Sept 2026): step off slowly while the view comes round
+  // pace: a steady walk that eases off through the corners and at both ends. A long leg's top speed is higher, and it
+  // takes proportionally longer to reach it and to slow from it, so it never lurches. Time is tabulated every 2 cm
   // along the path, so that at any moment we know how far along it we are
+  const cruise = WALK.speed * (1 + WALK.long * smooth((L - WALK.longFrom) / (WALK.longTo - WALK.longFrom))), ramp = WALK.ramp * cruise / WALK.speed;
   const STEP = 0.02, n = Math.ceil(L / STEP), S = [], T = [];
   let t = 0;
   for (let i = 0; i <= n; i++) {
     const sd = Math.min(L, i * STEP);
     let bend = 0;                                                    // how much of the path within half a metre is corner
     for (let d = -0.5; d <= 0.5; d += 0.1) { const q = alongPath(walk, Math.min(L, Math.max(0, sd + d))); bend += q.corner ? 1 : 0; }
-    const ends = 0.1 + 0.9 * smooth(Math.min(sd, L - sd) / WALK.ramp);
-    const v = WALK.speed * ends * (1 - WALK.slow * bend / 11);
+    const ends = 0.1 + 0.9 * smooth(Math.min(sd, L - sd) / ramp);
+    const top = cruise - (cruise - WALK.speed) * Math.min(1, bend / 5);   // the long-walk speed-up is for the straights; corners keep the old pace
+    let v = top * ends * (1 - WALK.slow * bend / 11);
+    if (stepOff) v *= 0.35 + 0.65 * smooth(sd / stepOff);
     if (i) t += STEP / v * 1000;
     S.push(sd); T.push(t);
   }
   walk.S = S; walk.T = T; walk.ms = Math.max(WALK.minMs, t);
   if (walk.ms > t) { const k = walk.ms / t; for (let i = 0; i < T.length; i++) T[i] *= k; }
-  // how far the view has to swing at the start and at the end, and how much of the path each gets. A big first
-  // turn is taken on the spot before setting off; a big last turn starts early so it is never a whip
-  const h0 = alongPath(walk, 0).yaw, h1 = alongPath(walk, L).yaw;
-  const turn0 = Math.abs(shortAngle(cam.yaw, h0) - cam.yaw), turn1 = Math.abs(shortAngle(h1, endYaw) - h1);
-  walk.lookIn = turn0 > WALK.bigTurn ? 0.3 : Math.min(L * 0.45, 0.5 + 1.6 * turn0 / (Math.PI / 2));
-  walk.lookOut = Math.min(L * 0.6, 0.6 + 2.2 * turn1 / (Math.PI / 2));
-  if (turn0 > WALK.bigTurn) queue.push({ kind: 'turn', yaw: h0, ms: 800 + turn0 / Math.PI * 1600 });
+  if (onSpot) queue.push({ kind: 'turn', yaw: h0, ms: 800 + turn0 / Math.PI * 1600 });
   queue.push(walk);
 }
 // where along the path you are after `s` metres, and which way the walk itself faces there: a held view, or the
@@ -3184,7 +3194,7 @@ function startLeg() {
   if (step.kind === 'turn') {
     const to = Math.abs(Math.abs(step.yaw - cam.yaw) - Math.PI) < 0.001 ? step.yaw : shortAngle(cam.yaw, step.yaw), pt = step.pitch === undefined ? cam.pitch : step.pitch, et = step.eye === undefined ? cam.eye : step.eye;
     if (Math.abs(to - cam.yaw) < 0.001 && Math.abs(pt - cam.pitch) < 0.001 && Math.abs(et - cam.eye) < 0.001) return startLeg();
-    leg = { kind: 'turn', from: cam.yaw, to, pf: cam.pitch, pt, ef: cam.eye, et, t0: mnow, ms: step.ms };
+    leg = { kind: 'turn', from: cam.yaw, to, pf: cam.pitch, pt, ef: cam.eye, et, t0: mnow, ms: Math.max(step.ms, 1.5 * Math.abs(to - cam.yaw) / WALK.turnRate) };   // at its fastest (1.5x the average, on this curve) never over turnRate
   } else {
     if (Math.abs(step.x - cam.x) < 0.001 && Math.abs(step.z - cam.z) < 0.001) return startLeg();
     leg = { kind: 'move', fx: cam.x, fz: cam.z, tx: step.x, tz: step.z, t0: mnow, ms: step.ms };
@@ -4443,7 +4453,7 @@ function frame(now) {
     if (stepPath(leg, m)) leg = null;
   } else if (leg) {
     const k = Math.min(1, (m - leg.t0) / leg.ms);
-    const e = easeInOut(k);
+    const e = leg.kind === 'turn' ? smooth(k) : easeInOut(k);          // turns: a gentler curve, its peak 1.5x the average speed (easeInOut's is 2x)
     if (leg.kind === 'turn') {
       cam.yaw = leg.from + (leg.to - leg.from) * e;
       cam.pitch = leg.pf + (leg.pt - leg.pf) * e;

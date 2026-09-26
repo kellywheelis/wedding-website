@@ -386,6 +386,19 @@ detail, so she gains least; re-converting her at more triangles would help.
   turn taken on the spot first, the final turn to face the stop given more of the path the bigger it is, the
   view levelling and the stop's own tilt/height folded into the same motion, and the view never swinging faster
   than ~125 deg/s. A route with no walking (Turn around) still runs as a plain turn step.
+  26 Sept 2026, at the owner's request: a walk's top speed rises with its length (`WALK.long`: up to 45% faster
+  from 15 m, with a proportionally longer ramp at each end), so the longest crossings take ~10 s instead of ~13;
+  short hops are unchanged. The first turn is taken on the spot only above `WALK.bigTurn` = 100 degrees (was 52),
+  so a 90-degree turn off a side wall now happens while stepping off, the step-off slowed until the view has come
+  round. Checked with `trace` over 14 walks: same end positions, no faster view swing, the table still avoided.
+  `trace` now says which walks turn on the spot first, and takes `bigturn=` / `long=` to try other settings.
+  Then the owner found turns whipped (in and out of the wings, Turn around, turning to face side paintings). Measured:
+  on-the-spot turns used `easeInOut`, peaking at twice their average speed (Turn around ~210 deg/s, the turn to
+  Anthony's wall ~270), and walks swung at up to 126 deg/s. Now every swing is held to `WALK.turnRate` = 90 deg/s:
+  turn legs use the gentler `smooth` curve (peak 1.5x average) and are lengthened to fit (`startLeg`), so Turn around
+  takes ~3 s; walks use the same cap, keep the old pace through corners (the long-walk speed-up is for straights),
+  corners slow a little more (`WALK.slow` 0.5), and the last turn to face a picture starts earlier (`lookOut`).
+  `trace` reports `fast-swing` (time spent swinging faster than 75 deg/s).
 - Navigation (24 Sept 2026): a compass (a cross of arrows round the "Go ahead" hint, `#compass`) at the bottom
   centre of the view, sized compactly (28 px arrows, ~80 px tall) so it sits in the band under the walls'
   "click here" buttons at the details-room stops even on a 760 px-high window. (It used to move to the bottom-left

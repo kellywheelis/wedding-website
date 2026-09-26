@@ -234,11 +234,17 @@ detail, so she gains least; re-converting her at more triangles would help.
 - Layout (the owner's, 21 Sept): the END WALL carries only the main frame (she found clusters beside it too small).
   LEFT wall: 2 Schedule (entrance side) and 3 Travel (far side). RIGHT wall: 1 Main details (entrance side) and
   4 Accommodations, one good-sized picture (far side). ENTRANCE wall: 5 Logistics (left), 6 Guest policies (right).
-  7 Registry & extras is the gift-shop stand. She rejected the Aurora on the travel wall (the file is not in the repo)
+  7 Registry & extras is the gift-shop stand. (Those were the section numbers of her plan. Since 26 Sept 2026 the
+  numbers in the panel's eyebrows follow the tour loop instead, as she asked: 1 Main details, 2 Guest policies,
+  3 Logistics, 4 Schedule, 5 Travel, 6 Accommodations, 7 the gift shop. The tour is what the compass's up arrow and
+  the Up key step through; the old "Walk on" button is gone, its name kept only in the code and the aria-label.)
+  She rejected the Aurora on the travel wall (the file is not in the repo)
   and three versions of one painting in a cluster. More pictures may come; Villa Cetinale art is still open (none
   exists in open collections, and she does not want the invitation artist's drawing used).
-- Stops: `detMain`, `detSchedule`, `detTravel`, `detStay`, `detFrontL`, `detFrontR`, `detShop`, all in the Walk on tour in
-  that order after `det` and `detTable`. `detClose`, `detVolvelle`, `detInvite` are click-only.
+- Stops: `detMain`, `detFrontR`, `detFrontL`, `detSchedule`, `detTravel`, `detStay`, `detShop`, all in the Walk on tour in
+  that order after `det` and `detTable` (a loop round the walls since 26 Sept 2026, with the gift shop last as the owner
+  asked: 40 s of walking instead of 51 in the section-number order, which crossed the room four times). `detClose`,
+  `detVolvelle`, `detInvite` are click-only. Walk on follows the order of `STATIONS`, skipping `tour: false`.
 - A gold title on the wall above every section (`sectionTitle`), sized to read from the room's entry.
 - Every picture has `sec` (its section) and `note` (title, anecdote, caption). Each picture with a note gets its own
   close-up stop, made at build time (`pic<index>`, `back:` its section, `card:` the section's), standing as near as its
@@ -363,7 +369,7 @@ detail, so she gains least; re-converting her at more triangles would help.
   `tour: false` marks stops reached only by clicking (skipped by Walk on and the Up key).
   Ids in `STATIONS` itself: atrium, kelly, kelly1, kelly2, anthony, anthony2, anthonyCard, anthonyCase, anthonyAmelia,
   w1, w1close, w1a, w1b, w1graces, w1amaryllis, w1union, w1mars, w2, w2close, w2a, w2b, w2utrecht, w2ruoppolo,
-  w2parnassus, w2nastagio, det, detTable, detMain, detSchedule, detTravel, detStay, detFrontL, detFrontR, detShop,
+  w2parnassus, w2nastagio, det, detTable, detMain, detFrontR, detFrontL, detSchedule, detTravel, detStay, detShop,
   detClose, detVolvelle, detInvite. More are added to it as the scene is built, so they are not in that list: the
   details-room picture close-ups (`pic<index>`), the sculpture walk-ups (`sc_<spotId>`, as each scan loads) and
   `sc_hourglass`.
@@ -399,6 +405,13 @@ detail, so she gains least; re-converting her at more triangles would help.
   takes ~3 s; walks use the same cap, keep the old pace through corners (the long-walk speed-up is for straights),
   corners slow a little more (`WALK.slow` 0.5), and the last turn to face a picture starts earlier (`lookOut`).
   `trace` reports `fast-swing` (time spent swinging faster than 75 deg/s).
+  Paths (26 Sept 2026): corners on the hall's centre line in the crossing (out of a wing, or off the line into one)
+  are rounded with a 2 m radius instead of 0.9 (`WALK.crossing`; open floor there, the curve stays inside the hall)
+  and slow the walk half as much (a corner's weight in `alongPath`): same walk times, a third less fast swinging
+  (measured over 18 wing walks). The Birth of Venus and Primavera close-ups (`w1close`, `w2close`) are on the Walk on
+  tour. Measured and left alone: the routes to the details room's entrance-wall sections walk in and turn back,
+  but a stop facing the wall you came in through needs that half-turn whatever the path. Harness: `routes=1`
+  (length and turning of every route between the main stops), `tour=1` (the Walk on order), `crossing=` on `trace`.
 - Navigation (24 Sept 2026): a compass (a cross of arrows round the "Go ahead" hint, `#compass`) at the bottom
   centre of the view, sized compactly (28 px arrows, ~80 px tall) so it sits in the band under the walls'
   "click here" buttons at the details-room stops even on a 760 px-high window. (It used to move to the bottom-left

@@ -235,6 +235,7 @@
     // bigturn=r / long=k : try other WALK settings (the on-the-spot turn threshold, radians; the long-walk speed-up)
     if (q.has('bigturn')) WALK.bigTurn = +q.get('bigturn');
     if (q.has('long')) WALK.long = +q.get('long');
+    if (q.has('crossing')) WALK.crossing = +q.get('crossing');
     q.get('trace').split(',').forEach((id) => { try {
       goTo(ST[id]);
       const steps = lastSteps.map((s) => s.kind === 'turn' ? 'turn' : 'move').join('>') || '(none)';
@@ -540,3 +541,32 @@
     tag.textContent = 'mid-walk to ' + q.get('midwalk') + ': cam ' + cam.x.toFixed(2) + ',' + cam.z.toFixed(2) + '  calm state ' + CALM.state;
     document.body.appendChild(tag);
   }, 3000); }
+{ const q = new URLSearchParams(location.search);
+  // routes=1 : for every pair of the main stops, stand at the first and plan the walk to the second; report the path's
+  // length against the straight line, and how much turning it holds (the path's own bends plus the turns on the spot)
+  if (q.has('routes')) setTimeout(() => {
+    const ids = (q.get('routes') !== '1' ? q.get('routes') : 'atrium,kelly,anthony,w1,w1close,w1graces,w1mars,w2,w2close,w2utrecht,w2nastagio,det,detMain,detShop,detFrontL,detFrontR,detStay').split(',');
+    const out = [];
+    ids.forEach((a) => ids.forEach((b) => { if (a === b) return; try {
+      const s = STATIONS[ST[a]]; cam.x = s.x; cam.z = s.z; cam.yaw = s.yaw; cam.pitch = s.pitch || 0; cam.eye = s.eye || EYE; idx = ST[a]; queue = []; leg = null;
+      goTo(ST[b]);
+      let L = 0, bend = 0, spot = 0, corners = 0;
+      queue.forEach((st) => {
+        if (st.kind === 'turn') spot += Math.abs(shortAngle(cam.yaw, st.yaw) - cam.yaw);
+        if (st.kind !== 'path') return;
+        L += st.L; corners += st.poly.filter((p, i) => p.corner && !(st.poly[i - 1] || {}).corner).length;
+        let h = null; for (let d = 0; d <= st.L; d += 0.25) { const y = alongPath(st, d).yaw; if (h !== null) bend += Math.abs(shortAngle(h, y) - h); h = y; }
+      });
+      const t = STATIONS[ST[b]], D = Math.hypot(t.x - s.x, t.z - s.z);
+      out.push([a, b, L.toFixed(1), D.toFixed(1), D > 0.5 ? (L / D).toFixed(2) : '-', corners, Math.round((bend + spot) * 180 / Math.PI)].join('\t'));
+    } catch (e) { out.push(a + '\t' + b + '\tERROR ' + e.message); } }));
+    queue = []; leg = null;
+    const pre = document.createElement('pre'); pre.id = 'routes'; pre.textContent = out.join('\n'); document.body.appendChild(pre);
+  }, 3000); }
+{ const q = new URLSearchParams(location.search);
+  // tour=1 : the stops Walk on visits, in order, and how many are reached only by clicking
+  if (q.has('tour')) setTimeout(() => {
+    const pre = document.createElement('pre'); pre.id = 'tour';
+    pre.textContent = 'TOUR ' + STATIONS.filter((s) => s.tour !== false).map((s) => s.id).join(' ') + '\nCLICKONLY ' + STATIONS.filter((s) => s.tour === false).length + ' of ' + STATIONS.length;
+    document.body.appendChild(pre);
+  }, 6000); }

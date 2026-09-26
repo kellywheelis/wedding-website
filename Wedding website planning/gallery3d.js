@@ -59,7 +59,7 @@ const STATIONS = [
     eyebrow: 'Wing I · principal work', title: 'The Birth of Venus',
     body: 'Botticelli gave a woman the entire center of the canvas, in gold light, with flowers in the air and nobody hurrying her. That is the tone we want for the ceremony: golden, unhurried, and every head turned her way.',
     meta: 'Sandro Botticelli, c. 1485 · Uffizi, Florence' },
-  { id: 'w1close', x: -CLOSE_X, z: -7.5, yaw: Math.PI / 2, eye: 1.95, room: 'w1', accent: '#93AEA2', tour: false,
+  { id: 'w1close', x: -CLOSE_X, z: -7.5, yaw: Math.PI / 2, eye: 1.95, room: 'w1', accent: '#93AEA2',   // on the Walk on tour since 26 Sept 2026
     eyebrow: 'Wing I · principal work · up close', title: 'The Birth of Venus',
     body: 'Botticelli gave a woman the entire center of the canvas, in gold light, with flowers in the air and nobody hurrying her. That is the tone we want for the ceremony: golden, unhurried, and every head turned her way.',
     meta: 'Sandro Botticelli, c. 1485 · Uffizi, Florence' },
@@ -94,7 +94,7 @@ const STATIONS = [
     eyebrow: 'Wing II · principal work', title: 'Primavera',
     body: 'A hundred and ninety species of plant in one painting, and a garden that refuses to stop. The reception takes this as instruction as well as inspiration.',
     meta: 'Sandro Botticelli, c. 1480 · Uffizi, Florence' },
-  { id: 'w2close', x: CLOSE_X, z: -7.5, yaw: -Math.PI / 2, eye: 1.95, room: 'w2', accent: '#D19A6E', tour: false,
+  { id: 'w2close', x: CLOSE_X, z: -7.5, yaw: -Math.PI / 2, eye: 1.95, room: 'w2', accent: '#D19A6E',   // on the Walk on tour since 26 Sept 2026
     eyebrow: 'Wing II · principal work · up close', title: 'Primavera',
     body: 'A hundred and ninety species of plant in one painting, and a garden that refuses to stop. The reception takes this as instruction as well as inspiration.',
     meta: 'Sandro Botticelli, c. 1480 · Uffizi, Florence' },
@@ -130,7 +130,9 @@ const STATIONS = [
     eyebrow: 'Exhibit details · the centerpiece', title: 'The only thing missing from this exhibit is you',
     body: 'Every other work in the building is already hung. This frame is kept for our guests: you are the last piece of the collection, and the one we built the rest around.',
     meta: 'Empty frame, gilt · on loan from the future' },
-  // Walk on visits the room in this order: the centrepiece, the table, then sections 1 to 7
+  // Walk on visits the room in this order (a loop round the walls, 26 Sept 2026; the section numbers ran straight
+  // across the room and back): the centerpiece, the table, Main details, Policies, Logistics, Schedule, Travel,
+  // Accommodations, and the gift shop last
   { id: 'detTable', look: 'free', x: 0, z: -13.6, yaw: 0, pitch: -0.5, room: 'det', accent: '#C9A667',
     eyebrow: 'Exhibit details · the table', title: 'On the table',
     body: 'The save-the-date and the invitation are here to be handled. Click the save-the-date to pick it up and turn the wheel; click the invitation to open its doors and look inside.', meta: 'Please touch' },
@@ -139,26 +141,26 @@ const STATIONS = [
     eyebrow: 'Exhibit details · 1', title: 'The Main Details',
     body: 'Two garden parties, painted four and a half centuries before ours. Villa Cetinale, Sovicille, in the hills outside Siena, Saturday, April 24, 2027, with the weekend around it. The maze is real. The cypress avenue is very real. Everything else is in the wall text.',
     meta: 'Villa Cetinale · Sovicille (Siena), Italy · April 24, 2027' },
+  { id: 'detFrontR', look: 'free', x: 3.4, z: -12.75, yaw: Math.PI, room: 'det', card: 'policies', accent: '#A79C85',
+    eyebrow: 'Exhibit details · 2', title: 'Guest Policies',
+    body: 'Mantegna painted the Gonzaga household with everyone present and accounted for: the marquis, his wife, the children, the courtiers, a little person, and the dog under the chair. That is the policy in one picture: come as yourself, with the people named on your invitation. The dog, sadly, stays home.',
+    meta: 'After Andrea Mantegna, Camera degli Sposi, 1465–74 · Palazzo Ducale, Mantua' },
+  { id: 'detFrontL', look: 'free', x: -3.5, z: -12.75, yaw: Math.PI, eye: 2.2, room: 'det', card: 'logistics', accent: '#A79C85',
+    eyebrow: 'Exhibit details · 3', title: 'Advanced Logistics',
+    body: 'Lorenzetti painted the Sienese countryside seven hundred years ago: hills, vines, a road winding up to the gate, and everybody arriving safely. The hills have not moved. Pack some shoes that can manage them, and read the wall text for the rest.',
+    meta: 'Ambrogio Lorenzetti, The Effects of Good Government in the Countryside, 1338–39 · Palazzo Pubblico, Siena' },
   { id: 'detSchedule', look: 'free', x: -2.4, z: -11.7225, yaw: Math.PI / 2, eye: 2.3, room: 'det', card: 'schedule', accent: '#C9A667',
-    eyebrow: 'Exhibit details · 2', title: 'The Full Schedule',
+    eyebrow: 'Exhibit details · 4', title: 'The Full Schedule',
     body: 'The month of April, as Ferrara painted it: Venus arriving in triumph, the Three Graces, and everyone in their best clothes, ready to dance. Four days in the same month, in the same spirit. Arrive on Thursday, leave on Monday, and dance in between.',
     meta: 'Francesco del Cossa, April (Triumph of Venus), c. 1470 · Palazzo Schifanoia, Ferrara' },
   { id: 'detTravel', look: 'free', x: -2.2, z: -15.9225, yaw: Math.PI / 2, eye: 2.3, room: 'det', card: 'travel', accent: '#C9A667',
-    eyebrow: 'Exhibit details · 3 · travel & transportation', title: 'Pegasus, Centaurs & Chariots',
+    eyebrow: 'Exhibit details · 5 · travel & transportation', title: 'Pegasus, Centaurs & Chariots',
     body: 'Or, as the modern world insists on calling them: planes, trains and automobiles. Pegasus is quickest, the centaurs run roughly on schedule, and a chariot needs somewhere to park. Those arriving by sea should ask Galatea about her dolphins.',
     meta: '' },
   { id: 'detStay', look: 'free', x: 2.4, z: -17.1925, yaw: -Math.PI / 2, eye: 2.3, room: 'det', card: 'stay', accent: '#C9A667',
-    eyebrow: 'Exhibit details · 4', title: 'Accommodations',
+    eyebrow: 'Exhibit details · 6', title: 'Accommodations',
     body: 'The best-kept bedroom in Venetian painting: slippers by the bed, a small dog on the floor, the window open, and an angel arriving quietly at dawn. We cannot promise the angel. We can help with the bed.',
     meta: 'Vittore Carpaccio, The Dream of St Ursula, 1495 · Gallerie dell’Accademia, Venice' },
-  { id: 'detFrontL', look: 'free', x: -3.5, z: -12.75, yaw: Math.PI, eye: 2.2, room: 'det', card: 'logistics', accent: '#A79C85',
-    eyebrow: 'Exhibit details · 5', title: 'Advanced Logistics',
-    body: 'Lorenzetti painted the Sienese countryside seven hundred years ago: hills, vines, a road winding up to the gate, and everybody arriving safely. The hills have not moved. Pack some shoes that can manage them, and read the wall text for the rest.',
-    meta: 'Ambrogio Lorenzetti, The Effects of Good Government in the Countryside, 1338–39 · Palazzo Pubblico, Siena' },
-  { id: 'detFrontR', look: 'free', x: 3.4, z: -12.75, yaw: Math.PI, room: 'det', card: 'policies', accent: '#A79C85',
-    eyebrow: 'Exhibit details · 6', title: 'Guest Policies',
-    body: 'Mantegna painted the Gonzaga household with everyone present and accounted for: the marquis, his wife, the children, the courtiers, a little person, and the dog under the chair. That is the policy in one picture: come as yourself, with the people named on your invitation. The dog, sadly, stays home.',
-    meta: 'After Andrea Mantegna, Camera degli Sposi, 1465–74 · Palazzo Ducale, Mantua' },
   // the gift-shop stand under the main frame on the end wall: postcards (the RSVP) and the registry note.
   // You reach it from the main frame's close-up (or by clicking it from anywhere in the room); Step back returns there.
   { id: 'detShop', x: 0, z: -17.0, yaw: 0, pitch: -0.36, room: 'det', card: 'registry', accent: '#C9A667', back: 'detClose',
@@ -3025,7 +3027,8 @@ function planRoute(n) {
 // corner: corner radius in metres; bigTurn: radians, a first turn larger than this is taken on the spot;
 // turnRate: radians per ms, the fastest the view ever swings (~125 deg/s); lag: ms, how far the view trails its heading
 const WALK = { speed: 2.5, ramp: 1.3, minMs: 1100, corner: 0.9, slow: 0.5, bigTurn: 1.75, turnRate: 0.00157, lag: 130,
-  long: 0.45, longFrom: 3, longTo: 15 };   // a leg's top speed rises with its length, up to 45% faster from 15 m (26 Sept 2026)
+  long: 0.45, longFrom: 3, longTo: 15,     // a leg's top speed rises with its length, up to 45% faster from 15 m (26 Sept 2026)
+  crossing: 2.0 };                         // corners on the hall's centre line in the crossing, where the wings open off it, are rounded wider: open floor all round
 // turnRate (radians a millisecond) is the fastest the view ever swings, walking or turning on the spot: 90 deg/s. It was
 // 126 while walking and ~210 at the peak of Turn around; the owner found the turns whipped (26 Sept 2026)
 // "Reduce motion" (a system setting some people turn on because a moving view makes them unwell): the same routes,
@@ -3087,12 +3090,13 @@ function compileWalk() {
   const poly = [pts[0]];
   for (let i = 1; i < pts.length - 1; i++) {
     const P = pts[i], A = pts[i - 1], B = pts[i + 1];
-    const la = Math.hypot(P.x - A.x, P.z - A.z), lb = Math.hypot(B.x - P.x, B.z - P.z), r = Math.min(WALK.corner, la * 0.45, lb * 0.45);
+    const inCrossing = Math.abs(P.x) < 0.01 && Math.abs(P.z - JUNCTION_Z) < 2.5;   // out of a wing onto the centre line, or off it into one
+    const la = Math.hypot(P.x - A.x, P.z - A.z), lb = Math.hypot(B.x - P.x, B.z - P.z), r = Math.min(inCrossing ? WALK.crossing : WALK.corner, la * 0.45, lb * 0.45);
     const ax = (A.x - P.x) / la, az = (A.z - P.z) / la, bx = (B.x - P.x) / lb, bz = (B.z - P.z) / lb;
     const p0 = { x: P.x + ax * r, z: P.z + az * r }, p2 = { x: P.x + bx * r, z: P.z + bz * r };
     for (let k = 0; k <= 24; k++) {                                 // a quadratic curve through the corner
       const u = k / 24, w0 = (1 - u) * (1 - u), w1 = 2 * u * (1 - u), w2 = u * u;
-      poly.push({ x: w0 * p0.x + w1 * P.x + w2 * p2.x, z: w0 * p0.z + w1 * P.z + w2 * p2.z, hold: P.hold, corner: true });
+      poly.push({ x: w0 * p0.x + w1 * P.x + w2 * p2.x, z: w0 * p0.z + w1 * P.z + w2 * p2.z, hold: P.hold, corner: inCrossing ? 0.5 : 1 });   // a wide crossing curve slows the walk half as much
     }
   }
   poly.push(pts[pts.length - 1]);
@@ -3119,7 +3123,7 @@ function compileWalk() {
   for (let i = 0; i <= n; i++) {
     const sd = Math.min(L, i * STEP);
     let bend = 0;                                                    // how much of the path within half a metre is corner
-    for (let d = -0.5; d <= 0.5; d += 0.1) { const q = alongPath(walk, Math.min(L, Math.max(0, sd + d))); bend += q.corner ? 1 : 0; }
+    for (let d = -0.5; d <= 0.5; d += 0.1) { const q = alongPath(walk, Math.min(L, Math.max(0, sd + d))); bend += q.corner; }
     const ends = 0.1 + 0.9 * smooth(Math.min(sd, L - sd) / ramp);
     const top = cruise - (cruise - WALK.speed) * Math.min(1, bend / 5);   // the long-walk speed-up is for the straights; corners keep the old pace
     let v = top * ends * (1 - WALK.slow * bend / 11);
@@ -3145,7 +3149,7 @@ function alongPath(w, s) {
   const p = at(s), hold = p.b.hold === undefined ? w.poly[w.poly.length - 1].hold : p.b.hold;
   const q0 = at(s - 0.15), q1 = at(s + 0.15);
   const yaw = hold ?? (Math.hypot(q1.x - q0.x, q1.z - q0.z) > 1e-4 ? Math.atan2(q0.x - q1.x, q0.z - q1.z) : Math.atan2(p.b.x - p.x, p.b.z - p.z));
-  return { x: p.x, z: p.z, yaw, corner: !!(p.b.corner && p.a.corner) };
+  return { x: p.x, z: p.z, yaw, corner: p.b.corner && p.a.corner ? p.b.corner : 0 };   // 0 on a straight; a corner's weight (1, or 0.5 on a wide crossing curve)
 }
 // distance covered at time t, from the walk's pace table
 function paceDistance(w, t) {

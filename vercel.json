@@ -17,6 +17,7 @@
     { "source": "/apple-touch-icon.png", "destination": "/Wedding%20website%20planning/assets/icons/apple-touch-icon.png" },
     { "source": "/assets/:path*", "destination": "/Wedding%20website%20planning/assets/:path*" },
     { "source": "/game/:path*", "destination": "/Wedding%20website%20planning/game/:path*" },
+    { "source": "/lego/:path*", "destination": "/Wedding%20website%20planning/lego/:path*" },
     { "source": "/mobile/", "destination": "/Wedding%20website%20planning/mobile/index.html" },
     { "source": "/mobile/:path*", "destination": "/Wedding%20website%20planning/mobile/:path*" }
   ],

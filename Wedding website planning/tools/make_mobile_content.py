@@ -68,7 +68,9 @@ def build(d):
         {'kind': 'sculpture', 'img': PAIR_IMAGES[0], 'img2': PAIR_IMAGES[1], **tbm(notes['pair'])},
         *[{'kind': 'fresco', 'img': img, 'aspect': image_aspect(asset), **tbm(notes[key])} for key, img, asset in FRESCOES]],
         'frames': {'kelly': tbm(st['kelly']), 'anthony': tbm(st['anthony'])},
-        'artifacts': [{'img': f'img/art-{s}.jpg', **tbm(st[s])} for s in ARTIFACTS]}
+        'artifacts': [{'img': f'img/art-{s}.jpg', **tbm(st[s])} for s in ARTIFACTS],
+        'kellyArt': {'img': 'img/sunflowers.jpg', 'aspect': 410 / 540, 'eyebrow': st['kelly2']['eyebrow'], **tbm(st['kelly2'])},   # her LEGO Sunflowers (the photo it is made from)
+        'shelf': {'eyebrow': st['kellyShelf']['eyebrow'], **tbm(st['kellyShelf'])}}
 
     def wing(wid, numeral, title, pictures):
         img, aspect = PRINCIPAL[wid]

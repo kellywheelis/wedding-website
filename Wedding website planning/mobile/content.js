@@ -68,7 +68,21 @@ window.CONTENT = {
      "body": "The first gift Kelly ever gave Anthony: a brick-built Amelia, put together stud by stud. Amelia immediately tried to fight it. Although the muse is still slightly wary of her tiny brick doppelganger, she allows it to continue to exist among us for now.",
      "meta": "Micro-brick model, built by Kelly Wheelis · Siena marble plinth"
     }
-   ]
+   ],
+   "kellyArt": {
+    "img": "img/sunflowers.jpg",
+    "aspect": 0.7592592592592593,
+    "eyebrow": "The atrium · Kelly · from the collection",
+    "title": "Sunflowers, after Vincent van Gogh",
+    "body": "One of Kelly’s holy-grail LEGO sets, and a gift from Anthony, who was sure it would keep her busy for a week or two. He came home on the second day to find all 2,615 pieces finished. She had, in his words, locked in.",
+    "meta": "LEGO® Art 31215, made with the Van Gogh Museum · 2,615 pieces · built by Kelly in two days"
+   },
+   "shelf": {
+    "eyebrow": "The atrium · Kelly · build station",
+    "title": "The LEGO Shelf",
+    "body": "Kelly has been building with LEGO bricks for as long as she can remember, so of course there is a build station. Make a figure for each seat in your household, from the everyday to the fully Italian, and give each one a name. They stand here on your own shelf, seen only by your household, and you can come back and change them whenever you like.",
+    "meta": "Build station · click the shelf, or Build a figure below"
+   }
   },
   {
    "id": "w1",
@@ -528,6 +542,7 @@ window.CONTENT = {
   ["The Court of Gonzaga (Camera degli Sposi), Andrea Mantegna, 1465–74", "Palazzo Ducale, Mantua · public domain"],
   ["Allegory of the Planets and Continents (sketch for a ceiling), Giovanni Battista Tiepolo, 1752", "The Metropolitan Museum of Art, New York · public domain"],
   ["Pop-Up Invitation, Truong Hoai Vu", "vuth.art · illustration and paper engineering, shown with the artist’s permission"],
+  ["The LEGO Shelf and its figures", "LEGO® is a trademark of the LEGO Group of companies which does not sponsor, authorize or endorse this site. The figures and their parts were modeled for this gallery."],
   ["The Capitoline Venus (cast of the marble in the Capitoline Museums, Rome)", "3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons · simplified for the web, shared under the same license"],
   ["The Ludovisi Mars, with Cupid at his feet (cast of the marble in Palazzo Altemps, Rome)", "3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons · simplified for the web, shared under the same license"],
   ["Venus with the Apple, Bertel Thorvaldsen, 1809", "3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons · simplified for the web, shared under the same license"],

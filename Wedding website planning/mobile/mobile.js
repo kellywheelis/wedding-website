@@ -39,6 +39,14 @@
       <figcaption class="label"><p class="meta">Anthony Alvarez &amp; Kelly Wheelis, 2026 · playable pieces</p><p class="body">Five playable pieces: Getting to Italy, Cross the Piazza, Catch the Bouquet, Flight to Siena, and The Seating Chart.</p><p class="tap">Tap to play</p></figcaption></figure>`;
   // Anthony's wall: the three pieces from his collection hung beside the arcade (tap one for its write-up)
   if (atrium.artifacts) html += `<div class="text"><p class="eyebrow">The atrium · Anthony · from the collection</p></div><div class="statues">${atrium.artifacts.map(statueHtml).join('')}</div>`;
+  // Kelly's wall: her LEGO Art Sunflowers (the photo of her build; its falling-leaf joke is the 3D gallery's), then the
+  // LEGO shelf, where a signed-in household's own figures stand (built in the station, lego/station.js)
+  if (atrium.kellyArt) { const k = atrium.kellyArt; lbItems.push(k);
+    html += `<div class="text"><p class="eyebrow">${esc(k.eyebrow)}</p></div><figure class="art postcard"><button class="pic" data-lb="${lbItems.length - 1}" aria-label="${esc(k.title)}">${picture(k.img, k.title, k.aspect)}</button><p class="tap under">Tap to look closer</p>
+      <figcaption class="label"><h3>${esc(k.title)}</h3><p class="meta">${esc(k.meta)}</p><p class="body">${esc(k.body)}</p></figcaption></figure>`; }
+  if (atrium.shelf) html += `<div class="text"><p class="eyebrow">${esc(atrium.shelf.eyebrow)}</p><h3>${esc(atrium.shelf.title)}</h3><p class="body">${esc(phone(atrium.shelf.body))}</p></div>
+    <div class="lego-shelf"><div class="lego-figs" id="legoFigs"></div><div class="lego-board"></div><p class="lego-note" id="legoNote"></p></div>
+    <div class="text"><button type="button" class="detbtn" data-lego>Build a figure</button></div>`;
   html += `<div class="text center"><p class="eyebrow">The two galleries</p><p class="body">Two collections, one exhibit: on the left, Kelly's; on the right, Anthony's. The frames are waiting for photographs.</p><div><span class="plaque">Kelly</span> &nbsp; <span class="plaque">Anthony</span></div></div><div class="rule"></div></section>`;
 
   const wingHtml = (w, sub) => {
@@ -231,8 +239,8 @@
   const paintGuest = () => {
     el('guestLine').innerHTML = GUEST.household ? `Signed in &middot; ${esc(GUEST.household.names)} &middot; <button type="button" data-signin>Sign out</button>` : `<button type="button" data-signin>Guests: sign in for the details and the RSVP</button>`;
   };
-  const signedIn = (d) => { GUEST.household = d.household; GUEST.reply = d.reply || null; GUEST.cards = d.cards || null; GUEST.rsvp = d.rsvp || null; paintGuest(); };
-  const signedOut = () => { GUEST.token = ''; GUEST.household = GUEST.reply = GUEST.cards = GUEST.rsvp = null; try { localStorage.removeItem('ka-guest'); } catch (e) { /* nothing kept */ } paintGuest(); };
+  const signedIn = (d) => { GUEST.household = d.household; GUEST.reply = d.reply || null; GUEST.cards = d.cards || null; GUEST.rsvp = d.rsvp || null; GUEST.figs = d.figs || []; paintGuest(); paintLego(); };
+  const signedOut = () => { GUEST.token = ''; GUEST.household = GUEST.reply = GUEST.cards = GUEST.rsvp = GUEST.figs = null; paintLego(); try { localStorage.removeItem('ka-guest'); } catch (e) { /* nothing kept */ } paintGuest(); };
   function openSignIn(why) {
     const inn = !!GUEST.household;
     el('siTitle').textContent = inn ? 'Signed in' : 'For our guests';
@@ -267,6 +275,32 @@
     if (!GUEST.token) return;
     try { const { ok, status, d } = await guestApi('GET'); if (ok) signedIn(d); else if (status === 401) signedOut(); } catch (e) { /* offline */ }
   })();
+
+  // ---- the LEGO shelf on the phone: the household's figures as pictures on a drawn shelf, and the same build station as
+  // the 3D gallery's (lego/station.js, with the 3D engine, loaded only when first needed)
+  let lego = null;
+  const legoMod = () => lego || (lego = import('/lego/station.js'));
+  async function paintLego() {
+    const box = el('legoFigs'), note = el('legoNote'); if (!box) return;
+    const figs = (GUEST.household && GUEST.figs) || [];
+    note.textContent = !GUEST.household ? 'Sign in to see your shelf and build your figures.' : figs.length ? '' : 'Your shelf is empty. Build a figure for each of you.';
+    if (!figs.length) { box.innerHTML = ''; return; }
+    try { const m = await legoMod(); box.innerHTML = figs.map((f) => `<figure><img src="${m.snapshot(f)}" alt="${esc(f.name)}"><figcaption>${esc(f.name)}</figcaption></figure>`).join(''); }
+    catch (e) { box.innerHTML = figs.map((f) => `<figure><figcaption>${esc(f.name)}</figcaption></figure>`).join(''); }
+  }
+  async function openLego() {
+    const m = await legoMod();
+    document.body.style.overflow = 'hidden';
+    m.openStation({ household: GUEST.household, figs: GUEST.figs || [], still: !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches),
+      save: async (figs) => {
+        const { ok, status, d } = await guestApi('POST', { action: 'figs', figs });
+        if (status === 401) { signedOut(); m.closeStation(); needGuest(openLego); return { ok: false, error: 'Please sign in again.' }; }
+        return ok ? { ok: true, figs: d.figs } : { ok: false, error: d.error };
+      },
+      onSaved: (figs) => { GUEST.figs = figs; paintLego(); }, onClose: () => { document.body.style.overflow = ''; } });
+  }
+  document.addEventListener('click', (e) => { if (e.target.closest('[data-lego]')) needGuest(openLego, 'The build station is for our guests. Sign in with your phone number and the code from your invitation, and build a figure for each of you.'); });
+  paintLego();
 
   // ---- the RSVP on the phone: the postcard's written side as a sheet; the Events box opens the window of this household's
   // events (tick, Confirm, back to the card), as on the 3D gallery's card

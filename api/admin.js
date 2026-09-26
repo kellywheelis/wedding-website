@@ -1,5 +1,5 @@
 // The owner's private page (rsvp-admin.html) talks to this. Every call carries the private key (header x-admin-key).
-//   GET  /api/admin                                   -> { events, households: [{ ...household, reply }] }
+//   GET  /api/admin                                   -> { events, households: [{ ...household, reply, figs }] }
 //   POST /api/admin { action: 'guests', rows }        -> replaces the guest list; rows: [{ names, seats, events, code?, phones? }]
 //   POST /api/admin { action: 'reset', id }           -> clears one household's reply (a test reply, say)
 // Each household gets its own code (VENUS-4827), typed with one of its phone numbers, and a private key for its QR code.
@@ -29,7 +29,7 @@ export default async function handler(req, res) {
   if (req.method === 'GET') {
     const ids = (await redis.smembers('hh:all')) || [];
     const households = [];
-    for (const id of ids) { const hh = await household(id); if (hh) households.push({ ...hh, reply: parse(await redis.get('reply:' + id)) }); }
+    for (const id of ids) { const hh = await household(id); if (hh) households.push({ ...hh, reply: parse(await redis.get('reply:' + id)), figs: parse(await redis.get('figs:' + id)) || [] }); }
     households.sort((a, b) => a.names.localeCompare(b.names));
     return res.status(200).json({ events: EVENTS, households });
   }

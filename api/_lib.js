@@ -11,6 +11,9 @@
 //   code:<CODE>    a household code (as normalised by codeKey) -> its household id
 //   qr:<key>       a QR key -> its household id
 //   reply:<id>     the household's RSVP: { yes, seats, of, events, plus, diet, note, name, card, when }
+//   figs:<id>      the household's figures on the LEGO shelf: [{ name, p: { hair, hc, face, skin, torso, legs, acc }, when }],
+//                  one per seat at most (lego/figs.js holds the parts)
+//   figlog         every shelf as saved, newest first (the owner's record of the builds, kept even after a figure is removed)
 //   replylog       every reply as posted, newest first (a record; the admin page reads reply:<id>)
 //   sess:<token>   a signed-in device -> household id (lasts 200 days)
 //   lrate:<ip>     wrong-guess counter for sign-in, per address, 10 minutes
@@ -73,6 +76,8 @@ export function newCode(taken) {
 export const newQrKey = () => randomBytes(16).toString('base64url');   // 22 characters, for the QR link: not guessable
 
 export const clip = (s, n = 500) => String(s ?? '').trim().slice(0, n);
+// a figure's parts, as saved: each a short id (lego/figs.js falls back to its first part for any id it does not know)
+export function cleanParts(p) { const out = {}; ['hair', 'hc', 'face', 'skin', 'torso', 'legs', 'acc'].forEach((k) => { const v = String((p || {})[k] || ''); if (/^[a-z0-9-]{1,24}$/.test(v)) out[k] = v; }); return out; }
 export const ipOf = (req) => String(req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '').split(',')[0].trim();
 export const parse = (v) => { if (v == null) return null; if (typeof v === 'object') return v; try { return JSON.parse(v); } catch (e) { return null; } };
 export const household = async (id) => parse(await redis.get('hh:' + id));

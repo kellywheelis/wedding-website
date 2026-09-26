@@ -582,9 +582,13 @@ function fakeGuest(n) {
   const ev = [['movie', 'Welcome movie & pizza night', 'Thursday, April 22'], ['siena', 'Siena day', 'Friday, April 23'], ['gelato', 'Gelato pool day', 'Sunday, April 25'], ['brunch', 'Farewell brunch', 'Monday, April 26']].map(([id, name, day]) => ({ id, name, day }));
   GUEST.household = n === 2 ? { names: 'Sample Friends', seats: 4, events: [ev[0], ev[1]] } : { names: 'The Sample Family', seats: 2, events: ev };
   GUEST.cards = Object.fromEntries(Object.entries(CARD_TITLES).map(([k, t]) => [k, { title: t, sections: [{ h: 'A stand-in', p: ['The real text arrives from the server after sign-in; the harness has none.'] }] }]));
-  paintGuestBtn();
+  GUEST.figs = n === 2 ? [] : [{ name: 'Kelly', p: { hair: 'long', hc: 'brown', face: 'lashes', skin: 'light', torso: 'gown', legs: 'gownskirt', acc: 'bouquet' } }, { name: 'Anthony', p: { hair: 'short', hc: 'black', face: 'grin', skin: 'medium', torso: 'tux', legs: 'black', acc: 'prosecco' } }];
+  paintGuestBtn(); paintShelf();
 }
 { const q = new URLSearchParams(location.search); if (q.has('fakeguest')) fakeGuest(+q.get('fakeguest') || 1); }
+// shelf=N : the fake household's shelf holds N figures (random parts, a fixed seed), to see how a full shelf spaces them
+{ const q = new URLSearchParams(location.search); if (q.has('shelf')) { let s = 5; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+  if (!GUEST.household) fakeGuest(1); GUEST.figs = Array.from({ length: +q.get('shelf') }, (_, i) => ({ ...FIGS.randomFig(rnd), name: 'Guest ' + (i + 1) })); paintShelf(); } }
 // fireworks=1.2 : the tally's fireworks as they are 1.2 seconds in (drawn once; headless Chrome plays no animation);
 // several moments, fireworks=0.1,0.2,0.3 , are laid over one another, to see the rockets' paths.
 // complete=1 : every work seen and all three found, then (once the scans are in) whether the fireworks were set off
@@ -600,3 +604,15 @@ function fakeGuest(n) {
     const wait = setInterval(() => { if (!scans()) return; clearInterval(wait); STATIONS.forEach((s) => { if (s.id !== 'atrium' && s.id !== 'hidden') SEEN.add(s.title); }); paintTally();
       tag.textContent += '\nscans in: tally "' + el('tally').textContent + '" · set off ' + !!localStorage.getItem('ka-fireworks'); }, 500);
   } }
+// gag=1.2 : the LEGO Sunflowers' falling leaf as it is 1.2 s after the click (stand at its stop: goto=kelly,kelly2). The
+// joke's clock is pinned there, so every later frame (the capture resizes the page and redraws) shows that same moment.
+{ const q = new URLSearchParams(location.search);
+  if (q.has('gag')) setTimeout(() => { const hold = +q.get('gag') * 1000, run = updateGag; updateGag = () => { GAG.t0 = 1; run(1 + hold); if (window.__gagTag) window.__gagTag.textContent = 'gag at ' + q.get('gag') + ' s · lean ' + GAG.lean.toFixed(2) + ' yaw ' + GAG.yaw.toFixed(2) + ' · stop ' + STATIONS[idx].id + ' leg ' + !!leg; }; sunflowerGag();
+    const tag = document.createElement('pre'); tag.style.cssText = 'position:fixed;left:8px;top:40px;z-index:99;background:#000;color:#0f0;font:13px monospace;padding:4px;margin:0';
+    tag.textContent = 'gag at ' + q.get('gag') + ' s'; document.body.appendChild(tag); window.__gagTag = tag;
+    if (q.has('fov')) { const f = +q.get('fov'), draw = renderer.render.bind(renderer); renderer.render = (sc, cam) => { cam.fov = f; cam.updateProjectionMatrix(); draw(sc, cam); }; }   // fov=30 : a closer look from the stop
+  }, 3000); }
+// solo=1 : only the LEGO Sunflowers (and the lights) are drawn, on gray, so it can be seen from any angle, walls or not
+{ const q = new URLSearchParams(location.search);
+  if (q.has('solo')) setTimeout(() => { scene.children.forEach((o) => { if (o !== sun && !o.isLight) o.visible = false; }); scene.background = new THREE.Color('#8f8a80'); renderer.shadowMap.needsUpdate = true;
+    document.querySelectorAll('body *').forEach((e) => { if (e !== canvas && !e.contains(canvas)) e.style.visibility = 'hidden'; }); }, 2500); }

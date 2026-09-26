@@ -5,9 +5,10 @@
 //   GET  /api/guest  (Authorization: Bearer <token>)  -> { household, reply, cards }        (a returning device)
 //   POST /api/guest { action: 'rsvp', reply }  (token) -> { ok, reply }   (and an email to the couple: _notify.js)
 //   POST /api/guest { action: 'logout' }       (token) -> { ok }
+//   POST /api/guest { action: 'figs', figs }   (token) -> { ok, figs }   (the household's whole LEGO shelf, one figure per seat)
 // The household's seats and events decide what a reply may say: never more seats, never an event they are not invited to.
 // Every signed-in answer carries rsvp: { open, by } (the deadline, in _lib.js); once it has passed, a reply is refused (403).
-import { redis, newToken, codeKey, phoneDigits, clip, ipOf, household, eventsOf, sessionHousehold, parse, rsvpState } from './_lib.js';
+import { redis, newToken, codeKey, phoneDigits, clip, ipOf, household, eventsOf, sessionHousehold, parse, rsvpState, cleanParts } from './_lib.js';
 import { CARDS } from './_private.js';
 import { notifyReply } from './_notify.js';
 
@@ -15,7 +16,9 @@ const SESSION_DAYS = 200;
 const TRIES = 10, TRY_WINDOW = 600;                                   // wrong guesses allowed per address, per 10 minutes
 
 const publicHousehold = (hh) => ({ names: hh.names, seats: hh.seats, events: eventsOf(hh) });
-async function signedIn(hh) { return { household: publicHousehold(hh), reply: parse(await redis.get('reply:' + hh.id)), cards: CARDS, rsvp: rsvpState() }; }
+async function signedIn(hh) {
+  return { household: publicHousehold(hh), reply: parse(await redis.get('reply:' + hh.id)), cards: CARDS, rsvp: rsvpState(), figs: parse(await redis.get('figs:' + hh.id)) || [] };
+}
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
@@ -74,6 +77,17 @@ export default async function handler(req, res) {
     await redis.ltrim('replylog', 0, 1999);
     await notifyReply(hh, reply, before);                            // an email to the couple, when it is set up (_notify.js)
     return res.status(200).json({ ok: true, reply });
+  }
+  if (body.action === 'figs') {                                       // the LEGO shelf: seen only by the household itself
+    const list = Array.isArray(body.figs) ? body.figs : null, hh = s.hh;
+    if (!list) return res.status(400).json({ error: 'No figures sent.' });
+    if (list.length > hh.seats) return res.status(400).json({ error: 'One figure per seat: your household has ' + hh.seats + '.' });
+    const figs = list.map((f) => ({ name: clip(f && f.name, 20), p: cleanParts(f && f.p), when: Number(f && f.when) || Date.now() }));
+    if (figs.some((f) => !f.name)) return res.status(400).json({ error: 'Give each figure a name first.' });
+    await redis.set('figs:' + hh.id, JSON.stringify(figs));
+    await redis.lpush('figlog', JSON.stringify({ id: hh.id, names: hh.names, figs, at: Date.now() }));
+    await redis.ltrim('figlog', 0, 1999);
+    return res.status(200).json({ ok: true, figs });
   }
   return res.status(400).json({ error: 'unknown action' });
 }

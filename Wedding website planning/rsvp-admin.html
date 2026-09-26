@@ -55,6 +55,7 @@
     .pcard .h { font-size: 11.5px; color: #5a4e42; margin: 4px 0 0; }
   }
 </style>
+<script type="importmap">{ "imports": { "three": "/assets/lib/three/build/three.module.js" } }</script>
 </head>
 <body>
 <div id="gate" hidden>
@@ -79,6 +80,7 @@
   </section>
 
   <section><h2>Allergies and dietary needs</h2><div id="diet"></div></section>
+  <section><h2>The LEGO shelf</h2><p class="note">Every household's figures, as they built them. Only you and that household see them.</p><div id="lego"></div></section>
 
   <section>
     <h2>The guest list</h2>
@@ -111,6 +113,14 @@
   const when = (t) => t ? new Date(t).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '';
   const phoneShow = (p) => p.length === 11 && p[0] === '1' ? `(${p.slice(1, 4)}) ${p.slice(4, 7)}-${p.slice(7)}` : '+' + p;
 
+  // the LEGO shelf's record: each household's figures, drawn by the same code as the gallery's (lego/station.js)
+  async function paintLego() {
+    const hh = DATA.households.filter((h) => (h.figs || []).length);
+    if (!hh.length) { el('lego').innerHTML = '<p class="note">None yet.</p>'; return; }
+    let snap = null; try { snap = (await import('/lego/station.js')).snapshot; } catch (e) { /* names only */ }
+    el('lego').innerHTML = hh.map((h) => `<div style="margin:0 0 14px"><b style="color:var(--cream)">${esc(h.names)}</b> <span class="note">· ${h.figs.length} of ${h.seats}</span><div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:6px">` +
+      h.figs.map((f) => `<figure style="margin:0;width:120px;text-align:center">${snap ? `<img src="${snap(f, 240, 320)}" alt="" style="width:120px;height:160px;display:block;background:radial-gradient(ellipse at 50% 40%,#3a3026,#1c1611)">` : ''}<figcaption>${esc(f.name)}<br><span class="note">${when(f.when)}</span></figcaption></figure>`).join('') + '</div></div>').join('');
+  }
   function paint() {
     const hh = DATA.households, replied = hh.filter((h) => h.reply), yes = replied.filter((h) => h.reply.yes === 'yes');
     const seatsAll = hh.reduce((n, h) => n + h.seats, 0), seatsYes = yes.reduce((n, h) => n + h.reply.seats, 0);
@@ -132,6 +142,7 @@
           <td>${esc(r && r.diet)}</td><td>${esc(r && r.plus)}</td><td>${esc(r && r.note)}</td><td>${when(r && r.when)}</td>
           <td>${r ? `<button class="small" data-reset="${esc(h.id)}" title="Clear this reply">Clear</button>` : ''}</td></tr>`; }).join('');
     const diets = yes.filter((h) => h.reply.diet);
+    paintLego();
     el('diet').innerHTML = diets.length ? diets.map((h) => `<p style="margin:4px 0"><b style="color:var(--cream)">${esc(h.names)}</b> · ${esc(h.reply.diet)}</p>`).join('') : '<p class="note">None yet.</p>';
     el('eventNames').innerHTML = 'The events: ' + DATA.events.map((e) => `<b>${esc(e.name)}</b> (${esc(e.day)})`).join(', ') + '.';
   }

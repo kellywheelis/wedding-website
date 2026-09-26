@@ -38,6 +38,8 @@ Everything that matters lives in one subfolder (apart from the deployment files 
 |---|---|
 | `The Gallery 3D.html` | **The live page.** Entry doors, motto, info panel, buttons, credits panel, import map. |
 | `gallery3d.js` | **The live build** — all of the 3D gallery (~4,300 lines, three.js 0.184, served from `assets/lib/three/`). |
+| `lego/figs.js`, `lego/station.js` | The LEGO shelf's figures and the build station (§4, "The LEGO shelf"); served at `/lego/` (vercel.json). |
+| `assets/lego/`, `tools/lego_relief.py` | Kelly's LEGO Sunflowers: the maps made from her photo, and the script that makes them (§4, "The LEGO shelf"). |
 | `rsvp-admin.html`, `../api/guest.js`, `../api/admin.js`, `../api/_lib.js`, `../api/_private.js`, `../api/_notify.js` | The RSVP and guest sign-in (§5, "The RSVP"): the owner's private page, and the server side at the repository root. The private wall texts live in `api/_private.js`; the reply emails in `api/_notify.js`. |
 | `tools/dev_server.mjs`, `tools/make_mobile_content.py` | A local stand-in for the live site with its api (§5); the phone guide's text builder (§4b). |
 | `assets/og-preview.jpg`, `assets/icons/` | The card a shared link shows (1200x630: the entry doors without their buttons, rendered with the harness's `gate=1&nobtn=1`), named in both pages' `og:` tags with absolute URLs; and the gilt KA on burgundy as the browser-tab icon, the home-screen icon (`apple-touch-icon.png`, 180 px) and `favicon.ico` (`vercel.json` also serves the last two at the site root). Both pages are titled "Kelly & Anthony · The Gallery". Added 26 Sept 2026. |
@@ -459,6 +461,83 @@ detail, so she gains least; re-converting her at more triangles would help.
   Harness: `trace=id,id,...` walks each and reports seconds, biggest per-frame step and turn, frames inside
   the table keep-out (should be 0) and how far off the stop it ended (should be 0).
 - A warm point-light **glow** follows the mouse in the gallery.
+
+**The LEGO shelf and build station** (26 Sept 2026, the owner's idea; she is an avid LEGO builder)
+- Under the frame across from the arcade (Kelly's wall, `kelly2`), a white shelf: on its left four LEGO storage bins
+  (red, blue, yellow, green) of loose parts labeled HEADS, TORSOS, LEGS, ACCESSORIES (`loosePart` in lego/figs.js,
+  kept inside the walls by their bounding boxes) over a brass BUILD STATION plaque; on its right a tan studded
+  baseplate for the figures (`SHELF`, `paintShelf` in gallery3d.js; stop `kellyShelf`, `build: true`, whose panel
+  button reads "Build a figure"). A signed-in household sees its own figures standing there, and nobody else's, ever
+  (the owner's rule); signed out, the baseplate is bare. At the stop a click on the shelf, or the button, opens the
+  build station (`openShelf`, after `needGuest`).
+- `lego/figs.js`: the parts catalog and `buildFigure()`, a LEGO-style minifigure modeled in millimeters (about 40 tall,
+  shown at 11 cm on the shelf): 30 hair styles and hats, 13 hair colors, 16 faces (beards take the hair color), 7 skin
+  tones, 29 torsos, 17 legs and skirts, 22 things to hold, plain to Italian (gondolier, Azzurri jersey, Vespa helmet,
+  gelato, pizza, mandolin, prosecco, a map of Italy). Faces and torsos are canvas prints; everything else is geometry.
+  A saved figure is `{ name, p: { hair, hc, face, skin, torso, legs, acc }, when }`; unknown ids fall back to the first
+  part, so renaming a part never breaks a saved figure (but changing an id changes what old figures show).
+- `lego/station.js`: the pop-up (live turning preview, drag to turn, a wheel with arrows per part, swatches for hair
+  color and skin tone, "Surprise me", a name up to 20 letters, one figure per seat, "Put it on the shelf" / "Take it
+  off the shelf"), shared by the 3D gallery and the phone guide, and `snapshot()` for still pictures. The name box is
+  the third place the phone keyboard may appear (with the RSVP and the arcade initials); it is never focused on its own.
+- Server: `api/guest.js` sends `figs` with sign-in and takes `{ action: 'figs', figs }` (the household's whole shelf);
+  store `figs:<id>`, and `figlog` keeps every save for the owner's record. The private page shows each household's
+  figures with pictures ("The LEGO shelf", `paintLego` in rsvp-admin.html).
+- Phone: a "The LEGO Shelf" block in the atrium chapter after Anthony's pieces (text from the `kellyShelf` stop via
+  content.js), the household's figures as `snapshot()` pictures on a CSS shelf, and "Build a figure". The phone page
+  and the private page have an import map for three.js, loaded only when needed. Not in the sideways gallery view.
+- LEGO's Fair Play rules for fan sites: never the LEGO logo; "LEGO" only as an adjective; its disclaimer is in Credits.
+- **Her LEGO Art Sunflowers** (31215: 2,615 pieces, 41 x 54 cm with LEGO's frame, which she keeps on) hang in place of
+  the `kelly2` frame, at that frame's size: modeled at true size and the group scaled by `SUN.k` (1.94, so 0.80 x 1.05 m;
+  at true size the owner found it too small to take in). `SUN`, `sun` in gallery3d.js; the frame shows again if the
+  maps fail to load. Its surface is her own phone's original photo of her build, hung on a stone wall in soft daylight
+  (uploads/lego-sunflowers/PXL_20260926_203331025.jpg, 3072 x 4080, 26 Sept 2026; its frame about 2,240 px across);
+  `tools/lego_relief.py` straightens it to the set's size and makes, in assets/lego/, the color map (2050 x 2700), a
+  height map (1230 x 1620, 0..25 mm above the picture's plate, a displacement on a 246 x 324 segment plane), a normal map
+  from the heights plus the photo's own fine detail (2050 x 2700: studs, tile seams, petal slats), the piece that
+  comes loose (its own picture, heights and normals; the color map shows the yellow studded plate beneath it, 4 mm
+  below the petal's lowest point, in the petal's yellow at 64% (the owner wanted it a touch darker than 74%, so the gap
+  shows; nearer the petal, it poked through as a brown stain)), and the phone guide's picture (mobile/img/sunflowers.jpg, whole, the piece in place).
+  The owner's changes, 26 Sept 2026: the piece that falls is the yellow petal just left of the central flower's orange
+  center (`PIECE`, a hand-traced wedge with a rounded end; it was the green leaf cluster at the lower left, too big), and
+  the stems, sand green in her build (olive in the photo's warm light), are the bright green of the leaves: their pixels
+  (the curved and upright stems and the sand green wedges under the central flower) are recolored keeping their shading,
+  followed into the shadows where they run under other pieces, and kept only as groups of 400 px or more (so a shaded
+  spot on the wall and the curled tendrils on the heads stay as they are); never the heads' lime centers.
+  Glare (the owner, same day): daylight on the shiny plastic left whitish patches in the photo, worst on the top rows of
+  tiles and the top flower's slats. The script moves each washed-out pixel of the wall, the heads and the petals back
+  toward its material's usual hue and saturation (measured below the glare, `yy > 300`), capping its brightness a little
+  above the usual, in proportion to how washed out it is; a piece of another color is left alone; whitish glare high on
+  the wall counts as wall (flat), not a raised part; and pale wall seen at a head's edge (joined to the wall outside it)
+  is told from a pale speck of glare on a slat. Depths were measured from her photos taken low along its side
+  (uploads/lego-sunflowers/, 26 Sept 2026): the frame is a brick box 34 mm deep (tan bricks drawn on its sides, and four
+  dark brown round tiles along each long side at 13.5, 39, 61 and 86.5% of its length, 10 mm from the wall); the
+  picture's plate 28 mm off the wall, 6 mm below the frame's top; the seven big round tan heads are placed by hand in the
+  script (`HEADS`: center, radius, and a lift where one is built in front of another), each a stacked cone, its disc 21 mm
+  up and its petal tips 9 mm; the yellow and wilting flowers 6 to 12 mm (`CENTERS` raise their middles); leaves and
+  tendrils as far; stems 4, vase 3 (a hand-drawn region, as its yellow shoulder matches the petals' color). The wall is
+  told from raised parts by hue and saturation, not brightness. Compared side by side with her low photos (harness
+  `solo=1`): the frame, its dots and the heights match; the one known difference is that at very low angles the
+  displaced photo reads as soft mounds where the real plates have crisp stacked edges, a limit of relief from one photo.
+  Quality fixes after the owner saw it (blown out, flashing): the backing box sits 5 mm behind the picture's plate (level
+  with it, the two z-fought in stripes); the frame's tan rim in the height map sits just under the box's top for the same
+  reason; roughness 0.55 and normal scale 0.7 (at 0.3 the hall's lights washed the colors out and the fine relief
+  glittered as the view moved); and raised parts rise a few px inside their colored edge (a MinFilter on the heights), so
+  their steep sides take their own color, not a pale halo of the wall's. The color map is limited by the photo: hers came
+  through Facebook at 1536 x 2040 (uploads/lego-sunflowers-kelly.jpeg), and was replaced the same day by her phone's
+  original, about 1.7 times as sharp. The maps load about 2.7 MB. The wall test (`pale`) allows a slight sheen (tiles
+  along the top, shaded by the frame, read as wall); head circles are filled solid (a shiny gray petal is head, not wall).
+  No 3D model of the set exists online; other people's photos (some from Reddit) were used only as a guide, never shipped.
+  Its stop `kelly2` stands 1.2 m out (eye 1.86), so the whole piece fills the view with the parts bins at its foot,
+  `lego: true`. A click on it there runs the joke (`sunflowerGag`, `updateGag`, owner's idea): the view first leans in 15 cm, rising to
+  the piece's middle and looking square at it, level (tilting up read as looking up at it; closer was more than she
+  wanted), over 0.85 s (`GAG.lean`, applied to the camera in `frame()` after its own placement), a beat's pause, then the petal works loose, falls
+  turning onto the ACCESSORIES bin below and bounces, the view glances left, pauses, right, pauses, back (`GAG.yaw`, added
+  to the camera's yaw), and the petal floats back up in an arc and presses home with a small give of the whole piece,
+  and the view eases back to the stop over 0.9 s; about seven seconds. Reduce motion: no lean, no glance, a shorter drop. Walking away mid-joke puts all back.
+  Harness: `goto=kelly,kelly2&gag=1.6` shows the joke 1.6 s in (its clock is pinned, as the capture redraws; add `fov=34`
+  for a closer look from the stop, as the petal is small); `solo=1`
+  draws the Sunflowers alone on gray with the page hidden, to be seen from any angle (`x`, `z`, `yaw`, `eye`).
 
 ## 4b. The mobile edition (`mobile/`, live at kaweddinggallery.com/mobile/) — 23 Sept 2026
 

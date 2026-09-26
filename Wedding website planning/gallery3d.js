@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import * as FIGS from './lego/figs.js';
+import { openStation, stationOpen, closeStation } from './lego/station.js';
 
 // ---------------------------------------------------------------- plan
 // Blueprint units divided by 200: 1000 blueprint units = 5 m.
@@ -31,9 +33,15 @@ const STATIONS = [
   { id: 'kelly1', x: 0, z: GALLERY_Z + 1.3, yaw: Math.PI / 2, room: 'atrium', accent: '#C9A667', tour: false, back: 'kelly',
     eyebrow: 'The atrium · Kelly', title: 'Kelly',
     body: 'Photographs to come.', meta: 'Placeholder' },
-  { id: 'kelly2', x: 0, z: GALLERY_Z - 1.3, yaw: Math.PI / 2, room: 'atrium', accent: '#C9A667', tour: false, back: 'kelly',
-    eyebrow: 'The atrium · Kelly', title: 'Kelly',
-    body: 'Photographs to come.', meta: 'Placeholder' },
+  { id: 'kelly2', x: -1.33, z: GALLERY_Z - 1.3, yaw: Math.PI / 2, eye: 1.86, pitch: -0.03, room: 'atrium', accent: '#C9A667', tour: false, back: 'kelly', lego: true,   // the whole of the Sunflowers, the parts bins at the foot of the view
+    eyebrow: 'The atrium · Kelly · from the collection', title: 'Sunflowers, after Vincent van Gogh',
+    body: 'One of Kelly’s holy-grail LEGO sets, and a gift from Anthony, who was sure it would keep her busy for a week or two. He came home on the second day to find all 2,615 pieces finished. She had, in his words, locked in.',
+    meta: 'LEGO® Art 31215, made with the Van Gogh Museum · 2,615 pieces · built by Kelly in two days' },
+  // the LEGO shelf under the frame across from the arcade: a signed-in household's own figures, and the build station
+  { id: 'kellyShelf', x: -1.98, z: GALLERY_Z - 1.3, yaw: Math.PI / 2, eye: 1.34, pitch: -0.3, room: 'atrium', accent: '#C9A667', tour: false, back: 'kelly', build: true,
+    eyebrow: 'The atrium · Kelly · build station', title: 'The LEGO Shelf',
+    body: 'Kelly has been building with LEGO bricks for as long as she can remember, so of course there is a build station. Make a figure for each seat in your household, from the everyday to the fully Italian, and give each one a name. They stand here on your own shelf, seen only by your household, and you can come back and change them whenever you like.',
+    meta: 'Build station · click the shelf, or Build a figure below' },
   { id: 'anthony', x: 0, z: GALLERY_Z, yaw: -Math.PI / 2, room: 'atrium', accent: '#C9A667',
     eyebrow: 'The atrium · Anthony', title: 'Anthony',
     body: 'Photographs to come.', meta: 'Placeholder' },
@@ -1200,8 +1208,10 @@ const ATRIUM_PICTURES = [
   { who: 'anthony', stop: 'anthony', dz: 0, y: 2.0, w: 1.15, h: 1.5, blank: true },
   { who: 'anthony', stop: 'anthony2', dz: -1.3, y: 2.12, w: 0.84, h: 1.08, blank: true }   // the arcade screen: 224 x 288, so 7:9
 ];
+let K2FRAME = null;                                                 // the frame the LEGO Sunflowers replace, once they have loaded
 ATRIUM_PICTURES.forEach((p, i) => {
   const grp = framedPicture(p, i);
+  if (p.stop === 'kelly2') K2FRAME = grp;
   const sx = p.who === 'kelly' ? -1 : 1;
   grp.position.set(sx * (P.corrX - 0.075), p.y, GALLERY_Z + p.dz);   // NB the stops for these frames use the same z; keep the two lists in step
   grp.rotation.y = sx < 0 ? Math.PI / 2 : -Math.PI / 2;
@@ -1260,6 +1270,204 @@ Object.keys(GALLERY_NAMES).forEach((who) => {
   g.userData.station = ST[who];
   scene.add(g);
 });
+
+// ---- the LEGO shelf (26 Sept 2026, the owner's idea): under the frame across from the arcade, a white shelf. On its left,
+// four LEGO storage bins of loose parts (heads, torsos, legs, accessories) mark it as the build station; on its right, a
+// tan studded baseplate where a signed-in household's own figures stand (lego/figs.js). Nobody else's are ever shown:
+// signed out, the baseplate is bare. A click walks to Kelly's wall, the next to the shelf's stop, and from there a click
+// (or the panel's Build a figure) opens the build station (lego/station.js), which saves through api/guest.js.
+const SHELF = { z: GALLERY_Z - 1.3, y: 1.12, len: 0.92, depth: 0.17, scale: 0.00275, figsX: 0.2, figsW: 0.46 };   // figures: 40 mm modeled, 11 cm shown
+const shelf = new THREE.Group();
+shelf.position.set(-P.corrX, 0, SHELF.z);
+shelf.rotation.y = Math.PI / 2;                                   // local +z into the hall, x along the wall (to the viewer's right)
+(function buildShelf() {
+  const white = new THREE.MeshStandardMaterial({ color: '#f1ede4', roughness: 0.42 });
+  const board = new THREE.Mesh(new THREE.BoxGeometry(SHELF.len, 0.028, SHELF.depth), white);
+  board.position.set(0, SHELF.y - 0.014, SHELF.depth / 2);
+  const tanPlastic = new THREE.MeshStandardMaterial({ color: '#E4CD9E', roughness: 0.34 });
+  const pitch = 0.022, cols = 21, rows = 6;                       // a LEGO stud every 8 mm, at the figures' scale
+  const plate = new THREE.Mesh(new THREE.BoxGeometry(cols * pitch, 0.0088, rows * pitch), tanPlastic);
+  plate.position.set(SHELF.figsX, SHELF.y + 0.0044, SHELF.depth / 2 + 0.004);
+  const studs = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.0066, 0.0066, 0.0047, 16), tanPlastic, cols * rows);
+  const m4 = new THREE.Matrix4();
+  for (let i = 0; i < cols; i++) for (let j = 0; j < rows; j++) { m4.makeTranslation(SHELF.figsX + (i - (cols - 1) / 2) * pitch, SHELF.y + 0.0088 + 0.0023, SHELF.depth / 2 + 0.004 + (j - (rows - 1) / 2) * pitch); studs.setMatrixAt(i * rows + j, m4); }
+  const brackets = [-0.34, 0.34].map((x) => { const b = new THREE.Mesh(new THREE.BoxGeometry(0.018, 0.09, 0.11), brass); b.position.set(x, SHELF.y - 0.07, 0.055); return b; });
+  const sign = new THREE.Mesh(new THREE.PlaneGeometry(0.2, 0.04), new THREE.MeshStandardMaterial({ map: plaqueTexture('BUILD STATION', 84), roughness: 0.45, metalness: 0.15 }));
+  sign.position.set(-0.23, SHELF.y - 0.014, SHELF.depth + 0.0012);
+  [board, plate, studs].forEach((m) => { m.castShadow = true; m.receiveShadow = true; });
+  shelf.add(board, plate, studs, sign, ...brackets);
+  // the parts bins: open storage boxes in the classic LEGO colors, a printed label on each, heaped with loose parts
+  let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647, pick = (l) => l[Math.floor(rnd() * l.length)].id;
+  const BIN = { w: 0.092, d: 0.094, h: 0.05, wall: 0.003 };
+  const bins = [['HEADS', '#C91A09', 'head', 7], ['TORSOS', '#0055BF', 'torso', 4], ['LEGS', '#F2CD37', 'legs', 4], ['ACCESSORIES', '#237841', 'acc', 7]];
+  bins.forEach(([label, col, kind, n], b) => {
+    const g = new THREE.Group(), mat = new THREE.MeshStandardMaterial({ color: col, roughness: 0.3 });
+    const wall = (w, h, d, x, y, z) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat); m.position.set(x, y, z); m.castShadow = m.receiveShadow = true; g.add(m); };
+    wall(BIN.w, BIN.wall, BIN.d, 0, BIN.wall / 2, 0);                                        // floor
+    wall(BIN.w, BIN.h * 0.72, BIN.wall, 0, BIN.h * 0.36, BIN.d / 2 - BIN.wall / 2);          // a low front, so the parts show
+    wall(BIN.w, BIN.h, BIN.wall, 0, BIN.h / 2, -BIN.d / 2 + BIN.wall / 2);                    // back
+    [-1, 1].forEach((s) => wall(BIN.wall, BIN.h, BIN.d, s * (BIN.w / 2 - BIN.wall / 2), BIN.h / 2, 0));
+    const lc = document.createElement('canvas'); lc.width = 256; lc.height = 64; const lx = lc.getContext('2d');
+    lx.fillStyle = '#fbf8f0'; lx.fillRect(0, 0, 256, 64); lx.fillStyle = '#2B2520'; lx.font = '600 ' + (label.length > 8 ? 26 : 32) + 'px Georgia'; lx.textAlign = 'center'; lx.textBaseline = 'middle';
+    if ('letterSpacing' in lx) lx.letterSpacing = '3px'; lx.fillText(label, 128, 34);
+    const lt = new THREE.CanvasTexture(lc); lt.colorSpace = THREE.SRGBColorSpace; lt.anisotropy = 4;
+    const tag = new THREE.Mesh(new THREE.PlaneGeometry(0.062, 0.0155), new THREE.MeshStandardMaterial({ map: lt, roughness: 0.6 }));
+    tag.position.set(0, BIN.h * 0.36, BIN.d / 2 + 0.0004); g.add(tag);
+    for (let k = 0; k < n; k++) {                                   // loose parts, tumbled in and heaped a little over the rim
+      const spec = kind === 'head' ? { face: pick(FIGS.FACES), skin: pick(FIGS.SKINS) } : kind === 'torso' ? { torso: pick(FIGS.TORSOS), skin: pick(FIGS.SKINS) } :
+        kind === 'legs' ? { legs: pick(FIGS.LEGS.filter((l) => !l.skirt)), skin: pick(FIGS.SKINS) } : { acc: pick(FIGS.ACCS.filter((a) => !['none', 'balloon', 'flag', 'sign'].includes(a.id))) };
+      const part = FIGS.loosePart(kind, spec); part.scale.setScalar(SHELF.scale);
+      const layer = Math.floor(k / 3), tilt = kind === 'head' ? 2.4 : kind === 'acc' ? 1.2 : 0.7;
+      part.position.set((rnd() - 0.5) * (BIN.w - 0.03), 0.004 + layer * 0.012, (rnd() - 0.6) * (BIN.d - 0.04));
+      part.rotation.set((rnd() - 0.5) * tilt, rnd() * Math.PI * 2, (rnd() - 0.5) * tilt * 0.8);
+      g.add(part); part.updateMatrixWorld(true);
+      const bb = new THREE.Box3().setFromObject(part), inset = BIN.wall + 0.002, rim = BIN.h * 0.72 + 0.012;   // kept inside the walls, heaped no higher than just over the front
+      part.position.x += Math.max(0, -BIN.w / 2 + inset - bb.min.x) - Math.max(0, bb.max.x - (BIN.w / 2 - inset));
+      part.position.z += Math.max(0, -BIN.d / 2 + inset - bb.min.z) - Math.max(0, bb.max.z - (BIN.d / 2 - inset));
+      part.position.y += Math.max(BIN.wall - bb.min.y, 0) - Math.max(0, bb.max.y - rim);
+    }
+    g.position.set(-SHELF.len / 2 + 0.058 + b * (BIN.w + 0.006), SHELF.y, SHELF.depth / 2 + 0.004);
+    g.rotation.y = (rnd() - 0.5) * 0.08;
+    shelf.add(g);
+  });
+  shelf.userData.station = ST.kelly; shelf.userData.closer = ST.kellyShelf;
+  scene.add(shelf);
+})();
+const shelfFigs = new THREE.Group(); shelf.add(shelfFigs);
+function paintShelf() {                                            // the household's figures, left to right as seen from the hall
+  shelfFigs.children.slice().forEach((f) => { shelfFigs.remove(f); FIGS.disposeFigure(f); });
+  const figs = (GUEST.household && GUEST.figs) || [], n = figs.length, gap = n > 1 ? Math.min(0.1, (SHELF.figsW - 0.07) / (n - 1)) : 0;
+  figs.forEach((f, i) => {
+    const g = FIGS.buildFigure(f); g.scale.setScalar(SHELF.scale);
+    g.position.set(SHELF.figsX + (i - (n - 1) / 2) * gap, SHELF.y + 0.0088, SHELF.depth / 2 + 0.01);
+    g.rotation.y = (i - (n - 1) / 2) * -0.08;                      // turned a touch toward the middle, like a posed line-up
+    shelfFigs.add(g);
+  });
+  renderer.shadowMap.needsUpdate = true;
+}
+// ---- Kelly's LEGO Art Sunflowers (31215: 2,615 pieces, 41 x 54 cm with LEGO's frame, which she keeps on), hung in the
+// frame across from the arcade in place of it, and shown at the size of that frame (about twice life: at true size it
+// was too small to take in, the owner said). Everything below is modeled at true size and the group is scaled by SUN.k.
+// Her own photo of her build is its surface; a height map made from the photo lifts the flowers, stems, vase and frame
+// into relief (displacement) and a normal map from the same heights lights them (tools/lego_relief.py, assets/lego/).
+// Its depths were measured from her photos taken low along its side: the brick frame is a box 34 mm deep with four dark
+// brown round tiles along each long side, the picture's plate 28 mm off the wall (6 mm below the frame's top), and the
+// big flower heads stand about 21 mm above the plate. If the maps fail to load, the empty frame stays.
+// A click on it from its stop: the view leans in closer first (the owner's wish), then a yellow petal comes loose and
+// drops onto the accessories bin on the shelf below, the view glances left and right (did anyone see?), the petal floats
+// back up and clicks into place, and the view eases back to the stop. Under Reduce motion, no lean and no glance.
+const SUN = { z: GALLERY_Z - 1.3, y: 1.88, w: 0.41, h: 0.54, k: 1.05 / 0.54, lift: 0.028, depth: 0.034, rim: 0.008, relief: 0.025, px: 1230, py: 1620, leafBox: [573, 618, 643, 665], ready: false };
+const sun = new THREE.Group();
+sun.position.set(-P.corrX, SUN.y, SUN.z);
+sun.rotation.y = Math.PI / 2;                                    // as the shelf: local +z into the hall, +x to the viewer's right
+sun.scale.setScalar(SUN.k);
+const GAG = { t0: -1, yaw: 0, lean: 0, leaf: null, home: null };
+(function buildSunflowers() {
+  const lin = (src) => { const t = loader.load(src); t.colorSpace = THREE.NoColorSpace; return t; };
+  const map = loader.load('assets/lego/sunflowers.jpg', () => {
+    SUN.ready = true; if (K2FRAME) K2FRAME.visible = false; sun.visible = true; renderer.shadowMap.needsUpdate = true;
+  }, undefined, () => { sun.visible = false; });
+  map.colorSpace = THREE.SRGBColorSpace; map.anisotropy = 8;
+  const TAN = '#D2BD92', tan = new THREE.MeshStandardMaterial({ color: TAN, roughness: 0.4 });
+  const back = new THREE.Mesh(new THREE.BoxGeometry(SUN.w - 0.002, SUN.h - 0.002, SUN.lift - 0.005), tan); back.position.z = (SUN.lift - 0.005) / 2;   // kept behind the picture's plate: level with it, the two flickered
+  // the frame's four sides: stacked tan bricks (a canvas of their seams), and on each long side four round dark brown tiles
+  function sideTexture(len, dots) {                                 // u: from the wall out (0 .. depth); v: along the side
+    const PX = 12, cw = Math.round(SUN.depth * 1000 * PX), ch = Math.round(len * 1000 * PX), c = document.createElement('canvas'); c.width = cw; c.height = ch;
+    const x = c.getContext('2d'); x.fillStyle = TAN; x.fillRect(0, 0, cw, ch);
+    x.fillStyle = 'rgba(70,52,26,.32)';
+    const rows = [0, 9.6, 19.2, 28.8, 32.0, 34.0]; let seed = len * 1000;
+    const rnd = () => (seed = (seed * 16807 + 11) % 2147483647) / 2147483647;
+    for (let r = 0; r < rows.length - 1; r++) {
+      x.fillRect(Math.round(rows[r] * PX), 0, 2, ch);                // the seam along the row
+      let v = -rnd() * 48 * PX; while (v < ch) { x.fillRect(Math.round(rows[r] * PX), Math.round(v), Math.round((rows[r + 1] - rows[r]) * PX), 2); v += (2 + Math.floor(rnd() * 5)) * 8 * PX; }   // brick ends
+    }
+    if (dots) [0.135, 0.39, 0.61, 0.865].forEach((f) => { x.fillStyle = '#4E2419'; x.beginPath(); x.arc(10.5 * PX, f * ch, 3.1 * PX, 0, Math.PI * 2); x.fill(); x.fillStyle = 'rgba(255,230,210,.25)'; x.beginPath(); x.arc(10.1 * PX, f * ch - 0.9 * PX, 1.1 * PX, 0, Math.PI * 2); x.fill(); });
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
+  }
+  const sides = [];
+  [[-1, 'y'], [1, 'y'], [-1, 'x'], [1, 'x']].forEach(([s, axis]) => {
+    const long = axis === 'y', len = long ? SUN.h : SUN.w;
+    const box = new THREE.Mesh(new THREE.BoxGeometry(long ? SUN.rim : SUN.w, long ? SUN.h : SUN.rim, SUN.depth), tan);
+    box.position.set(long ? s * (SUN.w - SUN.rim) / 2 : 0, long ? 0 : s * (SUN.h - SUN.rim) / 2, SUN.depth / 2);
+    const face = new THREE.Mesh(new THREE.PlaneGeometry(SUN.depth, len), new THREE.MeshStandardMaterial({ map: sideTexture(len, long), roughness: 0.4 }));
+    // turned to face outward, its u running from the wall out (a mirror where the turn would run it the other way)
+    if (long) { face.rotation.set(0, s * Math.PI / 2, 0); face.position.set(s * (SUN.w / 2 + 0.0003), 0, SUN.depth / 2); }
+    else { face.rotation.set(-s * Math.PI / 2, 0, Math.PI / 2); face.position.set(0, s * (SUN.h / 2 + 0.0003), SUN.depth / 2); }
+    if (s > 0) face.scale.x = -1;
+    sides.push(box, face);
+  });
+  const relief = new THREE.Mesh(new THREE.PlaneGeometry(SUN.w - 0.001, SUN.h - 0.001, 246, 324), new THREE.MeshStandardMaterial({ map, normalMap: lin('assets/lego/sunflowers-normal.jpg'),
+    displacementMap: lin('assets/lego/sunflowers-height.png'), displacementScale: SUN.relief, roughness: 0.55, normalScale: new THREE.Vector2(0.7, 0.7) }));   // glossy enough for plastic; shinier, the hall's lights washed the colors out and the fine relief glittered
+  relief.position.z = SUN.lift;
+  // the leaf that comes loose: its own small relief, cut from the photo, sitting exactly where it grew
+  const [x0, y0, x1, y1] = SUN.leafBox, mpp = SUN.w / SUN.px;
+  const leafMap = loader.load('assets/lego/sunflowers-leaf.png'); leafMap.colorSpace = THREE.SRGBColorSpace;
+  const leaf = new THREE.Mesh(new THREE.PlaneGeometry((x1 - x0) * mpp, (y1 - y0) * mpp, 40, 42), new THREE.MeshStandardMaterial({ map: leafMap, alphaTest: 0.5, side: THREE.DoubleSide,
+    normalMap: lin('assets/lego/sunflowers-leaf-normal.png'), displacementMap: lin('assets/lego/sunflowers-leaf-height.png'), displacementScale: SUN.relief, roughness: 0.55, normalScale: new THREE.Vector2(0.7, 0.7) }));
+  leaf.position.set(((x0 + x1) / 2) * mpp - SUN.w / 2, SUN.h / 2 - ((y0 + y1) / 2) * mpp, SUN.lift + 0.0008);
+  GAG.leaf = leaf; GAG.home = leaf.position.clone();
+  [back, relief, ...sides].forEach((m) => { m.castShadow = true; m.receiveShadow = true; });
+  sun.add(back, relief, leaf, ...sides);
+  sun.userData.station = ST.kelly; sun.userData.closer = ST.kelly2;
+  sun.visible = false;
+  scene.add(sun);
+})();
+function sunflowerGag() { if (GAG.t0 < 0 && GAG.leaf) { GAG.t0 = performance.now(); GAG.calm = REDUCED; } }
+function updateGag(now) {
+  if (GAG.t0 < 0) return;
+  const T = GAG.calm ? { pop: 0.12, fall: 0.5, look0: 1, look1: 1, back0: 1.3, back1: 2.1, end: 2.3 } : { pop: 0.16, fall: 0.62, look0: 1.15, look1: 3.7, back0: 4.0, back1: 5.1, end: 5.35 };
+  // the lean in: 15 cm closer, rising to the piece's middle and looking at it straight and level (tilting up to it read as
+  // looking up at it), over 0.85 s, a beat's pause, and only then the petal goes (its clock, t, starts after the lean);
+  // once it is home again, the view eases back to the stop over 0.9 s. The camera side of this is in frame(), GAG.lean.
+  const IN = GAG.calm ? 0 : 0.85, WAIT = GAG.calm ? 0 : 0.25, OUT = GAG.calm ? 0 : 0.9;
+  const tt = (now - GAG.t0) / 1000, t = tt - IN - WAIT, L = GAG.leaf, H = GAG.home;
+  if (STATIONS[idx].id !== 'kelly2' || leg || queue.length || t > T.end + OUT) {   // done, or walked away: all back as it was
+    L.position.copy(H); L.rotation.set(0, 0, 0); L.scale.setScalar(1); sun.position.x = -P.corrX; GAG.yaw = GAG.lean = 0; GAG.t0 = -1; return;
+  }
+  const lean = GAG.calm ? 0 : tt < IN ? (tt / IN) * (tt / IN) * (3 - 2 * tt / IN) : t > T.end ? 1 - ((t - T.end) / OUT) * ((t - T.end) / OUT) * (3 - 2 * (t - T.end) / OUT) : 1;
+  GAG.lean = lean;
+  if (t < 0) { L.position.copy(H); L.rotation.set(0, 0, 0); L.scale.setScalar(1); GAG.yaw = 0; return; }   // still leaning in
+  // where it lands: in the ACCESSORIES bin on the shelf below (the shelf shares the Sunflowers' frame of reference)
+  const rest = new THREE.Vector3(-0.112 / SUN.k, (SHELF.y + 0.056 - SUN.y) / SUN.k, 0.092 / SUN.k), restRot = new THREE.Euler(-Math.PI / 2 + 0.22, 0.45, 1.2);   // lying across the ACCESSORIES bin
+  const ease = (k) => k * k * (3 - 2 * k), mix = (a, b, k) => a + (b - a) * k;
+  L.scale.setScalar(1); sun.position.x = -P.corrX;
+  if (t < T.pop) {                                                 // working loose
+    L.position.set(H.x, H.y, H.z + 0.003 * (t / T.pop)); L.rotation.set(0, 0, (GAG.calm ? 0.04 : 0.12) * Math.sin(t * 70));
+  } else if (t < T.fall) {                                          // falling, and turning over as it goes
+    const k = (t - T.pop) / (T.fall - T.pop);
+    L.position.set(mix(H.x, rest.x, k), mix(H.y, rest.y, k * k), mix(H.z + 0.003, rest.z, k));
+    L.rotation.set(restRot.x * k * (GAG.calm ? 1 : 1.3), restRot.y * k, restRot.z * k * (GAG.calm ? 0.4 : 1.6));
+  } else if (t < T.back0) {                                         // a small bounce, then lying in the bin
+    const k = Math.min(1, (t - T.fall) / 0.2);
+    L.position.set(rest.x, rest.y + (k < 1 ? 0.012 * Math.sin(Math.PI * k) : 0), rest.z);
+    L.rotation.copy(restRot);
+  } else if (t < T.back1) {                                         // floating back up, righting itself on the way
+    const k = ease((t - T.back0) / (T.back1 - T.back0)), arc = Math.sin(Math.PI * k);
+    L.position.set(mix(rest.x, H.x, k), mix(rest.y, H.y, k) + 0.03 * arc, mix(rest.z, H.z + 0.004, k) + 0.04 * arc);
+    L.rotation.set(restRot.x * (1 - k), restRot.y * (1 - k), restRot.z * (1 - k));
+  } else {                                                          // pressed home: the petal seats, the whole piece gives a little
+    const k = (t - T.back1) / (T.end - T.back1);
+    L.position.set(H.x, H.y, H.z + 0.004 * (1 - Math.min(1, k * 2.5))); L.rotation.set(0, 0, 0); L.scale.setScalar(1 + 0.05 * Math.max(0, 1 - k * 3));
+    sun.position.x = -P.corrX - 0.0025 * Math.sin(Math.PI * Math.min(1, k * 2));
+  }
+  // the glance: left, a pause, right, a pause, and back to the front, as if checking nobody saw
+  GAG.yaw = 0;
+  if (!GAG.calm && t > T.look0 && t < T.look1) {
+    const g = t - T.look0, keys = [[0, 0], [0.45, 0.5], [0.9, 0.5], [1.6, -0.5], [2.05, -0.5], [2.55, 0]];
+    for (let i = 1; i < keys.length; i++) if (g <= keys[i][0]) { const [a0, v0] = keys[i - 1], [a1, v1] = keys[i]; GAG.yaw = mix(v0, v1, ease((g - a0) / (a1 - a0))); break; }
+  }
+}
+
+function openShelf() {
+  needGuest(() => openStation({ household: GUEST.household, figs: GUEST.figs || [], still: REDUCED,
+    save: async (figs) => {
+      const { ok, status, d } = await guestApi('POST', { action: 'figs', figs });
+      if (status === 401) { signedOut(); closeStation(); needGuest(openShelf); return { ok: false, error: 'Please sign in again.' }; }
+      return ok ? { ok: true, figs: d.figs } : { ok: false, error: d.error };
+    },
+    onSaved: (figs) => { GUEST.figs = figs; paintShelf(); } }),
+  'The build station is for our guests. Sign in with your phone number and the code from your invitation, and build a figure for each of you.');
+}
 
 // ---- Anthony's artifacts, on his wall. Each is a group whose local +z faces into the hall and whose origin sits on
 // the wall face; a click takes you to his wall, a second click steps you in close (as the small frames do).
@@ -2366,6 +2574,7 @@ const SCULPTURES = {
     ['The Court of Gonzaga (Camera degli Sposi), Andrea Mantegna, 1465–74', 'Palazzo Ducale, Mantua · public domain'],
     ['Allegory of the Planets and Continents (sketch for a ceiling), Giovanni Battista Tiepolo, 1752', 'The Metropolitan Museum of Art, New York · public domain'],
     ['Pop-Up Invitation, Truong Hoai Vu', 'vuth.art · illustration and paper engineering, shown with the artist’s permission'],
+    ['The LEGO Shelf and its figures', 'LEGO® is a trademark of the LEGO Group of companies which does not sponsor, authorize or endorse this site. The figures and their parts were modeled for this gallery.'],   // LEGO's Fair Play wording for fan sites
     ...Object.values(SCULPTURES).map((c) => [c.title, c.credit + ' · simplified for the web, shared under the same license'])
   ];
   rows.forEach(([what, who]) => {
@@ -3281,10 +3490,11 @@ function paintLabel(st) {
   el('title').textContent = st.title;
   el('body').textContent = st.body;
   el('meta').textContent = st.meta;
-  el('more').style.visibility = st.card || st.game ? 'visible' : 'hidden';   // "Read the full details" where a wall text exists; "Play" where a game does. Its space is kept at every stop, so the panel (and the view above it) never changes height
+  el('more').style.visibility = st.card || st.game || st.build ? 'visible' : 'hidden';   // "Read the full details" where a wall text exists; "Play" where a game does. Its space is kept at every stop, so the panel (and the view above it) never changes height
   el('more').dataset.card = st.card || '';
   el('more').dataset.game = st.game || '';
-  el('more').innerHTML = st.game ? 'Play &nbsp;&rarr;' : 'Read the full details &nbsp;&rarr;';
+  el('more').dataset.build = st.build ? '1' : '';
+  el('more').innerHTML = st.game ? 'Play &nbsp;&rarr;' : st.build ? 'Build a figure &nbsp;&rarr;' : 'Read the full details &nbsp;&rarr;';
   // ease the new text in, so a change of write-up catches the eye (restarts the CSS animation)
   ['eyebrow', 'title', 'body', 'meta'].forEach((id) => {
     const n = el(id);
@@ -3384,9 +3594,10 @@ async function guestApi(method, body) {
   const r = await fetch('/api/guest', { method, headers: { 'content-type': 'application/json', ...(GUEST.token ? { authorization: 'Bearer ' + GUEST.token } : {}) }, body: body ? JSON.stringify(body) : undefined });
   return { ok: r.ok, status: r.status, d: await r.json().catch(() => ({})) };
 }
-function signedIn(d) { GUEST.household = d.household; GUEST.reply = d.reply || null; GUEST.cards = d.cards || null; GUEST.rsvp = d.rsvp || null; paintGuestBtn(); }
+function signedIn(d) { GUEST.household = d.household; GUEST.reply = d.reply || null; GUEST.cards = d.cards || null; GUEST.rsvp = d.rsvp || null; GUEST.figs = d.figs || []; paintGuestBtn(); paintShelf(); }
 function signedOut() {
-  GUEST.token = ''; GUEST.household = GUEST.reply = GUEST.cards = GUEST.rsvp = null;
+  GUEST.token = ''; GUEST.household = GUEST.reply = GUEST.cards = GUEST.rsvp = GUEST.figs = null;
+  paintShelf();
   try { localStorage.removeItem('ka-guest'); } catch (e) { /* nothing kept */ }
   paintGuestBtn();
 }
@@ -3444,9 +3655,10 @@ function openCard(key) {
   el('cardSheet').scrollTop = 0;
 }
 const closeCard = () => { el('card').style.display = 'none'; };
-el('more').addEventListener('click', () => { if (el('more').dataset.game) openArcade(); else openCard(el('more').dataset.card); });
+el('more').addEventListener('click', () => { if (el('more').dataset.game) openArcade(); else if (el('more').dataset.build) openShelf(); else openCard(el('more').dataset.card); });
 el('card').addEventListener('click', (e) => { if (e.target === el('card') || e.target.id === 'cardClose') closeCard(); });
 window.addEventListener('keydown', (e) => {
+  if (stationOpen()) return;                                         // the build station has the keys (its name box above all)
   if (el('signin').style.display === 'grid') { if (e.key === 'Escape') closeSignIn(); return; }   // typing a phone number must not walk the gallery
   if (el('postcard').style.display === 'grid') { if (e.key === 'Escape' && !el('pcEv').classList.contains('open')) closePostcards(); return; }   // Esc in the events window closes only the window
   if (el('card').style.display === 'grid') { if (e.key === 'Escape') closeCard(); return; }   // no walking about behind an open card
@@ -3534,7 +3746,7 @@ function probe(clientX, clientY) {
   // belongs to a stop, once you stand at that stop. Never through a doorway, nor while that write-up is already showing.
   const atIt = station === undefined ? here === 'atrium' : station === idx && !leg && !queue.length;
   if (note && (own || target || !atIt || el('title').textContent === note.title)) note = undefined;
-  if (station === idx && !STATIONS[idx].game) station = undefined;   // at the stop already: nothing to do, unless it is the arcade, where the next click plays
+  if (station === idx && !STATIONS[idx].game && !STATIONS[idx].build && !(STATIONS[idx].lego && SUN.ready)) station = undefined;   // at the stop already: nothing to do, unless it is the arcade (the next click plays) or the LEGO shelf (it builds)
   if (cardKey && (own || target || here !== 'det')) cardKey = undefined;   // the wall buttons work from anywhere in their room
   return { room: target || (own ? 'atrium' : null), surface, station, note, cardKey };
 }
@@ -3590,7 +3802,7 @@ canvas.addEventListener('click', (e) => {
   if (p.room) goTo(ROOM_ENTRY[p.room]);
   else if (p.cardKey) openCard(p.cardKey);
   else if (p.note) paintLabel(p.note);                  // no walking: only the panel changes
-  else if (p.station !== undefined) { if (STATIONS[p.station].game && p.station === idx && !queue.length && !(leg && leg.kind === 'path')) openArcade(); else goTo(p.station); }   // a picture in this room: go and face it; the arcade, faced already: play
+  else if (p.station !== undefined) { const s = STATIONS[p.station], here = p.station === idx && !queue.length && !(leg && leg.kind === 'path'); if (s.game && here) openArcade(); else if (s.build && here) openShelf(); else if (s.lego && here && SUN.ready) sunflowerGag(); else goTo(p.station); }   // a picture in this room: go and face it; the arcade, faced already: play
 });
 
 // pointer glow: a soft pool of warm light on whatever the mouse points at
@@ -4638,8 +4850,16 @@ function frame(now) {
     if (k >= 1) { leg = null; }
   }
   updateLook(now);
+  updateGag(now);
   camera.position.set(cam.x, cam.eye, cam.z);
   camera.rotation.set(cam.pitch + LOOK.y, cam.yaw + LOOK.x, 0, 'YXZ');
+  if (GAG.lean) {                                                   // the Sunflowers' lean in: closer, at its middle's height, square on
+    const k = GAG.lean, NEAR = 0.15;                                 // just a step closer (the owner: not too close)
+    camera.position.x -= Math.sin(cam.yaw) * NEAR * k; camera.position.z -= Math.cos(cam.yaw) * NEAR * k;
+    camera.position.y += (SUN.y - cam.eye) * k;
+    camera.rotation.x *= 1 - k; camera.rotation.y += (cam.yaw - camera.rotation.y) * k;   // level, and any free look undone
+  }
+  if (GAG.yaw) camera.rotation.y += GAG.yaw;                       // and their glance round (did anyone see?)
   camera.updateMatrixWorld();
   if (needResize) { needResize = false; resize(); }
   updateVolvelle();

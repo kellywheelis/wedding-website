@@ -3,7 +3,7 @@
 # It makes a throwaway copy in tools/harness/.work/ : the page with the entry doors, info panel,
 # bottom bar and motto hidden, and gallery3d.js with the test hooks (extra.js) appended.
 H="$(cd "$(dirname "$0")" && pwd)"; P="$(cd "$H/../.." && pwd)"; W="$H/.work"
-mkdir -p "$W" && ln -sfn "$P/assets" "$W/assets" && ln -sfn "$P/game" "$W/game"
+mkdir -p "$W" && ln -sfn "$P/assets" "$W/assets" && ln -sfn "$P/game" "$W/game" && ln -sfn "$P/lego" "$W/lego"
 python3 - "$P/The Gallery 3D.html" "$W/index.html" <<'PY'
 import re,sys
 s=open(sys.argv[1]).read()

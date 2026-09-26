@@ -308,3 +308,13 @@ body.gv-on #gv { display: block; position: fixed; inset: 0; z-index: 60; backgro
 .gv-card p { font-size: 15.5px; margin: 0 0 6px; }
 .gv-card .close { margin-top: 16px; }
 @media (min-width: 700px) { :root { --gutter: 32px; } body { font-size: 18.5px; } .hero { aspect-ratio: 4 / 3; max-height: 70vh; } main { max-width: 760px; margin: 0 auto; } }
+/* the LEGO shelf (Kelly's wall): the household's figures on a white shelf with a tan studded baseplate */
+.lego-shelf { position: relative; margin: 18px var(--gutter) 0; padding: 6px 0 24px; }
+.lego-figs { display: flex; justify-content: center; align-items: flex-end; gap: 4px; min-height: 40px; flex-wrap: wrap; }
+.lego-figs figure { margin: 0; width: 88px; text-align: center; }
+.lego-figs img { display: block; width: 88px; height: 117px; margin-bottom: -6px; position: relative; z-index: 1; }
+.lego-figs figcaption { position: relative; top: 30px; height: 0; font-family: var(--display); font-size: 15px; color: var(--cream); white-space: nowrap; overflow: visible; }   /* the name, under the shelf's edge */
+.lego-board { height: 22px; margin-top: -4px; background: radial-gradient(circle at 50% 45%, #f0dcb2 0 3px, #d8bf8e 3.5px 4px, transparent 4.5px) 0 1px / 11px 9px, linear-gradient(#e4cd9e, #d4bb88); border-bottom: 9px solid #f1ede4; box-shadow: 0 6px 10px rgba(0,0,0,.45); }
+.lego-figs:empty + .lego-board { margin-top: 0; }
+.lego-note { margin: 10px 0 0; text-align: center; font-style: italic; color: var(--dim, #a79c85); font-size: 15px; }
+.lego-note:empty { display: none; }

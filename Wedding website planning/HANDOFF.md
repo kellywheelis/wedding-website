@@ -43,6 +43,7 @@ Everything that matters lives in one subfolder (apart from the deployment files 
 | `assets/door-walnut-*.jpg` | Generated walnut grain for the entry doors (`tools/make_walnut_textures.html` regenerates them). |
 | `tools/convert_scan.py` | Turns a raw museum scan (`.stl`/`.obj`, often 100 MB+) into a small `.glb`. No dependencies. |
 | `tools/reduce_glb.py` | Shrinks a generated, textured `.glb` (image-to-3D output) into a small vertex-coloured one. Uses macOS `sips` for the texture. |
+| `tools/compact_glb.py` | The last step for any sculpture `.glb`: drops the stored normals (the gallery computes them), uses 16-bit indices where it can and byte colors, and checks the result against the original. Needs numpy. |
 | `tools/harness/` | The screenshot/test harness (see §6). **Use it — it is how changes get verified.** |
 | `HANDOFF.md` | This file. |
 | `PROCESS.md` | The owner's creative-process document: concept, what was rejected and why, the building as built. |
@@ -150,8 +151,10 @@ internet connection is needed.
   moved in: the wings' principal works are seen from 1.95 m (`CLOSE_X` 10.45, was 2.4 m), the wings' side pictures
   from 1.15 m (was 1.83), the salon hang from `max(0.95h, 0.55w)` clamped 0.9–2.3 m (was 1.25h/0.72w, 1.2–3.0), with the
   eye at the picture's centre (clamp raised to 2.9) so the tall-hung ones sit level; the artifacts are seen level too.
-  The tally sits bottom-left of the stage (`#tally`; its box was made wider and a little taller on 25 Sept, padding
-  8 px 24 px, was 4 px 12 px, so it is easier to see). The compass no longer steps to the corner at details-room close-ups
+  The tally sits bottom-left of the stage (`#tally`). The owner found it easy to miss in the corner, so on 25 Sept it
+  moved in from the corner onto the stage's bottom edge and widened (the `#tally` rule in the page's style block: 111 px
+  in and 384 px wide on a wide window, text centered, shrinking so it always stays clear of the compass; below 960 px
+  it goes back to the corner). The compass no longer steps to the corner at details-room close-ups
   (the owner wants it in one place, always).
 - **The RSVP postcard and the curtain** (25 Sept 2026, step 1 of the RSVP). Clicking the gift shop (rack or
   letterbox, `userData.shop`) from its own stop opens `#postcard`: the twelve postcards of the collection
@@ -538,8 +541,11 @@ _Brought up to date 25 Sept 2026 (the repo at `3e55499`)._
 - Download size: the doors wait until every picture and scan has loaded. On 25 Sept 2026 the gallery's JPEGs were
   re-saved at quality 85 with their pixel sizes kept (the postcard copies of Primavera and Amaryllis cut to 2048 px
   wide), taking the load from ~92 MB to ~69 MB (~61 MB over the wire; Vercel brotli-compresses the `.glb` scans).
-  Save new pictures the same way. Still to slim: the gift shop's postcard rack draws its cards from 12 full-size
-  pictures, and the sculpture scans (~26 MB).
+  Save new pictures the same way. Later the same day the postcard rack moved to small copies in `assets/rack/` (twice a
+  card's size; 0.6 MB instead of 10.6 MB of full-size pictures), and the scans were rewritten by
+  `tools/compact_glb.py` (no stored normals, the loaders compute them; 16-bit indices; Amelia's colors as bytes):
+  26 MB -> 14 MB. The gallery now loads ~47 MB (~44 MB over the wire). Run new scans through `compact_glb.py` too.
+  Further savings would need a compressed mesh format (meshopt/Draco), which needs an encoder not installed here.
 - The 3D build's performance has only been checked on a desktop (phones get the mobile edition). Wing I carries
   ~300k triangles of roses.
 - Dead code that could be removed: `sign()` / `signTexture()` (the old WING I/II wall labels).

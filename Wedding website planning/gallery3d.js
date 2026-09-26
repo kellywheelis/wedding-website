@@ -1887,7 +1887,7 @@ function instancer(geo, mat) {
   import('three/addons/loaders/GLTFLoader.js').then(({ GLTFLoader }) => {
     new GLTFLoader().load('assets/sculpture/amelia.glb', (gltf) => {
       const m = gltf.scene;
-      m.traverse((o) => { if (o.isMesh) { o.material = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.55 }); } });
+      m.traverse((o) => { if (o.isMesh) { if (!o.geometry.attributes.normal) o.geometry.computeVertexNormals(); o.material = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.55 }); } });
       const box = new THREE.Box3().setFromObject(m), size = box.getSize(new THREE.Vector3()), c = box.getCenter(new THREE.Vector3());
       const k = LENGTH / size.x;                                       // her length runs along the model's x, nose toward +x
       m.scale.setScalar(k);
@@ -2532,6 +2532,7 @@ function levelBase(model) {
         model.scale.setScalar(k);
         const [nx, nz] = cfg.nudge || [0, 0];                                    // metres, to centre the statue's own base on its plinth
         model.position.set(-c.x * k + nx, spot.top - box.min.y * k, -c.z * k + nz);   // stood on the spot, centred
+        model.traverse((o) => { if (o.isMesh && !o.geometry.attributes.normal) o.geometry.computeVertexNormals(); });   // tools/compact_glb.py leaves them out
         if (!cfg.keep) model.traverse((o) => { if (o.isMesh) { fixWinding(o.geometry); marbleShade(o.geometry); o.material = marbleScan; } });
         // the scans run to 100,000 triangles each, and the cursor's ray is tested against the scene every frame
         // of a walk; testing that many triangles drops frames. So the scan itself is left out of the ray test and
@@ -3965,7 +3966,8 @@ let shopRack = null;
   ax.fillStyle = '#f4eee0'; ax.fillRect(0, 0, atlas.width, atlas.height);
   const atlasTex = new THREE.CanvasTexture(atlas);
   atlasTex.colorSpace = THREE.SRGBColorSpace; atlasTex.anisotropy = 8;
-  // the postcards carry the pictures as the world knows them: the two with a pet painted in use their untouched originals
+  // the postcards carry the pictures as the world knows them: the two with a pet painted in use their untouched originals.
+  // They are drawn from small copies in assets/rack/ (twice a card's size), not the full-size pictures
   ['birth-of-venus', 'postcard-primavera', 'w1-three-graces', 'w1-happy-union', 'w1-mars-and-venus', 'postcard-amaryllis', 'w2-parnassus', 'w2-nastagio-banquet',
     'w2-banquet-still-life', 'w2-watermelon-still-life', 'fresco-venus-and-graces', 'fresco-liberal-arts'].forEach((name, i) => {
     const img = new Image();
@@ -3975,7 +3977,7 @@ let shopRack = null;
       ax.drawImage(img, (img.width - sw) / 2, (img.height - sh) / 2, sw, sh, cx + m, cy + m, w, h);
       atlasTex.needsUpdate = true;
     };
-    img.src = 'assets/' + name + '.jpg';
+    img.src = 'assets/rack/' + name + '.jpg';
   });
   const cardMat = new THREE.MeshStandardMaterial({ map: atlasTex, roughness: 0.8, side: THREE.DoubleSide });
   const card = (i) => {

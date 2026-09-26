@@ -16,5 +16,9 @@
     { "source": "/game/:path*", "destination": "/Wedding%20website%20planning/game/:path*" },
     { "source": "/mobile/", "destination": "/Wedding%20website%20planning/mobile/index.html" },
     { "source": "/mobile/:path*", "destination": "/Wedding%20website%20planning/mobile/:path*" }
+  ],
+  "headers": [
+    { "source": "/assets/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=3600, stale-while-revalidate=604800" }] },
+    { "source": "/mobile/img/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=3600, stale-while-revalidate=604800" }] }
   ]
 }

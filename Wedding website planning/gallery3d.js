@@ -4348,6 +4348,34 @@ function openArcade() {
   Arcade.launch(st.game, { onClose: () => {} });
 }
 function updateArcade() {}
+// ?fps: a frame-rate readout, for checking the gallery on a real laptop or iPad (kaweddinggallery.com/?fps). Top line: frames
+// a second over the last second, and the slowest single frame of the last five (a stutter shows there). Then each room's
+// average so far, so a slow room can be found by walking round; then the canvas size and the triangles drawn.
+// Nothing is measured or shown without ?fps.
+const FPS = /[?&]fps/.test(location.search) ? (() => {
+  const box = document.createElement('div');
+  box.style.cssText = 'position:fixed;top:8px;right:8px;z-index:200;padding:6px 10px;border-radius:8px;background:rgba(0,0,0,.72);color:#F2DFA8;font:12px/1.45 ui-monospace,Menlo,monospace;white-space:pre;pointer-events:none';
+  document.body.appendChild(box);
+  return { box, last: 0, frames: [], rooms: {}, shown: 0 };
+})() : null;
+const ROOM_NAMES = { atrium: 'Atrium', w1: 'Wing I', w2: 'Wing II', det: 'Details' };
+function tickFps(now) {
+  const f = FPS, dt = f.last ? now - f.last : 0;
+  f.last = now;
+  if (dt > 0 && dt < 1000) {                                              // a longer gap is a hidden tab, not a stutter
+    f.frames.push([now, dt]);
+    const r = STATIONS[idx].room, s = f.rooms[r] || (f.rooms[r] = { t: 0, n: 0 });
+    s.t += dt; s.n++;
+  }
+  while (f.frames.length && f.frames[0][0] < now - 5000) f.frames.shift();
+  if (now - f.shown < 500) return;
+  f.shown = now;
+  const recent = f.frames.filter(([t]) => t > now - 1000), ms = recent.reduce((a, [, d]) => a + d, 0);
+  const worst = f.frames.reduce((a, [, d]) => Math.max(a, d), 0);
+  f.box.textContent = `${ms ? Math.round(1000 * recent.length / ms) : '-'} fps · slowest frame ${Math.round(worst)} ms\n` +
+    Object.entries(f.rooms).map(([r, s]) => `${ROOM_NAMES[r] || r} ${Math.round(1000 * s.n / s.t)}`).join(' · ') +
+    `\n${renderer.domElement.width}×${renderer.domElement.height} px · ${(renderer.info.render.triangles / 1e6).toFixed(2)}M triangles`;
+}
 function frame(now) {
   if (!leg && (queue.length || !settled())) startLeg();
   updateArcade();
@@ -4377,6 +4405,7 @@ function frame(now) {
   tickCurtain(); tickSand(performance.now());
   updatePointer();
   renderer.render(scene, camera);
+  if (FPS) tickFps(now);
   requestAnimationFrame(frame);
 }
 paintLabel(STATIONS[0]);

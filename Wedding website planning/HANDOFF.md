@@ -38,6 +38,7 @@ Everything that matters lives in one subfolder (apart from the deployment files 
 |---|---|
 | `The Gallery 3D.html` | **The live page.** Entry doors, motto, info panel, buttons, credits panel, import map. |
 | `gallery3d.js` | **The live build** — all of the 3D gallery (~4,300 lines, three.js 0.184, served from `assets/lib/three/`). |
+| `assets/fonts/` | Cormorant Garamond and EB Garamond (SIL Open Font License, `OFL-*.txt`), hosted with the site since 26 Sept 2026: the woff2 files and `gallery.css` / `mobile.css`, fetched from Google Fonts' css2 API exactly as each page used to request them. Checked with Google Fonts blocked: the text renders identically. |
 | `assets/lib/three/` | three.js 0.184.0, hosted with the site since 25 Sept 2026 so the gallery does not depend on unpkg being up: `build/three.module.js` + `three.core.js` (their sha384 matched the integrity hashes the page used to carry), `GLTFLoader.js` and the two utils it imports, and `libs/meshopt_decoder.module.js` for the compressed sculptures. The page's import map points here. |
 | `assets/` | Paintings, textures, the KA monogram, reference photos. |
 | `assets/sculpture/` | The twelve real sculpture scans (`.glb`; `isabella.glb` is no longer used) + `SOURCES.md` (where each came from, licence, how it was converted), and `amelia.glb` (Anthony's dog: a 3D generation, not a scan; §4). |
@@ -61,8 +62,12 @@ Serve the folder and open it over http:
     python3 -m http.server 8000 --bind 127.0.0.1
     # then open  http://127.0.0.1:8000/The%20Gallery%203D.html
 
-After any change, hard-refresh the browser (Cmd+Shift+R). three.js is served from `assets/lib/three/`; only the
-Google Fonts need an internet connection.
+After any change, hard-refresh the browser (Cmd+Shift+R). three.js and the fonts are served from `assets/`, so the
+page itself needs nothing from the internet.
+
+To check smoothness on a real device, open the gallery with `?fps` on the address (kaweddinggallery.com/?fps): a
+readout top right gives frames a second, the slowest frame of the last five seconds, each visited room's average,
+the canvas size and the triangles drawn (`tickFps` in gallery3d.js; nothing is measured without `?fps`).
 
 ## 3. The owner's working rules (from `CLAUDE.md`, plus what this session established)
 
@@ -552,6 +557,9 @@ _Brought up to date 25 Sept 2026 (the repo at `3e55499`)._
   github.com/zeux/meshoptimizer/releases; not kept in the repo). The files then need the meshopt decoder, which the
   page loads from `assets/lib/three/` (`gltfLoaderReady` in gallery3d.js); `plainAttr` unpacks their 16-bit positions
   for the marble shading.
+- WebP for the paintings was tested on 26 Sept 2026 and not adopted: at the quality that matches today's JPEGs it
+  saves only ~14% (from the originals; less from the re-saved JPEGs), about 4 MB in all, for a second copy of every
+  picture and a fallback for old Safari.
 - Graphics memory: the pictures take roughly 700 MB of it once loaded (4 bytes a pixel plus mipmaps), which could
   trouble an iPad (iPads get the 3D build). Measured 25 Sept 2026 with the harness's `texneed` hook: on the largest
   screens most paintings are already drawn at or above their file's size, so smaller files would soften them; only
@@ -619,7 +627,11 @@ hooks) to a copy of `gallery3d.js`. Query parameters:
 The repo is on GitHub (private): github.com/kellywheelis/wedding-website, pushed over SSH (key in ~/.ssh/id_ed25519,
 added to the owner's account 23 Sept 2026). Push after each approved commit. Vercel deploys from it (kaweddinggallery.vercel.app), from the repo root with
 no build step: the root `vercel.json` sends phones to `/mobile/` (§4b) and rewrites `/`, `/gallery3d.js`, `/assets/*`,
-`/game/*` and `/mobile/*` to the files inside this folder; `api/scores.js` is served as `/api/scores` (§4c). The root
+`/game/*` and `/mobile/*` to the files inside this folder; `api/scores.js` is served as `/api/scores` (§4c). Its
+`headers` (26 Sept 2026) let browsers keep `/assets/*` and `/mobile/img/*` for an hour without asking again, then
+use their copy while checking for a newer one in the background (`stale-while-revalidate`, a week): return visits
+open almost at once, and a changed picture reaches a returning guest within the hour, or on their visit after
+that. The page and `gallery3d.js` are not covered, so a code change is seen straight away. The root
 `.vercelignore` keeps the working material off the live site: the `.md` files, the `*.dc.html` prototypes and their
 scripts, `walls.json`, `tools/`, `uploads/` and `screenshots/`, and (since 25 Sept 2026) the three tracked folders of
 raw game-art exports at the repo root. The history is in `git log`; each commit message says

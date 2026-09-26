@@ -80,7 +80,7 @@
   </section>
 
   <section><h2>Allergies and dietary needs</h2><div id="diet"></div></section>
-  <section><h2>The LEGO shelf</h2><p class="note">Every household's figures, as they built them. Only you and that household see them.</p><div id="lego"></div></section>
+  <section><h2>The LEGO shelf</h2><p class="note">Every household's minifigures, as they built them. Only you and that household see them.</p><div id="lego"></div></section>
 
   <section>
     <h2>The guest list</h2>
@@ -117,7 +117,7 @@
   async function paintLego() {
     const hh = DATA.households.filter((h) => (h.figs || []).length);
     if (!hh.length) { el('lego').innerHTML = '<p class="note">None yet.</p>'; return; }
-    let snap = null; try { snap = (await import('/lego/station.js')).snapshot; } catch (e) { /* names only */ }
+    let snap = null; try { const m = await import('/lego/station.js'); await m.picturesReady; snap = m.snapshot; } catch (e) { /* names only */ }
     el('lego').innerHTML = hh.map((h) => `<div style="margin:0 0 14px"><b style="color:var(--cream)">${esc(h.names)}</b> <span class="note">· ${h.figs.length} of ${h.seats}</span><div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:6px">` +
       h.figs.map((f) => `<figure style="margin:0;width:120px;text-align:center">${snap ? `<img src="${snap(f, 240, 320)}" alt="" style="width:120px;height:160px;display:block;background:radial-gradient(ellipse at 50% 40%,#3a3026,#1c1611)">` : ''}<figcaption>${esc(f.name)}<br><span class="note">${when(f.when)}</span></figcaption></figure>`).join('') + '</div></div>').join('');
   }

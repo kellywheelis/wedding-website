@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import * as FIGS from './lego/figs.js';
 import { openStation, stationOpen, closeStation } from './lego/station.js';
+import { mergeGeometries } from './assets/lib/three/examples/jsm/utils/BufferGeometryUtils.js';
 
 // ---------------------------------------------------------------- plan
 // Blueprint units divided by 200: 1000 blueprint units = 5 m.
@@ -40,8 +41,8 @@ const STATIONS = [
   // the LEGO shelf under the frame across from the arcade: a signed-in household's own figures, and the build station
   { id: 'kellyShelf', x: -1.98, z: GALLERY_Z - 1.3, yaw: Math.PI / 2, eye: 1.34, pitch: -0.3, room: 'atrium', accent: '#C9A667', tour: false, back: 'kelly', build: true,
     eyebrow: 'The atrium · Kelly · build station', title: 'The LEGO Shelf',
-    body: 'Kelly has been building with LEGO bricks for as long as she can remember, so of course there is a build station. Make a figure for each seat in your household, from the everyday to the fully Italian, and give each one a name. They stand here on your own shelf, seen only by your household, and you can come back and change them whenever you like.',
-    meta: 'Build station · click the shelf, or Build a figure below' },
+    body: 'Kelly has been building with LEGO bricks for as long as she can remember, so of course there is a build station. Create your own minifigures from the different options, from the everyday to the fully Italian, and give each one a name!',
+    meta: 'Build station · click the shelf, or Build a minifigure below' },
   { id: 'anthony', x: 0, z: GALLERY_Z, yaw: -Math.PI / 2, room: 'atrium', accent: '#C9A667',
     eyebrow: 'The atrium · Anthony', title: 'Anthony',
     body: 'Photographs to come.', meta: 'Placeholder' },
@@ -1271,6 +1272,32 @@ Object.keys(GALLERY_NAMES).forEach((who) => {
   scene.add(g);
 });
 
+// many small meshes into one per material (and per kind of geometry), for the parts bins: a bin's hundred-odd pieces then
+// cost the renderer a handful of draws. Multi-material pieces are split by their material groups first.
+function bake(root) {
+  root.updateMatrixWorld(true);
+  const inv = new THREE.Matrix4().copy(root.matrixWorld).invert(), buckets = new Map();
+  const keep = (geo) => { Object.keys(geo.attributes).forEach((k) => { if (!['position', 'normal', 'uv'].includes(k)) geo.deleteAttribute(k); });
+    if (!geo.attributes.uv) geo.setAttribute('uv', new THREE.Float32BufferAttribute(new Float32Array(geo.attributes.position.count * 2), 2));
+    if (!geo.attributes.normal) geo.computeVertexNormals(); geo.clearGroups(); return geo; };
+  const slice = (geo, start, count) => {                             // one material group of a geometry, as its own geometry
+    const out = new THREE.BufferGeometry();
+    if (geo.index) { Object.keys(geo.attributes).forEach((k) => out.setAttribute(k, geo.attributes[k])); out.setIndex(new THREE.BufferAttribute(geo.index.array.slice(start, start + count), 1)); }
+    else Object.keys(geo.attributes).forEach((k) => { const a = geo.attributes[k]; out.setAttribute(k, new THREE.BufferAttribute(a.array.slice(start * a.itemSize, (start + count) * a.itemSize), a.itemSize)); });
+    return out;
+  };
+  root.traverse((o) => {
+    if (!o.isMesh) return;
+    const m = new THREE.Matrix4().multiplyMatrices(inv, o.matrixWorld), mats = Array.isArray(o.material) ? o.material : [o.material];
+    const parts = Array.isArray(o.material) && o.geometry.groups.length ? o.geometry.groups.map((gr) => [slice(o.geometry, gr.start, gr.count), mats[gr.materialIndex]]) : [[o.geometry.clone(), mats[0]]];
+    parts.forEach(([geo, mat]) => { if (!mat) return; keep(geo).applyMatrix4(m); const key = mat.uuid + (geo.index ? 'i' : 'n');
+      if (!buckets.has(key)) buckets.set(key, [mat, []]); buckets.get(key)[1].push(geo); });
+  });
+  const out = new THREE.Group();
+  buckets.forEach(([mat, geos]) => { const merged = mergeGeometries(geos); geos.forEach((g2) => g2.dispose()); if (!merged) return;
+    const mesh = new THREE.Mesh(merged, mat); mesh.castShadow = mesh.receiveShadow = true; out.add(mesh); });
+  return out;
+}
 // ---- the LEGO shelf (26 Sept 2026, the owner's idea): under the frame across from the arcade, a white shelf. On its left,
 // four LEGO storage bins of loose parts (heads, torsos, legs, accessories) mark it as the build station; on its right, a
 // tan studded baseplate where a signed-in household's own figures stand (lego/figs.js). Nobody else's are ever shown:
@@ -1281,9 +1308,27 @@ const shelf = new THREE.Group();
 shelf.position.set(-P.corrX, 0, SHELF.z);
 shelf.rotation.y = Math.PI / 2;                                   // local +z into the hall, x along the wall (to the viewer's right)
 (function buildShelf() {
-  const white = new THREE.MeshStandardMaterial({ color: '#f1ede4', roughness: 0.42 });
-  const board = new THREE.Mesh(new THREE.BoxGeometry(SHELF.len, 0.028, SHELF.depth), white);
-  board.position.set(0, SHELF.y - 0.014, SHELF.depth / 2);
+  // a museum wall console (the owner: nicer, and in keeping): a white statuary marble top with a gilt ogee along its
+  // front edge, a walnut frieze beneath it carrying the brass plaque, and two carved gilt scroll brackets
+  const TOP = 0.026, board = new THREE.Mesh(new THREE.BoxGeometry(SHELF.len + 0.03, TOP, SHELF.depth + 0.012), marbleStatuary);
+  board.position.set(0, SHELF.y - TOP / 2, SHELF.depth / 2 + 0.006);
+  const under = new THREE.Mesh(new THREE.BoxGeometry(SHELF.len - 0.02, 0.019, SHELF.depth - 0.012), walnutTable); under.position.set(0, SHELF.y - TOP - 0.0095, (SHELF.depth - 0.012) / 2); shelf.add(under);   // between the top and the frieze, behind the gilt edge
+  const ogee = new THREE.Shape(); ogee.moveTo(0, 0); ogee.lineTo(0.006, 0); ogee.quadraticCurveTo(0.016, 0, 0.016, -0.008); ogee.quadraticCurveTo(0.016, -0.016, 0.005, -0.018); ogee.lineTo(0, -0.018); ogee.closePath();
+  const edgeG = new THREE.ExtrudeGeometry(ogee, { depth: SHELF.len + 0.03, bevelEnabled: false, curveSegments: 10 }); edgeG.rotateY(Math.PI / 2); edgeG.translate(-(SHELF.len + 0.03) / 2, 0, 0);
+  const edge = new THREE.Mesh(edgeG, giltPlain); edge.position.set(0, SHELF.y - TOP, SHELF.depth + 0.004);   // under the top's front edge, curving out
+  const FR = { h: 0.062, y: SHELF.y - TOP - 0.018 };
+  const frieze = new THREE.Mesh(new THREE.BoxGeometry(SHELF.len - 0.02, FR.h, SHELF.depth - 0.002), walnutTable); frieze.position.set(0, FR.y - FR.h / 2, (SHELF.depth - 0.002) / 2);   // a walnut body, wall to front
+  const bead = new THREE.Mesh(new THREE.CylinderGeometry(0.0045, 0.0045, SHELF.len - 0.02, 12), giltPlain); bead.rotation.z = Math.PI / 2; bead.position.set(0, FR.y - FR.h, SHELF.depth + 0.002);
+  const corbel = () => {                                             // a scroll bracket: a flat top under the frieze, curling down and back to the wall
+    const sh = new THREE.Shape(); sh.moveTo(0, 0); sh.lineTo(0.15, 0); sh.bezierCurveTo(0.175, -0.05, 0.075, -0.055, 0.07, -0.105); sh.bezierCurveTo(0.065, -0.155, 0.04, -0.2, 0, -0.205); sh.closePath();
+    const g = new THREE.Group(), body = new THREE.Mesh(new THREE.ExtrudeGeometry(sh, { depth: 0.03, bevelEnabled: true, bevelSize: 0.004, bevelThickness: 0.004, bevelSegments: 3, curveSegments: 24 }), giltMat);
+    body.rotation.y = -Math.PI / 2; body.position.x = 0.015; g.add(body);                    // its profile in the z-y plane, 3 cm wide
+    [[0.128, -0.036, 0.021], [0.03, -0.186, 0.015]].forEach(([z, y, r]) => { const v = new THREE.Mesh(new THREE.CylinderGeometry(r, r, 0.042, 24), giltPlain); v.rotation.z = Math.PI / 2; v.position.set(0, y, z); g.add(v); });   // the volutes
+    const leaf = new THREE.Mesh(new THREE.SphereGeometry(0.02, 16, 10), giltMat); leaf.scale.set(0.6, 1.6, 0.5); leaf.position.set(0, -0.085, 0.085); leaf.rotation.x = -0.5; g.add(leaf);   // an acanthus leaf down its front
+    g.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } }); return g; };
+  const brackets = [-1, 1].map((sd) => { const c = corbel(); c.position.set(sd * (SHELF.len / 2 - 0.09), FR.y - FR.h, 0); return c; });
+  [edge, frieze, bead].forEach((m) => { m.castShadow = true; m.receiveShadow = true; });
+  shelf.add(edge, frieze, bead);
   const tanPlastic = new THREE.MeshStandardMaterial({ color: '#E4CD9E', roughness: 0.34 });
   const pitch = 0.022, cols = 21, rows = 6;                       // a LEGO stud every 8 mm, at the figures' scale
   const plate = new THREE.Mesh(new THREE.BoxGeometry(cols * pitch, 0.0088, rows * pitch), tanPlastic);
@@ -1291,15 +1336,14 @@ shelf.rotation.y = Math.PI / 2;                                   // local +z in
   const studs = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.0066, 0.0066, 0.0047, 16), tanPlastic, cols * rows);
   const m4 = new THREE.Matrix4();
   for (let i = 0; i < cols; i++) for (let j = 0; j < rows; j++) { m4.makeTranslation(SHELF.figsX + (i - (cols - 1) / 2) * pitch, SHELF.y + 0.0088 + 0.0023, SHELF.depth / 2 + 0.004 + (j - (rows - 1) / 2) * pitch); studs.setMatrixAt(i * rows + j, m4); }
-  const brackets = [-0.34, 0.34].map((x) => { const b = new THREE.Mesh(new THREE.BoxGeometry(0.018, 0.09, 0.11), brass); b.position.set(x, SHELF.y - 0.07, 0.055); return b; });
-  const sign = new THREE.Mesh(new THREE.PlaneGeometry(0.2, 0.04), new THREE.MeshStandardMaterial({ map: plaqueTexture('BUILD STATION', 84), roughness: 0.45, metalness: 0.15 }));
-  sign.position.set(-0.23, SHELF.y - 0.014, SHELF.depth + 0.0012);
+  const sign = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.04, 0.004), [brass, brass, brass, brass, new THREE.MeshStandardMaterial({ map: plaqueTexture('BUILD STATION', 84), roughness: 0.45, metalness: 0.15 }), brass]);
+  sign.position.set(0, FR.y - FR.h / 2, SHELF.depth + 0.0042);          // centered on the frieze
   [board, plate, studs].forEach((m) => { m.castShadow = true; m.receiveShadow = true; });
   shelf.add(board, plate, studs, sign, ...brackets);
   // the parts bins: open storage boxes in the classic LEGO colors, a printed label on each, heaped with loose parts
   let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647, pick = (l) => l[Math.floor(rnd() * l.length)].id;
   const BIN = { w: 0.092, d: 0.094, h: 0.05, wall: 0.003 };
-  const bins = [['HEADS', '#C91A09', 'head', 7], ['TORSOS', '#0055BF', 'torso', 4], ['LEGS', '#F2CD37', 'legs', 4], ['ACCESSORIES', '#237841', 'acc', 7]];
+  const bins = [['HEADS', '#C91A09', 'head', 60], ['TORSOS', '#0055BF', 'torso', 34], ['LEGS', '#F2CD37', 'legs', 32], ['ACCESSORIES', '#237841', 'acc', 56]];
   bins.forEach(([label, col, kind, n], b) => {
     const g = new THREE.Group(), mat = new THREE.MeshStandardMaterial({ color: col, roughness: 0.3 });
     const wall = (w, h, d, x, y, z) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat); m.position.set(x, y, z); m.castShadow = m.receiveShadow = true; g.add(m); };
@@ -1307,25 +1351,52 @@ shelf.rotation.y = Math.PI / 2;                                   // local +z in
     wall(BIN.w, BIN.h * 0.72, BIN.wall, 0, BIN.h * 0.36, BIN.d / 2 - BIN.wall / 2);          // a low front, so the parts show
     wall(BIN.w, BIN.h, BIN.wall, 0, BIN.h / 2, -BIN.d / 2 + BIN.wall / 2);                    // back
     [-1, 1].forEach((s) => wall(BIN.wall, BIN.h, BIN.d, s * (BIN.w / 2 - BIN.wall / 2), BIN.h / 2, 0));
-    const lc = document.createElement('canvas'); lc.width = 256; lc.height = 64; const lx = lc.getContext('2d');
-    lx.fillStyle = '#fbf8f0'; lx.fillRect(0, 0, 256, 64); lx.fillStyle = '#2B2520'; lx.font = '600 ' + (label.length > 8 ? 26 : 32) + 'px Georgia'; lx.textAlign = 'center'; lx.textBaseline = 'middle';
-    if ('letterSpacing' in lx) lx.letterSpacing = '3px'; lx.fillText(label, 128, 34);
-    const lt = new THREE.CanvasTexture(lc); lt.colorSpace = THREE.SRGBColorSpace; lt.anisotropy = 4;
-    const tag = new THREE.Mesh(new THREE.PlaneGeometry(0.062, 0.0155), new THREE.MeshStandardMaterial({ map: lt, roughness: 0.6 }));
+    const lc = document.createElement('canvas'); lc.width = 512; lc.height = 136; const lx = lc.getContext('2d');   // a label filling the bin's front: large, bold, dark on cream
+    lx.fillStyle = '#fbf8f0'; lx.fillRect(0, 0, 512, 136); lx.strokeStyle = '#2B2520'; lx.lineWidth = 6; lx.strokeRect(8, 8, 496, 120);
+    lx.fillStyle = '#1b1612'; lx.textAlign = 'center'; lx.textBaseline = 'middle'; let fs = 86; lx.font = '700 ' + fs + 'px Georgia';
+    if ('letterSpacing' in lx) lx.letterSpacing = '4px'; while (lx.measureText(label).width > 460) lx.font = '700 ' + --fs + 'px Georgia'; lx.fillText(label, 256, 72);
+    const lt = new THREE.CanvasTexture(lc); lt.colorSpace = THREE.SRGBColorSpace; lt.anisotropy = 8;
+    const tag = new THREE.Mesh(new THREE.PlaneGeometry(0.084, 0.0223), new THREE.MeshStandardMaterial({ map: lt, roughness: 0.6 }));
     tag.position.set(0, BIN.h * 0.36, BIN.d / 2 + 0.0004); g.add(tag);
-    for (let k = 0; k < n; k++) {                                   // loose parts, tumbled in and heaped a little over the rim
-      const spec = kind === 'head' ? { face: pick(FIGS.FACES), skin: pick(FIGS.SKINS) } : kind === 'torso' ? { torso: pick(FIGS.TORSOS), skin: pick(FIGS.SKINS) } :
-        kind === 'legs' ? { legs: pick(FIGS.LEGS.filter((l) => !l.skirt)), skin: pick(FIGS.SKINS) } : { acc: pick(FIGS.ACCS.filter((a) => !['none', 'balloon', 'flag', 'sign'].includes(a.id))) };
-      const part = FIGS.loosePart(kind, spec); part.scale.setScalar(SHELF.scale);
-      const layer = Math.floor(k / 3), tilt = kind === 'head' ? 2.4 : kind === 'acc' ? 1.2 : 0.7;
-      part.position.set((rnd() - 0.5) * (BIN.w - 0.03), 0.004 + layer * 0.012, (rnd() - 0.6) * (BIN.d - 0.04));
-      part.rotation.set((rnd() - 0.5) * tilt, rnd() * Math.PI * 2, (rnd() - 0.5) * tilt * 0.8);
-      g.add(part); part.updateMatrixWorld(true);
-      const bb = new THREE.Box3().setFromObject(part), inset = BIN.wall + 0.002, rim = BIN.h * 0.72 + 0.012;   // kept inside the walls, heaped no higher than just over the front
-      part.position.x += Math.max(0, -BIN.w / 2 + inset - bb.min.x) - Math.max(0, bb.max.x - (BIN.w / 2 - inset));
-      part.position.z += Math.max(0, -BIN.d / 2 + inset - bb.min.z) - Math.max(0, bb.max.z - (BIN.d / 2 - inset));
-      part.position.y += Math.max(BIN.wall - bb.min.y, 0) - Math.max(0, bb.max.y - rim);
+    // full of loose parts at under half the figures' size (the owner: fewer, bigger ones did not read as a full bin). A
+    // dark block fills the bin past half its height, so the heap rises over the low front rim where it can be seen (the gaps between the parts read as shadow), and the parts are dropped
+    // in one by one onto a coarse height map of what is already there, so they settle into a heap that is highest in the
+    // middle and a little over the low front rim. Each bin's parts are then baked into one mesh per material (bake).
+    const PS = SHELF.scale * 0.46, iw = BIN.w - 2 * BIN.wall - 0.002, id = BIN.d - 2 * BIN.wall - 0.002, base = BIN.h * 0.5, G = 18;
+    const fillBlock = new THREE.Mesh(new THREE.BoxGeometry(iw, base, id), new THREE.MeshStandardMaterial({ color: '#2a2420', roughness: 0.8 }));
+    fillBlock.position.y = BIN.wall + base / 2; g.add(fillBlock);
+    const hmap = new Float32Array(G * G).fill(BIN.wall + base), cell = (u, n) => Math.min(G - 1, Math.max(0, Math.floor(u * G / n)));
+    const heap = new THREE.Group(); g.add(heap);
+    const faceSkins = Array.from({ length: 10 }, () => ({ face: pick(FIGS.FACES), skin: pick(FIGS.SKINS) }));   // a few faces, repeated: fewer prints to draw
+    const accs = FIGS.ACCS.filter((a) => !['none', 'balloon', 'flag', 'sign', 'parrot'].includes(a.id));
+    let placed = 0;
+    for (let tries = 0; placed < n && tries < n * 12; tries++) {
+      const spec = kind === 'head' ? faceSkins[Math.floor(rnd() * faceSkins.length)] : kind === 'torso' ? { torso: pick(FIGS.TORSOS), skin: pick(FIGS.SKINS) } :
+        kind === 'legs' ? { legs: pick(FIGS.LEGS.filter((l) => l.skirt !== 'gown')), skin: pick(FIGS.SKINS) } : { acc: accs[Math.floor(rnd() * accs.length)].id };
+      const part = FIGS.loosePart(kind, spec); part.scale.setScalar(PS);
+      const spin = rnd() * Math.PI * 2;
+      if (kind === 'head') part.rotation.set((rnd() - 0.5) * 1.6, spin, (rnd() - 0.5) * 1.0, 'YXZ');
+      else if (kind === 'acc') part.rotation.set(-Math.PI / 2 + (rnd() - 0.5) * 1.4, spin, (rnd() - 0.5) * 1.4, 'YXZ');
+      else part.rotation.set(-Math.PI / 2 + (rnd() - 0.5) * 0.7, spin, (rnd() - 0.5) * 0.6, 'YXZ');   // torsos and legs lie on their backs, prints up
+      part.position.set((rnd() - 0.5) * iw, 0, (rnd() - 0.5) * id);
+      heap.add(part); part.updateMatrixWorld(true);
+      const bb = new THREE.Box3().setFromObject(part);
+      part.position.x -= Math.max(0, bb.max.x - iw / 2) - Math.max(0, -iw / 2 - bb.min.x);   // inside the walls
+      part.position.z -= Math.max(0, bb.max.z - id / 2) - Math.max(0, -id / 2 - bb.min.z);
+      part.updateMatrixWorld(true); bb.setFromObject(part);
+      const sx = (bb.max.x - bb.min.x) * 0.22, sz = (bb.max.z - bb.min.z) * 0.22;             // its footprint, less its rounded edges
+      const x0 = cell(bb.min.x + sx + iw / 2, iw), x1 = cell(bb.max.x - sx + iw / 2, iw), z0 = cell(bb.min.z + sz + id / 2, id), z1 = cell(bb.max.z - sz + id / 2, id);
+      let floor = 0; for (let x = x0; x <= x1; x++) for (let z = z0; z <= z1; z++) floor = Math.max(floor, hmap[x * G + z]);
+      const hgt = bb.max.y - bb.min.y, bottom = floor - hgt * 0.35;                         // settled a little into what is beneath
+      const cx = (bb.min.x + bb.max.x) / 2 / (iw / 2), cz = (bb.min.z + bb.max.z) / 2 / (id / 2);
+      const limit = BIN.h * (1.02 + 0.32 * Math.max(0, 1 - (cx * cx + cz * cz)));          // a heap: over the rim, highest in the middle
+      if (bottom + hgt > limit) { heap.remove(part); FIGS.disposeFigure(part); continue; }
+      part.position.y += bottom - bb.min.y;
+      for (let x = x0; x <= x1; x++) for (let z = z0; z <= z1; z++) hmap[x * G + z] = Math.max(hmap[x * G + z], bottom + hgt * 0.55);   // the next nestles in
+      placed++;
     }
+    (window.__binCounts = window.__binCounts || []).push(label + ' ' + placed);
+    g.remove(heap); const baked = bake(heap); heap.traverse((o) => { if (o.geometry) o.geometry.dispose(); }); g.add(baked);
     g.position.set(-SHELF.len / 2 + 0.058 + b * (BIN.w + 0.006), SHELF.y, SHELF.depth / 2 + 0.004);
     g.rotation.y = (rnd() - 0.5) * 0.08;
     shelf.add(g);
@@ -1334,13 +1405,13 @@ shelf.rotation.y = Math.PI / 2;                                   // local +z in
   scene.add(shelf);
 })();
 const shelfFigs = new THREE.Group(); shelf.add(shelfFigs);
-function paintShelf() {                                            // the household's figures, left to right as seen from the hall
+function paintShelf() {                                            // the household's figures, each on its own small plinth, left to right
   shelfFigs.children.slice().forEach((f) => { shelfFigs.remove(f); FIGS.disposeFigure(f); });
-  const figs = (GUEST.household && GUEST.figs) || [], n = figs.length, gap = n > 1 ? Math.min(0.1, (SHELF.figsW - 0.07) / (n - 1)) : 0;
+  const figs = (GUEST.household && GUEST.figs) || [], n = figs.length, pw = FIGS.PLINTH.w * SHELF.scale;
+  const k = Math.min(1, SHELF.figsW / (n * (pw + 0.006))), gap = n > 1 ? Math.min(0.1, (SHELF.figsW - pw * k) / (n - 1)) : 0;   // more than fit: all a little smaller
   figs.forEach((f, i) => {
-    const g = FIGS.buildFigure(f); g.scale.setScalar(SHELF.scale);
-    g.position.set(SHELF.figsX + (i - (n - 1) / 2) * gap, SHELF.y + 0.0088, SHELF.depth / 2 + 0.01);
-    g.rotation.y = (i - (n - 1) / 2) * -0.08;                      // turned a touch toward the middle, like a posed line-up
+    const g = FIGS.onPlinth(f); g.scale.setScalar(SHELF.scale * k);
+    g.position.set(SHELF.figsX + (i - (n - 1) / 2) * gap, SHELF.y + 0.0088, SHELF.depth / 2 + 0.004);
     shelfFigs.add(g);
   });
   renderer.shadowMap.needsUpdate = true;
@@ -1356,7 +1427,7 @@ function paintShelf() {                                            // the househ
 // A click on it from its stop: the view leans in closer first (the owner's wish), then a yellow petal comes loose and
 // drops onto the accessories bin on the shelf below, the view glances left and right (did anyone see?), the petal floats
 // back up and clicks into place, and the view eases back to the stop. Under Reduce motion, no lean and no glance.
-const SUN = { z: GALLERY_Z - 1.3, y: 1.88, w: 0.41, h: 0.54, k: 1.05 / 0.54, lift: 0.028, depth: 0.034, rim: 0.008, relief: 0.025, px: 1230, py: 1620, leafBox: [573, 618, 643, 665], ready: false };
+const SUN = { z: GALLERY_Z - 1.3, y: 1.88, w: 0.41, h: 0.54, k: 1.0 / 0.54, lift: 0.028, depth: 0.034, rim: 0.008, relief: 0.025, px: 1230, py: 1620, leafBox: [573, 618, 643, 665], ready: false };
 const sun = new THREE.Group();
 sun.position.set(-P.corrX, SUN.y, SUN.z);
 sun.rotation.y = Math.PI / 2;                                    // as the shelf: local +z into the hall, +x to the viewer's right
@@ -1365,7 +1436,7 @@ const GAG = { t0: -1, yaw: 0, lean: 0, leaf: null, home: null };
 (function buildSunflowers() {
   const lin = (src) => { const t = loader.load(src); t.colorSpace = THREE.NoColorSpace; return t; };
   const map = loader.load('assets/lego/sunflowers.jpg', () => {
-    SUN.ready = true; if (K2FRAME) K2FRAME.visible = false; sun.visible = true; renderer.shadowMap.needsUpdate = true;
+    SUN.ready = true; if (K2FRAME) K2FRAME.children[1].visible = false; sun.visible = true; renderer.shadowMap.needsUpdate = true;   // set into the gold frame (the owner's wish), as the arcade screen is
   }, undefined, () => { sun.visible = false; });
   map.colorSpace = THREE.SRGBColorSpace; map.anisotropy = 8;
   const TAN = '#D2BD92', tan = new THREE.MeshStandardMaterial({ color: TAN, roughness: 0.4 });
@@ -1466,7 +1537,7 @@ function openShelf() {
       return ok ? { ok: true, figs: d.figs } : { ok: false, error: d.error };
     },
     onSaved: (figs) => { GUEST.figs = figs; paintShelf(); } }),
-  'The build station is for our guests. Sign in with your phone number and the code from your invitation, and build a figure for each of you.');
+  'The build station is for our guests. Sign in with your phone number and the code from your invitation, and build a minifigure for each of you.');
 }
 
 // ---- Anthony's artifacts, on his wall. Each is a group whose local +z faces into the hall and whose origin sits on
@@ -2574,7 +2645,7 @@ const SCULPTURES = {
     ['The Court of Gonzaga (Camera degli Sposi), Andrea Mantegna, 1465–74', 'Palazzo Ducale, Mantua · public domain'],
     ['Allegory of the Planets and Continents (sketch for a ceiling), Giovanni Battista Tiepolo, 1752', 'The Metropolitan Museum of Art, New York · public domain'],
     ['Pop-Up Invitation, Truong Hoai Vu', 'vuth.art · illustration and paper engineering, shown with the artist’s permission'],
-    ['The LEGO Shelf and its figures', 'LEGO® is a trademark of the LEGO Group of companies which does not sponsor, authorize or endorse this site. The figures and their parts were modeled for this gallery.'],   // LEGO's Fair Play wording for fan sites
+    ['The LEGO Shelf and its minifigures', 'LEGO® is a trademark of the LEGO Group of companies which does not sponsor, authorize or endorse this site. The minifigures and their parts were modeled for this gallery.'],   // LEGO's Fair Play wording for fan sites
     ...Object.values(SCULPTURES).map((c) => [c.title, c.credit + ' · simplified for the web, shared under the same license'])
   ];
   rows.forEach(([what, who]) => {
@@ -3494,7 +3565,7 @@ function paintLabel(st) {
   el('more').dataset.card = st.card || '';
   el('more').dataset.game = st.game || '';
   el('more').dataset.build = st.build ? '1' : '';
-  el('more').innerHTML = st.game ? 'Play &nbsp;&rarr;' : st.build ? 'Build a figure &nbsp;&rarr;' : 'Read the full details &nbsp;&rarr;';
+  el('more').innerHTML = st.game ? 'Play &nbsp;&rarr;' : st.build ? 'Build a minifigure &nbsp;&rarr;' : 'Read the full details &nbsp;&rarr;';
   // ease the new text in, so a change of write-up catches the eye (restarts the CSS animation)
   ['eyebrow', 'title', 'body', 'meta'].forEach((id) => {
     const n = el(id);

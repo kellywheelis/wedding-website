@@ -1,5 +1,5 @@
 // The build station: a pop-up where a signed-in household makes its figures for the LEGO shelf (one per seat) and
-// edits them later. A live 3D preview turns slowly (drag to turn it yourself); each part has its own wheel with arrows,
+// edits them later. A 3D preview shows the figure facing forward; two arrows turn it to either side view (not the back); each part has its own wheel with arrows,
 // hair color and skin tone are swatches, "Surprise me" rolls a random figure, and the figure needs a name before it goes
 // on the shelf. Shared by the 3D gallery and the phone guide: each passes the household, its saved figures, and a save
 // function (the page's own call to api/guest.js). Inputs are never focused on their own: on a phone the keyboard comes
@@ -8,9 +8,10 @@ import * as THREE from 'three';
 import * as F from './figs.js';
 
 const ROWS = [
-  ['hair', 'Hair & hats', F.HAIRS], ['hc', 'Hair color', F.HAIR_COLORS, true], ['face', 'Face', F.FACES], ['skin', 'Skin tone', F.SKINS, true],
-  ['torso', 'Torso', F.TORSOS], ['legs', 'Legs', F.LEGS], ['acc', 'In hand', F.ACCS],
+  ['hair', 'Hair', F.HAIRS], ['hc', 'Hair color', F.HAIR_COLORS, true], ['hat', 'Hat', F.HATS], ['face', 'Face', F.FACES], ['fh', 'Facial hair', F.FACIAL_HAIR], ['gl', 'Glasses', F.GLASSES], ['skin', 'Skin tone', F.SKINS, true],
+  ['torso', 'Torso', F.TORSOS], ['legs', 'Legs', F.LEGS], ['acc', 'In hand', F.ACCS], ['pet', 'Pet', F.PETS],
 ];
+const PI4 = Math.PI / 4;
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const CSS = `
 .lgs{position:fixed;inset:0;z-index:95;display:none;place-items:center;padding:clamp(8px,3vw,40px);background:rgba(20,15,10,.78);font-family:'EB Garamond',Georgia,serif;color:#2B2520}
@@ -22,8 +23,10 @@ const CSS = `
 .lgs-tab{height:32px;padding:0 12px;border:1px solid rgba(122,26,60,.45);background:transparent;color:#7A1A3C;font:13px 'EB Garamond',Georgia,serif;cursor:pointer;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .lgs-tab.on{background:#7A1A3C;color:#F6F1E4}
 .lgs-main{display:grid;grid-template-columns:minmax(220px,340px) 1fr;gap:clamp(12px,2vw,24px);align-items:start}
-.lgs-stage{position:relative;aspect-ratio:3/4;background:radial-gradient(ellipse at 50% 40%,#fffaf0 0%,#e9dfca 70%,#d9ccb0 100%);box-shadow:inset 0 0 0 1px rgba(122,26,60,.25);touch-action:none;cursor:grab}
+.lgs-stage{position:relative;aspect-ratio:3/4;background:radial-gradient(ellipse at 50% 40%,#fffaf0 0%,#e9dfca 70%,#d9ccb0 100%);box-shadow:inset 0 0 0 1px rgba(122,26,60,.25)}
 .lgs-stage canvas{display:block;width:100%;height:100%}
+.lgs-turn{position:absolute;bottom:10px;width:34px;height:34px;border-radius:50%;border:1px solid #7A1A3C;background:rgba(246,241,228,.92);color:#7A1A3C;font:16px/1 Georgia,serif;cursor:pointer;padding:0}
+.lgs-turn.l{left:10px}.lgs-turn.r{right:10px}.lgs-turn:disabled{opacity:.35;cursor:default}
 .lgs-dice{position:absolute;left:50%;top:10px;transform:translateX(-50%);height:32px;padding:0 14px;border:1px solid #7A1A3C;background:rgba(246,241,228,.92);color:#7A1A3C;font:12px 'EB Garamond',Georgia,serif;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
 .lgs-rows{display:grid;gap:7px}
 .lgs-row{display:grid;grid-template-columns:92px 30px 1fr 30px;align-items:center;gap:6px}
@@ -52,9 +55,9 @@ function build() {
   root = document.createElement('div'); root.className = 'lgs'; root.id = 'lgs'; root.setAttribute('role', 'dialog'); root.setAttribute('aria-label', 'The build station');
   root.innerHTML = `<div class="lgs-card"><p class="lgs-eyebrow">The LEGO shelf &middot; build station</p><h3 class="lgs-title" id="lgsTitle"></h3>
     <div class="lgs-tabs" id="lgsTabs"></div>
-    <div class="lgs-main"><div class="lgs-stage" id="lgsStage"><button type="button" class="lgs-dice" id="lgsDice">Surprise me</button></div>
+    <div class="lgs-main"><div class="lgs-stage" id="lgsStage"><button type="button" class="lgs-dice" id="lgsDice">Surprise me</button><button type="button" class="lgs-turn l" id="lgsTurnL" aria-label="Turn the minifigure to its right">&#8634;</button><button type="button" class="lgs-turn r" id="lgsTurnR" aria-label="Turn the minifigure to its left">&#8635;</button></div>
       <div><div class="lgs-rows" id="lgsRows"></div>
-        <label class="lgs-name"><span>Name</span><input id="lgsName" type="text" maxlength="20" autocomplete="off" placeholder="Name your figure"></label></div></div>
+        <label class="lgs-name"><span>Name</span><input id="lgsName" type="text" maxlength="20" autocomplete="off" placeholder="Name your minifigure"></label></div></div>
     <p class="lgs-msg" id="lgsMsg"></p>
     <div class="lgs-btns"><button type="button" class="ok" id="lgsSave">Put it on the shelf</button><button type="button" id="lgsRemove">Take it off the shelf</button><span class="sp"></span><button type="button" id="lgsClose">Close</button></div></div>`;
   document.body.appendChild(root);
@@ -62,6 +65,9 @@ function build() {
   root.addEventListener('click', (e) => { if (e.target === root) close(); });
   $('lgsClose').addEventListener('click', close);
   $('lgsDice').addEventListener('click', () => { const r = F.randomFig(); cur().p = r.p; paint(); });
+  // the arrows turn the figure a quarter at a time, to either side view and no further (the owner: not round to the back)
+  const turn = (d) => { S.view = Math.max(-2, Math.min(2, S.view + d)); $('lgsTurnL').disabled = S.view <= -2; $('lgsTurnR').disabled = S.view >= 2; };
+  $('lgsTurnL').addEventListener('click', () => turn(-1)); $('lgsTurnR').addEventListener('click', () => turn(1));
   $('lgsName').addEventListener('input', () => { cur().name = $('lgsName').value; paintTabs(); });
   $('lgsSave').addEventListener('click', save);
   $('lgsRemove').addEventListener('click', remove);
@@ -78,7 +84,7 @@ function build() {
     paint();
   });
   document.addEventListener('keydown', (e) => { if (S && S.open && e.key === 'Escape') { e.stopPropagation(); close(); } }, true);
-  // the preview: its own small renderer, lit like a studio, the figure turning slowly; drag to turn it
+  // the preview: its own small renderer, lit like a studio, the figure facing forward
   const stage = $('lgsStage');
   const r = new THREE.WebGLRenderer({ antialias: true, alpha: true }); r.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
   r.toneMapping = THREE.ACESFilmicToneMapping; r.outputColorSpace = THREE.SRGBColorSpace; r.shadowMap.enabled = true;
@@ -89,17 +95,13 @@ function build() {
   const rim = new THREE.DirectionalLight('#dfe8ff', 0.7); rim.position.set(-80, 60, -70); scene.add(rim);
   const ground = new THREE.Mesh(new THREE.CircleGeometry(22, 48), new THREE.ShadowMaterial({ opacity: 0.18 })); ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
   const cam = new THREE.PerspectiveCamera(26, 3 / 4, 1, 1000);
-  const turn = { a: 0.35, drag: null };
-  stage.addEventListener('pointerdown', (e) => { if (e.target.closest('button')) return; turn.drag = { x: e.clientX, a: turn.a }; stage.setPointerCapture(e.pointerId); });
-  stage.addEventListener('pointermove', (e) => { if (turn.drag) turn.a = turn.drag.a + (e.clientX - turn.drag.x) * 0.012; });
-  ['pointerup', 'pointercancel'].forEach((ev) => stage.addEventListener(ev, () => { turn.drag = null; }));
-  root.three = { r, scene, cam, turn, stage };
+  root.three = { r, scene, cam, stage };
 }
 const cur = () => S.work[S.at];
 function paintTabs() {
   const tabs = root.querySelector('#lgsTabs');
-  tabs.innerHTML = S.work.map((f, i) => `<button type="button" class="lgs-tab${i === S.at ? ' on' : ''}" data-i="${i}">${esc(f.name || 'Figure ' + (i + 1))}</button>`).join('') +
-    (S.work.length < S.seats ? `<button type="button" class="lgs-tab" data-add="1">+ Add a figure</button>` : '');
+  tabs.innerHTML = S.work.map((f, i) => `<button type="button" class="lgs-tab${i === S.at ? ' on' : ''}" data-i="${i}">${esc(f.name || 'Minifigure ' + (i + 1))}</button>`).join('') +
+    (S.work.length < S.seats ? `<button type="button" class="lgs-tab" data-add="1">+ Add a minifigure</button>` : '');
 }
 function paint() {
   const f = cur(), rows = root.querySelector('#lgsRows');
@@ -122,8 +124,7 @@ function frame() {
   const t = root.three, w = t.stage.clientWidth, h = t.stage.clientHeight;
   if (w && h && (t.w !== w || t.h !== h)) { t.w = w; t.h = h; t.r.setSize(w, h, false); t.cam.aspect = w / h; t.cam.updateProjectionMatrix();
     const dist = Math.max(118, 118 * (0.75 / (w / h))); t.cam.position.set(0, 30, dist); t.cam.lookAt(0, 23, 0); }
-  if (!t.turn.drag && !S.still) t.turn.a += 0.006;
-  if (t.fig) t.fig.rotation.y = t.turn.a;
+  if (t.fig) { const want = S.view * PI4; t.fig.rotation.y = S.still ? want : t.fig.rotation.y + (want - t.fig.rotation.y) * 0.18; }   // eased toward the chosen view
   t.r.render(t.scene, t.cam);
   S.raf = requestAnimationFrame(frame);
 }
@@ -138,7 +139,7 @@ async function commit(list, done) {
 }
 function save() {
   const f = cur(); f.name = (f.name || '').trim();
-  if (!f.name) { msg('Give your figure a name first.'); return; }
+  if (!f.name) { msg('Give your minifigure a name first.'); return; }
   // the shelf keeps the saved figures plus this one; other unsaved tabs stay drafts until they are put up themselves
   const list = [], origin = [];
   S.work.forEach((w, i) => { if (i === S.at) { list.push(w); origin.push(i); } else if (S.origin[i]) { list.push(S.origin[i]); origin.push(i); } });
@@ -146,7 +147,7 @@ function save() {
 }
 function remove() {
   const gone = S.origin[S.at]; if (!gone) return;
-  if (!confirm('Take ' + (gone.name || 'this figure') + ' off the shelf?')) return;
+  if (!confirm('Take ' + (gone.name || 'this minifigure') + ' off the shelf?')) return;
   const keep = S.work.map((w, i) => (i !== S.at ? S.origin[i] : null)).filter(Boolean);
   commit(keep, () => {
     S.work.splice(S.at, 1); S.origin.splice(S.at, 1);
@@ -164,14 +165,14 @@ function close() {
 //         onSaved(figs), onClose(), at: index to open on, still: true to hold the preview still (reduced motion) }
 export function openStation(opts) {
   if (!root) build();
-  const saved = (opts.figs || []).map((f) => ({ name: f.name || '', p: { ...F.defaultFig().p, ...(f.p || {}) } }));
+  const saved = (opts.figs || []).map((f) => ({ name: f.name || '', p: F.normal(f.p), when: f.when }));
   S = { open: true, seats: Math.max(1, opts.household.seats || 1), save: opts.save, onSaved: opts.onSaved, onClose: opts.onClose, still: !!opts.still, saved,
-    origin: saved.slice(), work: saved.map((f) => ({ name: f.name, p: { ...f.p } })), at: 0 };
+    origin: saved.slice(), work: saved.map((f) => ({ name: f.name, p: { ...f.p } })), at: 0, view: 0 };
   if (!S.work.length) { S.work.push(F.randomFig()); S.origin.push(null); }
   S.at = Math.min(opts.at || 0, S.work.length - 1);
   root.querySelector('#lgsTitle').textContent = opts.household.names;
-  msg(saved.length ? '' : 'Build a figure for each of you, then put it on the shelf.');
-  root.classList.add('open'); paint();
+  msg(saved.length ? '' : 'Build a minifigure for each of you, then put it on the shelf.');
+  root.classList.add('open'); root.querySelector('#lgsTurnL').disabled = root.querySelector('#lgsTurnR').disabled = false; paint();
   root.three.w = 0; frame();
 }
 export const stationOpen = () => !!(S && S.open);
@@ -179,6 +180,7 @@ export const closeStation = close;
 // a still picture of a figure (a data: URL), for the phone guide's shelf and the private page: one small offscreen
 // renderer, lit as the station's preview, the figure turned a touch to show its depth
 let snapper = null;
+export const picturesReady = F.picturesReady;                            // wait for this before taking snapshots
 export function snapshot(fig, w = 180, h = 240) {
   if (!snapper) {
     const r = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true }); r.toneMapping = THREE.ACESFilmicToneMapping; r.outputColorSpace = THREE.SRGBColorSpace;
@@ -189,7 +191,7 @@ export function snapshot(fig, w = 180, h = 240) {
   }
   const { r, scene, cam } = snapper;
   r.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix(); cam.position.set(0, 30, 118 * Math.max(1, 0.75 / (w / h))); cam.lookAt(0, 23, 0);
-  const g = F.buildFigure(fig); g.rotation.y = 0.3; scene.add(g);
+  const g = F.buildFigure(fig); scene.add(g);                             // facing forward
   r.render(scene, cam); const url = r.domElement.toDataURL('image/png');
   scene.remove(g); F.disposeFigure(g);
   return url;

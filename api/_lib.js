@@ -11,7 +11,7 @@
 //   code:<CODE>    a household code (as normalised by codeKey) -> its household id
 //   qr:<key>       a QR key -> its household id
 //   reply:<id>     the household's RSVP: { yes, seats, of, events, plus, diet, note, name, card, when }
-//   figs:<id>      the household's figures on the LEGO shelf: [{ name, p: { hair, hc, face, skin, torso, legs, acc }, when }],
+//   figs:<id>      the household's figures on the LEGO shelf: [{ name, p: { hair, hat, hc, face, fh, gl, skin, torso, legs, acc, pet }, when }],
 //                  one per seat at most (lego/figs.js holds the parts)
 //   figlog         every shelf as saved, newest first (the owner's record of the builds, kept even after a figure is removed)
 //   replylog       every reply as posted, newest first (a record; the admin page reads reply:<id>)
@@ -77,7 +77,7 @@ export const newQrKey = () => randomBytes(16).toString('base64url');   // 22 cha
 
 export const clip = (s, n = 500) => String(s ?? '').trim().slice(0, n);
 // a figure's parts, as saved: each a short id (lego/figs.js falls back to its first part for any id it does not know)
-export function cleanParts(p) { const out = {}; ['hair', 'hc', 'face', 'skin', 'torso', 'legs', 'acc'].forEach((k) => { const v = String((p || {})[k] || ''); if (/^[a-z0-9-]{1,24}$/.test(v)) out[k] = v; }); return out; }
+export function cleanParts(p) { const out = {}; ['hair', 'hat', 'hc', 'face', 'fh', 'gl', 'skin', 'torso', 'legs', 'acc', 'pet'].forEach((k) => { const v = String((p || {})[k] || ''); if (/^[a-z0-9-]{1,24}$/.test(v)) out[k] = v; }); return out; }
 export const ipOf = (req) => String(req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '').split(',')[0].trim();
 export const parse = (v) => { if (v == null) return null; if (typeof v === 'object') return v; try { return JSON.parse(v); } catch (e) { return null; } };
 export const household = async (id) => parse(await redis.get('hh:' + id));

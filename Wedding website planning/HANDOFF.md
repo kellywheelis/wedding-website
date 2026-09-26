@@ -476,10 +476,52 @@ detail, so she gains least; re-converting her at more triangles would help.
   gelato, pizza, mandolin, prosecco, a map of Italy). Faces and torsos are canvas prints; everything else is geometry.
   A saved figure is `{ name, p: { hair, hc, face, skin, torso, legs, acc }, when }`; unknown ids fall back to the first
   part, so renaming a part never breaks a saved figure (but changing an id changes what old figures show).
-- `lego/station.js`: the pop-up (live turning preview, drag to turn, a wheel with arrows per part, swatches for hair
+- `lego/station.js`: the pop-up (a still preview, the figure facing forward, with two arrows that turn it a quarter at a
+  time to either side view and no further, `S.view` -2..2, a wheel with arrows per part, swatches for hair
   color and skin tone, "Surprise me", a name up to 20 letters, one figure per seat, "Put it on the shelf" / "Take it
   off the shelf"), shared by the 3D gallery and the phone guide, and `snapshot()` for still pictures. The name box is
   the third place the phone keyboard may appear (with the RSVP and the arcade initials); it is never focused on its own.
+- Revised 26 Sept 2026 after the owner tried it: hair rebuilt as thick moulded caps (`cap`: an ellipsoid shell whose
+  inside hugs the head, `hr`, so no skin shows through; `vol` adds moulded volume) with 15 plain styles and more; faces'
+  features printed a third larger (`FACE.k`); facial hair (13) and glasses (12) are their own wheels, `fh` and `gl`,
+  printed on their own sheets over the face (the mouth cut clear of any beard; a cut-out lens never erases the eyes);
+  an old saved face that was a beard or glasses is read as face + layer (`OLD_FACES`, `normal()`). Arms end in a wrist
+  peg and a proper C hand (`handGeo`), tipped forward. Shorts are two pieces per leg (no lip); the long skirt is LEGO's
+  sloped dress piece, the gowns a bell (`skirtGeo`), the short skirts over bare legs. New torsos: the KA monogram tee (gold
+  on burgundy, from assets/lego/monogram-ka-256.png; `picturesReady` waits for it before snapshots) and six tourist
+  shirts. Joke pieces (the owner's list): pirate hat, cutlass, a parrot on the shoulder (`shoulder: true`), Viking and
+  aviator and firefighter helmets, cowboy hat, three lightsabers, a ray gun, two wands, rolling pin, whisk, frying pan.
+  The parts bins are full: 60 heads, 34 torsos, 32 legs, 56 accessories at under half the figures' size, dropped one by
+  one onto a coarse height map so they heap over the low front rim, on a dark fill block, and baked into one mesh per
+  material per bin (`bake`, with BufferGeometryUtils' mergeGeometries). Test pages for all of it are in the session's
+  scratch (`figgrid.html`, `figclose.html`); harness `bincount=1` reports the bins' counts.
+- Second round, same day (the owner's notes): removed the receding, shoulder-length, top knot, low bun, big curls and
+  spiky hair, the chin strap, the espresso and the selfie phone; "Bald" is "No hair". Rebuilt: the fedora (pinched crown,
+  snap brim), flower crown (a green band set with five-petal flowers), bridal veil (opaque white, a pearl tiara), party hat
+  (striped, sitting on the hair), pirate hat (the captain's bicorne: tall half-moons front and back, gold trim, skull);
+  the skirts (`skirtGeo` was inside-out, so its inner wall showed and legs seemed to cut through; now A-line, a fuller
+  gown with a sash, short skirts over bare legs); the toothy smile's lines kept on the teeth; and the whisk, pizza,
+  bouquet, gelato, camera, baguette, map, suitcase, mandolin, cake, ring box and guidebook. Held things follow the hand's
+  tipped grip (`gripRot`) unless `level: true` (they sit or hang level: plate, box, case, book, map, pizza, mandolin).
+  New: a Pet wheel (`PETS`, a figure's `pet`): four dogs, four cats and a turtle at the figure's feet, two butterflies
+  perched on its free hand. On the shelf each figure stands on its own small plinth (`onPlinth`: marble, a gray foot,
+  a brass plate with the figure's name, 27 x 22 mm, the figure set back when it has a pet); more than fit are shown a
+  little smaller. The phone guide draws the plinths in CSS under each picture.
+- Third round, same day: the hair shell (`cap`) was inside-out, so its thin inner layer showed (darker than the buns and
+  tails built from the same color, odd at the head's stud); it is the right way out now. Hats are their own wheel
+  (`HATS`, a figure's `hat`, the owner's wish), worn over any hair: `cut` is where the hat meets the head, and under a
+  hat `capMesh` starts the hair there (the global `CUT`), anything of the hair above it (a bun) left off; a figure saved
+  with a hat as its hair is read as hair + hat (`normal()`). Removed the quiff and short curls; the side part has a groove
+  and a darker crease; new pigtails (a center part, tails tied behind the ears, hanging down); the aviator helmet's
+  goggles sit clear of it. The pets were remade as LEGO's are, single moulded forms (`rbox`: rounded blocks, smooth
+  shading via BufferGeometryUtils' `toCreasedNormals`) with printed eyes and noses: a sitting dog with collar and tag, a
+  standing cat on two leg panels, a turtle with a printed shell, butterflies with printed wings. The bin labels are
+  larger and bold. The Sunflowers sit in the gold frame now, as the arcade screen does (the frame's blank picture is
+  hidden, `SUN.k` 1.0 / 0.54 so the piece fits its opening). The shelf's write-up is the owner's wording.
+- The shelf itself is a museum wall console (the owner asked for it nicer and in keeping): a white statuary marble top
+  (`marbleStatuary`) with a gilt ogee along its front edge, a full-depth walnut body (`walnutTable`) with a gilt bead
+  beneath, the brass BUILD STATION plaque centered on its front, and two carved gilt scroll brackets (`corbel`, with
+  volutes and a leaf). On-screen text says "minifigure" throughout (the owner's word), not "figure".
 - Server: `api/guest.js` sends `figs` with sign-in and takes `{ action: 'figs', figs }` (the household's whole shelf);
   store `figs:<id>`, and `figlog` keeps every save for the owner's record. The private page shows each household's
   figures with pictures ("The LEGO shelf", `paintLego` in rsvp-admin.html).

@@ -80,8 +80,8 @@ window.CONTENT = {
    "shelf": {
     "eyebrow": "The atrium · Kelly · build station",
     "title": "The LEGO Shelf",
-    "body": "Kelly has been building with LEGO bricks for as long as she can remember, so of course there is a build station. Make a figure for each seat in your household, from the everyday to the fully Italian, and give each one a name. They stand here on your own shelf, seen only by your household, and you can come back and change them whenever you like.",
-    "meta": "Build station · click the shelf, or Build a figure below"
+    "body": "Kelly has been building with LEGO bricks for as long as she can remember, so of course there is a build station. Create your own minifigures from the different options, from the everyday to the fully Italian, and give each one a name!",
+    "meta": "Build station · click the shelf, or Build a minifigure below"
    }
   },
   {
@@ -542,7 +542,7 @@ window.CONTENT = {
   ["The Court of Gonzaga (Camera degli Sposi), Andrea Mantegna, 1465–74", "Palazzo Ducale, Mantua · public domain"],
   ["Allegory of the Planets and Continents (sketch for a ceiling), Giovanni Battista Tiepolo, 1752", "The Metropolitan Museum of Art, New York · public domain"],
   ["Pop-Up Invitation, Truong Hoai Vu", "vuth.art · illustration and paper engineering, shown with the artist’s permission"],
-  ["The LEGO Shelf and its figures", "LEGO® is a trademark of the LEGO Group of companies which does not sponsor, authorize or endorse this site. The figures and their parts were modeled for this gallery."],
+  ["The LEGO Shelf and its minifigures", "LEGO® is a trademark of the LEGO Group of companies which does not sponsor, authorize or endorse this site. The minifigures and their parts were modeled for this gallery."],
   ["The Capitoline Venus (cast of the marble in the Capitoline Museums, Rome)", "3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons · simplified for the web, shared under the same license"],
   ["The Ludovisi Mars, with Cupid at his feet (cast of the marble in Palazzo Altemps, Rome)", "3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons · simplified for the web, shared under the same license"],
   ["Venus with the Apple, Bertel Thorvaldsen, 1809", "3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons · simplified for the web, shared under the same license"],

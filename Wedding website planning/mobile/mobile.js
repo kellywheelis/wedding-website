@@ -46,7 +46,7 @@
       <figcaption class="label"><h3>${esc(k.title)}</h3><p class="meta">${esc(k.meta)}</p><p class="body">${esc(k.body)}</p></figcaption></figure>`; }
   if (atrium.shelf) html += `<div class="text"><p class="eyebrow">${esc(atrium.shelf.eyebrow)}</p><h3>${esc(atrium.shelf.title)}</h3><p class="body">${esc(phone(atrium.shelf.body))}</p></div>
     <div class="lego-shelf"><div class="lego-figs" id="legoFigs"></div><div class="lego-board"></div><p class="lego-note" id="legoNote"></p></div>
-    <div class="text"><button type="button" class="detbtn" data-lego>Build a figure</button></div>`;
+    <div class="text"><button type="button" class="detbtn" data-lego>Build a minifigure</button></div>`;
   html += `<div class="text center"><p class="eyebrow">The two galleries</p><p class="body">Two collections, one exhibit: on the left, Kelly's; on the right, Anthony's. The frames are waiting for photographs.</p><div><span class="plaque">Kelly</span> &nbsp; <span class="plaque">Anthony</span></div></div><div class="rule"></div></section>`;
 
   const wingHtml = (w, sub) => {
@@ -283,9 +283,9 @@
   async function paintLego() {
     const box = el('legoFigs'), note = el('legoNote'); if (!box) return;
     const figs = (GUEST.household && GUEST.figs) || [];
-    note.textContent = !GUEST.household ? 'Sign in to see your shelf and build your figures.' : figs.length ? '' : 'Your shelf is empty. Build a figure for each of you.';
+    note.textContent = !GUEST.household ? 'Sign in to see your shelf and build your minifigures.' : figs.length ? '' : 'Your shelf is empty. Build a minifigure for each of you.';
     if (!figs.length) { box.innerHTML = ''; return; }
-    try { const m = await legoMod(); box.innerHTML = figs.map((f) => `<figure><img src="${m.snapshot(f)}" alt="${esc(f.name)}"><figcaption>${esc(f.name)}</figcaption></figure>`).join(''); }
+    try { const m = await legoMod(); await m.picturesReady; box.innerHTML = figs.map((f) => `<figure><img src="${m.snapshot(f)}" alt="${esc(f.name)}"><figcaption><span>${esc(f.name)}</span></figcaption></figure>`).join(''); }
     catch (e) { box.innerHTML = figs.map((f) => `<figure><figcaption>${esc(f.name)}</figcaption></figure>`).join(''); }
   }
   async function openLego() {
@@ -299,7 +299,7 @@
       },
       onSaved: (figs) => { GUEST.figs = figs; paintLego(); }, onClose: () => { document.body.style.overflow = ''; } });
   }
-  document.addEventListener('click', (e) => { if (e.target.closest('[data-lego]')) needGuest(openLego, 'The build station is for our guests. Sign in with your phone number and the code from your invitation, and build a figure for each of you.'); });
+  document.addEventListener('click', (e) => { if (e.target.closest('[data-lego]')) needGuest(openLego, 'The build station is for our guests. Sign in with your phone number and the code from your invitation, and build a minifigure for each of you.'); });
   paintLego();
 
   // ---- the RSVP on the phone: the postcard's written side as a sheet; the Events box opens the window of this household's

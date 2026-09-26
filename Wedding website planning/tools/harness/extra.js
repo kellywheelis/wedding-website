@@ -616,3 +616,5 @@ function fakeGuest(n) {
 { const q = new URLSearchParams(location.search);
   if (q.has('solo')) setTimeout(() => { scene.children.forEach((o) => { if (o !== sun && !o.isLight) o.visible = false; }); scene.background = new THREE.Color('#8f8a80'); renderer.shadowMap.needsUpdate = true;
     document.querySelectorAll('body *').forEach((e) => { if (e !== canvas && !e.contains(canvas)) e.style.visibility = 'hidden'; }); }, 2500); }
+// bincount=1 : how many parts went into each bin
+{ const q = new URLSearchParams(location.search); if (q.has('bincount')) setTimeout(() => { const t = document.createElement('pre'); t.style.cssText = 'position:fixed;left:8px;top:60px;z-index:99;background:#000;color:#0f0;font:14px monospace;padding:4px;margin:0'; t.textContent = (window.__binCounts || []).join(' · ') + '\n' + (window.__rej || ''); document.body.appendChild(t); }, 2000); }

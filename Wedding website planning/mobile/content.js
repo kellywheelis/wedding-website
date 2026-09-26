@@ -163,7 +163,7 @@ window.CONTENT = {
        "img": "img/w2-watermelon-still-life.jpg",
        "aspect": 1.4371929824561402,
        "title": "Still Life with Fruit",
-       "body": "A watermelon split open on a blue-and-white plate, figs, peaches, and a melon nobody has gotten around to yet. Neapolitan still life is mostly an argument for dessert. We agree with it.",
+       "body": "A watermelon split open on a plate, figs, peaches, and a melon nobody has gotten around to yet. Neapolitan still life is mostly an argument for dessert. We’d make one edit: trade the spare melon for a bowl of gummy bears and monster cookies, and it’s our kind of table.",
        "meta": "Giovan Battista Ruoppolo, 1650–1699"
       }
      ]
@@ -194,7 +194,7 @@ window.CONTENT = {
     {
      "img": "img/sc-w2statue.jpg",
      "title": "Venus Italica",
-     "body": "When Napoleon carried the Medici Venus off to Paris, Florence commissioned Canova to make a replacement. She was so loved that when the original came home, they kept both. She is stepping out of her bath and reaching for a towel, which is roughly the energy of getting ready for a party. This is the reception wing. Take your time.",
+     "body": "When Napoleon carried the Medici Venus off to Paris, Florence commissioned Canova to make a replacement. She was so loved that when the original came home, they kept both. Fresh from the bath and reaching for her towel, Venus has clearly stayed in until her fingers wrinkled. That’s the house rule in the Alvarez home too, supervised by a fluffy dog with his chin on the tub.",
      "meta": "Antonio Canova, 1804–12 · Galleria Palatina, Florence; this version Musée d’art et d’histoire, Geneva"
     },
     {

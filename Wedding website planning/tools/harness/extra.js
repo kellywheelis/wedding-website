@@ -51,7 +51,9 @@
   if (q.has('gate')) document.getElementById('gate').style.setProperty('display', 'block', 'important'); }
 { const g = document.getElementById('gateGlow'); if (g) g.style.transition = 'none'; }
 { const q = new URLSearchParams(location.search);
-  if (q.has('gate')) { const st = document.createElement('style'); st.textContent = '*{animation-duration:.001s !important;animation-delay:0s !important}'; document.head.appendChild(st); } }
+  if (q.has('gate')) { const st = document.createElement('style'); st.textContent = '*{animation-duration:.001s !important;animation-delay:0s !important}'; document.head.appendChild(st); }
+  // nobtn=1 : the doors without their buttons or the loading note (for the link-preview picture)
+  if (q.has('nobtn')) { const st = document.createElement('style'); st.textContent = '#enter,#skip,#skip *,#loadbar{visibility:hidden !important}#gate p:has(#skip){visibility:hidden !important}'; document.head.appendChild(st); } }
 { const q = new URLSearchParams(location.search);
   if (q.has('ajar')) { // doors part-way open, to check the monogram splits cleanly with the leaves
     ['doorL', 'doorR'].forEach((id, i) => { const d = document.getElementById(id); d.style.transition = 'none'; d.style.transform = 'translateX(' + (i ? 18 : -18) + '%)'; });

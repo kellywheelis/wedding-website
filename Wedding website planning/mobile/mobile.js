@@ -276,7 +276,8 @@
   }
   function goSlide(i, smooth = true) {
     i = Math.max(0, Math.min(slides.length - 1, i));
-    strip.scrollTo({ left: i * strip.clientWidth, behavior: smooth ? 'smooth' : 'instant' });
+    const calm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;   // "Reduce motion": the arrows jump rather than glide (the CSS covers everything else)
+    strip.scrollTo({ left: i * strip.clientWidth, behavior: smooth && !calm ? 'smooth' : 'instant' });
     setIndex(i);
   }
   function applyMode() {                                             // sideways and past the doors: the gallery; upright: the guide

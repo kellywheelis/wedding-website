@@ -403,6 +403,16 @@ detail, so she gains least; re-converting her at more triangles would help.
   in the outer part of the screen (`LOOK.edge`) turns the view that way, up to `LOOK.spin` rad/s, folded into
   `cam.yaw` so it persists and walks start from it, but never more than `LOOK.limit` (a quarter turn) from the
   stop's own facing, so you cannot spin round and lose your bearings. Off at close-ups, walk-ups, the stand, during walks and cards.
+- Touch screens (26 Sept 2026, `touchLook`): a finger has no cursor to hold at the edge, so a one-finger drag looks
+  round instead: at `look: 'free'` stops it turns the view (the scene follows the finger, same `LOOK.limit`), elsewhere
+  it gives the cursor's few-degree lean and eases back on release. A tap stays a tap (under 10 px of movement); the
+  click arriving within 400 ms of a drag's end is ignored. A touch no longer drives the cursor lean or edge-turn.
+- "Reduce motion" (26 Sept 2026, `REDUCED`, `motionClock`, `calmAfterRender`): with the system setting on, or `?calm` on
+  the address, the frame on screen when a walk or turn begins is copied onto a canvas laid over the view (right after
+  it is drawn, the only moment WebGL pixels can be read back); the move runs 8 times faster unseen beneath it, and at
+  the stop that copy dissolves (450 ms) into the new view: a crossfade, no dark moment (the owner chose it over a fade
+  to black). Routes and end positions are the same (checked over 11 walks). Walks and turns read their own clock,
+  `mnow`, held for the one copied frame. The postcard rack's idle spin stops too.
 - Frame rate while walking: the cursor's ray test is the dearest thing in a frame, so it runs only when the mouse
   moves (and for ~100 frames after a walk ends), not on every frame of a walk (`updatePointer`); and the sculpture
   scans (55k-118k triangles each) are left OUT of it (`raycast = () => {}`), each carrying an
@@ -597,6 +607,8 @@ hooks) to a copy of `gallery3d.js`. Query parameters:
 | `press=fx,fy;…`, `drag=fx,fy>fx,fy` | Save-the-date: simulated clicks / a drag on the held card; reports the plates turned. |
 | `ihold=1`, `idoors=1`, `icard=1`, `itilt=x,y`, `iclick=fx,fy;…` | Invitation (go to `detInvite` first): lifted pose, doors open, card drawn, look-in tilt (-1..1), real clicks with a report. |
 | `gate=1`, `ajar=1`, `open=1`, `motto=1`, `credits=1` | Show the entry doors / part-open doors / click Open / the motto / the credits panel. |
+| `midwalk=id&frames=n` | Start walking to a stop and stop n frames in, drawing each frame: shows the view part-way (with `calm`, what "Reduce motion" shows mid-move). |
+| `tdrag=dx`, `calm` | A simulated finger dragged dx px across the view, then a tap: reports the turn, the lean and whether the tap was ignored. `calm` turns on "Reduce motion". |
 | `texneed=1800` | For every flat picture, the most screen pixels one of its texels covers from any stop, on a view that many device pixels tall (JSON in `<pre id="texneed">`; read it with `--dump-dom`). Under 1: the file is bigger than it is ever drawn. |
 
 **Gotchas learned the hard way**

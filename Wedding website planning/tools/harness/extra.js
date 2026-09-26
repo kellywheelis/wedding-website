@@ -499,3 +499,39 @@
     });
     const pre = document.createElement('pre'); pre.id = 'texneed'; pre.textContent = JSON.stringify(need); document.body.appendChild(pre);
   }, 7000); }
+{ const q = new URLSearchParams(location.search);
+  // tdrag=dx : after any goto has settled, drag a (simulated) finger dx pixels across the middle of the view and let
+  // go, then tap where it stopped; reports the view's turn and lean, and whether the tap after the drag was ignored
+  if (q.has('tdrag')) setTimeout(() => {
+    const dx = +q.get('tdrag'), r = canvas.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    const ev = (type, x) => canvas.dispatchEvent(new PointerEvent(type, { pointerId: 7, pointerType: 'touch', clientX: x, clientY: cy, bubbles: true }));
+    const yaw0 = cam.yaw, idx0 = idx; let lean = null;
+    ev('pointerdown', cx);
+    for (let i = 1; i <= 10; i++) { ev('pointermove', cx + dx * i / 10); window.dispatchEvent(new PointerEvent('pointermove', { pointerId: 7, pointerType: 'touch', clientX: cx + dx * i / 10, clientY: cy, bubbles: true })); }
+    lean = touchLook.lean;
+    const raf = window.requestAnimationFrame; window.requestAnimationFrame = () => 0;
+    for (let i = 0; i < 40; i++) frame(performance.now() + i * 16);
+    const leanShown = LOOK.x;
+    ev('pointerup', cx + dx);
+    canvas.dispatchEvent(new MouseEvent('click', { clientX: cx + dx, clientY: cy, bubbles: true }));
+    const tapIgnored = idx === idx0 && !queue.length && !leg;
+    frame(performance.now()); window.requestAnimationFrame = raf;
+    const tag = document.createElement('div');
+    tag.style.cssText = 'position:fixed;left:8px;top:100px;z-index:99;background:#000;color:#0f0;font:14px monospace;padding:6px 10px;white-space:pre';
+    tag.textContent = `stop ${STATIONS[idx].id} (look: ${STATIONS[idx].look || 'lean'})  drag ${dx}px\nturned ${(THREE.MathUtils.radToDeg(cam.yaw - yaw0)).toFixed(1)} deg  lean while dragging ${lean === null ? 'none' : THREE.MathUtils.radToDeg(lean).toFixed(1) + ' deg'} (shown ${THREE.MathUtils.radToDeg(leanShown).toFixed(1)})  lean after release ${touchLook.lean === null ? 'none' : touchLook.lean}\ntap right after the drag ignored: ${tapIgnored}`;
+    document.body.appendChild(tag);
+  }, 4000); }
+{ const q = new URLSearchParams(location.search);
+  // midwalk=id&frames=n : start walking to a stop and stop n frames (40 ms each) into the walk, drawing each frame, so
+  // the screenshot shows the view part-way (with calm: what "Reduce motion" puts on screen mid-move)
+  if (q.has('midwalk')) setTimeout(() => {
+    const raf = window.requestAnimationFrame, now = performance.now; let fake = now.call(performance);
+    window.requestAnimationFrame = () => 0; performance.now = () => fake;
+    goTo(ST[q.get('midwalk')]);
+    for (let i = 0; i < (+q.get('frames') || 6); i++) { fake += 40; frame(fake); }
+    window.requestAnimationFrame = raf; performance.now = now;
+    const tag = document.createElement('div');
+    tag.style.cssText = 'position:fixed;left:8px;bottom:8px;z-index:99;background:#000;color:#0f0;font:13px monospace;padding:4px 8px';
+    tag.textContent = 'mid-walk to ' + q.get('midwalk') + ': cam ' + cam.x.toFixed(2) + ',' + cam.z.toFixed(2) + '  calm state ' + CALM.state;
+    document.body.appendChild(tag);
+  }, 3000); }

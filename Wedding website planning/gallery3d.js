@@ -3025,6 +3025,35 @@ function planRoute(n) {
 // corner: corner radius in metres; bigTurn: radians, a first turn larger than this is taken on the spot;
 // turnRate: radians per ms, the fastest the view ever swings (~125 deg/s); lag: ms, how far the view trails its heading
 const WALK = { speed: 2.5, ramp: 1.3, minMs: 1100, corner: 0.9, slow: 0.4, bigTurn: 0.9, turnRate: 0.0022, lag: 130 };
+// "Reduce motion" (a system setting some people turn on because a moving view makes them unwell): the same routes,
+// turns and stops, but the view never glides. The frame on screen when a move begins is kept, laid over the view,
+// while the move runs eight times faster unseen beneath it; at the stop that kept picture dissolves into the new view
+// (a crossfade, no dark moment). Walks and turns read `mnow`, their own clock: real time, held still for the one frame
+// that is kept, and sped up while it covers the view. ?calm forces it on, for testing.
+let REDUCED = /[?&]calm/.test(location.search) || !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+if (window.matchMedia && !/[?&]calm/.test(location.search)) matchMedia('(prefers-reduced-motion: reduce)').addEventListener?.('change', (e) => { REDUCED = e.matches; });
+const CALM = { state: 'shown', fadeMs: 450, speed: 8, cover: null };
+let mnow = 0, mlast = 0;
+function motionClock(now) {
+  const dt = mlast ? Math.min(100, now - mlast) : 0; mlast = now;
+  if (REDUCED && (leg || queue.length) && CALM.state === 'shown') { CALM.state = 'capture'; return mnow; }   // drawn unmoved, and kept
+  mnow += CALM.state === 'covered' ? dt * CALM.speed : dt;
+  return mnow;
+}
+// just after a frame is drawn (the only moment its pixels can be read back): keep it over the view, or, arrived, let it go
+function calmAfterRender() {
+  if (CALM.state === 'capture') {
+    let c = CALM.cover;
+    if (!c) { c = CALM.cover = document.createElement('canvas'); c.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:0'; canvas.after(c); }   // under every button: they come later on the page
+    c.width = canvas.width; c.height = canvas.height;
+    c.getContext('2d').drawImage(canvas, 0, 0);
+    c.style.transition = 'none'; c.style.opacity = '1';
+    CALM.state = 'covered';
+  } else if (CALM.state === 'covered' && !leg && !queue.length && settled()) {
+    CALM.cover.style.transition = 'opacity ' + CALM.fadeMs + 'ms ease'; CALM.cover.style.opacity = '0';   // the old view dissolves into the new
+    CALM.state = 'shown';
+  }
+}
 let lastSteps = [];                                    // the plan as steps, kept for the test harness to report
 function goTo(n) {
   planRoute(n);
@@ -3148,17 +3177,17 @@ function startLeg() {
   const step = queue.shift();
   if (!step) {
     // arrived: take up the stop's own tilt and viewing height, if it has them
-    leg = settled() ? null : { kind: 'turn', from: cam.yaw, to: cam.yaw, pf: cam.pitch, pt: wantPitch, ef: cam.eye, et: wantEye, t0: performance.now(), ms: 1000 };
+    leg = settled() ? null : { kind: 'turn', from: cam.yaw, to: cam.yaw, pf: cam.pitch, pt: wantPitch, ef: cam.eye, et: wantEye, t0: mnow, ms: 1000 };
     return;
   }
   if (step.kind === 'path') { leg = step; return; }
   if (step.kind === 'turn') {
     const to = Math.abs(Math.abs(step.yaw - cam.yaw) - Math.PI) < 0.001 ? step.yaw : shortAngle(cam.yaw, step.yaw), pt = step.pitch === undefined ? cam.pitch : step.pitch, et = step.eye === undefined ? cam.eye : step.eye;
     if (Math.abs(to - cam.yaw) < 0.001 && Math.abs(pt - cam.pitch) < 0.001 && Math.abs(et - cam.eye) < 0.001) return startLeg();
-    leg = { kind: 'turn', from: cam.yaw, to, pf: cam.pitch, pt, ef: cam.eye, et, t0: performance.now(), ms: step.ms };
+    leg = { kind: 'turn', from: cam.yaw, to, pf: cam.pitch, pt, ef: cam.eye, et, t0: mnow, ms: step.ms };
   } else {
     if (Math.abs(step.x - cam.x) < 0.001 && Math.abs(step.z - cam.z) < 0.001) return startLeg();
-    leg = { kind: 'move', fx: cam.x, fz: cam.z, tx: step.x, tz: step.z, t0: performance.now(), ms: step.ms };
+    leg = { kind: 'move', fx: cam.x, fz: cam.z, tx: step.x, tz: step.z, t0: mnow, ms: step.ms };
   }
 }
 
@@ -3407,7 +3436,37 @@ function onHeldItem(e) {
   }
   return false;
 }
+// touch screens: drag a finger to look round (there is no cursor to move to the screen's edge). At the details room's
+// overview stops (look: 'free') the drag turns the view, the scene following the finger, up to the same quarter turn from
+// the stop's facing as the cursor's edge-turn; elsewhere it leans the view the few degrees the cursor does, easing back
+// when the finger lifts. A drag is never taken for a tap: a click arriving just after one is ignored. The save-the-date's
+// wheel and the held invitation keep their own handling.
+const touchLook = { id: null, x: 0, x0: 0, y0: 0, dragged: false, lean: null, endedAt: -1e9 };
+canvas.addEventListener('pointerdown', (e) => {
+  if (e.pointerType !== 'touch' || volHeld() || invHeld()) return;
+  touchLook.id = e.pointerId; touchLook.x = touchLook.x0 = e.clientX; touchLook.y0 = e.clientY; touchLook.dragged = false;
+});
+canvas.addEventListener('pointermove', (e) => {
+  if (e.pointerId !== touchLook.id) return;
+  if (!touchLook.dragged && Math.hypot(e.clientX - touchLook.x0, e.clientY - touchLook.y0) < 10) return;   // still a tap
+  touchLook.dragged = true;
+  const busy = leg || queue.length || el('card').style.display === 'grid' || el('postcard').style.display === 'grid';
+  const r = canvas.getBoundingClientRect(), perPx = 2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect) / Math.max(1, r.width);
+  if (!busy && STATIONS[idx].look === 'free') {
+    const home = STATIONS[idx].yaw, off = shortAngle(home, cam.yaw + (e.clientX - touchLook.x) * perPx) - home;
+    cam.yaw = home + Math.max(-LOOK.limit, Math.min(LOOK.limit, off));
+  } else if (!busy) touchLook.lean = Math.max(-LOOK.yaw, Math.min(LOOK.yaw, (e.clientX - touchLook.x0) * perPx));
+  touchLook.x = e.clientX;
+});
+const touchEnd = (e) => {
+  if (e.pointerId !== touchLook.id) return;
+  touchLook.id = null; touchLook.lean = null;
+  if (touchLook.dragged) touchLook.endedAt = performance.now();
+};
+canvas.addEventListener('pointerup', touchEnd);
+canvas.addEventListener('pointercancel', touchEnd);
 canvas.addEventListener('click', (e) => {
+  if (performance.now() - touchLook.endedAt < 400) return;            // the end of a look-round drag, not a tap
   const p = probe(e.clientX, e.clientY);
   // the gift shop, clicked from its own stop: the postcards
   if (p.surface && atShop(p.surface)) { openPostcards(); return; }
@@ -3426,13 +3485,13 @@ const GLOW = 0.7;
 const glow = new THREE.PointLight('#ffd9a0', 0, 3.2, 2);
 scene.add(glow);
 const glowAim = new THREE.Vector3();
-const pointer = { x: 0, y: 0, inside: false, moved: false };
+const pointer = { x: 0, y: 0, inside: false, moved: false, touch: false };
 // the mouse is tracked across the whole page, entry doors included, so the glow is already
 // under it when the doors part; on the doors themselves a matching glow is drawn in CSS
 const gateGlow = document.getElementById('gateGlow');
 window.addEventListener('pointermove', (e) => {
   const r = canvas.getBoundingClientRect();
-  pointer.x = e.clientX; pointer.y = e.clientY; pointer.moved = true;
+  pointer.x = e.clientX; pointer.y = e.clientY; pointer.moved = true; pointer.touch = e.pointerType === 'touch';
   pointer.inside = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
   if (!pointer.inside) canvas.style.cursor = '';
   if (gateGlow && !gateGlow.dataset.off) {
@@ -4324,9 +4383,9 @@ resize();
 // from the way you are facing.
 const LOOK = { yaw: 0.1, pitch: 0.055, ease: 0.06, x: 0, y: 0, edge: 0.55, spin: 1.5, limit: Math.PI / 2, last: 0, turning: 0 };   // limit: how far the free look may turn from the stop's facing   // edge: where the turning zone starts (fraction of half the width); spin: rad/s at the very edge
 function updateLook(now) {
-  const r = canvas.getBoundingClientRect(), on = pointer.inside && !volHeld() && !invHeld() && r.width > 0;
+  const r = canvas.getBoundingClientRect(), on = pointer.inside && !pointer.touch && !volHeld() && !invHeld() && r.width > 0;   // a finger looks round by dragging instead (touchLook)
   const u = on ? (pointer.x - r.left) / r.width * 2 - 1 : 0;
-  const tx = -u * LOOK.yaw;
+  const tx = touchLook.lean !== null ? touchLook.lean : -u * LOOK.yaw;
   const ty = on ? -((pointer.y - r.top) / r.height * 2 - 1) * LOOK.pitch : 0;
   LOOK.x += (tx - LOOK.x) * LOOK.ease;
   LOOK.y += (ty - LOOK.y) * LOOK.ease;
@@ -4377,12 +4436,13 @@ function tickFps(now) {
     `\n${renderer.domElement.width}×${renderer.domElement.height} px · ${(renderer.info.render.triangles / 1e6).toFixed(2)}M triangles`;
 }
 function frame(now) {
+  const m = motionClock(now);                                          // the walk's clock (see REDUCED)
   if (!leg && (queue.length || !settled())) startLeg();
   updateArcade();
   if (leg && leg.kind === 'path') {
-    if (stepPath(leg, now)) leg = null;
+    if (stepPath(leg, m)) leg = null;
   } else if (leg) {
-    const k = Math.min(1, (now - leg.t0) / leg.ms);
+    const k = Math.min(1, (m - leg.t0) / leg.ms);
     const e = easeInOut(k);
     if (leg.kind === 'turn') {
       cam.yaw = leg.from + (leg.to - leg.from) * e;
@@ -4401,10 +4461,11 @@ function frame(now) {
   if (needResize) { needResize = false; resize(); }
   updateVolvelle();
   updateInvitation();
-  if (shopRack) shopRack.rotation.y += 0.003;                      // the postcard rack turns idly
+  if (shopRack && !REDUCED) shopRack.rotation.y += 0.003;          // the postcard rack turns idly (not with "Reduce motion" on)
   tickCurtain(); tickSand(performance.now());
   updatePointer();
   renderer.render(scene, camera);
+  calmAfterRender();
   if (FPS) tickFps(now);
   requestAnimationFrame(frame);
 }

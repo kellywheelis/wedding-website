@@ -35,14 +35,20 @@
       <div class="ar-pad">
         <div class="ar-dpad"><button data-k="left">◀</button><button data-k="up">▲</button><button data-k="down">▼</button><button data-k="right">▶</button></div>
         <div class="ar-btns"><button data-k="jump" class="ar-jump">JUMP</button><button data-k="start" class="ar-start">START</button></div>
-      </div>`;
+      </div>
+      <div class="ar-turn"><div><span>&#8635;</span><p>Turn your phone upright to play</p><small>The game waits for you</small></div></div>`;
     const css = document.createElement('style');
     css.textContent = `
       #arcade{position:fixed;inset:0;z-index:90;background:rgba(14,9,5,.94);display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:12px;user-select:none;-webkit-user-select:none}
       #arcade.on{display:flex}
       #arcade .ar-frame{padding:10px;background:linear-gradient(135deg,#8e6e2b,#e6c37a 30%,#9a7020 50%,#f0d693 70%,#8e6e2b);box-shadow:0 20px 60px rgba(0,0,0,.7),inset 0 0 0 1px rgba(70,48,8,.6)}
       #arcade .ar-screen{display:block;background:#000;image-rendering:pixelated;image-rendering:crisp-edges}
-      #arcade .ar-x{position:absolute;right:14px;top:calc(12px + env(safe-area-inset-top));width:40px;height:40px;border-radius:50%;border:1px solid rgba(232,192,122,.7);background:rgba(26,18,8,.7);color:#F2E6C9;font:22px/38px Georgia,serif;cursor:pointer}
+      #arcade .ar-turn{display:none;position:absolute;inset:0;z-index:4;align-items:center;justify-content:center;text-align:center;background:rgba(14,9,5,.97);color:#F2E6C9;font-family:Georgia,serif}
+      #arcade .ar-turn span{display:block;font-size:44px;line-height:1;color:#E8C07A}
+      #arcade .ar-turn p{margin:12px 0 4px;font-size:15px;letter-spacing:.2em;text-transform:uppercase}
+      #arcade .ar-turn small{font-style:italic;font-size:14px;color:#a79c85}
+      @media (orientation: landscape) and (max-height: 500px){#arcade.touch .ar-turn{display:flex}}
+      #arcade .ar-x{z-index:5;position:absolute;right:14px;top:calc(12px + env(safe-area-inset-top));width:40px;height:40px;border-radius:50%;border:1px solid rgba(232,192,122,.7);background:rgba(26,18,8,.7);color:#F2E6C9;font:22px/38px Georgia,serif;cursor:pointer}
       #arcade .ar-pad{display:none;width:100%;max-width:420px;justify-content:space-between;align-items:center;padding:0 6px calc(6px + env(safe-area-inset-bottom))}
       #arcade.touch .ar-pad{display:flex}
       #arcade .ar-dpad{display:grid;grid-template-columns:repeat(3,56px);grid-template-rows:repeat(2,56px);gap:4px}
@@ -89,8 +95,12 @@
     cancelAnimationFrame(raf); root.classList.remove('on'); Arcade.open = null; game = null;
     if (Arcade.onClose) { const f = Arcade.onClose; Arcade.onClose = null; f(); }
   };
+  // a phone held sideways leaves the game a sliver of screen above its controls: the cover asks for it upright, and the
+  // game is paused under it (not a frame of play is lost while the phone is turned)
+  const SIDEWAYS = window.matchMedia ? matchMedia('(orientation: landscape) and (max-height: 500px)') : { matches: false };
   function loop(now) {
     raf = requestAnimationFrame(loop);
+    if (SIDEWAYS.matches && root.classList.contains('touch')) { last = now; return; }
     acc += Math.min(0.1, (now - last) / 1000); last = now;
     while (acc >= STEP) { game.inst.update(STEP, input); Object.keys(pressed).forEach((k) => { delete pressed[k]; }); acc -= STEP; }
     game.inst.draw(ctx);

@@ -230,7 +230,7 @@
         return `<div class="gv-two">${img(s.it.img, s.it.title)}<div class="gv-words"><p class="eyebrow">Exhibit details · the countdown</p><div class="brass"><small>${days === 1 ? 'Day' : 'Days'}</small><b>${days}</b><small>until Siena</small></div><h3>${esc(s.it.title)}</h3><p class="body">${esc(s.it.body)}</p></div></div>`; }
       case 'text': return `<div class="gv-text"><p class="eyebrow">${esc(s.eyebrow)}</p><h3>${esc(s.title)}</h3><p class="body">${esc(s.body)}</p>${s.meta ? `<p class="meta">${esc(s.meta)}</p>` : ''}${s.note ? `<p class="note">${esc(s.note)}</p>` : ''}${cardBtn(s.card)}</div>`;
       case 'shop': return `<div class="gv-two">${img(s.img, s.title)}<div class="gv-words"><p class="eyebrow">Exhibit details · the gift shop</p><h3>${esc(s.title)}</h3><p class="body">${esc(s.body)}</p><p class="meta">${esc(s.meta)}</p>${cardBtn(s.card)}</div></div>`;
-      case 'arcade': return `<div class="gv-two"><button class="gv-arcade" id="gvArcade" aria-label="Open the arcade"></button><div class="gv-words"><p class="eyebrow">The atrium · Anthony · interactive installation</p><h3>The Arcade</h3><p class="body">Five playable pieces: Getting to Italy, Cross the Piazza, Catch the Bouquet, Flight to Siena, and The Seating Chart.</p><p class="tap">Tap the screen to play</p></div></div>`;
+      case 'arcade': return `<div class="gv-two"><div class="gv-arcade" id="gvArcade" role="img" aria-label="The arcade's screen: turn your phone upright to play"></div><div class="gv-words"><p class="eyebrow">The atrium · Anthony · interactive installation</p><h3>The Arcade</h3><p class="body">Five playable pieces: Getting to Italy, Cross the Piazza, Catch the Bouquet, Flight to Siena, and The Seating Chart.</p><p class="tap">Turn your phone upright to play</p></div></div>`;
     }
     return '';
   };
@@ -255,7 +255,7 @@
         el('gvCard').innerHTML = `<div class="in"><h4>${esc(c.title)}</h4>${c.sections.map((x) => `<h5>${esc(x.h)}</h5>${x.p.map((p) => `<p>${esc(p)}</p>`).join('')}`).join('')}<button class="close" data-gvcardclose>Close</button></div>`;
         el('gvCard').classList.add('open'); el('gvCard').scrollTop = 0; return; }
       if (e.target.closest('[data-gvcardclose]') || e.target.id === 'gvCard') { el('gvCard').classList.remove('open'); return; }
-      if (e.target.closest('#gvArcade')) { if (window.Arcade) Arcade.launch('menu'); return; }
+      if (e.target.closest('#gvArcade')) return;                     // the games are played upright (the arcade's screen is taller than wide)
       const sl = e.target.closest('.gv-slide'); if (!sl) return;
       const s = slides[+sl.dataset.i];
       if (!s.it || s.kind === 'countdown' || !e.target.closest('img, .cap, figcaption')) return;   // a tap on the work itself, not the empty wall round it

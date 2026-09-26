@@ -574,6 +574,12 @@ On a phone the initials are typed through an invisible text box (`showEntry`), t
 may raise the keyboard (the owner's rule: the keyboard belongs to the RSVP and the initials, nowhere else). Since 26 Sept
 2026 `hideEntry` also takes it out of the layout (display none): left in place, it sat over the middle of the game
 screen and a tap there mid-game raised the keyboard, which guests reported as the keyboard popping up while tapping.
+The games are portrait (224x288, like an upright cabinet): on a phone held sideways the shell's fit left the screen
+about 170x220 above its controls. So on a touch device held sideways (`(orientation: landscape) and (max-height:
+500px)`, the same test as the phone's gallery view; iPads are taller and unaffected) a "Turn your phone upright to
+play" cover (`.ar-turn`) sits over the arcade and `loop` skips its updates, so the game waits; the close button stays
+on top. The gallery view's arcade slide plays the attract loop and says to turn upright rather than opening the
+arcade (the owner preferred that to a landscape version).
 The phone guide's own wording is made touch-friendly by `phone()` in mobile.js ("click" becomes "tap", the mouse
 becomes a tilt of the phone), so the text can stay as the 3D gallery writes it.
 

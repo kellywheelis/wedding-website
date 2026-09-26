@@ -196,9 +196,11 @@
       entry.addEventListener('input', () => { const v = entry.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 3); const b = Arcade.board; for (let i = 0; i < 3; i++) if (v[i]) b.letters[i] = v.charCodeAt(i) - 65; b.at = Math.min(2, v.length); if (v.length === 3) { entry.value = v; } });
       entry.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); Arcade.board.submit(); } });
       root.appendChild(entry); }
-    entry.value = ''; if (!root.classList.contains('touch')) return; try { entry.focus({ preventScroll: true }); } catch (e) {}
+    entry.value = ''; entry.style.display = 'block'; if (!root.classList.contains('touch')) return; try { entry.focus({ preventScroll: true }); } catch (e) {}
   }
-  function hideEntry() { if (entry) { entry.blur(); entry.value = ''; } }
+  // and gone the moment the initials are in or the board closes: left in place, the invisible box sat over the middle of
+  // the game screen, and a tap there mid-game raised a phone's keyboard
+  function hideEntry() { if (entry) { entry.blur(); entry.value = ''; entry.style.display = 'none'; } }
   // ---- the menu: the cabinet's list of games. Registered games are playable; the planned ones show as coming soon.
   Arcade.menuList = [['italy', 'Getting to Italy'], ['piazza', 'Cross the Piazza'], ['bouquet', 'Catch the Bouquet'], ['flight', 'Flight to Siena'], ['seating', 'The Seating Chart']];
   Arcade.games.menu = { title: 'The Arcade', w: 224, h: 288, create(api) {

@@ -2,7 +2,10 @@
 // the save-the-date wheel and the pop-up invitation. No libraries; nothing runs until it is on screen.
 (function () {
   const C = window.CONTENT, el = (id) => document.getElementById(id);
-  const esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  // the text comes from the 3D gallery, written for a mouse; on a phone you tap (the owner asked, 26 Sept 2026)
+  const phone = (s) => String(s || '').replace(/\b([Cc])lick(ing|ed|s)?\b/g, (m, c, suf) => (c === 'C' ? 'T' : 't') + 'ap' + (suf === 'ing' ? 'ping' : suf === 'ed' ? 'ped' : suf || ''))
+    .replace('move the mouse to look inside', 'tilt the phone to look inside').replace('to pick it up and turn the wheel', 'to turn its wheel');
+  const esc = (s) => phone(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const small = (src) => src.replace(/\.jpg$/, '-s.jpg');
   const picture = (src, alt, ar) => {                              // a lazy picture: the small file on narrow screens, the large on wide ones
     const s = /\.jpg$/.test(src) ? `srcset="${small(src)} 700w, ${src} 1400w" sizes="(min-width: 700px) 700px, 100vw"` : '';
@@ -17,7 +20,7 @@
   };
   const statueHtml = (it) => { lbItems.push(it); const i = lbItems.length - 1;
     return `<button class="statue" data-lb="${i}"><div class="plinth"><img src="${it.img}" alt="${esc(it.title)}" loading="lazy" decoding="async"></div><h3>${esc(it.title)}</h3><p class="meta">${esc(it.meta)}</p></button>`; };
-  const cardHtml = (card, key) => `<button class="detbtn" data-card="${key}">Click here for details</button>
+  const cardHtml = (card, key) => `<button class="detbtn" data-card="${key}">Tap here for details</button>
     <div class="card" id="card-${key}"><h4>${esc(card.title)}</h4>${card.sections.map((s) => `<h5>${esc(s.h)}</h5>${s.p.map((p) => `<p>${esc(p)}</p>`).join('')}`).join('')}<button class="close" data-close="${key}">Close</button></div>`;
 
   // ---- the rooms

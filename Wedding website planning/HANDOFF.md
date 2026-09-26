@@ -557,6 +557,12 @@ per-game ceiling, rate-limits by address, keeps the best hundred in a sorted set
 rank. In the shell, `Arcade.board` handles the ENTER YOUR INITIALS screen and the board; each game opens it once
 at 'over'/'won' (`S.boarded`), defers update() to it while it is on, and draws it last. The menu shows each
 game's top three. `game/test-board.html` mocks the API for looking at the screens.
+On a phone the initials are typed through an invisible text box (`showEntry`), the only thing on the phone guide that
+may raise the keyboard (the owner's rule: the keyboard belongs to the RSVP and the initials, nowhere else). Since 26 Sept
+2026 `hideEntry` also takes it out of the layout (display none): left in place, it sat over the middle of the game
+screen and a tap there mid-game raised the keyboard, which guests reported as the keyboard popping up while tapping.
+The phone guide's own wording is made touch-friendly by `phone()` in mobile.js ("click" becomes "tap", the mouse
+becomes a tilt of the phone), so the text can stay as the 3D gallery writes it.
 
 `game/seating.js` — THE SEATING CHART, a falling-blocks puzzle set in a chapel: guest groups (`KINDS` — a couple,
 the family, four friends, the wedding party, colleagues, the cousins, the in-laws, the odd plus-one) fall as

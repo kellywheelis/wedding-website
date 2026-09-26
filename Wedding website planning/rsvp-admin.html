@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title>RSVP · Kelly &amp; Anthony</title>
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png" />
+<link href="assets/fonts/gallery.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" integrity="sha512-ZDSPMa/JM1D+7kdg2x3BsruQ6T/JpJo3jWDWkCZsP+5yVyp1KfESqLI+7RqB5k24F7p2cV7i2YHh/890y6P6Sw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- The owners' private page: the guest code, the guest list, and every reply. It holds nothing itself: everything is
+     fetched from /api/admin with the private key, which arrives once in the link (#key=...) and is then kept only in
+     this browser. -->
+<style>
+  :root { --bg:#1c1611; --panel:#261e17; --line:rgba(201,166,103,.28); --gold:#C9A667; --gold2:#E8C07A; --cream:#F4EFE1; --ink:#D9D0BC; --dim:#A79C85; --burg:#7A1A3C; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 'EB Garamond', Georgia, serif; }
+  main { max-width: 1180px; margin: 0 auto; padding: 28px 22px 60px; }
+  h1 { font: 500 34px/1.1 'Cormorant Garamond', Georgia, serif; color: var(--cream); margin: 0; }
+  h2 { font: 500 23px/1.2 'Cormorant Garamond', Georgia, serif; color: var(--gold2); margin: 0 0 10px; }
+  .k { font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: var(--gold); margin: 0 0 6px; }
+  .note { color: var(--dim); font-size: 14px; margin: 6px 0 0; }
+  section { background: var(--panel); border: 1px solid var(--line); padding: 18px 20px; margin-top: 18px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+  .stat { border: 1px solid var(--line); padding: 10px 14px; }
+  .stat b { display: block; font: 600 30px/1.1 'Cormorant Garamond', Georgia, serif; color: var(--cream); }
+  .stat span { font-size: 13px; color: var(--dim); }
+  button, .btn { font: 11px 'EB Garamond', Georgia, serif; letter-spacing: .2em; text-transform: uppercase; padding: 9px 16px; border: 1px solid var(--gold); background: transparent; color: var(--gold2); cursor: pointer; }
+  button.main { background: var(--burg); border-color: var(--burg); color: var(--cream); }
+  button.small { padding: 4px 8px; font-size: 10px; }
+  input, textarea { font: inherit; color: var(--cream); background: #15100c; border: 1px solid var(--line); padding: 8px 10px; }
+  textarea { width: 100%; min-height: 150px; font: 13px/1.45 ui-monospace, Menlo, monospace; }
+  table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+  th { text-align: left; font-weight: 400; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); border-bottom: 1px solid var(--line); padding: 8px 6px; }
+  td { border-bottom: 1px solid rgba(201,166,103,.12); padding: 8px 6px; vertical-align: top; }
+  td.yes { color: #b8d39a; } td.no { color: #e0a39a; } td.none { color: var(--dim); font-style: italic; }
+  .wrap { overflow-x: auto; }
+  .msg { margin: 10px 0 0; white-space: pre-wrap; }
+  .msg.bad { color: #e0a39a; } .msg.good { color: #b8d39a; }
+  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  #gate { max-width: 480px; margin: 12vh auto; text-align: center; }
+  #gate input { width: 100%; margin: 12px 0; }
+  code.hc { font: 600 14px ui-monospace, Menlo, monospace; color: var(--gold2); letter-spacing: .06em; }
+  /* the printed codes: one card per household for the invitation packs (only these print) */
+  #print { display: none; }
+  @media print {
+    body { background: #fff; }
+    #app, #gate { display: none !important; }
+    #print { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+    .pcard { break-inside: avoid; border: 1px dashed #bbb; padding: 22px 20px; text-align: center; color: #2B2520; font-family: 'EB Garamond', Georgia, serif; }
+    .pcard .t { font-size: 10px; letter-spacing: .3em; text-transform: uppercase; color: #7A1A3C; margin: 0; }
+    .pcard .n { font: 500 20px/1.2 'Cormorant Garamond', Georgia, serif; margin: 6px 0 10px; }
+    .pcard svg { width: 132px; height: 132px; }
+    .pcard .c { font: 600 22px 'Cormorant Garamond', Georgia, serif; letter-spacing: .14em; margin: 8px 0 2px; }
+    .pcard .h { font-size: 11.5px; color: #5a4e42; margin: 4px 0 0; }
+  }
+</style>
+</head>
+<body>
+<div id="gate" hidden>
+  <p class="k">Kelly &amp; Anthony · RSVP</p>
+  <h1>The private page</h1>
+  <p class="note">Open this page with its private link, or paste the key from it here.</p>
+  <input id="keyIn" type="password" placeholder="Private key" autocomplete="off" />
+  <button class="main" id="keyGo">Open</button>
+  <p class="msg bad" id="gateMsg"></p>
+</div>
+<main id="app" hidden>
+  <p class="k">Kelly &amp; Anthony · RSVP</p>
+  <h1>The replies</h1>
+  <p class="note">This page is private: keep its link to yourselves. <button class="small" id="refresh">Refresh</button> <button class="small" id="forget">Forget the key on this device</button></p>
+
+  <section><h2>At a glance</h2><div class="grid" id="stats"></div></section>
+
+  <section>
+    <div class="row" style="justify-content:space-between"><h2 style="margin:0">Every household</h2><div class="row"><button id="printBtn">Print the invitation codes</button><button id="csv">Download spreadsheet</button></div></div>
+    <p class="note">Each household signs in with one of its phone numbers and its code, or by scanning the QR code on its printed card, which needs nothing typed.</p>
+    <div class="wrap" style="margin-top:10px"><table id="table"></table></div>
+  </section>
+
+  <section><h2>Allergies and dietary needs</h2><div id="diet"></div></section>
+
+  <section>
+    <h2>The guest list</h2>
+    <p class="note">Copy it from your spreadsheet and paste it here: one household to a row, with the columns <b>Names</b>, <b>Phone numbers</b> (several in one cell are fine, separated by commas), <b>Seats</b>, and <b>Events</b> (the names, or words from them, separated by commas; or <i>all</i>). A header row is fine. Each household is given its own code; to keep a code you like, add a <b>Code</b> column. Loading replaces the whole list, but a household keeps its code, QR code and reply as long as it keeps its names, its code, or one of its phone numbers.</p>
+    <p class="note" id="eventNames"></p>
+    <textarea id="listIn" placeholder="The Rossi Family	555 123 4567, 555 765 4321	3	all&#10;Maria and Joe Bianchi	555 222 3333	2	movie, Siena day, brunch"></textarea>
+    <div class="row" style="margin-top:8px"><button class="main" id="listGo">Load the list</button><span class="note" id="listPreview"></span></div>
+    <p class="msg" id="listMsg"></p>
+  </section>
+</main>
+<div id="print"></div>
+<script>
+(function () {
+  const el = (id) => document.getElementById(id);
+  const esc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  let KEY = '', DATA = null;
+  try { const m = location.hash.match(/key=([^&]+)/); if (m) { KEY = decodeURIComponent(m[1]); localStorage.setItem('ka-admin', KEY); history.replaceState(null, '', location.pathname); } else KEY = localStorage.getItem('ka-admin') || ''; } catch (e) { /* private mode: paste the key */ }
+
+  const api = async (method, body) => {
+    const r = await fetch('/api/admin', { method, headers: { 'x-admin-key': KEY, 'content-type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
+    const d = await r.json().catch(() => ({ error: 'The server did not answer.' }));
+    return { ok: r.ok, status: r.status, d };
+  };
+  async function load() {
+    const { ok, status, d } = await api('GET');
+    if (!ok) { el('app').hidden = true; el('gate').hidden = false; el('gateMsg').textContent = status === 403 ? 'That key is not right.' : (d.error || 'Something went wrong.'); return; }
+    DATA = d; el('gate').hidden = true; el('app').hidden = false; paint();
+  }
+  const evName = (id) => (DATA.events.find((e) => e.id === id) || { name: id }).name;
+  const when = (t) => t ? new Date(t).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+  const phoneShow = (p) => p.length === 11 && p[0] === '1' ? `(${p.slice(1, 4)}) ${p.slice(4, 7)}-${p.slice(7)}` : '+' + p;
+
+  function paint() {
+    const hh = DATA.households, replied = hh.filter((h) => h.reply), yes = replied.filter((h) => h.reply.yes === 'yes');
+    const seatsAll = hh.reduce((n, h) => n + h.seats, 0), seatsYes = yes.reduce((n, h) => n + h.reply.seats, 0);
+    const stats = [[replied.length + ' of ' + hh.length, 'households have replied'], [seatsYes + ' of ' + seatsAll, 'seats coming'],
+      [yes.length, 'households coming'], [replied.length - yes.length, 'households sorry to miss it']];
+    DATA.events.forEach((e) => {
+      const inv = hh.filter((h) => (h.events || []).includes(e.id)), go = yes.filter((h) => (h.reply.events || []).includes(e.id));
+      stats.push([go.reduce((n, h) => n + h.reply.seats, 0) + ' of ' + inv.reduce((n, h) => n + h.seats, 0), e.name, e.day + ' · ' + go.length + ' of ' + inv.length + ' households']);
+    });
+    el('stats').innerHTML = stats.map(([b, s, s2]) => `<div class="stat"><b>${esc(b)}</b><span>${esc(s)}${s2 ? '<br>' + esc(s2) : ''}</span></div>`).join('') +
+      '<p class="note" style="grid-column:1/-1;margin:0">For an event, the number is the seats of the households coming to it, out of the seats of the households invited.</p>';
+    el('table').innerHTML = `<tr><th>Household</th><th>Code</th><th>Phones</th><th>Reply</th><th>Seats</th><th>Events</th><th>Dietary</th><th>Plus-one</th><th>Note</th><th>Replied</th><th></th></tr>` +
+      hh.map((h) => { const r = h.reply;
+        const cls = !r ? 'none' : r.yes, ans = !r ? 'no reply yet' : r.yes === 'yes' ? 'Coming' : 'Not coming';
+        return `<tr><td>${esc(h.names)}${r && r.name && r.name !== h.names ? `<br><span class="note">signed “${esc(r.name)}”</span>` : ''}</td><td><code class="hc">${esc(h.code)}</code></td>
+          <td>${(h.phones || []).length ? h.phones.map(phoneShow).map(esc).join('<br>') : '<span class="note">none: QR only</span>'}</td>
+          <td class="${cls}">${ans}</td><td>${r && r.yes === 'yes' ? r.seats + ' of ' + h.seats : h.seats + ' invited'}</td>
+          <td>${r && r.yes === 'yes' ? (r.events || []).map(evName).map(esc).join('<br>') || '<span class="note">none</span>' : (h.events || []).map(evName).map((n) => `<span class="note">${esc(n)}</span>`).join('<br>')}</td>
+          <td>${esc(r && r.diet)}</td><td>${esc(r && r.plus)}</td><td>${esc(r && r.note)}</td><td>${when(r && r.when)}</td>
+          <td>${r ? `<button class="small" data-reset="${esc(h.id)}" title="Clear this reply">Clear</button>` : ''}</td></tr>`; }).join('');
+    const diets = yes.filter((h) => h.reply.diet);
+    el('diet').innerHTML = diets.length ? diets.map((h) => `<p style="margin:4px 0"><b style="color:var(--cream)">${esc(h.names)}</b> · ${esc(h.reply.diet)}</p>`).join('') : '<p class="note">None yet.</p>';
+    el('eventNames').innerHTML = 'The events: ' + DATA.events.map((e) => `<b>${esc(e.name)}</b> (${esc(e.day)})`).join(', ') + '.';
+  }
+
+  // the pasted list: tab-separated from a spreadsheet, or comma-separated text with quotes
+  function parseList(text) {
+    const lines = text.split(/\r?\n/).filter((l) => l.trim());
+    const split = (l) => {
+      if (l.includes('\t')) return l.split('\t');
+      const out = []; let cur = '', q = false;
+      for (const c of l) { if (c === '"') q = !q; else if (c === ',' && !q) { out.push(cur); cur = ''; } else cur += c; }
+      out.push(cur); return out;
+    };
+    let rows = lines.map(split).map((r) => r.map((c) => c.trim()));
+    let col = { names: 0, phones: 1, seats: 2, events: 3, code: 4 };
+    if (rows.length && /name|phone|seat|event/i.test(rows[0].join(' '))) {           // a header row says which column is which
+      const h = rows[0].map((c) => c.toLowerCase()), find = (w, d) => { const i = h.findIndex((c) => c.includes(w)); return i < 0 ? d : i; };
+      col = { names: find('name', 0), phones: find('phone', 1), seats: find('seat', 2), events: find('event', 3), code: find('code', -1) };
+      rows = rows.slice(1);
+    }
+    return rows.map((r) => ({ names: r[col.names] || '', phones: r[col.phones] || '', seats: r[col.seats] || '', events: r[col.events] || '', code: col.code >= 0 ? r[col.code] || '' : '' }));
+  }
+  el('listIn').addEventListener('input', () => { const n = parseList(el('listIn').value).length; el('listPreview').textContent = n ? n + ' household' + (n === 1 ? '' : 's') + ' to load' : ''; });
+  el('listGo').addEventListener('click', async () => {
+    const rows = parseList(el('listIn').value);
+    if (!rows.length) { el('listMsg').className = 'msg bad'; el('listMsg').textContent = 'Paste the list first.'; return; }
+    if (DATA.households.length && !confirm('Replace the whole guest list with these ' + rows.length + ' households?')) return;
+    const { ok, d } = await api('POST', { action: 'guests', rows });
+    el('listMsg').className = 'msg ' + (ok ? 'good' : 'bad');
+    el('listMsg').textContent = ok ? `Loaded ${d.households} households, ${d.seats} seats.` + (d.notes && d.notes.length ? '\nPlease note:\n• ' + d.notes.join('\n• ') : '') : (d.error || 'Something went wrong.') + (d.problems ? '\n• ' + d.problems.join('\n• ') : '');
+    if (ok) { el('listIn').value = ''; el('listPreview').textContent = ''; load(); }
+  });
+  // the invitation codes, printed: a card per household with its names, the site, its QR code (the private sign-in link)
+  // and its code, two to a row, for cutting out and putting in the packs
+  const SITE = location.origin;                                    // kaweddinggallery.com on the live site
+  const qrLink = (h) => SITE + '/?k=' + h.qr;
+  el('printBtn').addEventListener('click', () => {
+    if (!DATA || !DATA.households.length) { alert('Load the guest list first.'); return; }
+    if (!window.qrcode) { alert('The QR code maker did not load. Check the connection and refresh the page.'); return; }
+    el('print').innerHTML = DATA.households.map((h) => {
+      const q = qrcode(0, 'M'); q.addData(qrLink(h)); q.make();
+      return `<div class="pcard"><p class="t">Kelly &amp; Anthony · The Gallery</p><p class="n">${esc(h.names)}</p>${q.createSvgTag({ cellSize: 4, margin: 2, scalable: true })}
+        <p class="c">${esc(h.code)}</p><p class="h">Scan to walk straight in, or visit ${esc(SITE.replace(/^https?:\/\//, ''))} and sign in with your phone number and this code.</p></div>`;
+    }).join('');
+    window.print();
+  });
+  el('table').addEventListener('click', async (e) => {
+    const b = e.target.closest('[data-reset]'); if (!b) return;
+    const h = DATA.households.find((x) => x.id === b.dataset.reset);
+    if (!confirm('Clear the reply from ' + h.names + '? They can post a new one.')) return;
+    await api('POST', { action: 'reset', id: b.dataset.reset }); load();
+  });
+  el('csv').addEventListener('click', () => {
+    const q = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+    const head = ['Household', 'Code', 'Phones', 'Seats invited', 'Reply', 'Seats coming', ...DATA.events.map((e) => e.name), 'Dietary', 'Plus-one', 'Note', 'Signed', 'Replied on', 'QR sign-in link'];
+    const rows = DATA.households.map((h) => { const r = h.reply || {};
+      return [h.names, h.code, (h.phones || []).map(phoneShow).join(', '), h.seats, !h.reply ? 'No reply yet' : r.yes === 'yes' ? 'Coming' : 'Not coming', r.yes === 'yes' ? r.seats : '',
+        ...DATA.events.map((e) => !(h.events || []).includes(e.id) ? 'not invited' : r.yes === 'yes' && (r.events || []).includes(e.id) ? 'yes' : ''),
+        r.diet, r.plus, r.note, r.name, when(r.when), qrLink(h)]; });
+    const text = [head, ...rows].map((r) => r.map(q).join(',')).join('\r\n');
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + text], { type: 'text/csv' }));
+    a.download = 'rsvp-' + new Date().toISOString().slice(0, 10) + '.csv'; a.click();
+  });
+  el('refresh').addEventListener('click', load);
+  el('forget').addEventListener('click', () => { try { localStorage.removeItem('ka-admin'); } catch (e) {} KEY = ''; el('app').hidden = true; el('gate').hidden = false; el('gateMsg').textContent = 'Forgotten on this device.'; });
+  el('keyGo').addEventListener('click', () => { KEY = el('keyIn').value.trim(); try { localStorage.setItem('ka-admin', KEY); } catch (e) {} load(); });
+  if (KEY) load(); else el('gate').hidden = false;
+})();
+</script>
+</body>
+</html>

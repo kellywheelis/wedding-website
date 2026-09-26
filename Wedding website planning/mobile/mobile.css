@@ -210,6 +210,45 @@ details.credits li { margin-bottom: 8px; }
 .countdown .brass b { font-size: 38px; font-weight: 600; line-height: 1.05; }
 .countdown h3 { font-size: 22px; color: var(--cream); }
 .countdown .body { font-size: 15.5px; margin-top: 6px; }
+/* ---- guests: the sign-in line, the sign-in sheet, and the RSVP postcard as a sheet (mobile.js builds them) */
+.guest-line { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); margin: 10px 0 0; }
+.guest-line button { color: var(--gold-2); font: inherit; letter-spacing: inherit; text-transform: inherit; border-bottom: 1px solid rgba(232,192,122,.5); padding: 0; }
+.sheet { position: fixed; inset: 0; z-index: 85; display: none; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: max(18px, env(safe-area-inset-top)) var(--gutter) 30px; background: rgba(20,12,6,.9); }
+.sheet.open { display: block; }
+.sheetin { max-width: 520px; margin: 4vh auto 0; padding: 22px 20px 18px; background: var(--cream) url(/assets/tex-plaster.jpg) center/300px; background-blend-mode: multiply; color: #2B2520; border-top: 4px solid #7A1A3C; box-shadow: 0 12px 34px rgba(0,0,0,.5); }
+.sheetin .eyebrow { color: #7A1A3C; }
+.sheetin h3 { font-family: var(--display); font-style: italic; font-weight: 500; font-size: 26px; color: #2B2520; margin: 0 0 10px; }
+.sheetin .body { color: #4a4036; font-size: 16px; margin: 0 0 14px; }
+.fld { display: grid; gap: 3px; margin: 0 0 14px; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: #7A1A3C; }
+.fld input, .fld select { width: 100%; border: 0; border-bottom: 1px solid rgba(43,37,32,.45); background: transparent; padding: 4px 0; font-family: var(--display); font-size: 20px; color: #2B2520; letter-spacing: 0; text-transform: none; border-radius: 0; }
+.fld.seats span { display: inline-flex; align-items: baseline; gap: 8px; font-family: var(--display); font-size: 20px; color: #2B2520; letter-spacing: 0; text-transform: none; }
+.fld.seats select { width: auto; padding: 0 4px; }
+.pills { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 16px; }
+.pill { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border: 1px solid rgba(122,26,60,.55); border-radius: 18px; font-size: 16px; color: #2B2520; background: rgba(255,255,255,.35); }
+.pill input { accent-color: #7A1A3C; margin: 0; }
+.pill:has(input:checked) { background: rgba(122,26,60,.12); border-color: #7A1A3C; }
+.pill.ev #rsEvSum { font-style: italic; color: #7A1A3C; }
+.rsrow { display: flex; align-items: end; gap: 16px; flex-wrap: wrap; margin: 0 0 14px; }
+.rsrow .fld { margin: 0; }
+.rsrow.off { opacity: .4; pointer-events: none; }
+.sheetin .msg { min-height: 1.4em; margin: 4px 0 8px; font-size: 15px; color: #7A1A3C; }
+.btns { display: flex; gap: 10px; flex-wrap: wrap; }
+.pbtn { height: 42px; padding: 0 18px; border: 1px solid rgba(122,26,60,.6); color: #7A1A3C; font-size: 11px; letter-spacing: .22em; text-transform: uppercase; background: transparent; }
+.pbtn.ok { background: #7A1A3C; color: #F6F1E4; }
+.pbtn[hidden] { display: none; }
+.evwin { position: fixed; inset: 0; z-index: 86; display: none; place-items: center; padding: var(--gutter); background: rgba(20,12,6,.6); }
+.evwin.open { display: grid; }
+.evbox { width: min(420px, 100%); max-height: 88dvh; overflow-y: auto; padding: 20px 18px 16px; background: var(--cream) url(/assets/tex-plaster.jpg) center/300px; background-blend-mode: multiply; color: #2B2520; box-shadow: 0 14px 40px rgba(0,0,0,.55); border: 1px solid rgba(122,26,60,.35); text-align: center; }
+.evbox .eyebrow { color: #7A1A3C; }
+.evbox h4 { font-family: var(--display); font-style: italic; font-weight: 500; font-size: 24px; margin: 4px 0 2px; }
+.evbox .sub { font-size: 14px; color: #5a4e42; margin: 0 0 10px; }
+#rsEvList { text-align: left; margin-bottom: 14px; }
+#rsEvList label { display: flex; align-items: baseline; gap: 12px; padding: 10px 2px; border-top: 1px solid rgba(43,37,32,.18); font-size: 17px; }
+#rsEvList label:last-child { border-bottom: 1px solid rgba(43,37,32,.18); }
+#rsEvList input { accent-color: #7A1A3C; transform: scale(1.2) translateY(1px); }
+#rsEvList small { display: block; font-size: 13px; color: #7a6c5e; font-style: italic; }
+.evbox .btns { justify-content: center; }
+
 /* ---- the gallery view: the phone held sideways, one work to a screen (mobile.js builds #gv) */
 .turn-hint { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-3); margin: 8px 0 0; }
 .turn-hint::before { content: '\21BB  '; color: var(--gold); }

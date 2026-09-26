@@ -384,7 +384,7 @@
   if (q.has('dump')) setTimeout(() => {
     const strip = (o) => JSON.parse(JSON.stringify(o, (k, v) => (typeof v === 'number' || typeof v === 'string' || typeof v === 'boolean' || v === null || Array.isArray(v) || (v && v.constructor === Object)) ? v : undefined));
     const out = { STATIONS: strip(STATIONS), DETAIL_PICTURES: strip(DETAIL_PICTURES), ATRIUM_PICTURES: strip(ATRIUM_PICTURES), W1_PICTURES: strip(W1_PICTURES), W2_PICTURES: strip(W2_PICTURES),
-      SCULPTURE_NOTES: strip(SCULPTURE_NOTES), SCULPTURES: strip(SCULPTURES), CARDS: strip(CARDS), SECTION_LABEL: strip(SECTION_LABEL), SECTION_STOP: strip(SECTION_STOP),
+      SCULPTURE_NOTES: strip(SCULPTURE_NOTES), SCULPTURES: strip(SCULPTURES), CARD_TITLES: strip(CARD_TITLES), SECTION_LABEL: strip(SECTION_LABEL), SECTION_STOP: strip(SECTION_STOP),
       NOTES: strip(NOTES), HIDDEN: strip(HIDDEN), POSTCARDS: strip(POSTCARDS), WEDDING: WEDDING.getTime(), SITE_OPENED: SITE_OPENED.getTime(),
       credits: [...document.querySelectorAll('#creditsList p')].map((n) => [n.firstChild.textContent.trim(), n.lastChild.textContent.trim()]) };   // [the work, its credit]
     const pre = document.createElement('pre'); pre.id = 'dump'; pre.textContent = JSON.stringify(out); document.body.appendChild(pre);
@@ -446,9 +446,12 @@
 { const q = new URLSearchParams(location.search);
   // postcard=front|back|posted : open the gift shop's postcard (card n via pc=n); reveal=1 : the curtain drawn back, at once
   if (q.has('postcard')) setTimeout(() => {
-    localStorage.removeItem('ka-rsvp'); openPostcards(); if (q.has('pc')) showPostcard(+q.get('pc'));
+    if (!GUEST.household) fakeGuest();                                 // the card is for signed-in guests; the harness has no server
+    GUEST.reply = null; openPostcards(); if (q.has('pc')) showPostcard(+q.get('pc'));
     if (q.get('postcard') !== 'front') { pcTurn('back'); el('pcName').value = 'Kelly & Anthony'; document.querySelector('input[name=pcYes][value=yes]').checked = true; }
     if (q.get('postcard') === 'posted') postCard();
+    // pcev=1 : open the card's events window; pcev=ok : tick the first and last, confirm
+    if (q.has('pcev')) { el('pcEvents').click(); if (q.get('pcev') === 'ok') { const b = el('pcEvList').querySelectorAll('input'); b[0].checked = true; b[b.length - 1].checked = true; el('pcEvOk').click(); } }
   }, 1500);
   if (q.has('reveal')) setTimeout(() => { localStorage.removeItem('ka-posted'); if (q.get('reveal') === 'no') { CURTAIN.sorry = true; if (CURTAIN.redraw) CURTAIN.redraw(); } revealCurtain(true); }, 1500);
   if (q.has('noreveal')) setTimeout(() => { localStorage.removeItem('ka-posted'); }, 100);
@@ -573,3 +576,12 @@
     pre.textContent = 'TOUR ' + STATIONS.filter((s) => s.tour !== false).map((s) => s.id).join(' ') + '\nCLICKONLY ' + STATIONS.filter((s) => s.tour === false).length + ' of ' + STATIONS.length;
     document.body.appendChild(pre);
   }, 6000); }
+// fakeguest=1 (or =2) : a signed-in household without a server, for renders of the RSVP card and the wall-text cards.
+// 1: The Sample Family, 2 seats, all four events; 2: Sample Friends, 4 seats, two events. The cards say they are stand-ins.
+function fakeGuest(n) {
+  const ev = [['movie', 'Welcome movie & pizza night', 'Thursday, April 22'], ['siena', 'Siena day', 'Friday, April 23'], ['gelato', 'Gelato pool day', 'Sunday, April 25'], ['brunch', 'Farewell brunch', 'Monday, April 26']].map(([id, name, day]) => ({ id, name, day }));
+  GUEST.household = n === 2 ? { names: 'Sample Friends', seats: 4, events: [ev[0], ev[1]] } : { names: 'The Sample Family', seats: 2, events: ev };
+  GUEST.cards = Object.fromEntries(Object.entries(CARD_TITLES).map(([k, t]) => [k, { title: t, sections: [{ h: 'A stand-in', p: ['The real text arrives from the server after sign-in; the harness has none.'] }] }]));
+  paintGuestBtn();
+}
+{ const q = new URLSearchParams(location.search); if (q.has('fakeguest')) fakeGuest(+q.get('fakeguest') || 1); }

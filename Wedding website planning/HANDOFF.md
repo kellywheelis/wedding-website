@@ -38,6 +38,8 @@ Everything that matters lives in one subfolder (apart from the deployment files 
 |---|---|
 | `The Gallery 3D.html` | **The live page.** Entry doors, motto, info panel, buttons, credits panel, import map. |
 | `gallery3d.js` | **The live build** — all of the 3D gallery (~4,300 lines, three.js 0.184, served from `assets/lib/three/`). |
+| `rsvp-admin.html`, `../api/guest.js`, `../api/admin.js`, `../api/_lib.js`, `../api/_private.js` | The RSVP and guest sign-in (§5, "The RSVP"): the owner's private page, and the server side at the repository root. The private wall texts live in `api/_private.js`. |
+| `tools/dev_server.mjs`, `tools/make_mobile_content.py` | A local stand-in for the live site with its api (§5); the phone guide's text builder (§4b). |
 | `assets/og-preview.jpg`, `assets/icons/` | The card a shared link shows (1200x630: the entry doors without their buttons, rendered with the harness's `gate=1&nobtn=1`), named in both pages' `og:` tags with absolute URLs; and the gilt KA on burgundy as the browser-tab icon, the home-screen icon (`apple-touch-icon.png`, 180 px) and `favicon.ico` (`vercel.json` also serves the last two at the site root). Both pages are titled "Kelly & Anthony · The Gallery". Added 26 Sept 2026. |
 | `assets/fonts/` | Cormorant Garamond and EB Garamond (SIL Open Font License, `OFL-*.txt`), hosted with the site since 26 Sept 2026: the woff2 files and `gallery.css` / `mobile.css`, fetched from Google Fonts' css2 API exactly as each page used to request them. Checked with Google Fonts blocked: the text renders identically. |
 | `assets/lib/three/` | three.js 0.184.0, hosted with the site since 25 Sept 2026 so the gallery does not depend on unpkg being up: `build/three.module.js` + `three.core.js` (their sha384 matched the integrity hashes the page used to carry), `GLTFLoader.js` and the two utils it imports, and `libs/meshopt_decoder.module.js` for the compressed sculptures. The page's import map points here. |
@@ -600,10 +602,45 @@ All five games live in one cabinet (the arcade menu).
 _Brought up to date 25 Sept 2026 (the repo at `3e55499`)._
 
 **Open, in whatever order the owner chooses**
-- **RSVP, steps 2 and 3.** Step 1 (the postcard and the curtain) is built, but a posted card is kept only in that
-  guest's own browser (`ka-rsvp`). Still to do: somewhere to store the replies (the guest store) and a personal
-  link for each guest. Needed from the owner first: the card's final questions and the columns of her guest list.
-  (The arcade's scoreboard already runs on Upstash Redis through Vercel, `api/scores.js`.)
+- **The guest list.** The RSVP is built (below, "The RSVP"); what waits is the owner's guest list (save-the-dates not
+  yet out; the in-laws' names to come). She pastes it into her private page; per household: names, phone number(s),
+  seats, events. Two sample households may be loaded on the live store for trying it; loading the real list replaces
+  them. Then she prints the invitation codes from the page for the packs.
+
+**The RSVP** (built 26 Sept 2026; the owner's design throughout)
+- Anyone may walk the gallery; the wall texts (addresses, schedule, travel, hotels, policies, registry) and the RSVP
+  are for guests. A household signs in either by typing one of its phone numbers AND its own code (VENUS-4827, a word
+  from the gallery and four digits, printed in its invitation pack), or by scanning the QR code in the pack, a link
+  `kaweddinggallery.com/?k=<key>` whose 22-character key signs it in with nothing typed (the key is not the printed
+  code, so the code alone is never enough). She chose household codes over one shared code, and phone plus code on
+  computers; no texts are ever sent. A device stays signed in (localStorage `ka-guest`, shared by the 3D gallery and
+  the phone guide, which are on one address); "Guest sign-in" / "Signed in · names" in the 3D bottom bar and a line
+  under the phone guide's atrium intro open the sign-in, or sign out.
+- Server: `api/guest.js` (sign in, the household's data and reply and the private texts, post a reply, sign out) and
+  `api/admin.js` (the private page), sharing `api/_lib.js` (the store's layout is described at its top; the events
+  and the code words live there) and `api/_private.js` (the wall texts, moved out of gallery3d.js; files in api/ that
+  start with "_" are not endpoints). Upstash Redis, the scoreboard's store, read as plain text
+  (`automaticDeserialization: false`, or an id like "1e5..." comes back a number). Ten wrong sign-ins per address per
+  ten minutes, then a wait. A reply is checked against the household: never more seats than it has, never an event it
+  is not invited to.
+- The card (3D: the postcard; phone: the "Write your postcard" sheet in the gift shop section and on the gallery
+  view's shop slide): yes/no, seats ("2 of 4 seats"), an Events box that opens a window of only that household's
+  events (tick, Confirm, back to the card; `pcEv` / `rsEv`), plus-one, allergies or dietary needs, a note, the name.
+  Posted, it shows stamped with "Change my reply". The events: Welcome movie & pizza night (Thu Apr 22), Siena day
+  (Fri 23), Gelato pool day (Sun 25), Farewell brunch (Mon 26); Saturday, the wedding, is the card's yes/no.
+- The private page: `rsvp-admin.html`, served at `/rsvp-admin` (vercel.json). It holds nothing: the key arrives once
+  in its link (`/rsvp-admin#key=...`), is kept in that browser, and every call sends it (header `x-admin-key`); only
+  the key's SHA-256 is in `api/_lib.js` (`ADMIN_SHA256`). The key was given to the owner, never saved in the project.
+  It shows totals (households replied, seats coming, each event's seats), every household with its code, phones and
+  reply, the dietary list, a spreadsheet download (with each household's QR link), "Print the invitation codes" (a
+  card per household: names, QR code, code; drawn by qrcode-generator 1.4.4 from cdnjs, pinned by its SRI hash), and
+  the guest list paste box (tab- or comma-separated, header row optional, an optional Code column to keep chosen
+  codes). Loading replaces the list but keeps each household's code, QR key and reply when its code, names or a phone
+  number carries over; a household with no phone is allowed and can sign in only by QR.
+- Trying it locally: `tools/dev_server.mjs` runs the site and the api against an in-memory store (Node.js needed;
+  none is installed on this Mac, a copy was used from the session's scratch folder). With `DEV_EXTRA=<folder>` it
+  also serves test pages at `/__test/` and gives them `window.__ka` (openPostcards, postCard, openCard, GUEST). The
+  harness has no server: `fakeguest=1|2` stands in a signed-in household for renders (`postcard=` uses it).
 - **The phone edition** (`mobile/`, §4b) is behind the 3D build: Anthony's artifacts, the three hidden pets, the
   RSVP postcard and the hourglass are not in it yet.
 - **Photographs for the atrium walls.** The four photo frames (three on Kelly's wall, Anthony's main frame; his
@@ -677,6 +714,7 @@ hooks) to a copy of `gallery3d.js`. Query parameters:
 | `ihold=1`, `idoors=1`, `icard=1`, `itilt=x,y`, `iclick=fx,fy;…` | Invitation (go to `detInvite` first): lifted pose, doors open, card drawn, look-in tilt (-1..1), real clicks with a report. |
 | `gate=1`, `ajar=1`, `open=1`, `motto=1`, `credits=1` | Show the entry doors / part-open doors / click Open / the motto / the credits panel. |
 | `midwalk=id&frames=n` | Start walking to a stop and stop n frames in, drawing each frame: shows the view part-way (with `calm`, what "Reduce motion" shows mid-move). |
+| `fakeguest=1\|2`, `pcev=1\|ok` | A signed-in household stood in without a server (1: The Sample Family, all four events; 2: Sample Friends, two); open the card's events window, or tick and confirm it. |
 | `tdrag=dx`, `calm` | A simulated finger dragged dx px across the view, then a tap: reports the turn, the lean and whether the tap was ignored. `calm` turns on "Reduce motion". |
 | `texneed=1800` | For every flat picture, the most screen pixels one of its texels covers from any stop, on a view that many device pixels tall (JSON in `<pre id="texneed">`; read it with `--dump-dom`). Under 1: the file is bigger than it is ever drawn. |
 

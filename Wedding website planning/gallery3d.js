@@ -199,48 +199,11 @@ const NOTES = {
     body: 'The groom’s half of the pair. He is led by the hand to meet Grammar, Rhetoric, Logic, Arithmetic, Geometry, Astronomy and Music, all seven at once, which is a lot of new in-laws for one afternoon.',
     meta: 'Sandro Botticelli, c. 1483–86 · fresco from Villa Lemmi · Musée du Louvre, Paris' }
 };
-// Wall texts: the long version of a details section, opened from the panel's "Read the full details" button.
-// A stop names its card with `card:`. Each card is a title and a list of sections: { h: heading, p: [paragraphs] }.
-// EVERYTHING BELOW IS PLACEHOLDER TEXT for the owner to replace.
-const TBC = 'To be confirmed.';
-const CARDS = {
-  main: { title: 'The Main Details', sections: [
-    { h: 'When', p: ['Saturday, April 24, 2027. The weekend runs from April 22 to 26. ' + TBC] },
-    { h: 'Where', p: ['Villa Cetinale, Sovicille (SI), Tuscany, Italy. Full address and a map link: ' + TBC] },
-    { h: 'The essentials', p: [TBC] } ] },
-  schedule: { title: 'The Full Schedule', sections: [
-    { h: 'Thursday, April 22', p: ['Event, time, place and dress code. ' + TBC] },
-    { h: 'Friday, April 23', p: [TBC] },
-    { h: 'Saturday, April 24 · the wedding', p: [TBC] },
-    { h: 'Sunday, April 25', p: [TBC] },
-    { h: 'Monday, April 26', p: [TBC] },
-    { h: 'Dress codes', p: [TBC] } ] },
-  travel: { title: 'Travel & Transportation', sections: [
-    { h: 'By Pegasus (nearest airports)', p: [TBC] },
-    { h: 'By centaur (trains and transit hubs)', p: [TBC] },
-    { h: 'By chariot (car hire, driving and parking)', p: [TBC] },
-    { h: 'Airport transfers', p: [TBC] },
-    { h: 'Wedding shuttles', p: [TBC] } ] },
-  stay: { title: 'Accommodations', sections: [
-    { h: 'Where to stay', p: [TBC] },
-    { h: 'Room blocks and group codes', p: [TBC] },
-    { h: 'Booking deadlines', p: [TBC] } ] },
-  logistics: { title: 'Advanced Logistics', sections: [
-    { h: 'Terrain and footwear', p: [TBC] },
-    { h: 'Weather in late April', p: [TBC] },
-    { h: 'Outlets and voltage', p: [TBC] },
-    { h: 'Currency and tipping', p: [TBC] },
-    { h: 'Mobile service, wifi and eSIMs', p: [TBC] } ] },
-  policies: { title: 'Guest Policies', sections: [
-    { h: 'RSVP deadline', p: [TBC] },
-    { h: 'Plus-ones', p: [TBC] },
-    { h: 'Children', p: [TBC] },
-    { h: 'On the day: who to call', p: [TBC] } ] },
-  registry: { title: 'Registry & Extras', sections: [
-    { h: 'RSVP', p: ['Pick a postcard from the rack, turn it over, and post it in the letterbox.'] },
-    { h: 'Gifts', p: ['Our no-physical-gifts note. ' + TBC] },
-    { h: 'A local guide', p: ['Sights, food and things to do nearby. ' + TBC] } ] }
-};
+// Wall texts: the long version of a details section, opened from the panel's "Read the full details" button. A stop
+// names its card with `card:`. The texts themselves are private (addresses, times, hotels): they live on the server
+// (api/_private.js) and arrive only when a guest signs in (GUEST.cards); the page keeps just their titles.
+const CARD_TITLES = { main: 'The Main Details', schedule: 'The Full Schedule', travel: 'Travel & Transportation', stay: 'Accommodations',
+  logistics: 'Advanced Logistics', policies: 'Guest Policies', registry: 'Registry & Extras' };
 const ROOM_ENTRY = { atrium: ST.atrium, w1: ST.w1, w2: ST.w2, det: ST.det };
 const JUNCTION_Z = -7.5;
 
@@ -3330,8 +3293,63 @@ function tourStep(dir) {
 el('nav').querySelector('[data-back]').addEventListener('click', () => tourStep(-1));
 document.querySelector('[data-fwd]').addEventListener('click', () => tourStep(1));
 // the wall-text card
+// ---- guests (26 Sept 2026): the details and the RSVP are for guests. They sign in with one of their phone numbers and
+// their household's code from the invitation (VENUS-4827), or by the invitation's QR code, whose link (?k=...) signs them
+// in on arrival. api/guest.js checks it all; nothing private is in this page's code. A device stays signed in:
+// localStorage `ka-guest` holds its session token (shared with the phone guide), and on each visit the household, its
+// reply and the private wall texts are fetched again.
+const GUEST = { token: (() => { try { return localStorage.getItem('ka-guest') || ''; } catch (e) { return ''; } })(), household: null, reply: null, cards: null };
+let afterSignIn = null;
+async function guestApi(method, body) {
+  const r = await fetch('/api/guest', { method, headers: { 'content-type': 'application/json', ...(GUEST.token ? { authorization: 'Bearer ' + GUEST.token } : {}) }, body: body ? JSON.stringify(body) : undefined });
+  return { ok: r.ok, status: r.status, d: await r.json().catch(() => ({})) };
+}
+function signedIn(d) { GUEST.household = d.household; GUEST.reply = d.reply || null; GUEST.cards = d.cards || null; paintGuestBtn(); }
+function signedOut() {
+  GUEST.token = ''; GUEST.household = GUEST.reply = GUEST.cards = null;
+  try { localStorage.removeItem('ka-guest'); } catch (e) { /* nothing kept */ }
+  paintGuestBtn();
+}
+function paintGuestBtn() { el('guestBtn').textContent = GUEST.household ? 'Signed in · ' + GUEST.household.names : 'Guest sign-in'; }
+(async () => {
+  const qr = (location.search.match(/[?&]k=([A-Za-z0-9_-]{22})/) || [])[1];
+  if (qr) {                                                          // arrived by the invitation's QR code: sign in, and take the key out of the address
+    history.replaceState(null, '', location.pathname + location.search.replace(/[?&]k=[A-Za-z0-9_-]{22}/, '').replace(/^&/, '?') + location.hash);
+    try { const { ok, d } = await guestApi('POST', { action: 'login', key: qr }); if (ok) { GUEST.token = d.token; try { localStorage.setItem('ka-guest', d.token); } catch (e) { /* this visit */ } signedIn(d); return; } } catch (e) { /* fall back to the saved session */ }
+  }
+  if (!GUEST.token) return;
+  try { const { ok, status, d } = await guestApi('GET'); if (ok) signedIn(d); else if (status === 401) signedOut(); } catch (e) { /* offline: the next visit tries again */ }
+})();
+function needGuest(then, why) { if (GUEST.household) { then(); return; } afterSignIn = then; openSignIn(why); }
+function openSignIn(why) {
+  const inn = !!GUEST.household;
+  el('siTitle').textContent = inn ? 'Signed in' : 'For our guests';
+  el('siWhy').textContent = inn ? 'You are signed in as ' + GUEST.household.names + '.' : why || 'The details and the RSVP are for our guests. Sign in with your phone number and the code from your invitation.';
+  el('siFields').style.display = inn ? 'none' : ''; el('siGo').style.display = inn ? 'none' : ''; el('siOut').style.display = inn ? '' : 'none';
+  el('siClose').textContent = inn ? 'Close' : 'Not now'; el('siMsg').textContent = '';
+  el('signin').style.display = 'grid';
+  if (!inn) setTimeout(() => el('siPhone').focus(), 60);
+}
+const closeSignIn = () => { el('signin').style.display = 'none'; afterSignIn = null; };
+el('signinSheet').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  el('siGo').disabled = true; el('siMsg').textContent = '';
+  try {
+    const { ok, d } = await guestApi('POST', { action: 'login', phone: el('siPhone').value, code: el('siCode').value });
+    if (!ok) { el('siMsg').textContent = d.error || 'That did not work. Please try again.'; return; }
+    GUEST.token = d.token; try { localStorage.setItem('ka-guest', d.token); } catch (err) { /* this visit only */ }
+    signedIn(d); el('siCode').value = '';
+    const then = afterSignIn; closeSignIn(); if (then) then();
+  } catch (err) { el('siMsg').textContent = 'We could not reach the gallery. Please check your connection and try again.'; }
+  finally { el('siGo').disabled = false; }
+});
+el('siOut').addEventListener('click', async () => { try { await guestApi('POST', { action: 'logout' }); } catch (e) { /* signed out here either way */ } signedOut(); closeSignIn(); });
+el('siClose').addEventListener('click', closeSignIn);
+el('signin').addEventListener('click', (e) => { if (e.target === el('signin')) closeSignIn(); });
+el('guestBtn').addEventListener('click', () => openSignIn());
 function openCard(key) {
-  const c = CARDS[key];
+  if (!GUEST.cards) { needGuest(() => openCard(key), (CARD_TITLES[key] || 'The full details') + ' are for our guests. Sign in with your phone number and the code from your invitation.'); return; }
+  const c = GUEST.cards[key];
   if (!c) return;
   el('cardTitle').textContent = c.title;
   const body = el('cardBody');
@@ -3349,7 +3367,8 @@ const closeCard = () => { el('card').style.display = 'none'; };
 el('more').addEventListener('click', () => { if (el('more').dataset.game) openArcade(); else openCard(el('more').dataset.card); });
 el('card').addEventListener('click', (e) => { if (e.target === el('card') || e.target.id === 'cardClose') closeCard(); });
 window.addEventListener('keydown', (e) => {
-  if (el('postcard').style.display === 'grid') { if (e.key === 'Escape') closePostcards(); return; }
+  if (el('signin').style.display === 'grid') { if (e.key === 'Escape') closeSignIn(); return; }   // typing a phone number must not walk the gallery
+  if (el('postcard').style.display === 'grid') { if (e.key === 'Escape' && !el('pcEv').classList.contains('open')) closePostcards(); return; }   // Esc in the events window closes only the window
   if (el('card').style.display === 'grid') { if (e.key === 'Escape') closeCard(); return; }   // no walking about behind an open card
   if (window.Arcade && Arcade.open) return;                        // the arcade has the keys while a game is open
   if (e.key === 'ArrowUp') tourStep(1);
@@ -4156,8 +4175,9 @@ let shopRack = null;
 // ---------------------------------------------------------------- the postcard (RSVP), the curtain, and SEE YOU IN SIENA
 // The gift shop's rack holds twelve postcards of the collection. Clicking the shop from its stop opens one: arrows flip
 // through them, "This one" turns it over to the written side (attending, plus-one, dietary, a note, the name), and
-// "Post it" stamps it. Posting also draws back the curtain over the end wall's centrepiece. For now a posted card is
-// kept in this browser only (`ka-rsvp`); the letterbox is not yet connected to a store — that is the next step.
+// "Post it" stamps it. Posting also draws back the curtain over the end wall's centrepiece. The card is for signed-in
+// guests only (GUEST, above); "Post it" sends the reply to api/guest.js, and a guest who has posted sees their card
+// stamped, with "Change my reply" to post it again.
 const POSTCARDS = [
   ['birth-of-venus', 'The Birth of Venus · Botticelli'], ['postcard-primavera', 'Primavera · Botticelli'], ['w1-three-graces', 'The Three Graces · Furini'],
   ['w1-happy-union', 'Happy Union · Veronese'], ['w1-mars-and-venus', 'Mars and Venus United by Love · Veronese'], ['postcard-amaryllis', 'Amaryllis and Mirtillo · Van Dyck'],
@@ -4165,6 +4185,41 @@ const POSTCARDS = [
   ['w2-watermelon-still-life', 'Still Life with Fruit · Ruoppolo'], ['fresco-venus-and-graces', 'Venus and the Three Graces · Botticelli'], ['fresco-liberal-arts', 'The Seven Liberal Arts · Botticelli']
 ];
 let pcIndex = 0, pcSide = 'front';
+// ---- the household's own lines on the card: how many of their seats will be filled, and an Events box that opens a small
+// window listing only the events they are invited to (from the guest list, via GUEST.household); they tick, confirm, and
+// are back on the card. The events and their days live in api/_lib.js; the wedding itself (Saturday) is the card's
+// "Will you be there?", not one of them.
+let pcEvChosen = [];                                                     // the events confirmed in the window
+function setupGuestLines() {
+  const g = GUEST.household; el('pcGuestRow').style.display = g ? '' : 'none';
+  if (!g) return;
+  el('pcSeats').innerHTML = Array.from({ length: g.seats + 1 }, (_, n) => `<option value="${n}"${n === g.seats ? ' selected' : ''}>${n}</option>`).join('');
+  el('pcSeatsOf').textContent = g.seats === 1 ? '1 seat' : g.seats + ' seats';
+  if (!el('pcName').value) el('pcName').value = g.names;
+  paintEvSum();
+}
+function guestEvents() { return GUEST.household ? GUEST.household.events : []; }
+function paintEvSum() {
+  el('pcEvents').checked = pcEvChosen.length > 0;
+  el('pcEvSum').textContent = pcEvChosen.length ? ' · ' + pcEvChosen.length + ' of ' + guestEvents().length : '';
+}
+function openEvents() {
+  el('pcEvList').innerHTML = guestEvents().map((e) => `<label><input type="checkbox" value="${e.id}"${pcEvChosen.includes(e.id) ? ' checked' : ''}><span>${e.name}${e.day ? `<small>${e.day}</small>` : ''}</span></label>`).join('');
+  el('pcEv').classList.add('open');
+}
+function closeEvents(keep) {
+  if (keep) pcEvChosen = [...el('pcEvList').querySelectorAll('input:checked')].map((i) => i.value);
+  el('pcEv').classList.remove('open'); paintEvSum();
+}
+function yesNoChanged() {                                                 // "No, with regret": seats and events do not apply
+  const no = (document.querySelector('input[name=pcYes]:checked') || {}).value === 'no';
+  el('pcGuestRow').classList.toggle('off', no);
+}
+el('pcEvents').addEventListener('click', (e) => { e.preventDefault(); openEvents(); });   // the box is ticked by confirming the window, not by the click
+el('pcEvOk').addEventListener('click', () => closeEvents(true));
+el('pcEvCancel').addEventListener('click', () => closeEvents(false));
+el('pcEv').addEventListener('click', (e) => { if (e.target === el('pcEv')) closeEvents(false); });
+document.querySelectorAll('input[name=pcYes]').forEach((r) => r.addEventListener('change', yesNoChanged));
 function atShop(hit) {
   if (STATIONS[idx].id !== 'detShop' || leg || queue.length) return false;
   for (let o = hit.object; o; o = o.parent) if (o.userData.shop) return true;
@@ -4185,27 +4240,43 @@ function pcTurn(side) {
   if (side === 'back') setTimeout(() => el('pcName').focus(), 900);
 }
 function openPostcards() {
-  const saved = (() => { try { return JSON.parse(localStorage.getItem('ka-rsvp') || 'null'); } catch (e) { return null; } })();
+  if (!GUEST.household) { needGuest(openPostcards, 'The RSVP is for our guests. Sign in with your phone number and the code from your invitation, and your card will be waiting.'); return; }
+  const saved = GUEST.reply;
   el('pcScene').style.display = ''; el('pcScene').style.opacity = '1'; el('pcScene').style.transform = '';
-  el('pcPosted').style.display = 'none';
-  if (saved) {                                                           // already posted from this browser: show it stamped
+  el('pcPosted').style.display = 'none'; el('pcEdit').style.display = 'none';
+  if (saved) {                                                           // already posted: their card, stamped, with the way to change it
     showPostcard(saved.card || 0);
     el('pcName').value = saved.name || ''; el('pcPlus').value = saved.plus || ''; el('pcDiet').value = saved.diet || ''; el('pcNote').value = saved.note || '';
     document.querySelectorAll('input[name=pcYes]').forEach((r) => { r.checked = r.value === saved.yes; });
+    pcEvChosen = saved.events || [];
+    setupGuestLines(); if (saved.yes === 'yes') el('pcSeats').value = String(saved.seats); yesNoChanged();
     pcTurn('back');
     el('pcBackNav').style.display = 'none';
-    el('pcPosted').style.display = 'block';
-    el('pcPosted').textContent = 'Posted ' + new Date(saved.when).toLocaleDateString(undefined, { day: 'numeric', month: 'long' }) + '. Thank you — see you in Siena.';
-  } else { showPostcard(pcIndex); pcTurn('front'); }
+    el('pcPosted').style.display = 'block'; el('pcEdit').style.display = '';
+    el('pcPosted').textContent = 'Posted ' + new Date(saved.when).toLocaleDateString(undefined, { day: 'numeric', month: 'long' }) + '. ' + (saved.yes === 'yes' ? 'Thank you — see you in Siena.' : 'We’re sorry to miss you.');
+  } else { el('pcName').value = ''; pcEvChosen = []; showPostcard(pcIndex); pcTurn('front'); setupGuestLines(); yesNoChanged(); }
   el('postcard').style.display = 'grid';
 }
+el('pcEdit').addEventListener('click', () => {                           // back to the written side, as posted, to change and post again
+  el('pcPosted').style.display = 'none'; el('pcEdit').style.display = 'none'; el('pcBackNav').style.display = 'flex';
+});
 function closePostcards() { el('postcard').style.display = 'none'; }
-function postCard() {
+let posting = false;
+async function postCard() {
+  if (posting) return;
   const yes = (document.querySelector('input[name=pcYes]:checked') || {}).value;
   const name = el('pcName').value.trim();
-  if (!name || !yes) { el(!name ? 'pcName' : 'pcPost').focus(); el('pcPost').textContent = !name ? 'Your name, first' : 'Yes or no, first'; setTimeout(() => { el('pcPost').textContent = 'Post it'; }, 1800); return; }
-  const rsvp = { card: pcIndex, yes, name, plus: el('pcPlus').value.trim(), diet: el('pcDiet').value.trim(), note: el('pcNote').value.trim(), when: Date.now() };
-  try { localStorage.setItem('ka-rsvp', JSON.stringify(rsvp)); } catch (e) { /* private mode: it lasts the visit */ }
+  const say = (t) => { el('pcPost').textContent = t; setTimeout(() => { el('pcPost').textContent = 'Post it'; }, 2600); };
+  if (!name || !yes) { el(!name ? 'pcName' : 'pcPost').focus(); say(!name ? 'Your name, first' : 'Yes or no, first'); return; }
+  const rsvp = { card: pcIndex, yes, name, plus: el('pcPlus').value.trim(), diet: el('pcDiet').value.trim(), note: el('pcNote').value.trim(),
+    seats: yes === 'yes' ? +el('pcSeats').value : 0, events: yes === 'yes' ? pcEvChosen.slice() : [] };
+  posting = true; el('pcPost').textContent = 'Posting…';
+  let res;
+  try { res = await guestApi('POST', { action: 'rsvp', reply: rsvp }); } catch (e) { res = { ok: false, d: { error: 'Could not reach us. Try again.' } }; }
+  posting = false;
+  if (!res.ok) { if (res.status === 401) { signedOut(); closePostcards(); needGuest(openPostcards); return; } say(res.d.error || 'Could not post. Try again.'); return; }
+  GUEST.reply = res.d.reply;
+  el('pcPost').textContent = 'Post it';
   el('pcBackNav').style.display = 'none';
   el('pcScene').style.transition = 'transform 900ms cubic-bezier(.5,0,.8,.4), opacity 900ms ease';
   el('pcScene').style.transform = 'translateY(70vh) rotate(4deg)'; el('pcScene').style.opacity = '0';   // into the letterbox
@@ -4228,7 +4299,10 @@ el('pcClose').addEventListener('click', () => {
   if (el('pcPosted').dataset.reveal) { el('pcPosted').dataset.reveal = ''; goTo(ST.detClose); setTimeout(() => revealCurtain(false), 900); }
 });
 el('postcard').addEventListener('click', (e) => { if (e.target === el('postcard')) closePostcards(); });
-el('pcScene').addEventListener('keydown', (e) => { if (e.key === 'Enter' && pcSide === 'back') postCard(); });
+el('pcScene').addEventListener('keydown', (e) => {
+  if (el('pcEv').classList.contains('open')) { if (e.key === 'Enter') { e.preventDefault(); closeEvents(true); } if (e.key === 'Escape') closeEvents(false); return; }   // the window first
+  if (e.key === 'Enter' && pcSide === 'back') postCard();
+});
 
 // ---- the curtain: burgundy velvet in two halves under a fringed pelmet, hung over the end wall's centrepiece. It draws
 // back when a card is posted, and stays back on later visits from the same browser (`ka-posted`). Behind it: SEE YOU

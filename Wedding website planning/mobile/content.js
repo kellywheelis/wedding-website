@@ -304,27 +304,7 @@ window.CONTENT = {
       }
      ],
      "card": {
-      "title": "The Main Details",
-      "sections": [
-       {
-        "h": "When",
-        "p": [
-         "Saturday, April 24, 2027. The weekend runs from April 22 to 26. To be confirmed."
-        ]
-       },
-       {
-        "h": "Where",
-        "p": [
-         "Villa Cetinale, Sovicille (SI), Tuscany, Italy. Full address and a map link: To be confirmed."
-        ]
-       },
-       {
-        "h": "The essentials",
-        "p": [
-         "To be confirmed."
-        ]
-       }
-      ]
+      "title": "The Main Details"
      }
     },
     {
@@ -357,45 +337,7 @@ window.CONTENT = {
       }
      ],
      "card": {
-      "title": "The Full Schedule",
-      "sections": [
-       {
-        "h": "Thursday, April 22",
-        "p": [
-         "Event, time, place and dress code. To be confirmed."
-        ]
-       },
-       {
-        "h": "Friday, April 23",
-        "p": [
-         "To be confirmed."
-        ]
-       },
-       {
-        "h": "Saturday, April 24 · the wedding",
-        "p": [
-         "To be confirmed."
-        ]
-       },
-       {
-        "h": "Sunday, April 25",
-        "p": [
-         "To be confirmed."
-        ]
-       },
-       {
-        "h": "Monday, April 26",
-        "p": [
-         "To be confirmed."
-        ]
-       },
-       {
-        "h": "Dress codes",
-        "p": [
-         "To be confirmed."
-        ]
-       }
-      ]
+      "title": "The Full Schedule"
      }
     },
     {
@@ -428,39 +370,7 @@ window.CONTENT = {
       }
      ],
      "card": {
-      "title": "Travel & Transportation",
-      "sections": [
-       {
-        "h": "By Pegasus (nearest airports)",
-        "p": [
-         "To be confirmed."
-        ]
-       },
-       {
-        "h": "By centaur (trains and transit hubs)",
-        "p": [
-         "To be confirmed."
-        ]
-       },
-       {
-        "h": "By chariot (car hire, driving and parking)",
-        "p": [
-         "To be confirmed."
-        ]
-       },
-       {
-        "h": "Airport transfers",
-        "p": [
-         "To be confirmed."
-        ]
-       },
-       {
-        "h": "Wedding shuttles",
-        "p": [
-         "To be confirmed."
-        ]
-       }
-      ]
+      "title": "Travel & Transportation"
      }
     },
     {
@@ -479,27 +389,7 @@ window.CONTENT = {
       }
      ],
      "card": {
-      "title": "Accommodations",
-      "sections": [
-       {
-        "h": "Where to stay",
-        "p": [
-         "To be confirmed."
-        ]
-       },
-       {
-        "h": "Room blocks and group codes",
-        "p": [
-         "To be confirmed."
-        ]
-       },
-       {
-        "h": "Booking deadlines",
-        "p": [
-         "To be confirmed."
-        ]
-       }
-      ]
+      "title": "Accommodations"
      }
     },
     {
@@ -545,39 +435,7 @@ window.CONTENT = {
       }
      ],
      "card": {
-      "title": "Advanced Logistics",
-      "sections": [
-       {
-        "h": "Terrain and footwear",
-        "p": [
-         "To be confirmed."
-        ]
-       },
-       {
-        "h": "Weather in late April",
-        "p": [
-         "To be confirmed."
-        ]
-       },
-       {
-        "h": "Outlets and voltage",
-        "p": [
-         "To be confirmed."
-        ]
-       },
-       {
-        "h": "Currency and tipping",
-        "p": [
-         "To be confirmed."
-        ]
-       },
-       {
-        "h": "Mobile service, wifi and eSIMs",
-        "p": [
-         "To be confirmed."
-        ]
-       }
-      ]
+      "title": "Advanced Logistics"
      }
     },
     {
@@ -596,33 +454,7 @@ window.CONTENT = {
       }
      ],
      "card": {
-      "title": "Guest Policies",
-      "sections": [
-       {
-        "h": "RSVP deadline",
-        "p": [
-         "To be confirmed."
-        ]
-       },
-       {
-        "h": "Plus-ones",
-        "p": [
-         "To be confirmed."
-        ]
-       },
-       {
-        "h": "Children",
-        "p": [
-         "To be confirmed."
-        ]
-       },
-       {
-        "h": "On the day: who to call",
-        "p": [
-         "To be confirmed."
-        ]
-       }
-      ]
+      "title": "Guest Policies"
      }
     },
     {
@@ -633,27 +465,7 @@ window.CONTENT = {
      "meta": "Postcards · the RSVP box · the registry note",
      "pictures": [],
      "card": {
-      "title": "Registry & Extras",
-      "sections": [
-       {
-        "h": "RSVP",
-        "p": [
-         "Pick a postcard from the rack, turn it over, and post it in the letterbox."
-        ]
-       },
-       {
-        "h": "Gifts",
-        "p": [
-         "Our no-physical-gifts note. To be confirmed."
-        ]
-       },
-       {
-        "h": "A local guide",
-        "p": [
-         "Sights, food and things to do nearby. To be confirmed."
-        ]
-       }
-      ]
+      "title": "Registry & Extras"
      }
     }
    ],

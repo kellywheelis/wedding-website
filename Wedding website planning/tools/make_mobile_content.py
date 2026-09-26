@@ -85,7 +85,7 @@ def build(d):
         ps = [p for p in d['DETAIL_PICTURES'] if p.get('sec') == key and p.get('src') and p.get('note')]
         sections.append({'key': key, 'n': n, **tbm(st[stop]),
                          'pictures': [pic(p['src'], p['w'] / p['h'], dict(zip(('title', 'body', 'meta'), p['note']))) for p in ps],
-                         'card': d['CARDS'][key]})
+                         'card': {'title': d['CARD_TITLES'][key]}})   # the wall text itself is private: it arrives after sign-in
     det = {'id': 'det', 'title': 'Exhibit Details', 'hero': HEROES['det'], 'centre': tbm(st['det']), 'table': tbm(st['detTable']),
            'volvelle': tbm(st['detVolvelle']), 'invite': tbm(st['detInvite']), 'shop': 'img/room-details-shop.jpg',
            'hourglass': {'img': 'img/sc-hourglass.jpg', **tbm(st['sc_hourglass']), 'wedding': d['WEDDING']},   # the countdown is kept live on the phone

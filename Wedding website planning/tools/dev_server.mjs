@@ -24,6 +24,14 @@ class MemRedis {
   async sadd(k, ...ms) { const e = this.live(k) || { v: new Set(), until: 0 }; ms.forEach((x) => e.v.add(String(x))); this.m.set(k, e); return ms.length; }
   async lpush(k, ...vs) { const e = this.live(k) || { v: [], until: 0 }; vs.forEach((x) => e.v.unshift(String(x))); this.m.set(k, e); return e.v.length; }
   async ltrim(k, a, b) { const e = this.live(k); if (e) e.v = e.v.slice(a, b + 1); return 'OK'; }
+  // sorted sets, for the arcade's scoreboard (api/scores.js): lowest score first, ties by member, as Redis orders them
+  zs(k) { const e = this.live(k); return e ? [...e.v].sort((a, b) => a[1] - b[1] || (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0)) : []; }
+  cut(n, a, b) { if (a < 0) a += n; if (b < 0) b += n; return [Math.max(0, a), Math.min(n - 1, b)]; }
+  async zadd(k, { score, member }) { const e = this.live(k) || { v: new Map(), until: 0 }; const had = e.v.has(member); e.v.set(member, Number(score)); this.m.set(k, e); return had ? 0 : 1; }
+  async zrem(k, member) { const e = this.live(k); return e && e.v.delete(member) ? 1 : 0; }
+  async zremrangebyrank(k, a, b) { const z = this.zs(k), [i, j] = this.cut(z.length, a, b), e = this.live(k); let n = 0; for (let x = i; x <= j; x++) { e.v.delete(z[x][0]); n++; } return n; }
+  async zrevrank(k, member) { const i = this.zs(k).reverse().findIndex((p) => p[0] === member); return i < 0 ? null : i; }
+  async zrange(k, a, b, o = {}) { const z = this.zs(k); if (o.rev) z.reverse(); const [i, j] = this.cut(z.length, a, b); const s = z.slice(i, j + 1); return o.withScores ? s.flat() : s.map((p) => p[0]); }
 }
 globalThis.__DEV_REDIS__ = new MemRedis();
 // the RSVP's emails (api/_notify.js; start with RESEND_API_KEY and RSVP_NOTIFY_TO set to anything) are never sent from

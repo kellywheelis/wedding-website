@@ -3180,6 +3180,86 @@ function paintTally() {
   // the three finds are a bonus under the count: hollow stars that fill in gold
   const stars = Array.from({ length: n }, (_, i) => '<span style="color:' + (i < found ? '#E8C07A' : 'rgba(242,223,168,.45)') + '">' + (i < found ? '\u2605' : '\u2606') + '</span>').join('');
   t.innerHTML = (seen >= total ? 'Collection \u00b7 every work seen' : 'Collection \u00b7 ' + seen + ' of ' + total) + '<span style="display:block;font-size:11px;letter-spacing:.14em;margin-top:2px">Hidden bonuses ' + stars + '</span>';
+  if (seen >= total && found >= n) celebrate();
+}
+// ---- everything seen and all three found: a few small fireworks go up from the tally (the owner's wish, 26 Sept 2026),
+// once. `ka-fireworks` remembers it, so a later visit does not replay them; under "Reduce motion" they are left out. They
+// wait until the tally is showing and every sculpture has its stop: before the scans load, the count is short, and
+// "every work seen" would come early.
+function celebrate() {
+  const t = el('tally');
+  if (!t || t.style.opacity !== '1') return;
+  if (!Object.keys(SCULPTURES).filter((id) => SCULPTURE_SPOTS[id] && SCULPTURE_NOTES[id]).every((id) => ST['sc_' + id] !== undefined)) return;
+  try { if (localStorage.getItem('ka-fireworks')) return; localStorage.setItem('ka-fireworks', '1'); } catch (e) { if (celebrate.done) return; }
+  celebrate.done = true;
+  if (!REDUCED) setTimeout(() => fireworks(), 900);                      // once the tally has faded in, if it was only now shown
+}
+// five rockets from along the tally's top edge, each rising on a thin trail that sheds a few sparks, then bursting into a
+// spray of some ninety fine sparks in the gallery's colors. Every spark leaves a thin streak that shortens as it slows
+// and fades, droops, and twinkles out on its own time; about four seconds in all. A faint dark edge under each streak keeps them
+// visible on the cream walls as well as the burgundy ones. Streaks are gathered into a few paths per burst (by color and
+// strength), so a frame costs a few dozen strokes, not hundreds. The picture is worked out from the time alone (`at`, for
+// the harness, draws one moment and stops).
+function fireworks(at) {
+  const box = el('tally').getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const cv = document.createElement('canvas');
+  cv.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;z-index:15;pointer-events:none';
+  cv.width = innerWidth * dpr; cv.height = innerHeight * dpr; document.body.appendChild(cv);
+  const c = cv.getContext('2d'); c.scale(dpr, dpr); c.lineCap = 'round';
+  let seed = 7; const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+  const COLORS = ['#D9A441', '#9E2A52', '#C9763F', '#4F8A74', '#B8862B'], LIGHT = '#F4DFA4', RISE = 0.8, LIFE = 1.9, G = 34, TRAIL = 0.13;
+  const reach = Math.min(300, innerHeight * 0.38);
+  const rockets = Array.from({ length: 5 }, (_, i) => {
+    const x0 = box.left + box.width * (0.12 + 0.19 * i + 0.06 * (rnd() - 0.5)), y0 = box.top;
+    const lean = rnd() - 0.5;                                            // each drifts a little to one side, never dead straight
+    return { t0: [0, 0.45, 0.2, 0.7, 0.95][i], x0, y0, x1: x0 + Math.sign(lean || 1) * (20 + 48 * Math.abs(lean)), y1: y0 - reach * (0.6 + 0.4 * rnd()), col: COLORS[i], r: 80 + 30 * rnd(),
+      sparks: Array.from({ length: 90 }, () => ({ a: rnd() * Math.PI * 2, v: rnd() < 0.18 ? 0.2 + 0.35 * rnd() : 0.6 + 0.4 * Math.sqrt(rnd()),   // mostly a shell, a few within
+        life: LIFE * (0.6 + 0.4 * rnd()), ph: rnd() * 40, light: rnd() < 0.28 })) };
+  });
+  const END = Math.max(...rockets.map((r) => r.t0)) + RISE + LIFE;
+  const stroke = (path, col, alpha) => {                                   // the faint dark edge, then the spark's own thin line
+    c.globalAlpha = alpha * 0.28; c.strokeStyle = '#231608'; c.lineWidth = 2.2; c.stroke(path);
+    c.globalAlpha = alpha; c.strokeStyle = col; c.lineWidth = 0.9; c.stroke(path);
+  };
+  const draw = (s) => {
+    c.clearRect(0, 0, innerWidth, innerHeight);
+    rockets.forEach((r) => {
+      const u = s - r.t0; if (u < 0) return;
+      if (u < RISE) {                                                      // going up: a thin streak, shedding sparks that fall away
+        // the sideways drift lags the climb, so the path bends gently over near the top instead of running straight
+        const e = (k) => 1 - Math.pow(1 - Math.min(1, Math.max(0, k) / RISE), 2), px = (k) => r.x0 + (r.x1 - r.x0) * Math.pow(e(k), 2.2), py = (k) => r.y0 + (r.y1 - r.y0) * e(k);
+        const path = new Path2D(); path.moveTo(px(u - 0.14), py(u - 0.14)); path.lineTo(px(u), py(u)); stroke(path, LIGHT, 0.95);
+        c.fillStyle = LIGHT;
+        for (let j = 1; j <= 10; j++) { const k = u - j * 0.04; if (k < 0) break; const age = u - k;
+          c.globalAlpha = 0.7 * (1 - j / 11); c.fillRect(px(k) + Math.sin(j * 7.3 + r.x0) * 5 * age, py(k) + 60 * age * age, 1.1, 1.1); }
+        return;
+      }
+      const b = u - RISE; if (b > LIFE) return;
+      if (b < 0.1) { c.globalAlpha = 0.55 * (1 - b / 0.1); c.fillStyle = '#FFF6DF'; c.beginPath(); c.arc(r.x1, r.y1, 9, 0, 7); c.fill(); }   // the flash
+      const at = (p, t) => { const d = r.r * p.v * (1 - Math.exp(-2.6 * t)); return [r.x1 + Math.cos(p.a) * d, r.y1 + Math.sin(p.a) * d + G * t * t]; };
+      const groups = {};                                                   // color + strength (in quarters) -> one path of streaks
+      const heads = [];
+      r.sparks.forEach((p) => {
+        if (b > p.life) return;
+        const f = b / p.life;
+        if (f > 0.55 && Math.sin(b * 55 + p.ph) < -0.25) return;           // twinkling out
+        const alpha = Math.ceil(4 * Math.pow(1 - f, 1.3)) / 4; if (!alpha) return;
+        const tr = TRAIL * Math.max(0.1, Math.pow(1 - f, 1.8));              // a long streak while fast, a glittering speck as it dies
+        const [hx, hy] = at(p, b), [tx, ty] = at(p, Math.max(0, b - tr)), key = (p.light ? LIGHT : r.col) + alpha;
+        const g = groups[key] || (groups[key] = { col: p.light ? LIGHT : r.col, alpha, path: new Path2D() });
+        g.path.moveTo(tx, ty); g.path.lineTo(hx, hy);
+        if (f < 0.35) heads.push(hx, hy);
+      });
+      Object.values(groups).forEach((g) => stroke(g.path, g.col, g.alpha));
+      c.globalAlpha = 0.9; c.fillStyle = '#FFF6DF';                        // the bright tips, while the burst is young
+      for (let k = 0; k < heads.length; k += 2) c.fillRect(heads[k] - 0.6, heads[k + 1] - 0.6, 1.2, 1.2);
+    });
+    c.globalAlpha = 1;
+  };
+  if (at != null) { draw(at); return; }
+  const start = performance.now();
+  const step = (now) => { const s = (now - start) / 1000; if (s > END) { cv.remove(); return; } draw(s); requestAnimationFrame(step); };
+  requestAnimationFrame(step);
 }
 function foundHidden(h) {
   const src = Object.keys(HIDDEN).find((k) => HIDDEN[k] === h);
@@ -3380,7 +3460,7 @@ window.addEventListener('keydown', (e) => {
 
 let mottoTimer = null;
 let navShown = false;                                              // the compass and Turn around wait until the motto has gone
-function showNav() { navShown = true; el('compass').style.opacity = '1'; if (el('tally')) { paintTally(); el('tally').style.opacity = '1'; } markRoom(STATIONS[idx].room); }
+function showNav() { navShown = true; el('compass').style.opacity = '1'; if (el('tally')) { el('tally').style.opacity = '1'; paintTally(); } markRoom(STATIONS[idx].room); }   // painted once showing, so a collection already complete gets its fireworks
 function hideMotto() {
   clearTimeout(mottoTimer);
   el('motto').style.opacity = '0';

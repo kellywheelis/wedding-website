@@ -165,6 +165,15 @@ the canvas size and the triangles drawn (`tickFps` in gallery3d.js; nothing is m
   in and 384 px wide on a wide window, text centered, shrinking so it always stays clear of the compass; below 960 px
   it goes back to the corner). The compass no longer steps to the corner at details-room close-ups
   (the owner wants it in one place, always).
+  Fireworks (26 Sept 2026, the owner's wish): when every work is seen and all three are found, five small rockets go up
+  from the tally's top edge and burst in the gallery's colors, about four seconds, once (`celebrate` / `fireworks`,
+  remembered in localStorage `ka-fireworks`; left out under Reduce motion). They wait for the tally to be showing and
+  every sculpture's stop to exist, since the count is short until the scans load; a collection already complete gets
+  them when the tally first shows. Asked to look more real, they are a fine spray: about ninety thin sparks a burst, each
+  a streak that shortens to a glittering speck as it slows, droops and twinkles out, in deep colors with a faint dark
+  edge so they read on the cream walls and the burgundy ones (streaks batched into a few paths a burst, for speed).
+  The rockets climb on a slight curve, leaning to one side near the top (the sideways drift lags the climb).
+  Harness: `fireworks=1.2` draws the moment 1.2 s in (a comma list lays moments over one another, to trace the paths); `complete=1` fills the collection and reports when they fire.
 - **The RSVP postcard and the curtain** (25 Sept 2026, step 1 of the RSVP). Clicking the gift shop (rack or
   letterbox, `userData.shop`) from its own stop opens `#postcard`: the twelve postcards of the collection
   (`POSTCARDS`, the front is the picture with the KA monogram in gilt at the corner, 14% of the card's width with a
@@ -574,6 +583,14 @@ per-game ceiling, rate-limits by address, keeps the best hundred in a sorted set
 rank. In the shell, `Arcade.board` handles the ENTER YOUR INITIALS screen and the board; each game opens it once
 at 'over'/'won' (`S.boarded`), defers update() to it while it is on, and draws it last. The menu shows each
 game's top three. `game/test-board.html` mocks the API for looking at the screens.
+Removing a score (26 Sept 2026, the owner's wish): a guest may take their own initials off. Each posted score's member
+in the sorted set is NAME:when:secret; POST returns that id, and the device keeps it (localStorage `ka-scores`). The
+board never shows the secret, so `POST { game, remove: id }` works only from the device that posted it; scores from
+before have no secret and stay. The shell draws a small X beside this device's own entries on the board, and in the
+menu's top-three line (where the whole entry is the tap target); a click or tap (canvas `click`, hit spots gathered
+each frame in `hits`) opens `Arcade.ask`, a YES / NO box drawn over the game with NO lit first (arrows change it,
+start answers, Esc or the close button means no). The local dev server has sorted sets, so the real API can be tried
+there.
 On a phone the initials are typed through an invisible text box (`showEntry`), the only thing on the phone guide that
 may raise the keyboard (the owner's rule: the keyboard belongs to the RSVP and the initials, nowhere else). Since 26 Sept
 2026 `hideEntry` also takes it out of the layout (display none): left in place, it sat over the middle of the game

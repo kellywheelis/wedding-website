@@ -585,3 +585,18 @@ function fakeGuest(n) {
   paintGuestBtn();
 }
 { const q = new URLSearchParams(location.search); if (q.has('fakeguest')) fakeGuest(+q.get('fakeguest') || 1); }
+// fireworks=1.2 : the tally's fireworks as they are 1.2 seconds in (drawn once; headless Chrome plays no animation);
+// several moments, fireworks=0.1,0.2,0.3 , are laid over one another, to see the rockets' paths.
+// complete=1 : every work seen and all three found, then (once the scans are in) whether the fireworks were set off
+{ const q = new URLSearchParams(location.search);
+  if (q.has('fireworks')) setTimeout(() => q.get('fireworks').split(',').forEach((t) => fireworks(+t)), 1500);
+  if (q.has('complete')) {
+    try { localStorage.removeItem('ka-fireworks'); } catch (e) { /* none kept */ }
+    STATIONS.forEach((s) => { if (s.id !== 'atrium' && s.id !== 'hidden') SEEN.add(s.title); }); Object.keys(HIDDEN).forEach((k) => FOUND.add(k));
+    const tag = document.createElement('pre'); tag.style.cssText = 'position:fixed;left:8px;top:8px;z-index:99;background:#000;color:#0f0;font:14px monospace;padding:4px 8px;margin:0';
+    const scans = () => Object.keys(SCULPTURES).filter((id) => SCULPTURE_SPOTS[id] && SCULPTURE_NOTES[id]).every((id) => ST['sc_' + id] !== undefined);
+    tag.textContent = 'before the scans: set off ' + (paintTally(), !!localStorage.getItem('ka-fireworks')) + ' (scans in: ' + scans() + ')';
+    document.body.appendChild(tag);
+    const wait = setInterval(() => { if (!scans()) return; clearInterval(wait); STATIONS.forEach((s) => { if (s.id !== 'atrium' && s.id !== 'hidden') SEEN.add(s.title); }); paintTally();
+      tag.textContent += '\nscans in: tally "' + el('tally').textContent + '" · set off ' + !!localStorage.getItem('ka-fireworks'); }, 500);
+  } }

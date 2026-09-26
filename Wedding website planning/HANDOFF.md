@@ -535,6 +535,11 @@ _Brought up to date 25 Sept 2026 (the repo at `3e55499`)._
   quicker) plus a very slight head-bob: both declined 25 Sept 2026; the walking stays as it is.
 
 **Housekeeping**
+- Download size: the doors wait until every picture and scan has loaded. On 25 Sept 2026 the gallery's JPEGs were
+  re-saved at quality 85 with their pixel sizes kept (the postcard copies of Primavera and Amaryllis cut to 2048 px
+  wide), taking the load from ~92 MB to ~69 MB (~61 MB over the wire; Vercel brotli-compresses the `.glb` scans).
+  Save new pictures the same way. Still to slim: the gift shop's postcard rack draws its cards from 12 full-size
+  pictures, and the sculpture scans (~26 MB).
 - The 3D build's performance has only been checked on a desktop (phones get the mobile edition). Wing I carries
   ~300k triangles of roses.
 - Dead code that could be removed: `sign()` / `signTexture()` (the old WING I/II wall labels).

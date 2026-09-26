@@ -486,6 +486,19 @@ the phone's tilt, the tab draws the card out), the seven detail sections with th
   localStorage `ka-found` by picture, the same key as the 3D build, so they carry across. The phone copies of
   Primavera, Amaryllis and Good Government were re-made from `assets/` then, as the 23 Sept copies predated the pets.
   "Tap to look closer" sits directly under each frame (the owner's request).
+- **The gallery view** (26 Sept 2026, the owner chose it over a phone 3D build): held sideways (`(orientation:
+  landscape) and (max-height: 500px)`, past the doors) the guide is hidden and `#gv` shows the museum as a walk, one
+  work to a screen: 57 slides built from the same CONTENT (`slides` in mobile.js: each room's wide hero
+  `img/room-*-wide.jpg`, rendered 1600x760 from the room's entry stop and cropped to 1600x720; the paintings; wall
+  texts; sculptures and artifacts; the arcade; the hourglass; the details sections in reading order with their
+  "Tap here for details" cards; the gift shop last). A CSS scroll-snap strip swipes between them, with arrows, room
+  buttons and a counter; a tap on a work slides in its write-up (a tap on a hidden pet finds it, same `petHit` /
+  `petNote` as the lightbox). The save-the-date and the invitation stay upright-only (a note says so). It opens at the
+  room you were reading (`curRoom`, from the room observer and plain scroll events; a link to `#w2` etc. opens there)
+  and turning upright returns to the room you were viewing, with an instant jump (the page's own scrolling is smooth).
+  The change is caught on the media query and on `resize` (older iPhones lack `addEventListener` on it). Headless
+  Chrome sends neither when a test frame is resized, and plays no smooth scrolling: the tests dispatch `resize`
+  themselves and switch `scroll-behavior` off. A hint under the atrium intro says to turn the phone.
 - **Checking it**: `tools/harness/.work/phone.html?p=?open%23sec-schedule` frames the page in a true 390 px
   viewport (headless Chrome will not go narrower than 500 px on its own); `?open` skips the doors, `?dbg`
   lists anything wider than the screen.

@@ -27,7 +27,7 @@
   const rooms = C.rooms, [atrium, w1, w2, det] = rooms;
   let html = '';
   html += `<section class="chapter" id="atrium"><div class="hero"><img src="${atrium.hero}" alt="The atrium" fetchpriority="high" decoding="async"><div class="cap"><h2>${esc(atrium.title)}</h2><p class="sub">${esc(atrium.intro.title)}</p></div></div>
-    <div class="text"><p class="body">${esc(atrium.intro.body)}</p><p class="bonus" id="bonus"></p></div>`;
+    <div class="text"><p class="body">${esc(atrium.intro.body)}</p><p class="bonus" id="bonus"></p><p class="turn-hint">Turn your phone sideways for the gallery view</p></div>`;
   const pair = atrium.items[0]; lbItems.push(pair);
   html += `<div class="statues"><button class="statue" data-lb="${lbItems.length - 1}"><div class="plinth"><img src="${pair.img}" alt="Venus" loading="lazy" decoding="async"></div><h3>Venus</h3></button>
     <button class="statue" data-lb="${lbItems.length - 1}"><div class="plinth"><img src="${pair.img2}" alt="Mars" loading="lazy" decoding="async"></div><h3>Mars</h3></button></div>
@@ -113,20 +113,22 @@
     el('bonus').innerHTML = 'Hidden bonuses ' + HIDDEN_KEYS.map((k, i) => `<span class="${i < got ? 'on' : ''}">${i < got ? '★' : '☆'}</span>`).join('');
   };
   paintBonus();
-  const findPet = (h) => {
+  const petNote = (h) => {                                          // record a find; the pet's write-up, for whichever panel shows it
     if (!FOUND.has(h.key)) { FOUND.add(h.key); try { localStorage.setItem('ka-found', JSON.stringify([...FOUND])); } catch (e) { /* the find lasts the visit */ } }
     paintBonus();
     const got = HIDDEN_KEYS.filter((k) => FOUND.has(k)).length;
     const meta = got >= HIDDEN_KEYS.length ? 'All three found.' : got === HIDDEN_KEYS.length - 1 ? 'Two of three found. One more is hiding.' : h.meta;
-    el('lbTxt').innerHTML = `<p class="eyebrow">${esc(h.eyebrow)}</p><h3>${esc(h.title)}</h3><p class="body">${esc(h.body)}</p><p class="meta">${esc(meta)}</p>`;
+    return `<p class="eyebrow">${esc(h.eyebrow)}</p><h3>${esc(h.title)}</h3><p class="body">${esc(h.body)}</p><p class="meta">${esc(meta)}</p>`;
+  };
+  const petHit = (it, e, img) => {                                  // did a tap land on this picture's pet? (measured inside its gilt border)
+    if (!it || !it.hidden || !img || e.target !== img) return false;
+    const r = img.getBoundingClientRect(), bw = parseFloat(getComputedStyle(img).borderLeftWidth) || 0;
+    const u = (e.clientX - r.left - bw) / (r.width - 2 * bw), v = (e.clientY - r.top - bw) / (r.height - 2 * bw), a = it.hidden.at, pad = 0.05;
+    return u >= a[0] - pad && u <= a[2] + pad && v >= a[1] - pad && v <= a[3] + pad;
   };
   el('lbImg').addEventListener('click', (e) => {
-    const it = lbItems[lbIndex], img = el('lbImg').querySelector('img');
-    if (it && it.hidden && img && e.target === img) {                 // where on the painting itself (inside its gilt border) the tap landed
-      const r = img.getBoundingClientRect(), bw = parseFloat(getComputedStyle(img).borderLeftWidth) || 0;
-      const u = (e.clientX - r.left - bw) / (r.width - 2 * bw), v = (e.clientY - r.top - bw) / (r.height - 2 * bw), a = it.hidden.at, pad = 0.05;
-      if (u >= a[0] - pad && u <= a[2] + pad && v >= a[1] - pad && v <= a[3] + pad) { findPet(it.hidden); return; }
-    }
+    const it = lbItems[lbIndex];
+    if (petHit(it, e, el('lbImg').querySelector('img'))) { el('lbTxt').innerHTML = petNote(it.hidden); return; }
     closeLb();
   });
   window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLb(); });
@@ -168,6 +170,7 @@
     if (gate.classList.contains('open')) return;
     gate.classList.add('open'); document.body.classList.remove('gated'); nav.classList.add('on');
     setTimeout(() => { gate.style.display = 'none'; }, skip ? 100 : 2400);
+    setTimeout(() => applyMode(), 0);                                // held sideways, the doors open onto the gallery view
   };
   el('enter').addEventListener('click', () => open(false));
   el('skip').addEventListener('click', () => { open(true); el('det').scrollIntoView({ behavior: 'auto' }); });
@@ -176,9 +179,125 @@
     if (location.hash) [60, 700].forEach((ms) => setTimeout(() => { const t = document.querySelector(location.hash); if (t) t.scrollIntoView({ behavior: 'instant' }); }, ms));   // again once the pictures have their sizes
   }
   const links = nav.querySelectorAll('a');
-  const io = new IntersectionObserver((es) => { es.forEach((en) => { if (en.isIntersecting) links.forEach((a) => a.classList.toggle('on', a.getAttribute('href') === '#' + en.target.id)); }); }, { rootMargin: '-40% 0px -55% 0px' });
+  let curRoom = 'atrium';                                            // the room you are reading, kept as you scroll (the gallery view opens there)
+  const io = new IntersectionObserver((es) => { es.forEach((en) => { if (en.isIntersecting) { curRoom = en.target.id; links.forEach((a) => a.classList.toggle('on', a.getAttribute('href') === '#' + en.target.id)); } }); }, { rootMargin: '-40% 0px -55% 0px' });
   rooms.forEach((r) => io.observe(el(r.id)));
+  window.addEventListener('scroll', () => {                          // the same, from plain scroll events (four positions read: cheap), so the room is known however the browser reports
+    if (document.body.classList.contains('gv-on')) return;
+    rooms.forEach((x) => { if (el(x.id).getBoundingClientRect().top < innerHeight * 0.45) curRoom = x.id; });
+  }, { passive: true });
   el('creditsList').innerHTML = C.credits.map(([what, who]) => `<li>${esc(what)}<br>${esc(who)}</li>`).join('');   // the work, then its credit beneath
+
+  // ---- the gallery view: the phone held sideways (26 Sept 2026). The guide becomes a walk through the museum, one
+  // work to a screen: swipe along (the strip snaps to each), tap a work for its write-up (or on a hidden pet to find it),
+  // jump between rooms at the top. Turned upright again, the guide comes back at the room you were in.
+  const GQ = window.matchMedia ? matchMedia('(orientation: landscape) and (max-height: 500px)') : { matches: false, addEventListener() {} };
+  const slides = [], add = (room, s) => slides.push({ room, ...s }), wideOf = (src) => src.replace(/\.jpg$/, '-wide.jpg');
+  add('atrium', { kind: 'room', img: wideOf(atrium.hero), title: atrium.title, sub: atrium.intro.title, it: { title: atrium.intro.title, body: atrium.intro.body, meta: atrium.intro.meta } });
+  add('atrium', { kind: 'pair', it: pair });
+  atrium.items.slice(1).forEach((it) => add('atrium', { kind: 'art', it }));
+  add('atrium', { kind: 'arcade' });
+  (atrium.artifacts || []).forEach((it) => add('atrium', { kind: 'statue', it }));
+  [[w1, 'The ceremony'], [w2, 'The reception']].forEach(([w, sub]) => {
+    add(w.id, { kind: 'room', img: wideOf(w.hero), numeral: w.numeral, title: w.title, sub });
+    add(w.id, { kind: 'art', it: { ...w.principal, body: w.closeup.body || w.principal.body } });
+    w.walls.forEach((wall) => { add(w.id, { kind: 'text', eyebrow: `Wing ${w.numeral} · complementary work`, title: wall.title, body: wall.body, meta: wall.meta }); wall.pictures.forEach((it) => add(w.id, { kind: 'art', it })); });
+    w.sculptures.forEach((it) => add(w.id, { kind: 'statue', it }));
+  });
+  add('det', { kind: 'room', img: wideOf(det.hero), title: det.title, sub: 'Everything you need to know' });
+  add('det', { kind: 'text', eyebrow: 'The centerpiece', title: det.centre.title, body: det.centre.body, meta: det.centre.meta });
+  if (det.hourglass) add('det', { kind: 'countdown', it: det.hourglass });
+  add('det', { kind: 'text', eyebrow: 'Exhibit details · the table', title: det.table.title, body: det.table.body, note: 'Turn your phone upright to handle the save-the-date and the invitation.' });
+  const shopSec = det.sections.find((s) => s.key === 'registry');
+  det.sections.filter((s) => s !== shopSec).forEach((s) => {
+    add('det', { kind: 'text', eyebrow: 'Exhibit details · ' + s.n, title: s.title, body: s.body, meta: s.meta, card: s.key });
+    s.pictures.forEach((it) => add('det', { kind: 'art', it }));
+  });
+  det.sculptures.forEach((it) => add('det', { kind: 'statue', it }));
+  if (shopSec) add('det', { kind: 'shop', img: det.shop, title: shopSec.title, body: shopSec.body, meta: shopSec.meta, card: shopSec.key });   // the gift shop, last
+
+  const cardOf = Object.fromEntries(det.sections.map((s) => [s.key, s.card]));
+  const cap = (it) => `<figcaption><h3>${esc(it.title)}</h3>${it.meta ? `<p class="meta">${esc(it.meta)}</p>` : ''}</figcaption>`;
+  const img = (src, alt) => `<img src="${src}" alt="${esc(alt)}" loading="lazy" decoding="async" draggable="false">`;
+  const cardBtn = (k) => k ? `<button class="detbtn" data-gvcard="${k}">Tap here for details</button>` : '';
+  const slideHtml = (s) => {
+    switch (s.kind) {
+      case 'room': return `<div class="gv-room">${img(s.img, s.title)}<div class="cap">${s.numeral ? `<div class="numeral">${s.numeral}</div>` : ''}<h2>${esc(s.title)}</h2><p class="sub">${esc(s.sub)}</p>${s.it ? '<p class="tap">Tap for the introduction</p>' : ''}</div></div>`;
+      case 'art': return `<figure class="gv-art" data-work>${img(s.it.img, s.it.title)}${cap(s.it)}</figure>`;
+      case 'statue': return `<figure class="gv-statue" data-work>${img(s.it.img, s.it.title)}${cap(s.it)}</figure>`;
+      case 'pair': return `<figure class="gv-statue gv-pair" data-work><div>${img(s.it.img, 'Venus')}${img(s.it.img2, 'Mars')}</div>${cap(s.it)}</figure>`;
+      case 'countdown': { const days = Math.max(0, Math.ceil((s.it.wedding - Date.now()) / 86400000));
+        return `<div class="gv-two">${img(s.it.img, s.it.title)}<div class="gv-words"><p class="eyebrow">Exhibit details · the countdown</p><div class="brass"><small>${days === 1 ? 'Day' : 'Days'}</small><b>${days}</b><small>until Siena</small></div><h3>${esc(s.it.title)}</h3><p class="body">${esc(s.it.body)}</p></div></div>`; }
+      case 'text': return `<div class="gv-text"><p class="eyebrow">${esc(s.eyebrow)}</p><h3>${esc(s.title)}</h3><p class="body">${esc(s.body)}</p>${s.meta ? `<p class="meta">${esc(s.meta)}</p>` : ''}${s.note ? `<p class="note">${esc(s.note)}</p>` : ''}${cardBtn(s.card)}</div>`;
+      case 'shop': return `<div class="gv-two">${img(s.img, s.title)}<div class="gv-words"><p class="eyebrow">Exhibit details · the gift shop</p><h3>${esc(s.title)}</h3><p class="body">${esc(s.body)}</p><p class="meta">${esc(s.meta)}</p>${cardBtn(s.card)}</div></div>`;
+      case 'arcade': return `<div class="gv-two"><button class="gv-arcade" id="gvArcade" aria-label="Open the arcade"></button><div class="gv-words"><p class="eyebrow">The atrium · Anthony · interactive installation</p><h3>The Arcade</h3><p class="body">Five playable pieces: Getting to Italy, Cross the Piazza, Catch the Bouquet, Flight to Siena, and The Seating Chart.</p><p class="tap">Tap the screen to play</p></div></div>`;
+    }
+    return '';
+  };
+  const firstOf = (room) => slides.findIndex((s) => s.room === room);
+  const gv = document.createElement('div'); gv.id = 'gv'; document.body.appendChild(gv);
+  let built = false, gvIndex = 0, strip = null, panel = null;
+  function buildGallery() {
+    built = true;
+    gv.innerHTML = `<div class="gv-strip" id="gvStrip">${slides.map((s, i) => `<section class="gv-slide is-${s.kind}" data-i="${i}">${slideHtml(s)}</section>`).join('')}</div>
+      <div class="gv-top"><nav>${rooms.map((r) => `<button data-gvroom="${r.id}">${r.numeral || (r.id === 'det' ? 'Details' : 'Atrium')}</button>`).join('')}</nav><span id="gvN"></span></div>
+      <button class="gv-arrow prev" data-gvstep="-1" aria-label="Back">&lsaquo;</button><button class="gv-arrow next" data-gvstep="1" aria-label="On">&rsaquo;</button>
+      <aside class="gv-panel" id="gvPanel"><button class="x" data-gvclose aria-label="Close">&times;</button><div id="gvPanelIn"></div></aside>
+      <div class="gv-card" id="gvCard"></div>`;
+    strip = el('gvStrip'); panel = el('gvPanel');
+    let ticking = false;
+    strip.addEventListener('scroll', () => { if (ticking) return; ticking = true; requestAnimationFrame(() => { ticking = false; setIndex(Math.round(strip.scrollLeft / Math.max(1, strip.clientWidth))); }); }, { passive: true });
+    gv.addEventListener('click', (e) => {
+      const room = e.target.closest('[data-gvroom]'); if (room) { goSlide(firstOf(room.dataset.gvroom)); return; }
+      const step = e.target.closest('[data-gvstep]'); if (step) { goSlide(gvIndex + +step.dataset.gvstep); return; }
+      if (e.target.closest('[data-gvclose]')) { panel.classList.remove('open'); return; }
+      const cb = e.target.closest('[data-gvcard]'); if (cb) { const c = cardOf[cb.dataset.gvcard];
+        el('gvCard').innerHTML = `<div class="in"><h4>${esc(c.title)}</h4>${c.sections.map((x) => `<h5>${esc(x.h)}</h5>${x.p.map((p) => `<p>${esc(p)}</p>`).join('')}`).join('')}<button class="close" data-gvcardclose>Close</button></div>`;
+        el('gvCard').classList.add('open'); el('gvCard').scrollTop = 0; return; }
+      if (e.target.closest('[data-gvcardclose]') || e.target.id === 'gvCard') { el('gvCard').classList.remove('open'); return; }
+      if (e.target.closest('#gvArcade')) { if (window.Arcade) Arcade.launch('menu'); return; }
+      const sl = e.target.closest('.gv-slide'); if (!sl) return;
+      const s = slides[+sl.dataset.i];
+      if (!s.it || s.kind === 'countdown' || !e.target.closest('img, .cap, figcaption')) return;   // a tap on the work itself, not the empty wall round it
+      if (petHit(s.it, e, e.target.tagName === 'IMG' ? e.target : null)) { el('gvPanelIn').innerHTML = petNote(s.it.hidden); panel.classList.add('open'); return; }
+      if (panel.classList.contains('open')) { panel.classList.remove('open'); return; }
+      el('gvPanelIn').innerHTML = `<h3>${esc(s.it.title)}</h3><p class="body">${esc(s.it.body)}</p>${s.it.meta ? `<p class="meta">${esc(s.it.meta)}</p>` : ''}`;
+      panel.classList.add('open'); panel.scrollTop = 0;
+    });
+    window.addEventListener('keydown', (e) => { if (!document.body.classList.contains('gv-on')) return; if (e.key === 'ArrowRight') goSlide(gvIndex + 1); if (e.key === 'ArrowLeft') goSlide(gvIndex - 1); });
+    if (window.Arcade && Arcade.games.menu) { const cv = Arcade.attract('menu', 6); cv.style.cssText = 'width:100%;height:100%;display:block;image-rendering:pixelated;background:#140c06'; el('gvArcade').appendChild(cv); }
+  }
+  function setIndex(i) {
+    i = Math.max(0, Math.min(slides.length - 1, i));
+    if (i !== gvIndex && panel) panel.classList.remove('open');
+    gvIndex = i;
+    el('gvN').textContent = (i + 1) + ' / ' + slides.length;
+    gv.querySelectorAll('[data-gvroom]').forEach((b) => b.classList.toggle('on', b.dataset.gvroom === slides[i].room));
+  }
+  function goSlide(i, smooth = true) {
+    i = Math.max(0, Math.min(slides.length - 1, i));
+    strip.scrollTo({ left: i * strip.clientWidth, behavior: smooth ? 'smooth' : 'instant' });
+    setIndex(i);
+  }
+  function applyMode() {                                             // sideways and past the doors: the gallery; upright: the guide
+    const on = GQ.matches && !document.body.classList.contains('gated'), was = document.body.classList.contains('gv-on');
+    if (on === was) return;
+    if (on) {
+      let r = curRoom;                                               // read before the turn: the wider layout moves everything
+      if (location.hash && firstOf(location.hash.slice(1)) >= 0 && window.scrollY < 50) r = location.hash.slice(1);   // a link straight to a room, before any scrolling
+      if (!built) buildGallery();
+      closeLb(); document.body.classList.add('gv-on');
+      requestAnimationFrame(() => goSlide(firstOf(r), false));
+    } else {
+      const r = slides[gvIndex] ? slides[gvIndex].room : 'atrium';
+      curRoom = r;
+      document.body.classList.remove('gv-on');
+      [0, 120, 600].forEach((ms) => setTimeout(() => el(r).scrollIntoView({ behavior: 'instant' }), ms));   // a jump, not the page's smooth scroll; again as the upright layout settles
+    }
+  }
+  if (GQ.addEventListener) GQ.addEventListener('change', applyMode); else if (GQ.addListener) GQ.addListener(applyMode);   // older iPhones know only addListener
+  window.addEventListener('resize', applyMode);                      // and a turn is a resize too, for any browser that sends no change
+  applyMode();
   // ?dbg : list anything wider than the screen (a check for the phone layout, used by the screenshot harness)
   if (/[?&]dbg/.test(location.search)) setTimeout(() => {
     const wide = [...document.querySelectorAll('body *')].filter((n) => { const r = n.getBoundingClientRect(); return r.width > 0 && (r.right > innerWidth + 1 || r.left < -1) && getComputedStyle(n).position !== 'fixed'; })

@@ -26,6 +26,7 @@ FRESCOES = [('frescoBride', 'img/fresco-venus-and-graces.jpg', 'assets/fresco-ve
 PAIR_IMAGES = ('img/room-atrium-venus.jpg', 'img/room-atrium-mars.jpg')
 WING_SCULPTURE = {'w1': ['w1statue', 'w1small'], 'w2': ['w2statue', 'w2bust']}
 DET_SCULPTURE = ['detStatueL', 'detStatueR', 'detEndL', 'detEntryL', 'detEntryR']   # detEndR holds the hourglass
+ARTIFACTS = ['anthonyCard', 'anthonyCase', 'anthonyAmelia']       # on Anthony's wall; their cards are mobile/img/art-<stop>.jpg
 SECTIONS = [('main', 'detMain'), ('schedule', 'detSchedule'), ('travel', 'detTravel'), ('stay', 'detStay'),
             ('logistics', 'detFrontL'), ('policies', 'detFrontR'), ('registry', 'detShop')]   # the phone's reading order, numbered 1 to 7
 
@@ -55,12 +56,19 @@ def build(d):
     notes = d['NOTES']
     sculpt = lambda spot: {'img': f'img/sc-{spot}.jpg', 'title': d['SCULPTURE_NOTES'][spot][0],
                            'body': d['SCULPTURE_NOTES'][spot][1], 'meta': d['SCULPTURE_NOTES'][spot][2]}
-    pic = lambda src, aspect, note: {'img': 'img/' + os.path.basename(src), 'aspect': aspect, 'title': note['title'], 'body': note['body'], 'meta': note['meta']}
+
+    def hidden(src):                                              # a family pet painted into this picture: where, and its write-up
+        h = d['HIDDEN'].get('assets/' + os.path.basename(src))
+        return {'hidden': {'key': 'assets/' + os.path.basename(src), 'at': h['at'], 'eyebrow': h['eyebrow'], 'title': h['title'],
+                           'body': h['body'], 'meta': h['meta']}} if h else {}
+
+    pic = lambda src, aspect, note: {'img': 'img/' + os.path.basename(src), 'aspect': aspect, 'title': note['title'], 'body': note['body'], 'meta': note['meta'], **hidden(src)}
 
     atrium = {'id': 'atrium', 'title': 'The Atrium', 'hero': HEROES['atrium'], 'intro': tbm(st['atrium']), 'items': [
         {'kind': 'sculpture', 'img': PAIR_IMAGES[0], 'img2': PAIR_IMAGES[1], **tbm(notes['pair'])},
         *[{'kind': 'fresco', 'img': img, 'aspect': image_aspect(asset), **tbm(notes[key])} for key, img, asset in FRESCOES]],
-        'frames': {'kelly': tbm(st['kelly']), 'anthony': tbm(st['anthony'])}}
+        'frames': {'kelly': tbm(st['kelly']), 'anthony': tbm(st['anthony'])},
+        'artifacts': [{'img': f'img/art-{s}.jpg', **tbm(st[s])} for s in ARTIFACTS]}
 
     def wing(wid, numeral, title, pictures):
         img, aspect = PRINCIPAL[wid]
@@ -69,7 +77,7 @@ def build(d):
             ps = [p for p in pictures if p.get('close') and st[p['close']].get('back') == wall_stop]
             walls.append({**tbm(st[wall_stop]), 'pictures': [pic(p['src'], p['aspect'], tbm(st[p['close']])) for p in ps]})
         return {'id': wid, 'numeral': numeral, 'title': title, 'hero': HEROES[wid],
-                'principal': {'img': img, 'aspect': aspect, **tbm(st[wid])}, 'closeup': tbm(st[wid + 'close']),
+                'principal': {'img': img, 'aspect': aspect, **tbm(st[wid]), **hidden(img)}, 'closeup': tbm(st[wid + 'close']),
                 'walls': walls, 'sculptures': [sculpt(s) for s in WING_SCULPTURE[wid]]}
 
     sections = []
@@ -80,6 +88,7 @@ def build(d):
                          'card': d['CARDS'][key]})
     det = {'id': 'det', 'title': 'Exhibit Details', 'hero': HEROES['det'], 'centre': tbm(st['det']), 'table': tbm(st['detTable']),
            'volvelle': tbm(st['detVolvelle']), 'invite': tbm(st['detInvite']), 'shop': 'img/room-details-shop.jpg',
+           'hourglass': {'img': 'img/sc-hourglass.jpg', **tbm(st['sc_hourglass']), 'wedding': d['WEDDING']},   # the countdown is kept live on the phone
            'sections': sections, 'sculptures': [sculpt(s) for s in DET_SCULPTURE]}
 
     return {'names': NAMES, 'rooms': [atrium, wing('w1', 'I', 'Wing I', d['W1_PICTURES']), wing('w2', 'II', 'Wing II', d['W2_PICTURES']), det],

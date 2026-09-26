@@ -48,7 +48,27 @@ window.CONTENT = {
      "body": "Photographs to come.",
      "meta": "Placeholder"
     }
-   }
+   },
+   "artifacts": [
+    {
+     "img": "img/art-anthonyCard.jpg",
+     "title": "Destiny HERO – Diamond Dude",
+     "body": "Anthony is a card battler of some notoriety, with experience that runs across numerous titles and competitions. This is his favorite card, slabbed and graded, hung where a portrait would go. Ask him about it, and allow time.",
+     "meta": "Yu-Gi-Oh! trading card, graded slab · from the collection of Anthony Alvarez"
+    },
+    {
+     "img": "img/art-anthonyCase.jpg",
+     "title": "The Essentials",
+     "body": "It is widely known that Anthony runs on three things: a Peach Red Bull, Hot Sauce, and Marlboro Southern Cuts. One of each, kept behind glass with a hammer, just in case. He plans to cut back after the wedding and quit in time, at which point this becomes a museum piece in the truest sense.",
+     "meta": "Mixed media behind glass, with hammer · please do not actually break the glass"
+    },
+    {
+     "img": "img/art-anthonyAmelia.jpg",
+     "title": "A2: Amelia",
+     "body": "The first gift Kelly ever gave Anthony: a brick-built Amelia, put together stud by stud. Amelia immediately tried to fight it. Although the muse is still slightly wary of her tiny brick doppelganger, she allows it to continue to exist among us for now.",
+     "meta": "Micro-brick model, built by Kelly Wheelis · Siena marble plinth"
+    }
+   ]
   },
   {
    "id": "w1",
@@ -78,7 +98,20 @@ window.CONTENT = {
        "aspect": 1.1776883266244969,
        "title": "Amaryllis and Mirtillo",
        "body": "A kissing contest, judged by nymphs, and the winner is crowned with flowers. We are not holding a contest. There will be a kiss.",
-       "meta": "Anthony van Dyck, c. 1631–32 · Gothenburg Museum of Art"
+       "meta": "Anthony van Dyck, c. 1631–32 · Gothenburg Museum of Art",
+       "hidden": {
+        "key": "assets/w1-amaryllis-and-mirtillo.jpg",
+        "at": [
+         0.84,
+         0.86,
+         0.99,
+         0.985
+        ],
+        "eyebrow": "Wing I · found",
+        "title": "Mishka, with the hound",
+        "body": "A hound in the corner, resting against Amaryllis’s hand. Mishka, the definition of a Velcro dog, is not asleep. He is keeping an eye on the party and refuses to be left out.",
+        "meta": "One of three. The other two are elsewhere in the building."
+       }
       },
       {
        "img": "img/w1-three-graces.jpg",
@@ -136,7 +169,20 @@ window.CONTENT = {
     "aspect": 1.5467980295566504,
     "title": "Primavera",
     "body": "A hundred and ninety species of plant in one painting, and a garden that refuses to stop. The reception takes this as instruction as well as inspiration.",
-    "meta": "Sandro Botticelli, c. 1480 · Uffizi, Florence"
+    "meta": "Sandro Botticelli, c. 1480 · Uffizi, Florence",
+    "hidden": {
+     "key": "assets/primavera.jpg",
+     "at": [
+      0.073,
+      0.82,
+      0.165,
+      0.975
+     ],
+     "eyebrow": "Wing II · found",
+     "title": "Amelia, in the orchard",
+     "body": "Botticelli did not paint a dog at Mercury’s feet. Kelly regularly paints her pets into other people’s pictures, and Amelia saw no reason to be left out of this iconic party. In fact, she thinks she is the guest of honor.",
+     "meta": "One of three. The other two are elsewhere in the building."
+    }
    },
    "closeup": {
     "title": "Primavera",
@@ -227,6 +273,13 @@ window.CONTENT = {
     "meta": "Truong Hoai Vu · vuth.art · Paper and ink"
    },
    "shop": "img/room-details-shop.jpg",
+   "hourglass": {
+    "img": "img/sc-hourglass.jpg",
+    "title": "The Hourglass",
+    "body": "The sand began to run the day this gallery opened and will finish on the afternoon of the twenty-fourth of April. Every grain in the lower bulb is a day already spent getting ready; every grain above is one still to come. The plaque keeps the count, in case you are the sort who checks. We are.",
+    "meta": "Brass and glass, 2026 · the count is kept to the day",
+    "wedding": 1808600400000
+   },
    "sections": [
     {
      "key": "main",
@@ -461,7 +514,20 @@ window.CONTENT = {
        "aspect": 2.551640340218712,
        "title": "The Effects of Good Government in the Countryside",
        "body": "The hills round Siena, painted a short drive from the villa nearly seven hundred years ago, and they have hardly changed: white roads, vineyards, and rather more slope than it looks. Pack shoes accordingly.",
-       "meta": "Ambrogio Lorenzetti, 1338–39 · Palazzo Pubblico, Siena"
+       "meta": "Ambrogio Lorenzetti, 1338–39 · Palazzo Pubblico, Siena",
+       "hidden": {
+        "key": "assets/det-good-government-countryside.jpg",
+        "at": [
+         0.66,
+         0.9,
+         0.725,
+         0.985
+        ],
+        "eyebrow": "Exhibit details · found",
+        "title": "Trogdor, on the road to Siena",
+        "body": "On Lorenzetti’s white road, among the mule trains, a sulcata tortoise is making for the villa at his own pace. Trogdor set off some time ago. He will get there… eventually.",
+        "meta": "One of three. The other two are elsewhere in the building."
+       }
       },
       {
        "img": "img/det-storm-on-a-mediterranean-coast.jpg",

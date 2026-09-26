@@ -12,8 +12,8 @@
   const artHtml = (it, opts = {}) => {                              // a framed picture with its label; tapping opens the lightbox
     lbItems.push(it); const i = lbItems.length - 1;
     return `<figure class="art"><button class="pic" data-lb="${i}" aria-label="${esc(it.title)}">
-      <div class="frame${opts.oval ? ' oval' : ''}">${picture(it.img, it.title, it.aspect)}</div></button>
-      <figcaption class="label"><h3>${esc(it.title)}</h3><p class="meta">${esc(it.meta)}</p>${opts.noBody ? '' : `<p class="body">${esc(it.body)}</p>`}<p class="tap">Tap to look closer</p></figcaption></figure>`;
+      <div class="frame${opts.oval ? ' oval' : ''}">${picture(it.img, it.title, it.aspect)}</div></button><p class="tap under">Tap to look closer</p>
+      <figcaption class="label"><h3>${esc(it.title)}</h3><p class="meta">${esc(it.meta)}</p>${opts.noBody ? '' : `<p class="body">${esc(it.body)}</p>`}</figcaption></figure>`;
   };
   const statueHtml = (it) => { lbItems.push(it); const i = lbItems.length - 1;
     return `<button class="statue" data-lb="${i}"><div class="plinth"><img src="${it.img}" alt="${esc(it.title)}" loading="lazy" decoding="async"></div><h3>${esc(it.title)}</h3><p class="meta">${esc(it.meta)}</p></button>`; };
@@ -24,7 +24,7 @@
   const rooms = C.rooms, [atrium, w1, w2, det] = rooms;
   let html = '';
   html += `<section class="chapter" id="atrium"><div class="hero"><img src="${atrium.hero}" alt="The atrium" fetchpriority="high" decoding="async"><div class="cap"><h2>${esc(atrium.title)}</h2><p class="sub">${esc(atrium.intro.title)}</p></div></div>
-    <div class="text"><p class="body">${esc(atrium.intro.body)}</p></div>`;
+    <div class="text"><p class="body">${esc(atrium.intro.body)}</p><p class="bonus" id="bonus"></p></div>`;
   const pair = atrium.items[0]; lbItems.push(pair);
   html += `<div class="statues"><button class="statue" data-lb="${lbItems.length - 1}"><div class="plinth"><img src="${pair.img}" alt="Venus" loading="lazy" decoding="async"></div><h3>Venus</h3></button>
     <button class="statue" data-lb="${lbItems.length - 1}"><div class="plinth"><img src="${pair.img2}" alt="Mars" loading="lazy" decoding="async"></div><h3>Mars</h3></button></div>
@@ -33,6 +33,8 @@
   html += `<div class="text"><p class="eyebrow">The atrium · Anthony · interactive installation</p><h3>The Arcade</h3></div>
     <figure class="art"><button class="pic" id="playItaly" aria-label="Open the arcade"><div class="frame" id="italyFrame"></div></button>
       <figcaption class="label"><p class="meta">Anthony Alvarez &amp; Kelly Wheelis, 2026 · playable pieces</p><p class="body">Five playable pieces: Getting to Italy, Cross the Piazza, Catch the Bouquet, Flight to Siena, and The Seating Chart.</p><p class="tap">Tap to play</p></figcaption></figure>`;
+  // Anthony's wall: the three pieces from his collection hung beside the arcade (tap one for its write-up)
+  if (atrium.artifacts) html += `<div class="text"><p class="eyebrow">The atrium · Anthony · from the collection</p></div><div class="statues">${atrium.artifacts.map(statueHtml).join('')}</div>`;
   html += `<div class="text center"><p class="eyebrow">The two galleries</p><p class="body">Two collections, one exhibit: on the left, Kelly's; on the right, Anthony's. The frames are waiting for photographs.</p><div><span class="plaque">Kelly</span> &nbsp; <span class="plaque">Anthony</span></div></div><div class="rule"></div></section>`;
 
   const wingHtml = (w, sub) => {
@@ -50,6 +52,14 @@
   // the details room
   html += `<section class="chapter det" id="det"><div class="hero"><img src="${det.hero}" alt="The details room" loading="lazy" decoding="async"><div class="cap"><h2>${esc(det.title)}</h2><p class="sub">Everything you need to know</p></div></div>
     <div class="text center"><p class="eyebrow">The centerpiece</p><h3>${esc(det.centre.title)}</h3><p class="body">${esc(det.centre.body)}</p><p class="meta">${esc(det.centre.meta)}</p></div>`;
+  // the hourglass: the countdown to the wedding, kept to the day as the 3D gallery's plaque is
+  if (det.hourglass) {
+    const hg = det.hourglass, days = Math.max(0, Math.ceil((hg.wedding - Date.now()) / 86400000));
+    lbItems.push(hg);
+    html += `<div class="countdown"><button class="statue" data-lb="${lbItems.length - 1}" aria-label="${esc(hg.title)}"><div class="plinth"><img src="${hg.img}" alt="${esc(hg.title)}" loading="lazy" decoding="async"></div></button>
+      <div class="count"><p class="eyebrow">Exhibit details · the countdown</p><div class="brass"><small>${days === 1 ? 'Day' : 'Days'}</small><b>${days}</b><small>until Siena</small></div>
+      <h3>${esc(hg.title)}</h3><p class="body">${esc(hg.body)}</p></div></div>`;
+  }
   // the table: save-the-date and invitation
   html += `<div class="table"><p class="eyebrow">On the table</p><h3>${esc(det.table.title)}</h3><p class="body">${esc(det.table.body)}</p>
     <div class="piece" id="volPiece"><div class="vol" id="vol"><img class="wheel" src="img/vol-wheel.png" alt="" decoding="async" draggable="false"><canvas id="volFront" width="1000" height="1000"></canvas><div class="eyelet"></div><img class="backface" src="img/vol-back.png" alt="" loading="lazy" decoding="async" draggable="false"></div>
@@ -90,7 +100,32 @@
     const x = e.target.closest('[data-close]'); if (x) { el('card-' + x.dataset.close).classList.remove('open'); return; }
   });
   el('lbX').addEventListener('click', closeLb);
-  el('lbImg').addEventListener('click', closeLb);
+  // ---- the three who hid: a family pet painted into three of the pictures, unmarked. In the lightbox a tap on the
+  // animal names it and fills a gold star; anywhere else on the picture closes it as before. The finds are kept where
+  // the 3D gallery keeps them (localStorage ka-found, by picture), so a find on the phone counts there too
+  const FOUND = new Set((() => { try { return JSON.parse(localStorage.getItem('ka-found') || '[]'); } catch (e) { return []; } })());
+  const HIDDEN_KEYS = [...new Set(lbItems.filter((it) => it.hidden).map((it) => it.hidden.key))];
+  const paintBonus = () => {
+    const got = HIDDEN_KEYS.filter((k) => FOUND.has(k)).length;
+    el('bonus').innerHTML = 'Hidden bonuses ' + HIDDEN_KEYS.map((k, i) => `<span class="${i < got ? 'on' : ''}">${i < got ? '★' : '☆'}</span>`).join('');
+  };
+  paintBonus();
+  const findPet = (h) => {
+    if (!FOUND.has(h.key)) { FOUND.add(h.key); try { localStorage.setItem('ka-found', JSON.stringify([...FOUND])); } catch (e) { /* the find lasts the visit */ } }
+    paintBonus();
+    const got = HIDDEN_KEYS.filter((k) => FOUND.has(k)).length;
+    const meta = got >= HIDDEN_KEYS.length ? 'All three found.' : got === HIDDEN_KEYS.length - 1 ? 'Two of three found. One more is hiding.' : h.meta;
+    el('lbTxt').innerHTML = `<p class="eyebrow">${esc(h.eyebrow)}</p><h3>${esc(h.title)}</h3><p class="body">${esc(h.body)}</p><p class="meta">${esc(meta)}</p>`;
+  };
+  el('lbImg').addEventListener('click', (e) => {
+    const it = lbItems[lbIndex], img = el('lbImg').querySelector('img');
+    if (it && it.hidden && img && e.target === img) {                 // where on the painting itself (inside its gilt border) the tap landed
+      const r = img.getBoundingClientRect(), bw = parseFloat(getComputedStyle(img).borderLeftWidth) || 0;
+      const u = (e.clientX - r.left - bw) / (r.width - 2 * bw), v = (e.clientY - r.top - bw) / (r.height - 2 * bw), a = it.hidden.at, pad = 0.05;
+      if (u >= a[0] - pad && u <= a[2] + pad && v >= a[1] - pad && v <= a[3] + pad) { findPet(it.hidden); return; }
+    }
+    closeLb();
+  });
   window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLb(); });
 
   // ---- the save-the-date: the front panel drawn with its window cut out, the wheel turning behind it

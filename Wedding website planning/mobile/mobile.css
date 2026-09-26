@@ -198,4 +198,16 @@ details.credits summary { text-align: center; font-size: 11px; letter-spacing: .
 details.credits summary::-webkit-details-marker { display: none; }
 details.credits ul { padding: 14px 0 0 18px; margin: 0; font-size: 13px; line-height: 1.5; }
 details.credits li { margin-bottom: 8px; }
+/* the three who hid: the stars under the atrium's intro fill gold as the pets are found in the lightbox */
+.bonus { font-size: 11px; letter-spacing: .24em; text-transform: uppercase; color: var(--gold); margin: 16px 0 0; }
+.bonus span { color: rgba(242,223,168,.45); margin-left: 3px; letter-spacing: 0; font-size: 13px; }
+.bonus span.on { color: var(--gold-2); }
+/* the hourglass: its picture beside the brass count of days, as on its pedestal in the 3D gallery */
+.countdown { display: grid; grid-template-columns: 42% 1fr; gap: 16px; align-items: start; margin: 26px var(--gutter) 0; }
+.countdown .statue h3 { display: none; }
+.countdown .brass { display: inline-grid; justify-items: center; margin: 4px 0 12px; padding: 8px 18px 9px; font-family: var(--display); color: #34240a; background: linear-gradient(180deg, #d9b565, #b8934a 55%, #d2ad5b); border: 2px solid rgba(58,40,10,.6); box-shadow: inset 0 0 0 1px rgba(255,238,190,.6), 0 3px 8px rgba(0,0,0,.5); }
+.countdown .brass small { font-size: 10.5px; font-weight: 600; letter-spacing: .3em; text-transform: uppercase; }
+.countdown .brass b { font-size: 38px; font-weight: 600; line-height: 1.05; }
+.countdown h3 { font-size: 22px; color: var(--cream); }
+.countdown .body { font-size: 15.5px; margin-top: 6px; }
 @media (min-width: 700px) { :root { --gutter: 32px; } body { font-size: 18.5px; } .hero { aspect-ratio: 4 / 3; max-height: 70vh; } main { max-width: 760px; margin: 0 auto; } }

@@ -477,6 +477,15 @@ the phone's tilt, the tab draws the card out), the seven detail sections with th
   sculpture from its walk-up (`goto=<room>,sc_<spot>`), Venus and Mars from `x=±0.4&z=2.4&yaw=±2.345&pitch=-0.1`.
   The phone lists the details sections in reading order (Main, Schedule, Travel, Accommodations, Logistics,
   Policies, RSVP) and numbers them 1 to 7 in that order; the 3D build numbers them in its walking order.
+  (The harness's `clean=1` hides the collection tally too since 26 Sept: the first re-render caught its top edge.)
+- **Added 26 Sept 2026**: Anthony's three artifacts on the atrium chapter (`atrium.artifacts`, cards
+  `img/art-<stop>.jpg` from their close-up stops); the hourglass with a live count of days (`det.hourglass`, card
+  `img/sc-hourglass.jpg`, the wedding time from the 3D build's `WEDDING`); and the three who hid: pictures with a pet
+  carry `hidden` (from `HIDDEN`), and in the lightbox a tap on the animal (its box plus a 5% margin, measured inside
+  the gilt border) names it and fills a star in the "Hidden bonuses" line under the atrium's intro. Finds are kept in
+  localStorage `ka-found` by picture, the same key as the 3D build, so they carry across. The phone copies of
+  Primavera, Amaryllis and Good Government were re-made from `assets/` then, as the 23 Sept copies predated the pets.
+  "Tap to look closer" sits directly under each frame (the owner's request).
 - **Checking it**: `tools/harness/.work/phone.html?p=?open%23sec-schedule` frames the page in a true 390 px
   viewport (headless Chrome will not go narrower than 500 px on its own); `?open` skips the doors, `?dbg`
   lists anything wider than the screen.

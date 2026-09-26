@@ -389,7 +389,7 @@
   }, 800); }
 { const q = new URLSearchParams(location.search);
   // clean=1 : no interface at all, for postcards of the rooms
-  if (q.has('clean')) { const s = document.createElement('style'); s.textContent = '#topLeft,#turn,#hint,#compass,#sections,#back,[data-fwd],[data-back],#nav,#label,#motto{display:none!important}'; document.head.appendChild(s); } }
+  if (q.has('clean')) { const s = document.createElement('style'); s.textContent = '#topLeft,#turn,#hint,#compass,#sections,#back,[data-fwd],[data-back],#nav,#label,#motto,#tally{display:none!important}'; document.head.appendChild(s); } }
 { const q = new URLSearchParams(location.search);
   if (q.has('arcadecheck')) { const p = ATRIUM_PICTURES[4]; const st = STATIONS[ST[p.stop]]; document.title = 'arcade:' + !!window.Arcade + ' games:' + (window.Arcade ? Object.keys(Arcade.games).join(',') : '-') + ' stop:' + st.id + ' game:' + st.game + ' mat:' + (scene.children.find((o) => o.userData.station === ST[p.stop]) ? scene.children.find((o) => o.userData.station === ST[p.stop]).children[1].material.map.constructor.name : '?'); } }
 { const q = new URLSearchParams(location.search);

@@ -462,13 +462,21 @@ with the window cut out, `img/vol-wheel.png` turning behind it; tap advances a p
 over" shows the monogram back), the pop-up invitation (doors open on tap, the villa's three layers shift with
 the phone's tilt, the tab draws the card out), the seven detail sections with their wall-text cards, and RSVP.
 
-- **Text lives in one place.** `mobile/content.js` is GENERATED from the 3D build's own tables: run the harness
-  with `dump=1` (`tools/harness/extra.js`) and the python in the session log, or simply re-run the generator
-  after editing `gallery3d.js`. Do not hand-edit content.js; the atrium's `NOTES` are the one exception (copied
-  into the generator).
+- **Text lives in one place.** `mobile/content.js` is GENERATED from the 3D build's own tables by
+  `tools/make_mobile_content.py` (saved as a file on 26 Sept 2026; until then the generator lived only in a session
+  log, which is how the phone edition fell three days behind). After editing text in `gallery3d.js`: build the
+  harness, save `index.html?dump=1&credits=1` with headless Chrome's `--dump-dom` (the `dump` hook exports every text
+  table, the atrium `NOTES`, `HIDDEN`, `POSTCARDS` and the countdown dates), then
+  `python3 tools/make_mobile_content.py DUMP.html`. What the 3D tables do not hold (chapter heroes, the principal
+  works' framing, each sculpture card's file) is set at the top of the script. Do not hand-edit content.js.
 - **Pictures**: `mobile/img/` holds phone-sized copies (`sips`, 1400 px and 700 px `-s` versions for srcset) of
   every painting, the card assets, and the postcards (`room-*.jpg`, `sc-*.jpg`) rendered with the harness at
-  900x1200 with `clean=1&slow=1` (`tools/harness/shotp.sh OUT URL W H SCALE BUDGET`).
+  900x1200 with `clean=1&slow=1` (`tools/harness/shotp.sh OUT URL W H SCALE BUDGET`), cropped to 900x1150 and
+  saved at JPEG quality 88. Re-rendered 26 Sept 2026 (the curtain, the moved table, the marble shading, Bacchus at
+  the door): rooms from their entry stops (`goto=atrium` / `w1` / `w2` / `det`, the shop `goto=det,detShop`), each
+  sculpture from its walk-up (`goto=<room>,sc_<spot>`), Venus and Mars from `x=±0.4&z=2.4&yaw=±2.345&pitch=-0.1`.
+  The phone lists the details sections in reading order (Main, Schedule, Travel, Accommodations, Logistics,
+  Policies, RSVP) and numbers them 1 to 7 in that order; the 3D build numbers them in its walking order.
 - **Checking it**: `tools/harness/.work/phone.html?p=?open%23sec-schedule` frames the page in a true 390 px
   viewport (headless Chrome will not go narrower than 500 px on its own); `?open` skips the doors, `?dbg`
   lists anything wider than the screen.

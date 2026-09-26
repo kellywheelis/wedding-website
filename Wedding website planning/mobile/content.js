@@ -1,9 +1,6 @@
-// Generated from the 3D gallery's own text tables (tools/harness dump=1). Edit the texts in gallery3d.js, then regenerate.
+// Generated from the 3D gallery's own text tables by tools/make_mobile_content.py. Edit the texts in gallery3d.js, then regenerate.
 window.CONTENT = {
- "names": [
-  "Kelly Wheelis",
-  "Anthony Alvarez"
- ],
+ "names": ["Kelly Wheelis", "Anthony Alvarez"],
  "rooms": [
   {
    "id": "atrium",
@@ -170,7 +167,7 @@ window.CONTENT = {
     },
     {
      "title": "The Dancing",
-     "body": "Three Graces, minimum. Participation is not optional but skill is not required.",
+     "body": "Three Graces, minimum. Participation is not optional but skill is not required. Kelly will dance. Anthony will dance after a Peach Red Bull.",
      "meta": "Performance · ongoing",
      "pictures": [
       {
@@ -573,6 +570,12 @@ window.CONTENT = {
       "title": "Registry & Extras",
       "sections": [
        {
+        "h": "RSVP",
+        "p": [
+         "Pick a postcard from the rack, turn it over, and post it in the letterbox."
+        ]
+       },
+       {
         "h": "Gifts",
         "p": [
          "Our no-physical-gifts note. To be confirmed."
@@ -592,7 +595,7 @@ window.CONTENT = {
     {
      "img": "img/sc-detStatueL.jpg",
      "title": "Apollo Belvedere",
-     "body": "The most admired statue in the world for about three hundred years: Apollo, a moment after loosing an arrow, watching it land. Goethe wept. Napoleon stole it. It is here because a wedding needs at least one guest who has just hit his mark.",
+     "body": "For three hundred years this was the most famous statue in the world. Apollo has just loosed an arrow and is watching it land; he already knows it has struck. Goethe wept in front of it, Napoleon carried it off to Paris, and every art student in Europe drew it. He stands by the curtain because he is the god of light, music and poetry, all three of which we have booked. He is also the only guest who has ever hit his mark on the first try, and we hope his aim is contagious.",
      "meta": "Roman copy after Leochares, c. 120–140 · Vatican Museums (cast at Statens Museum for Kunst, Copenhagen)"
     },
     {
@@ -604,14 +607,8 @@ window.CONTENT = {
     {
      "img": "img/sc-detEndL.jpg",
      "title": "Ariadne",
-     "body": "Abandoned on an island by the man she had just saved, she lay down and slept. Bacchus found her there, married her, and set her wedding crown in the sky as a constellation. He is across the room, in the opposite corner, still wearing the ivy. Things turned out fine.",
+     "body": "Abandoned on an island by the man she had just saved, she lay down and slept. Bacchus found her there, married her, and set her wedding crown in the sky as a constellation. He is at the door as you came in, still wearing the ivy. Things turned out fine.",
      "meta": "Roman, 2nd century · Musée Saint-Raymond, Toulouse"
-    },
-    {
-     "img": "img/sc-detEndR.jpg",
-     "title": "Antinous as Dionysus",
-     "body": "Ivy and grapes in his hair: the god of wine, as the emperor Hadrian had his beloved Antinous portrayed. A confession: neither of us drinks. A request: please do not let that stop you. Tuscany makes some of the best wine on earth, and somebody has to enjoy it on our behalf.",
-     "meta": "Roman, c. 130–138 · Vatican Museums (cast at Statens Museum for Kunst, Copenhagen)"
     },
     {
      "img": "img/sc-detEntryL.jpg",
@@ -621,9 +618,9 @@ window.CONTENT = {
     },
     {
      "img": "img/sc-detEntryR.jpg",
-     "title": "Isabella of Aragon",
-     "body": "Beatrice’s cousin by marriage and, for a few years, her rival for the same palace in Milan. The two of them are on either side of this door, which is the closest they have stood to each other in five hundred years. They are behaving.",
-     "meta": "Attributed to Francesco Laurana, c. 1490 (cast at Statens Museum for Kunst, Copenhagen)"
+     "title": "Antinous as Dionysus",
+     "body": "Ivy and grapes in his hair: the god of wine, as the emperor Hadrian had his beloved Antinous portrayed, at the door to welcome you in. A confession: neither of us drinks. A request: please do not let that stop you. Tuscany makes some of the best wine on earth, and somebody has to enjoy it on our behalf. His bride, Ariadne, is at the far end of the room.",
+     "meta": "Roman, c. 130–138 · Vatican Museums (cast at Statens Museum for Kunst, Copenhagen)"
     }
    ]
   }
@@ -651,6 +648,7 @@ window.CONTENT = {
   ["The Effects of Good Government in the Countryside, Ambrogio Lorenzetti, 1338–39", "Palazzo Pubblico, Siena · public domain"],
   ["The Dream of St Ursula, Vittore Carpaccio, 1495", "Gallerie dell’Accademia, Venice · public domain"],
   ["The Court of Gonzaga (Camera degli Sposi), Andrea Mantegna, 1465–74", "Palazzo Ducale, Mantua · public domain"],
+  ["Allegory of the Planets and Continents (sketch for a ceiling), Giovanni Battista Tiepolo, 1752", "The Metropolitan Museum of Art, New York · public domain"],
   ["Pop-Up Invitation, Truong Hoai Vu", "vuth.art · illustration and paper engineering, shown with the artist’s permission"],
   ["The Capitoline Venus (cast of the marble in the Capitoline Museums, Rome)", "3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons · simplified for the web, shared under the same license"],
   ["The Ludovisi Mars, with Cupid at his feet (cast of the marble in Palazzo Altemps, Rome)", "3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons · simplified for the web, shared under the same license"],
@@ -662,8 +660,7 @@ window.CONTENT = {
   ["Costanza Bonarelli, Gian Lorenzo Bernini, c. 1636–38 (cast of the Bargello marble)", "3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons · simplified for the web, shared under the same license"],
   ["Head of Ariadne (Musée Saint-Raymond, Toulouse)", "3D scan by Musée Saint-Raymond / Scan the World · CC BY · via Wikimedia Commons · simplified for the web, shared under the same license"],
   ["Antinous as Dionysus (cast of the Vatican marble)", "3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons · simplified for the web, shared under the same license"],
-  ["Beatrice d’Este, after Gian Cristoforo Romano (cast of the Louvre marble)", "3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons · simplified for the web, shared under the same license"],
-  ["Isabella of Aragon, attributed to Francesco Laurana (cast)", "3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons · simplified for the web, shared under the same license"]
+  ["Beatrice d’Este, after Gian Cristoforo Romano (cast of the Louvre marble)", "3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons · simplified for the web, shared under the same license"]
  ],
  "sectionLabel": {
   "main": "the main details",

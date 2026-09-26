@@ -383,6 +383,7 @@
     const strip = (o) => JSON.parse(JSON.stringify(o, (k, v) => (typeof v === 'number' || typeof v === 'string' || typeof v === 'boolean' || v === null || Array.isArray(v) || (v && v.constructor === Object)) ? v : undefined));
     const out = { STATIONS: strip(STATIONS), DETAIL_PICTURES: strip(DETAIL_PICTURES), ATRIUM_PICTURES: strip(ATRIUM_PICTURES), W1_PICTURES: strip(W1_PICTURES), W2_PICTURES: strip(W2_PICTURES),
       SCULPTURE_NOTES: strip(SCULPTURE_NOTES), SCULPTURES: strip(SCULPTURES), CARDS: strip(CARDS), SECTION_LABEL: strip(SECTION_LABEL), SECTION_STOP: strip(SECTION_STOP),
+      NOTES: strip(NOTES), HIDDEN: strip(HIDDEN), POSTCARDS: strip(POSTCARDS), WEDDING: WEDDING.getTime(), SITE_OPENED: SITE_OPENED.getTime(),
       credits: [...document.querySelectorAll('#creditsList p')].map((n) => [n.firstChild.textContent.trim(), n.lastChild.textContent.trim()]) };   // [the work, its credit]
     const pre = document.createElement('pre'); pre.id = 'dump'; pre.textContent = JSON.stringify(out); document.body.appendChild(pre);
   }, 800); }

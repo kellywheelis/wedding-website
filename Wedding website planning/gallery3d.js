@@ -1876,6 +1876,10 @@ function instancer(geo, mat) {
     }
   };
 }
+// the sculpture files are compressed by gltfpack (EXT_meshopt_compression, KHR_mesh_quantization): the loader needs the
+// meshopt decoder, which comes with three.js in assets/lib/three/
+const gltfLoaderReady = () => Promise.all([import('three/addons/loaders/GLTFLoader.js'), import('three/addons/libs/meshopt_decoder.module.js')])
+  .then(([{ GLTFLoader }, { MeshoptDecoder }]) => new GLTFLoader().setMeshoptDecoder(MeshoptDecoder));
 // ---- Anthony's third artifact: Amelia, the first gift: a JEKCA brick model of their dog (the Japanese Spitz set,
 // ST19PT31), on a Siena marble plinth between his frames. The model is assets/sculpture/amelia.glb: a 3D generation
 // from the maker's three product renders (front, left, right; Tripo via Magnific, 25 Sept 2026), reduced with
@@ -1884,8 +1888,8 @@ function instancer(geo, mat) {
 (function amelia() {
   const dog = new THREE.Group();
   const LENGTH = 0.5;
-  import('three/addons/loaders/GLTFLoader.js').then(({ GLTFLoader }) => {
-    new GLTFLoader().load('assets/sculpture/amelia.glb', (gltf) => {
+  gltfLoaderReady().then((gltfLoader) => {
+    gltfLoader.load('assets/sculpture/amelia.glb', (gltf) => {
       const m = gltf.scene;
       m.traverse((o) => { if (o.isMesh) { if (!o.geometry.attributes.normal) o.geometry.computeVertexNormals(); o.material = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.55 }); } });
       const box = new THREE.Box3().setFromObject(m), size = box.getSize(new THREE.Vector3()), c = box.getCenter(new THREE.Vector3());
@@ -2426,6 +2430,14 @@ const SCULPTURE_NOTES = {
   w2bust: ['Costanza Bonarelli', 'Bernini carved the woman he loved the way nobody had carved anyone before: hair undone, collar open, halfway through saying something. No commission, no flattery, no goddess. Just a man looking at a woman. The rest of their story is not a wedding story. The look is.', 'Gian Lorenzo Bernini, c. 1636–38 · Museo Nazionale del Bargello, Florence (cast at Statens Museum for Kunst)']
 };
 const marbleScan = new THREE.MeshStandardMaterial({ color: '#f1ebdf', roughness: 0.5, vertexColors: true });
+// an attribute as a plain, unpacked Float32 array (the values as read, before the node's scale)
+function plainAttr(g, name) {
+  const p = g.attributes[name];
+  if (!p || (!p.isInterleavedBufferAttribute && p.array instanceof Float32Array)) return;
+  const a = new Float32Array(p.count * p.itemSize);
+  for (let i = 0; i < p.count; i++) for (let k = 0; k < p.itemSize; k++) a[i * p.itemSize + k] = p.getComponent(i, k);
+  g.setAttribute(name, new THREE.BufferAttribute(a, p.itemSize));
+}
 // the scans' simplification (tools/convert_scan.py) leaves some tiny triangles wound inside out; the renderer skips
 // them, and they show as dark pinholes. Any triangle facing against its own vertices' normals is turned round
 function fixWinding(g) {
@@ -2517,8 +2529,7 @@ function levelBase(model) {
 (function loadSculptures() {
   const ids = Object.keys(SCULPTURES).filter((id) => SCULPTURE_SPOTS[id]);
   if (!ids.length) return;
-  import('three/addons/loaders/GLTFLoader.js').then(({ GLTFLoader }) => {
-    const gltfLoader = new GLTFLoader();
+  gltfLoaderReady().then((gltfLoader) => {
     ids.forEach((id) => {
       const cfg = SCULPTURES[id], spot = SCULPTURE_SPOTS[id];
       gltfLoader.load(cfg.src, (gltf) => {
@@ -2532,7 +2543,11 @@ function levelBase(model) {
         model.scale.setScalar(k);
         const [nx, nz] = cfg.nudge || [0, 0];                                    // metres, to centre the statue's own base on its plinth
         model.position.set(-c.x * k + nx, spot.top - box.min.y * k, -c.z * k + nz);   // stood on the spot, centred
-        model.traverse((o) => { if (o.isMesh && !o.geometry.attributes.normal) o.geometry.computeVertexNormals(); });   // tools/compact_glb.py leaves them out
+        model.traverse((o) => {                                               // gltfpack packs positions as 16-bit numbers 8 bytes apart (the
+          if (!o.isMesh) return;                                               // node's scale makes them metres); the shading below reads plain arrays
+          plainAttr(o.geometry, 'position'); plainAttr(o.geometry, 'normal');
+          if (!o.geometry.attributes.normal) o.geometry.computeVertexNormals();   // the files carry none: they are computed here
+        });
         if (!cfg.keep) model.traverse((o) => { if (o.isMesh) { fixWinding(o.geometry); marbleShade(o.geometry); o.material = marbleScan; } });
         // the scans run to 100,000 triangles each, and the cursor's ray is tested against the scene every frame
         // of a walk; testing that many triangles drops frames. So the scan itself is left out of the ray test and

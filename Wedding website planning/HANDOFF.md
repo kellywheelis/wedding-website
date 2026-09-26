@@ -38,13 +38,13 @@ Everything that matters lives in one subfolder (apart from the deployment files 
 |---|---|
 | `The Gallery 3D.html` | **The live page.** Entry doors, motto, info panel, buttons, credits panel, import map. |
 | `gallery3d.js` | **The live build** — all of the 3D gallery (~4,300 lines, three.js 0.184, served from `assets/lib/three/`). |
-| `assets/lib/three/` | three.js 0.184.0, hosted with the site since 25 Sept 2026 so the gallery does not depend on unpkg being up: `build/three.module.js` + `three.core.js` (their sha384 matched the integrity hashes the page used to carry), `GLTFLoader.js` and the two utils it imports. The page's import map points here. |
+| `assets/lib/three/` | three.js 0.184.0, hosted with the site since 25 Sept 2026 so the gallery does not depend on unpkg being up: `build/three.module.js` + `three.core.js` (their sha384 matched the integrity hashes the page used to carry), `GLTFLoader.js` and the two utils it imports, and `libs/meshopt_decoder.module.js` for the compressed sculptures. The page's import map points here. |
 | `assets/` | Paintings, textures, the KA monogram, reference photos. |
 | `assets/sculpture/` | The twelve real sculpture scans (`.glb`; `isabella.glb` is no longer used) + `SOURCES.md` (where each came from, licence, how it was converted), and `amelia.glb` (Anthony's dog: a 3D generation, not a scan; §4). |
 | `assets/door-walnut-*.jpg` | Generated walnut grain for the entry doors (`tools/make_walnut_textures.html` regenerates them). |
 | `tools/convert_scan.py` | Turns a raw museum scan (`.stl`/`.obj`, often 100 MB+) into a small `.glb`. No dependencies. |
 | `tools/reduce_glb.py` | Shrinks a generated, textured `.glb` (image-to-3D output) into a small vertex-coloured one. Uses macOS `sips` for the texture. |
-| `tools/compact_glb.py` | The last step for any sculpture `.glb`: drops the stored normals (the gallery computes them), uses 16-bit indices where it can and byte colors, and checks the result against the original. Needs numpy. |
+| `tools/compact_glb.py` | The step before gltfpack for any sculpture `.glb` (see §5): drops the stored normals (the gallery computes them), uses 16-bit indices where it can and byte colors, and checks the result against the original. Needs numpy. |
 | `tools/harness/` | The screenshot/test harness (see §6). **Use it — it is how changes get verified.** |
 | `HANDOFF.md` | This file. |
 | `PROCESS.md` | The owner's creative-process document: concept, what was rejected and why, the building as built. |
@@ -545,8 +545,13 @@ _Brought up to date 25 Sept 2026 (the repo at `3e55499`)._
   Save new pictures the same way. Later the same day the postcard rack moved to small copies in `assets/rack/` (twice a
   card's size; 0.6 MB instead of 10.6 MB of full-size pictures), and the scans were rewritten by
   `tools/compact_glb.py` (no stored normals, the loaders compute them; 16-bit indices; Amelia's colors as bytes):
-  26 MB -> 14 MB. The gallery now loads ~47 MB (~44 MB over the wire). Run new scans through `compact_glb.py` too.
-  Further savings would need a compressed mesh format (meshopt/Draco), which needs an encoder not installed here.
+  26 MB -> 14 MB. That evening they were compressed with gltfpack (meshopt): 14 MB -> 3.3 MB, compared side by side with
+  no visible change. The gallery now loads ~39 MB (~36 MB over the wire), from ~92 MB that morning.
+  A new or re-converted sculpture: `convert_scan.py` (or `reduce_glb.py`), then `compact_glb.py`, then
+  `gltfpack -i IN.glb -o assets/sculpture/NAME.glb -cc` (gltfpack 1.3, the macOS build from
+  github.com/zeux/meshoptimizer/releases; not kept in the repo). The files then need the meshopt decoder, which the
+  page loads from `assets/lib/three/` (`gltfLoaderReady` in gallery3d.js); `plainAttr` unpacks their 16-bit positions
+  for the marble shading.
 - Graphics memory: the pictures take roughly 700 MB of it once loaded (4 bytes a pixel plus mipmaps), which could
   trouble an iPad (iPads get the 3D build). Measured 25 Sept 2026 with the harness's `texneed` hook: on the largest
   screens most paintings are already drawn at or above their file's size, so smaller files would soften them; only

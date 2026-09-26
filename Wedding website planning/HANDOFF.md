@@ -37,7 +37,8 @@ Everything that matters lives in one subfolder (apart from the deployment files 
 | Path (inside `Wedding website planning/`) | What it is |
 |---|---|
 | `The Gallery 3D.html` | **The live page.** Entry doors, motto, info panel, buttons, credits panel, import map. |
-| `gallery3d.js` | **The live build** — all of the 3D gallery (~4,300 lines, three.js 0.184 from unpkg). |
+| `gallery3d.js` | **The live build** — all of the 3D gallery (~4,300 lines, three.js 0.184, served from `assets/lib/three/`). |
+| `assets/lib/three/` | three.js 0.184.0, hosted with the site since 25 Sept 2026 so the gallery does not depend on unpkg being up: `build/three.module.js` + `three.core.js` (their sha384 matched the integrity hashes the page used to carry), `GLTFLoader.js` and the two utils it imports. The page's import map points here. |
 | `assets/` | Paintings, textures, the KA monogram, reference photos. |
 | `assets/sculpture/` | The twelve real sculpture scans (`.glb`; `isabella.glb` is no longer used) + `SOURCES.md` (where each came from, licence, how it was converted), and `amelia.glb` (Anthony's dog: a 3D generation, not a scan; §4). |
 | `assets/door-walnut-*.jpg` | Generated walnut grain for the entry doors (`tools/make_walnut_textures.html` regenerates them). |
@@ -60,8 +61,8 @@ Serve the folder and open it over http:
     python3 -m http.server 8000 --bind 127.0.0.1
     # then open  http://127.0.0.1:8000/The%20Gallery%203D.html
 
-After any change, hard-refresh the browser (Cmd+Shift+R). three.js loads from unpkg.com, so an
-internet connection is needed.
+After any change, hard-refresh the browser (Cmd+Shift+R). three.js is served from `assets/lib/three/`; only the
+Google Fonts need an internet connection.
 
 ## 3. The owner's working rules (from `CLAUDE.md`, plus what this session established)
 
@@ -546,6 +547,13 @@ _Brought up to date 25 Sept 2026 (the repo at `3e55499`)._
   `tools/compact_glb.py` (no stored normals, the loaders compute them; 16-bit indices; Amelia's colors as bytes):
   26 MB -> 14 MB. The gallery now loads ~47 MB (~44 MB over the wire). Run new scans through `compact_glb.py` too.
   Further savings would need a compressed mesh format (meshopt/Draco), which needs an encoder not installed here.
+- Graphics memory: the pictures take roughly 700 MB of it once loaded (4 bytes a pixel plus mipmaps), which could
+  trouble an iPad (iPads get the 3D build). Measured 25 Sept 2026 with the harness's `texneed` hook: on the largest
+  screens most paintings are already drawn at or above their file's size, so smaller files would soften them; only
+  Primavera and the Birth of Venus are much bigger than they are ever drawn. Shrinking those two (to 2,600 px, and
+  Primavera to exactly half) and a smaller per-device set (1,280 px) were tried and compared side by side: all
+  visibly softer (fine flowers, faces). The owner's rule is no visible change, so none of it was kept. If iPads
+  are ever seen to reload the page, a lighter set for them is the lever, accepting a slight softening there.
 - The 3D build's performance has only been checked on a desktop (phones get the mobile edition). Wing I carries
   ~300k triangles of roses.
 - Dead code that could be removed: `sign()` / `signTexture()` (the old WING I/II wall labels).
@@ -576,6 +584,7 @@ hooks) to a copy of `gallery3d.js`. Query parameters:
 | `press=fx,fy;…`, `drag=fx,fy>fx,fy` | Save-the-date: simulated clicks / a drag on the held card; reports the plates turned. |
 | `ihold=1`, `idoors=1`, `icard=1`, `itilt=x,y`, `iclick=fx,fy;…` | Invitation (go to `detInvite` first): lifted pose, doors open, card drawn, look-in tilt (-1..1), real clicks with a report. |
 | `gate=1`, `ajar=1`, `open=1`, `motto=1`, `credits=1` | Show the entry doors / part-open doors / click Open / the motto / the credits panel. |
+| `texneed=1800` | For every flat picture, the most screen pixels one of its texels covers from any stop, on a view that many device pixels tall (JSON in `<pre id="texneed">`; read it with `--dump-dom`). Under 1: the file is bigger than it is ever drawn. |
 
 **Gotchas learned the hard way**
 - Headless Chrome's virtual clock **never plays animations or CSS transitions**. The hooks step

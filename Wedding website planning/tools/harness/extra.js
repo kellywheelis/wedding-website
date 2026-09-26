@@ -462,3 +462,40 @@
     tag.textContent = 'ST.sc_hourglass=' + ST.sc_hourglass + ' STATIONS[' + ST.sc_hourglass + '].id=' + (STATIONS[ST.sc_hourglass] || {}).id + ' ST.detStay=' + ST.detStay + '\npedestal tags: ' + [...tags].join(',') + ' group.pos=' + spot.group.position.toArray().map((v) => v.toFixed(2));
     document.body.appendChild(tag);
   }, 3000); }
+{ const q = new URLSearchParams(location.search);
+  // texneed=H : for every picture loaded from a file, the most texels it can use: stand at every stop, and for each
+  // textured mesh in view work out how many screen pixels a metre of it covers on a view H device pixels tall (default
+  // 1800, a large monitor at the page's 1.5 pixel-ratio cap). Flat pictures only: each edge is cut into 24 pieces and
+  // only pieces wholly on screen count, so a picture seen edge-on from close by is not over-counted. r is the most
+  // screen pixels one texel covers (above 1: the picture is shown bigger than its file). Reported as JSON in <pre id="texneed">
+  if (q.has('texneed')) setTimeout(() => {
+    const H = +q.get('texneed') || 1800, A = 2.2, W = H * A, N = 24;
+    const need = {}, a = new THREE.Vector3(), b = new THREE.Vector3(), ca = new THREE.Vector3(), cb = new THREE.Vector3();
+    camera.aspect = A; camera.updateProjectionMatrix();
+    const onScreen = (p, c) => { c.copy(p).applyMatrix4(camera.matrixWorldInverse); if (c.z >= -camera.near) return false; p.project(camera); return Math.abs(p.x) <= 1 && Math.abs(p.y) <= 1; };
+    STATIONS.forEach((s) => {
+      camera.position.set(s.x, s.eye || EYE, s.z); camera.rotation.set(s.pitch || 0, s.yaw, 0, 'YXZ'); camera.updateMatrixWorld(true);
+      scene.traverse((o) => {
+        const map = o.isMesh && o.material && o.material.map, img = map && map.image;
+        if (!img || !img.src || !o.visible) return;
+        const g = o.geometry; if (!g.boundingBox) g.computeBoundingBox();
+        const bb = g.boundingBox, sx = bb.max.x - bb.min.x, sy = bb.max.y - bb.min.y;
+        if (bb.max.z - bb.min.z > 0.02 * Math.max(sx, sy)) return;               // not a flat picture
+        const uv = g.attributes.uv; let u0 = 1, u1 = 0, v0 = 1, v1 = 0;
+        if (uv) for (let i = 0; i < uv.count; i++) { u0 = Math.min(u0, uv.getX(i)); u1 = Math.max(u1, uv.getX(i)); v0 = Math.min(v0, uv.getY(i)); v1 = Math.max(v1, uv.getY(i)); }
+        const tu = img.width * (u1 - u0) * map.repeat.x / N, tv = img.height * (v1 - v0) * map.repeat.y / N;   // texels in one piece of an edge
+        const P = (u, v, out) => out.set(bb.min.x + u * sx, bb.min.y + v * sy, (bb.min.z + bb.max.z) / 2).applyMatrix4(o.matrixWorld);
+        let r = 0;
+        for (let k = 0; k < N; k++) for (const e of [0, 0.5, 1]) {
+          [[k / N, e, (k + 1) / N, e, tu], [e, k / N, e, (k + 1) / N, tv]].forEach(([ua, va, ub, vb, t]) => {
+            if (!onScreen(P(ua, va, a), ca) || !onScreen(P(ub, vb, b), cb)) return;
+            r = Math.max(r, Math.hypot((a.x - b.x) * W / 2, (a.y - b.y) * H / 2) / Math.max(t, 1e-6));
+          });
+        }
+        if (!r) return;
+        const src = decodeURIComponent(img.src.replace(/^.*?\/assets\//, 'assets/'));
+        if (!need[src] || r > need[src].r) need[src] = { r: +r.toFixed(3), w: img.width, h: img.height, at: s.id };
+      });
+    });
+    const pre = document.createElement('pre'); pre.id = 'texneed'; pre.textContent = JSON.stringify(need); document.body.appendChild(pre);
+  }, 7000); }

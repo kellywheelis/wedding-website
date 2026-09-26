@@ -3,8 +3,8 @@
 // lanes of piazza with tour groups, pigeons and a nonna, then the cathedral steps. The other half of the
 // couple waits in the doorway. Three lives, a bonus that ticks down, points for every row gained.
 // Sprites: assets/game/bride-topdown.png and groom-topdown.png, 9 frames of 32x32: idle/walk facing north,
-// south, east, west, then knocked down. The hazards use the owner's Vespa; the rest are drawn in code until
-// their files arrive (fiat, tourist, nonna, pigeon, gelato cart).
+// south, east, west, then knocked down. The hazards are the owner's sprites (vespa, fiat1-4, tourist1-2, nonna,
+// pigeon, gelato, duomo); each has a drawn stand-in below that shows until its file loads, or if it is missing.
 (function () {
   const W = 224, H = 288, ROW = 22, TOP = 24, ROWS = 12, COL = 16;
   const rowY = (r) => H - (Number(r) + 1) * ROW;                    // top of row r (0 = the start pavement, 11 = the Duomo); lane keys arrive as strings
@@ -14,7 +14,7 @@
     1: { kind: 'vespa', dir: -1, speed: 70, gap: 90, w: 24, h: 16 }, 2: { kind: 'fiat', dir: 1, speed: 46, gap: 100, w: 27, h: 18 }, 3: { kind: 'vespa', dir: 1, speed: 88, gap: 120, w: 24, h: 16 }, 4: { kind: 'fiat', dir: -1, speed: 52, gap: 84, w: 27, h: 18 },
     6: { kind: 'tour', dir: 1, speed: 24, gap: 140, w: 46, h: 20 }, 7: { kind: 'pigeon', dir: -1, speed: 40, gap: 70, w: 14, h: 10 }, 8: { kind: 'nonna', dir: 1, speed: 20, gap: 110, w: 14, h: 22 }, 9: { kind: 'tour', dir: -1, speed: 30, gap: 120, w: 46, h: 20 }
   };
-  // ---- things drawn in code until their sprites arrive
+  // ---- drawn stand-ins, shown until a sprite loads or if its file is missing
   const FIAT = ['......ccccccccc.......', '....ccwwwwwwwwwcc.....', '...ccwwccccccwwwcc....', '..cccccccccccccccccc..', '.cccccccccccccccccccc.', '.ccccccccccccccccccccc', '..eee.cccccccccc.eee..', '..eee............eee..'];
   const PIGEON = ['....ggg.....', '...ggggg....', '..gggggggg..', '.gggggggggg.', '..ggggggg...', '....oo......'];
   const TOURIST = ['..hhhh..', '.hhhhhh.', '..ssss..', '..ssss..', '.rrrrrr.', '.rrrrrr.', '.rrrrrr.', '..b..b..', '..b..b..', '..e..e..'];

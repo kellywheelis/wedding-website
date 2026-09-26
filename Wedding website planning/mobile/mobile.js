@@ -49,7 +49,7 @@
 
   // the details room
   html += `<section class="chapter det" id="det"><div class="hero"><img src="${det.hero}" alt="The details room" loading="lazy" decoding="async"><div class="cap"><h2>${esc(det.title)}</h2><p class="sub">Everything you need to know</p></div></div>
-    <div class="text center"><p class="eyebrow">The centrepiece</p><h3>${esc(det.centre.title)}</h3><p class="body">${esc(det.centre.body)}</p><p class="meta">${esc(det.centre.meta)}</p></div>`;
+    <div class="text center"><p class="eyebrow">The centerpiece</p><h3>${esc(det.centre.title)}</h3><p class="body">${esc(det.centre.body)}</p><p class="meta">${esc(det.centre.meta)}</p></div>`;
   // the table: save-the-date and invitation
   html += `<div class="table"><p class="eyebrow">On the table</p><h3>${esc(det.table.title)}</h3><p class="body">${esc(det.table.body)}</p>
     <div class="piece" id="volPiece"><div class="vol" id="vol"><img class="wheel" src="img/vol-wheel.png" alt="" decoding="async" draggable="false"><canvas id="volFront" width="1000" height="1000"></canvas><div class="eyelet"></div><img class="backface" src="img/vol-back.png" alt="" loading="lazy" decoding="async" draggable="false"></div>
@@ -140,7 +140,7 @@
   const links = nav.querySelectorAll('a');
   const io = new IntersectionObserver((es) => { es.forEach((en) => { if (en.isIntersecting) links.forEach((a) => a.classList.toggle('on', a.getAttribute('href') === '#' + en.target.id)); }); }, { rootMargin: '-40% 0px -55% 0px' });
   rooms.forEach((r) => io.observe(el(r.id)));
-  el('creditsList').innerHTML = C.credits.map((c) => `<li>${esc(c)}</li>`).join('');
+  el('creditsList').innerHTML = C.credits.map(([what, who]) => `<li>${esc(what)}<br>${esc(who)}</li>`).join('');   // the work, then its credit beneath
   // ?dbg : list anything wider than the screen (a check for the phone layout, used by the screenshot harness)
   if (/[?&]dbg/.test(location.search)) setTimeout(() => {
     const wide = [...document.querySelectorAll('body *')].filter((n) => { const r = n.getBoundingClientRect(); return r.width > 0 && (r.right > innerWidth + 1 || r.left < -1) && getComputedStyle(n).position !== 'fixed'; })

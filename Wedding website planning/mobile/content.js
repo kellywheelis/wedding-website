@@ -62,12 +62,12 @@ window.CONTENT = {
     "img": "img/birth-of-venus.jpg",
     "aspect": 1.6162790697674418,
     "title": "The Birth of Venus",
-    "body": "Botticelli gave a woman the entire centre of the canvas, in gold light, with flowers in the air and nobody hurrying her. That is the tone we want for the ceremony: golden, unhurried, and every head turned her way.",
+    "body": "Botticelli gave a woman the entire center of the canvas, in gold light, with flowers in the air and nobody hurrying her. That is the tone we want for the ceremony: golden, unhurried, and every head turned her way.",
     "meta": "Sandro Botticelli, c. 1485 · Uffizi, Florence"
    },
    "closeup": {
     "title": "The Birth of Venus",
-    "body": "Botticelli gave a woman the entire centre of the canvas, in gold light, with flowers in the air and nobody hurrying her. That is the tone we want for the ceremony: golden, unhurried, and every head turned her way.",
+    "body": "Botticelli gave a woman the entire center of the canvas, in gold light, with flowers in the air and nobody hurrying her. That is the tone we want for the ceremony: golden, unhurried, and every head turned her way.",
     "meta": "Sandro Botticelli, c. 1485 · Uffizi, Florence"
    },
    "walls": [
@@ -118,7 +118,7 @@ window.CONTENT = {
     {
      "img": "img/sc-w1statue.jpg",
      "title": "Venus with the Apple",
-     "body": "The apple is the prize from the Judgement of Paris: three goddesses, one young man, and a choice between power, wisdom and love. He chose love, and she has held on to the apple ever since. We are not saying he was right about everything. He was right about that.",
+     "body": "The apple is the prize from the Judgment of Paris: three goddesses, one young man, and a choice between power, wisdom and love. He chose love, and she has held on to the apple ever since. We are not saying he was right about everything. He was right about that.",
      "meta": "Bertel Thorvaldsen, 1809 · Statens Museum for Kunst, Copenhagen"
     },
     {
@@ -235,8 +235,8 @@ window.CONTENT = {
      "key": "main",
      "n": 1,
      "title": "The Main Details",
-     "body": "Two garden parties, painted four and a half centuries before ours. Villa Cetinale, Sovicille, in the hills outside Siena, Saturday 24 April 2027, with the weekend around it. The maze is real. The cypress avenue is very real. Everything else is in the wall text.",
-     "meta": "Villa Cetinale · Sovicille (Siena), Italy · 24 April 2027",
+     "body": "Two garden parties, painted four and a half centuries before ours. Villa Cetinale, Sovicille, in the hills outside Siena, Saturday, April 24, 2027, with the weekend around it. The maze is real. The cypress avenue is very real. Everything else is in the wall text.",
+     "meta": "Villa Cetinale · Sovicille (Siena), Italy · April 24, 2027",
      "pictures": [
       {
        "img": "img/det-pleasure-garden-with-a-maze.jpg",
@@ -259,7 +259,7 @@ window.CONTENT = {
        {
         "h": "When",
         "p": [
-         "Saturday 24 April 2027. The weekend runs from 22 to 26 April. To be confirmed."
+         "Saturday, April 24, 2027. The weekend runs from April 22 to 26. To be confirmed."
         ]
        },
        {
@@ -302,7 +302,7 @@ window.CONTENT = {
        "img": "img/det-banquet-of-cupid-and-psyche.jpg",
        "aspect": 2.398989898989899,
        "title": "The Wedding Banquet of Cupid and Psyche",
-       "body": "Every god on Olympus came to the wedding. It is painted on a ceiling as if it were a tapestry stretched overhead: Bacchus pours, the Graces see to the perfume, and the Hours scatter flowers. Even up there, dinner ran to a timetable.",
+       "body": "Every god on Olympus came to the wedding. It is painted on a ceiling as if it were a tapestry stretched overhead: Bacchus pours, the Graces see to the perfume, and the Hours scatter flowers. Even up there, dinner ran on schedule.",
        "meta": "Raphael and workshop, 1518 · Villa Farnesina, Rome"
       }
      ],
@@ -310,31 +310,31 @@ window.CONTENT = {
       "title": "The Full Schedule",
       "sections": [
        {
-        "h": "Thursday 22 April",
+        "h": "Thursday, April 22",
         "p": [
          "Event, time, place and dress code. To be confirmed."
         ]
        },
        {
-        "h": "Friday 23 April",
+        "h": "Friday, April 23",
         "p": [
          "To be confirmed."
         ]
        },
        {
-        "h": "Saturday 24 April · the wedding",
+        "h": "Saturday, April 24 · the wedding",
         "p": [
          "To be confirmed."
         ]
        },
        {
-        "h": "Sunday 25 April",
+        "h": "Sunday, April 25",
         "p": [
          "To be confirmed."
         ]
        },
        {
-        "h": "Monday 26 April",
+        "h": "Monday, April 26",
         "p": [
          "To be confirmed."
         ]
@@ -352,14 +352,14 @@ window.CONTENT = {
      "key": "travel",
      "n": 3,
      "title": "Pegasus, Centaurs & Chariots",
-     "body": "Or, as the modern world insists on calling them: planes, trains and automobiles. Pegasus is quickest, the centaurs run roughly to timetable, and a chariot needs somewhere to park. Those arriving by sea should ask Galatea about her dolphins.",
+     "body": "Or, as the modern world insists on calling them: planes, trains and automobiles. Pegasus is quickest, the centaurs run roughly on schedule, and a chariot needs somewhere to park. Those arriving by sea should ask Galatea about her dolphins.",
      "meta": "",
      "pictures": [
       {
        "img": "img/det-pegasus-and-mercury.jpg",
        "aspect": 0.6666666666666667,
        "title": "Pegasus with Mercury",
-       "body": "Mercury is the god of travellers, and Pegasus is the only flight that has never lost a bag. The rest of this painting, Mantegna’s Parnassus, hangs in Wing II.",
+       "body": "Mercury is the god of travelers, and Pegasus is the only flight that has never lost a bag. The rest of this painting, Mantegna’s Parnassus, hangs in Wing II.",
        "meta": "Andrea Mantegna, 1497 (detail) · Musée du Louvre, Paris"
       },
       {
@@ -597,9 +597,9 @@ window.CONTENT = {
     },
     {
      "img": "img/sc-detStatueR.jpg",
-     "title": "Diana of Versailles",
+     "title": "Diana the Huntress",
      "body": "Apollo’s twin sister, reaching over her shoulder for an arrow, with a stag at her side. Goddess of the hunt, the moon and the countryside, which makes her the patron of everyone driving through the Tuscan hills after dark.",
-     "meta": "Roman copy after Leochares, 1st–2nd century · Musée du Louvre, Paris (cast: Musées d’art et d’histoire de Genève)"
+     "meta": "Unknown sculptor, 1831, marble · Geneva · in the pose of the Diana of Versailles (Louvre)"
     },
     {
      "img": "img/sc-detEndL.jpg",
@@ -629,41 +629,41 @@ window.CONTENT = {
   }
  ],
  "credits": [
-  "The Birth of Venus and Primavera, Sandro BotticelliGallerie degli Uffizi, Florence · public domain",
-  "Venus and the Three Graces Presenting Gifts to a Young Woman; A Young Man Being Introduced to the Seven Liberal Arts (frescoes from Villa Lemmi), Sandro Botticelli, c. 1483–86Musée du Louvre, Paris · public domain",
-  "Happy Union (Allegory of Love, IV), Paolo Veronese, c. 1575National Gallery, London · public domain",
-  "Mars and Venus United by Love, Paolo Veronese, 1570sThe Metropolitan Museum of Art, New York · public domain",
-  "The Three Graces, Francesco Furini, c. 1633State Hermitage Museum, St Petersburg · public domain",
-  "Amaryllis and Mirtillo, Anthony van Dyck, c. 1631–32Gothenburg Museum of Art · public domain",
-  "The Wedding Banquet (The Story of Nastagio degli Onesti, IV), Sandro Botticelli, 1483Private collection, Florence · public domain",
-  "Parnassus, Andrea Mantegna, 1497Musée du Louvre, Paris · public domain",
-  "Banquet Still Life, Adriaen van Utrecht, 1644Rijksmuseum, Amsterdam · public domain",
-  "Still Life with Fruit, Giovan Battista Ruoppolo, 1650–1699Public domain",
-  "Pallas and the Centaur, Sandro Botticelli, c. 1482Gallerie degli Uffizi, Florence · public domain",
-  "The Triumph of Galatea, Raphael, c. 1512Villa Farnesina, Rome · public domain",
-  "April (The Triumph of Venus), Francesco del Cossa, c. 1470Palazzo Schifanoia, Ferrara · public domain",
-  "The Wedding Banquet of Cupid and Psyche, Raphael and workshop, 1518Villa Farnesina, Rome · public domain",
-  "A Dance to the Music of Time, follower of Laurent de La Hyre, 17th centuryPublic domain",
-  "Pleasure Garden with a Maze, Lodewijk Toeput (Pozzoserrato), c. 1579–84Royal Collection · public domain",
-  "Dives and Lazarus, Bonifacio Veronese (Bonifacio de’ Pitati), c. 1540sGallerie dell’Accademia, Venice · public domain",
-  "A Storm on a Mediterranean Coast, Claude-Joseph Vernet, 1767J. Paul Getty Museum, Los Angeles · public domain",
-  "Allegory of the Four Seasons, Bartolomeo Manfredi, c. 1610Dayton Art Institute · public domain",
-  "The Effects of Good Government in the Countryside, Ambrogio Lorenzetti, 1338–39Palazzo Pubblico, Siena · public domain",
-  "The Dream of St Ursula, Vittore Carpaccio, 1495Gallerie dell’Accademia, Venice · public domain",
-  "The Court of Gonzaga (Camera degli Sposi), Andrea Mantegna, 1465–74Palazzo Ducale, Mantua · public domain",
-  "Pop-Up Invitation, Truong Hoai Vuvuth.art · illustration and paper engineering, shown with the artist’s permission",
-  "The Capitoline Venus (cast of the marble in the Capitoline Museums, Rome)3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons · simplified for the web, shared under the same licence",
-  "The Ludovisi Mars, with Cupid at his feet (cast of the marble in Palazzo Altemps, Rome)3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons · simplified for the web, shared under the same licence",
-  "Venus with the Apple, Bertel Thorvaldsen, 18093D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons · simplified for the web, shared under the same licence",
-  "Cupid Playing the Lyre, Bertel Thorvaldsen3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons · simplified for the web, shared under the same licence",
-  "Apollo Belvedere, after Leochares (cast of the Vatican marble)3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons · simplified for the web, shared under the same licence",
-  "Diana of Villa Bartholoni3D scan by Rama, Musées d’art et d’histoire de Genève · public domain · via Wikimedia Commons · simplified for the web, shared under the same licence",
-  "Venus Italica, Antonio Canova3D scan by Rama, Musées d’art et d’histoire de Genève · CC BY-SA 3.0 FR · via Wikimedia Commons · simplified for the web, shared under the same licence",
-  "Costanza Bonarelli, Gian Lorenzo Bernini, c. 1636–38 (cast of the Bargello marble)3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons · simplified for the web, shared under the same licence",
-  "Head of Ariadne (Musée Saint-Raymond, Toulouse)3D scan by Musée Saint-Raymond / Scan the World · CC BY · via Wikimedia Commons · simplified for the web, shared under the same licence",
-  "Antinous as Dionysus (cast of the Vatican marble)3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons · simplified for the web, shared under the same licence",
-  "Beatrice d’Este, after Gian Cristoforo Romano (cast of the Louvre marble)3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons · simplified for the web, shared under the same licence",
-  "Isabella of Aragon, attributed to Francesco Laurana (cast)3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons · simplified for the web, shared under the same licence"
+  ["The Birth of Venus and Primavera, Sandro Botticelli", "Gallerie degli Uffizi, Florence · public domain"],
+  ["Venus and the Three Graces Presenting Gifts to a Young Woman; A Young Man Being Introduced to the Seven Liberal Arts (frescoes from Villa Lemmi), Sandro Botticelli, c. 1483–86", "Musée du Louvre, Paris · public domain"],
+  ["Happy Union (Allegory of Love, IV), Paolo Veronese, c. 1575", "National Gallery, London · public domain"],
+  ["Mars and Venus United by Love, Paolo Veronese, 1570s", "The Metropolitan Museum of Art, New York · public domain"],
+  ["The Three Graces, Francesco Furini, c. 1633", "State Hermitage Museum, St Petersburg · public domain"],
+  ["Amaryllis and Mirtillo, Anthony van Dyck, c. 1631–32", "Gothenburg Museum of Art · public domain"],
+  ["The Wedding Banquet (The Story of Nastagio degli Onesti, IV), Sandro Botticelli, 1483", "Private collection, Florence · public domain"],
+  ["Parnassus, Andrea Mantegna, 1497", "Musée du Louvre, Paris · public domain"],
+  ["Banquet Still Life, Adriaen van Utrecht, 1644", "Rijksmuseum, Amsterdam · public domain"],
+  ["Still Life with Fruit, Giovan Battista Ruoppolo, 1650–1699", "Public domain"],
+  ["Pallas and the Centaur, Sandro Botticelli, c. 1482", "Gallerie degli Uffizi, Florence · public domain"],
+  ["The Triumph of Galatea, Raphael, c. 1512", "Villa Farnesina, Rome · public domain"],
+  ["April (The Triumph of Venus), Francesco del Cossa, c. 1470", "Palazzo Schifanoia, Ferrara · public domain"],
+  ["The Wedding Banquet of Cupid and Psyche, Raphael and workshop, 1518", "Villa Farnesina, Rome · public domain"],
+  ["A Dance to the Music of Time, follower of Laurent de La Hyre, 17th century", "Public domain"],
+  ["Pleasure Garden with a Maze, Lodewijk Toeput (Pozzoserrato), c. 1579–84", "Royal Collection · public domain"],
+  ["Dives and Lazarus, Bonifacio Veronese (Bonifacio de’ Pitati), c. 1540s", "Gallerie dell’Accademia, Venice · public domain"],
+  ["A Storm on a Mediterranean Coast, Claude-Joseph Vernet, 1767", "J. Paul Getty Museum, Los Angeles · public domain"],
+  ["Allegory of the Four Seasons, Bartolomeo Manfredi, c. 1610", "Dayton Art Institute · public domain"],
+  ["The Effects of Good Government in the Countryside, Ambrogio Lorenzetti, 1338–39", "Palazzo Pubblico, Siena · public domain"],
+  ["The Dream of St Ursula, Vittore Carpaccio, 1495", "Gallerie dell’Accademia, Venice · public domain"],
+  ["The Court of Gonzaga (Camera degli Sposi), Andrea Mantegna, 1465–74", "Palazzo Ducale, Mantua · public domain"],
+  ["Pop-Up Invitation, Truong Hoai Vu", "vuth.art · illustration and paper engineering, shown with the artist’s permission"],
+  ["The Capitoline Venus (cast of the marble in the Capitoline Museums, Rome)", "3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons · simplified for the web, shared under the same license"],
+  ["The Ludovisi Mars, with Cupid at his feet (cast of the marble in Palazzo Altemps, Rome)", "3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons · simplified for the web, shared under the same license"],
+  ["Venus with the Apple, Bertel Thorvaldsen, 1809", "3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons · simplified for the web, shared under the same license"],
+  ["Cupid Playing the Lyre, Bertel Thorvaldsen", "3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons · simplified for the web, shared under the same license"],
+  ["Apollo Belvedere, after Leochares (cast of the Vatican marble)", "3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons · simplified for the web, shared under the same license"],
+  ["Diana the Huntress (Diana of Villa Bartholoni), 1831", "3D scan by Rama · CC BY-SA 3.0 FR · via Wikimedia Commons · simplified for the web, shared under the same license"],
+  ["Venus Italica, Antonio Canova", "3D scan by Rama, Musées d’art et d’histoire de Genève · CC BY-SA 3.0 FR · via Wikimedia Commons · simplified for the web, shared under the same license"],
+  ["Costanza Bonarelli, Gian Lorenzo Bernini, c. 1636–38 (cast of the Bargello marble)", "3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons · simplified for the web, shared under the same license"],
+  ["Head of Ariadne (Musée Saint-Raymond, Toulouse)", "3D scan by Musée Saint-Raymond / Scan the World · CC BY · via Wikimedia Commons · simplified for the web, shared under the same license"],
+  ["Antinous as Dionysus (cast of the Vatican marble)", "3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons · simplified for the web, shared under the same license"],
+  ["Beatrice d’Este, after Gian Cristoforo Romano (cast of the Louvre marble)", "3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons · simplified for the web, shared under the same license"],
+  ["Isabella of Aragon, attributed to Francesco Laurana (cast)", "3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons · simplified for the web, shared under the same license"]
  ],
  "sectionLabel": {
   "main": "the main details",

@@ -29,16 +29,17 @@ Project root (a local git repository, branch `main`):
 
     /Users/kellywheelis/Desktop/wedding website/
 
-Everything that matters lives in one subfolder:
+Everything that matters lives in one subfolder (apart from the deployment files at the root: `vercel.json`,
+`.vercelignore` and the scoreboard's `api/scores.js`; see §8 and §4c):
 
     /Users/kellywheelis/Desktop/wedding website/Wedding website planning/
 
 | Path (inside `Wedding website planning/`) | What it is |
 |---|---|
 | `The Gallery 3D.html` | **The live page.** Entry doors, motto, info panel, buttons, credits panel, import map. |
-| `gallery3d.js` | **The live build** — all of the 3D gallery (~1,900 lines, three.js 0.184 from unpkg). |
+| `gallery3d.js` | **The live build** — all of the 3D gallery (~4,300 lines, three.js 0.184 from unpkg). |
 | `assets/` | Paintings, textures, the KA monogram, reference photos. |
-| `assets/sculpture/` | The ten real sculpture scans (`.glb`) + `SOURCES.md` (where each came from, licence, how it was converted). |
+| `assets/sculpture/` | The twelve real sculpture scans (`.glb`; `isabella.glb` is no longer used) + `SOURCES.md` (where each came from, licence, how it was converted), and `amelia.glb` (Anthony's dog: a 3D generation, not a scan; §4). |
 | `assets/door-walnut-*.jpg` | Generated walnut grain for the entry doors (`tools/make_walnut_textures.html` regenerates them). |
 | `tools/convert_scan.py` | Turns a raw museum scan (`.stl`/`.obj`, often 100 MB+) into a small `.glb`. No dependencies. |
 | `tools/reduce_glb.py` | Shrinks a generated, textured `.glb` (image-to-3D output) into a small vertex-coloured one. Uses macOS `sips` for the texture. |
@@ -75,8 +76,10 @@ internet connection is needed.
 - She often sends **annotated screenshots** with numbered circles. Treat each number as a task.
 - She likes to be told honestly what was NOT verified (e.g. "I can't see animation, only stills").
 - Report in plain language. Say what was wrong, what changed, and what she will see.
+- **American spelling** in everything visitors see (color, center, gray, traveling, canceled): the couple are American,
+  and the owner had the whole site changed over on 25 Sept 2026. Proper names and official titles stay as they are.
 
-## 4. What was built this session (all in `gallery3d.js` unless noted)
+## 4. What has been built (all in `gallery3d.js` unless noted)
 
 **Building**
 - Groin vaults rebuilt from scratch (the old surface was upside-down *and* dome-shaped). Bays
@@ -89,8 +92,9 @@ internet connection is needed.
 - **Details room**: 10 × 9 m, walls in the invitation burgundy (`BURGUNDY = #7A1A3C`, sampled
   from the monogram; the paint value `BURGUNDY_PAINT = #6c1637` is darker so that it *renders*
   close to the swatch under the warm lamps), pale dado, gilt cornice, **coved ceiling** with a
-  placeholder sky panel, 14-frame salon hang (`DETAIL_PICTURES`), centre table, three gilt
-  consoles, four Roman busts, two large statues flanking the principal picture.
+  painted panel (a placeholder sky until Tiepolo's sketch went in on 25 Sept 2026), a 16-frame salon hang
+  (`DETAIL_PICTURES`: the centrepiece, 13 pictures and two empty ovals), centre table, four corner pedestals,
+  two large statues flanking the principal picture (the three gilt consoles and four Roman busts it first had are gone).
 - **Atrium galleries**: three frames on Kelly's wall (LEFT), two on Anthony's (RIGHT: the main frame and
   the arcade; his right-hand frame was removed on 25 Sept 2026 to make room for his artifacts) —
   `ATRIUM_PICTURES` — each wall with an engraved brass name plaque (`GALLERY_NAMES`).
@@ -107,16 +111,20 @@ internet connection is needed.
   right; Tripo via the Magnific connector), reduced from 57 MB to 4.5 MB with `tools/reduce_glb.py`, which
   clusters the mesh like `convert_scan.py` and bakes the texture (black nose and eyes) into vertex colours.
   `amelia()` loads it with GLTFLoader, scales it to half a metre long, and stands it on a small Siena marble plinth on the floor
-  between his main frame and the small frame to its right, an AMELIA plaque on the plinth. Each piece clicks like a small frame: first click to
+  to the right of his main frame, below the slab and the case, an AMELIA plaque on the plinth. Each piece clicks like a small frame: first click to
   his wall, second to a close-up stop (`anthonyCard`, `anthonyCase`, `anthonyAmelia`, a step in from
   the wall; `planRoute` steps straight back out again without turning round).
-- **25 Sept 2026 review batch**: a loading line along the top edge and "Hanging the collection…" at the
-  foot of the doors while textures and models load (`loading()`, three's DefaultLoadingManager); a
+- **25 Sept 2026 review batch**: a loading line along the top edge while textures and models load (`loading()`,
+  three's DefaultLoadingManager). The doors wait for the collection (evening of 25 Sept): "Hanging the collection…"
+  (`#hanging`) sits inside the Open the doors button's outlined box, which is there from the start in its locked
+  position, and the button does nothing yet; when loading finishes the note fades out and "Open the doors"
+  (`#enterText`) fades in in the same box, and only then does the button work. After 8 s the note becomes
+  "…a moment more"; at 45 s the button is released regardless. (The old note at the foot of the doors is gone.) A
   **collection tally** top-left of the view ("Collection · 7 of 54", distinct stop titles, kept in
   localStorage `ka-seen`; `paintTally`/`noteSeen`); the pill's hint changes by room (`HINTS`); the
   details room's ceiling is Tiepolo's *Allegory of the Planets and Continents* sketch
   (`assets/det-ceiling-tiepolo.jpg`, the Met, turned to lie along the room); a second frame style,
-  ebonised with a gilt slip (`ornateFrame(w, h, 'plain')`, `PLAIN_PROFILE`; `frame: 'plain'` on five of
+  ebonised with a gilt slip (`ornateFrame(w, h, 'plain')`, `PLAIN_PROFILE`; `frame: 'plain'` on four of
   the salon hang's smaller pictures); a spot on each of the six large statues.
 - **The three who hid** (25 Sept 2026): Kelly paints her pets into prints, so three of the family are painted
   into three of the pictures in each painter's manner and left unmarked: Amelia (white spitz) in the flowers at
@@ -132,7 +140,7 @@ internet connection is needed.
   and the third is there for the day the Lorenzetti is put on a postcard). `HIDDEN` in gallery3d.js holds each one's box
   on its picture and its write-up; `markHidden` tags the canvas meshes; a click on the animal from the picture's own
   close-up stop (`hiddenHit`/`atHiddenStop`) calls `foundHidden`, which names it in the panel and counts it in the
-  tally as a bonus line, "Hidden bonus features" with three stars that fill gold (localStorage `ka-found`; the works
+  tally as a bonus line, "Hidden bonuses" with three stars that fill gold (localStorage `ka-found`; the works
   count stays 54). Over a hidden pet, from its stop, the pointer becomes a magnifying glass (`assets/cursor-find.png`, `--cur-find`).
 - **The bottom panel, slimmed** (25 Sept 2026): the room buttons are 32 px tall with gold arrows between
   Atrium → Wing I → Wing II → Details (`.navarrow`, decorative: the buttons are still the way you move; Credits
@@ -142,11 +150,13 @@ internet connection is needed.
   moved in: the wings' principal works are seen from 1.95 m (`CLOSE_X` 10.45, was 2.4 m), the wings' side pictures
   from 1.15 m (was 1.83), the salon hang from `max(0.95h, 0.55w)` clamped 0.9–2.3 m (was 1.25h/0.72w, 1.2–3.0), with the
   eye at the picture's centre (clamp raised to 2.9) so the tall-hung ones sit level; the artifacts are seen level too.
-  The tally sits bottom-left of the stage. The compass no longer steps to the corner at details-room close-ups
+  The tally sits bottom-left of the stage (`#tally`; its box was made wider and a little taller on 25 Sept, padding
+  8 px 24 px, was 4 px 12 px, so it is easier to see). The compass no longer steps to the corner at details-room close-ups
   (the owner wants it in one place, always).
 - **The RSVP postcard and the curtain** (25 Sept 2026, step 1 of the RSVP). Clicking the gift shop (rack or
   letterbox, `userData.shop`) from its own stop opens `#postcard`: the twelve postcards of the collection
-  (`POSTCARDS`, the front is the picture with the KA monogram in gilt at the corner and the title beneath;
+  (`POSTCARDS`, the front is the picture with the KA monogram in gilt at the corner, 14% of the card's width with a
+  shadow and a faint gold glow so it stands off the picture, and the title beneath;
   arrows flip through), "This one" turns it over (CSS flip) to the written side: attending yes/no, plus-one,
   dietary, a note, the name on the address side under a monogram stamp. "Post it" drops the card out of view
   and stamps a thank-you; for now the card is kept only in that browser (`ka-rsvp`; a return visit shows it
@@ -163,8 +173,8 @@ internet connection is needed.
   edge (folds deepen and multiply, the tieback pinches its waist, the hem lifts); the tiebacks are rope-and-tassel
   groups that grow in as the cloth gathers; the pelmet is a valance hung in three swags with a gold cord and bullion
   fringe, on a gilt rail with finials. The date reads IV · XXIV · MMXXVII. Harness: `half=0.5` for a part-drawn curtain. The centre table stands
-  at `DET.zMid - 0.55` (was -0.9) and the shop 0.35 m off the back wall, so the curtain (the frame's own height and
-  width, old-gold velvet with a burgundy fringe) clears both.
+  at `DET.zMid - 0.55` (was -0.9) and the shop 0.38 m off the back wall (was 0.03), so the curtain (a little taller and
+  wider than the frame) clears both.
 - Gilt numerals **I** and **II** above the wing arches (solid bars, not text).
 - Architectural dressing: cornices, atrium pilasters, arch surrounds with keystones, bosses, the
   inside face of the entrance doors on the atrium's back wall.
@@ -174,7 +184,7 @@ internet connection is needed.
 - Wing I objects: two urns of **cascading roses** built petal by petal (`roseCascade`,
   `addRose`), Thorvaldsen's *Venus with the Apple* and *Cupid Playing the Lyre*.
 - Wing II objects: two **citrus trees** built leaf by leaf (`citrusTree`), Canova's
-  *Venus Italica*, a Laurana bust.
+  *Venus Italica*, Bernini's *Costanza Bonarelli* (a bust; it replaced a Laurana bust).
   The crowns have no solid core: an inner layer of dark leaves instead (a smooth dark ball showed through as a
   ball). Orange blossom is ~50 five-petalled flowers per tree on a jittered grid over the room-facing side only;
   the owner asked for more, spread evenly rather than clustered.
@@ -193,6 +203,12 @@ internet connection is needed.
 `SCULPTURES` (which scan goes on which spot, its height, title and credit). Scans load in the
 background through a dynamically imported GLTFLoader; if one fails, the placeholder stays.
 No scans of Villa Cetinale's own sculpture exist online (searched). See `assets/sculpture/SOURCES.md`.
+The scans' color (25 Sept 2026): every scan without `keep` is drawn in `marbleScan` with vertex colors made as it
+loads. `fixWinding` turns round the tiny inside-out triangles that `convert_scan.py`'s clustering leaves, which showed
+as dark pinholes; `marbleShade` darkens and warms the hollows (folds, curls, eyes) from a smoothed measure of how far
+each vertex's neighbors rise above it, and clouds the stone faintly, so the carving reads instead of one flat cream.
+A few dark flecks remain on the thin edge of Apollo's cloak: real gaps in the scan. Beatrice's scan has little carved
+detail, so she gains least; re-converting her at more triangles would help.
 
 **Entry page and motto** (`The Gallery 3D.html`)
 - Walnut frame-and-panel doors, brass KA monogram across the seam (CSS mask of
@@ -204,11 +220,12 @@ No scans of Villa Cetinale's own sculpture exist online (searched). See `assets/
 - Main frame, end wall: "The only thing missing from this exhibit is you" (kept for the guests), with the gift-shop
   stand (`giftShop`, stop `detShop`) under it: postcard rack, "POSTA · R.S.V.P." letterbox, registry card. The owner
   wants the RSVP to be a postcard drawn from the rack that flips to a writing side (the form) and is posted in the
-  letterbox. NOT BUILT YET: it needs a form service behind it (a static page cannot collect replies).
+  letterbox. Step 1 of that was built on 25 Sept 2026 (see "The RSVP postcard and the curtain" above); a store for
+  the replies is still to come (§5): a static page cannot collect them.
 - Layout (the owner's, 21 Sept): the END WALL carries only the main frame (she found clusters beside it too small).
   LEFT wall: 2 Schedule (entrance side) and 3 Travel (far side). RIGHT wall: 1 Main details (entrance side) and
   4 Accommodations, one good-sized picture (far side). ENTRANCE wall: 5 Logistics (left), 6 Guest policies (right).
-  7 Registry & extras is the gift-shop stand. She rejected the Aurora on the travel wall (file kept in assets, unused)
+  7 Registry & extras is the gift-shop stand. She rejected the Aurora on the travel wall (the file is not in the repo)
   and three versions of one painting in a cluster. More pictures may come; Villa Cetinale art is still open (none
   exists in open collections, and she does not want the invitation artist's drawing used).
 - Stops: `detMain`, `detSchedule`, `detTravel`, `detStay`, `detFrontL`, `detFrontR`, `detShop`, all in the Walk on tour in
@@ -220,8 +237,8 @@ No scans of Villa Cetinale's own sculpture exist online (searched). See `assets/
   sibling's close-up): step up to the picture; its write-up fills the panel. The anecdotes are drafts.
 - Beneath every section a gold-edged wall button "CLICK HERE FOR DETAILS" (`detailsButton`, `userData.cardKey`)
   opens its wall text from anywhere in the room. The panel's "Read the full details" does the same.
-- In the details room a row of gold-trimmed section buttons (`#sections`) runs across the top between Step back and
-  Walk on; the current section is highlighted. Turn around now sits at the bottom right of the stage. No console tables in the room any more (the owner removed them).
+- In the details room a row of gold-trimmed section buttons (`#sections`) runs across the top centre of the view;
+  the current section is highlighted. Turn around now sits at the bottom right of the stage. No console tables in the room any more (the owner removed them).
 - Holding the save-the-date or the invitation, a click on anything else puts it down (`onHeldItem`); the open wall
   text closes on a click outside it.
 - Pictures are `DETAIL_PICTURES` (`src`, optional `crop: [l, t, r, b]`). `tools/art-options.html` is the browsing
@@ -235,7 +252,7 @@ No scans of Villa Cetinale's own sculpture exist online (searched). See `assets/
   underside of the base and stands it flat, then centres the figure by its base rather than its reach). `tilt`
   ([x, z] degrees) is still accepted for hand corrections. Diana is centred by `nudge`; her plinth is sized to her
   base (0.96 x 0.74). Rotated models are measured with the precise bounding box, otherwise they float.
-- Every plinth in the museum is Siena marble (`plinthMat`, drawn by `sienaMarble()`); the walls' dado keeps the
+- Every plinth in the museum is Siena marble (`plinthMat`, drawn by `marbleTexture()`); the walls' dado keeps the
   plaster `stoneMat`, so the plinths stand off it. The one-line switch to white marble is the `plinthMat` colour/map.
 - The wing sculptures (Venus with the Apple, Cupid with the Lyre, Venus Italica, Costanza Bonarelli) have
   walk-up stops and write-ups too (21 Sept 2026): `SCULPTURE_NOTES` entries make a stop for any spot; the loader
@@ -245,9 +262,11 @@ No scans of Villa Cetinale's own sculpture exist online (searched). See `assets/
   Beatrice d'Este and Antinous as Dionysus (the Bacchus reference: the owner does not drink and wants guests told
   to enjoy the wine anyway) either side of the entrance arch, welcoming; and on the far-right pedestal, since
   25 Sept 2026, **the hourglass** (`hourglass()`): a brass-framed glass whose sand runs from the site's opening
-  (18 Sept 2026) to the wedding, with UNTIL SIENA · n DAYS engraved on a plaque on the pedestal's face, refreshed
-  every minute (`setHourglass`, `WEDDING`; the sand masses are lathed from the bulb's own profile so their surface
-  meets the glass, and the top bulb never quite fills nor the bottom quite empties, so both read as sand in glass); it has a stop of its own (`sc_hourglass`, made at build time, with a
+  (18 Sept 2026) to the wedding, with DAYS / n / UNTIL SIENA engraved on three lines on a plaque on the pedestal's face, refreshed
+  every minute (`setHourglass`, `WEDDING`; the bulbs have an antique profile, broad low and drawing out to a long neck; the sand masses are lathed from the bulb's own profile so their surface
+  meets the glass, and the top bulb never quite fills nor the bottom quite empties, so both read as sand in glass). The falling sand
+  is a fine thread with 90 grains running down it (`tickSand`), speeding up as they fall and spreading a little as they land; the
+  stream is re-scaled to run from the neck to the peak of the bottom pile whatever the level (`HOURGLASS.thread`). It has a stop of its own (`sc_hourglass`, made at build time, with a
   write-up in STATIONS) and clicks like a sculpture. Bacchus's and Ariadne's write-ups point at each other across
   the room; Apollo's was rewritten. Isabella of Aragon was removed the same day (the owner did not like her;
   `isabella.glb` stays in assets/sculpture, unused). Bernini's Costanza Bonarelli replaced the Laurana woman in Wing II. The owner did NOT
@@ -265,7 +284,8 @@ No scans of Villa Cetinale's own sculpture exist online (searched). See `assets/
   published with the site. It was also scrubbed from the git history on 21 Sept 2026 (the seven commits
   from the volvelle onwards were rewritten), so it is safe to push this repository. What the gallery needs is in
   `assets/volvelle/`: `front.png` (the front panel, cropped from the pack's BLANK print sheet),
-  `wheel.png` (the wheel art, downsized) and `MEASUREMENTS.txt` (the numbers the build is made from).
+  `wheel.png` (the wheel art, downsized), `back.png` (the printed monogram back) and `MEASUREMENTS.txt` (the
+  numbers the build is made from).
 - The card front is a cut shape (window, pivot hole, thumb notch) with the print laid over it; the
   gold rails, white wainscot, two gilt oval rings with a pearl course, and the brass eyelet are real
   geometry. The wheel has five plates, 72 degrees apart.
@@ -316,11 +336,12 @@ No scans of Villa Cetinale's own sculpture exist online (searched). See `assets/
 - `pedestal()` and `reservedPlinth()` take a footprint, for seated figures (Mars here, Cupid in Wing I).
 
 **Page chrome** (`The Gallery 3D.html`)
-- Turn around (`#turn`, in `#topLeft` with Step back): a half turn on the spot, levelling the view; turning again
-  restores the stop's tilt and height. Hidden while the save-the-date or invitation is held. In the atrium Step
-  back is `display:none`, so Turn around takes the top-left corner, mirroring Walk on.
-- One themed cursor everywhere: Cupid's arrow, as two SVG data-URIs in `:root` (`--cur`, and `--cur-on` for
-  anything clickable: rose heart, gold glow). `gallery3d.js` sets `canvas.style.cursor = 'var(--cur-on)'` and
+- Turn around (`#turn`, at the bottom right of the stage): a half turn on the spot, levelling the view; turning again
+  restores the stop's tilt and height. Hidden while the save-the-date or invitation is held, and until the entrance
+  motto has gone.
+- One themed cursor everywhere: Cupid's arrow, as two pre-rendered PNGs named in `:root` (`--cur` is
+  `assets/cursor.png`, and `--cur-on`, `assets/cursor-on.png`, for anything clickable: rose heart, gold glow; they were
+  SVG data-URIs until 24 Sept 2026, but an SVG cursor flashed the default arrow on every change). `gallery3d.js` sets `canvas.style.cursor = 'var(--cur-on)'` and
   keeps re-probing for ~100 frames after a move ends, so the cursor is never stale. The save-the-date's wheel
   keeps the ordinary grab hand on purpose.
 - The info panel's text is large and bright, and eases in afresh (`.fresh`) whenever `paintLabel` changes it:
@@ -330,14 +351,18 @@ No scans of Villa Cetinale's own sculpture exist online (searched). See `assets/
 
 **Navigation**
 - Stops (`STATIONS`) are referred to by **id**, never by index (`ST.w1`, `ST.detTable`, …).
-  `tour: false` marks stops reached only by clicking (skipped by Walk on / arrow keys).
-  Ids: atrium, kelly, kelly1, kelly2, anthony, anthony2, w1, w1close, w1a, w1b, w2,
-  w1graces, w1amaryllis, w1union, w1mars, w2close, w2a, w2b, w2utrecht, w2ruoppolo, w2parnassus, w2nastagio, det, detL, detR, detLclose, detRclose, detTable, detMain, detSchedule, detTravel, detStay, detFrontL, detFrontR, detShop, detClose, detVolvelle, detInvite.
+  `tour: false` marks stops reached only by clicking (skipped by Walk on and the Up key).
+  Ids in `STATIONS` itself: atrium, kelly, kelly1, kelly2, anthony, anthony2, anthonyCard, anthonyCase, anthonyAmelia,
+  w1, w1close, w1a, w1b, w1graces, w1amaryllis, w1union, w1mars, w2, w2close, w2a, w2b, w2utrecht, w2ruoppolo,
+  w2parnassus, w2nastagio, det, detTable, detMain, detSchedule, detTravel, detStay, detFrontL, detFrontR, detShop,
+  detClose, detVolvelle, detInvite. More are added to it as the scene is built, so they are not in that list: the
+  details-room picture close-ups (`pic<index>`), the sculpture walk-ups (`sc_<spotId>`, as each scan loads) and
+  `sc_hourglass`.
 - A stop may name where Step back leads (`back: 'detTable'`); otherwise Step back goes to the room's entry stop, then the atrium.
 - Click **doorways** (invisible arch-shaped panes), **pictures/frames/plaques/the table**
-  (`userData.station`, and `userData.closer` for the two wing paintings' close-up).
-- **Step back** (top left) goes one level: a picture → the room's entry stop → the atrium.
-  **Walk on** (top right) advances the tour.
+  (`userData.station`, and `userData.closer` for a piece's own close-up, reached by a second click from its wall's stop).
+- **Step back** (the compass's down arrow, or the Down key) goes one level: a picture → the room's entry stop → the atrium.
+  **Walk on** (the up arrow, or the Up key) advances the tour.
 - Going to a stop on the very spot you stand on, facing the same way (the table and the two things on it),
   skips the levelling-out, so the view does not nod up and back down.
 - A stop may carry a `pitch` (camera tilt, radians, negative = down) and an `eye` (viewing height in
@@ -369,8 +394,9 @@ No scans of Villa Cetinale's own sculpture exist online (searched). See `assets/
   in the outer part of the screen (`LOOK.edge`) turns the view that way, up to `LOOK.spin` rad/s, folded into
   `cam.yaw` so it persists and walks start from it, but never more than `LOOK.limit` (a quarter turn) from the
   stop's own facing, so you cannot spin round and lose your bearings. Off at close-ups, walk-ups, the stand, during walks and cards.
-- Frame rate while walking: the cursor's ray is tested against the scene every frame of a walk, so the sculpture
-  scans (55k-118k triangles each) are left OUT of the ray test (`raycast = () => {}`) and each carries an
+- Frame rate while walking: the cursor's ray test is the dearest thing in a frame, so it runs only when the mouse
+  moves (and for ~100 frames after a walk ends), not on every frame of a walk (`updatePointer`); and the sculpture
+  scans (55k-118k triangles each) are left OUT of it (`raycast = () => {}`), each carrying an
   invisible box (`colorWrite: false`) that the cursor and clicks meet instead.
   Harness: `trace=id,id,...` walks each and reports seconds, biggest per-frame step and turn, frames inside
   the table keep-out (should be 0) and how far off the stop it ended (should be 0).
@@ -416,9 +442,10 @@ screen on a canvas, redrawn a few times a second, for a picture frame. A game re
 `game/italy.js` — GETTING TO ITALY, a Donkey Kong-style barrel-jumper: six platforms from Departures to the villa
 gate, ladders, three items (passport, ticket, bouquet or ring), hazards: suitcases from the baggage belt, CANCELLED
 paper planes, a rain cloud (a slip, no life lost) and a Vespa. Choose bride or groom; the other waits at the gate. Score, 5000-point time
-bonus, three lives. Sprites: `assets/game/bride.png` and `groom.png`, 8 frames of 16x24 in a row (stand, walk 1,
-walk 2, climb 1, climb 2, jump, hit, win); made by the owner in PixelLab (raw exports live in the repo root folders `8bit assets/`, `8bit bride and groom/`,
-`plain plane/`, `bouquet 8 bit/`, which are git-ignored); the sheets were assembled from single poses (idle, walk,
+bonus, three lives. Sprites: `assets/game/bride.png` and `groom.png`, 9 frames of 32x32 in a row (stand, walk 1,
+walk 2, climb 1, climb 2, jump, hit, win, slip); made by the owner in PixelLab (raw exports live in the repo root folders `8bit assets/`, `8bit bride and groom/`,
+`plain plane/`, `bouquet 8 bit/`, which are git-ignored; the later batches, `more 8 bit assets for games/`,
+`even more 8 bit assets/` and `newest game 8bit assets/`, are tracked in git); the sheets were assembled from single poses (idle, walk,
 climb from behind, jump, knocked down, celebrate, slip) with a pure-python PNG script in the session log. All the
 other art (suitcases x6, planes, cloud, Vespa, belt, passport, ticket, ring, bouquet) is hers too, drawn at game
 scale with nearest-neighbour from `api.image()`. The code-drawn figures remain as fallbacks.
@@ -426,7 +453,7 @@ scale with nearest-neighbour from `api.image()`. The code-drawn figures remain a
 The atrium walls click like the wings (24 Sept 2026): any frame on Kelly's or Anthony's wall goes to the wall's
 centred stop (`station` = the main frame's stop); from there a small frame steps you across (`closer`), and Step
 back returns to the wall (`back:`). The panel under the view has a FIXED height (the write-up column is
-`calc(font * 6.48 + 54px)` and scrolls if longer: four lines plus two of credit), because the 3D view is re-fitted
+`calc(font * 5.2 + 44px)`, since 25 Sept 2026, was 6.48 + 54, and scrolls if longer), because the 3D view is re-fitted
 to the stage and a panel that grows with its text made the picture stretch at stops with long write-ups. A
 ResizeObserver on `#stage` re-fits inside the draw loop as a safety net. Scripts are stamped with `Date.now()`
 by a small loader in both pages, so a browser never runs a stale copy after a change; the harness build swaps
@@ -441,15 +468,20 @@ with `Arcade.step`, no timers; headless Chrome's timers are unreliable). Harness
 four street lanes (Vespas, Fiat 500s), the Campo pavement with a gelato cart, four piazza lanes (tour groups,
 pigeons, a nonna), the steps, the door with the other half of the couple. Hop a column or a row per key press;
 `LANES` sets each row's kind, direction, speed and gap. Sprites: `bride-topdown.png`/`groom-topdown.png` (9 frames
-of 32x32: idle/walk facing N, S, E, W, then knocked down, assembled from the PixelLab rotations). Still code-drawn
-until the owner's files arrive: `fiat.png`, `tourist.png`, `nonna.png`, `pigeon.png`, `gelato.png`.
+of 32x32: idle/walk facing N, S, E, W, then knocked down, assembled from the PixelLab rotations). The traffic, the
+crowd and the door are the owner's files, loaded with `api.image()`: `vespa.png`, `fiat1.png`–`fiat4.png` and
+`tourist1.png`/`tourist2.png` (each car or group picks one), `nonna.png`, `pigeon.png`, `gelato.png` (the cart) and
+`duomo.png` (the door). Each has a code-drawn stand-in (`FIAT`, `TOURIST`, `NONNA`, `PIGEON`, `CART`, a red block
+for the Vespa, a plain doorway for the Duomo) that shows until the file loads, or if it is missing.
 
 `game/bouquet.js` — CATCH THE BOUQUET: night on the terrace; bouquets (+100), rings (+300) and champagne (+50)
 fall (consecutive bouquet catches multiply, x2 to x5; a drop resets), cake and pigeons cost a life; 45 seconds, quickening (`KINDS` sets each thing's odds, size and worth).
-Uses the side-view sheets. Code-drawn until files arrive: `champagne.png`, `cake.png`, `pigeon.png`.
+Uses the side-view sheets and the owner's `bouquet.png`, `ring.png`, `champagne.png`, `cake.png` and
+`pigeon-flying.png` (the falling pigeon), each with a code-drawn stand-in (`GLASS`, `CAKE`, `PIGEON`, and small
+drawings for the bouquet and ring) until the file loads, or if it is missing.
 
-`game/flight.js` — FLIGHT TO SIENA, a one-button flier: space/jump lifts the plane (`plane-plain.png`, the pilot's
-face clipped from the chosen sprite), gravity pulls it down; rings (+10; a miss or a clip is only a miss), storm clouds and
+`game/flight.js` — FLIGHT TO SIENA, a one-button flier: space/jump lifts the plane (`plane-plain.png`; no pilot is
+drawn in it, the chosen figure shows only on the select screen), gravity pulls it down; rings (+10; a miss or a clip is only a miss), storm clouds and
 birds come at you over rolling hills while the sky goes dawn to dusk; 30 rings (`GOAL`) and the villa arrives, you
 glide down and land. Scoring spreads by skill: consecutive rings multiply (x2..x5, a miss resets), bouquets
 (+150) and champagne (+75) drift by, 200 a life left at the landing, +500 for a flight with no hits. The owner's files: storm, swallow (a gull), villa, Golden Gate, Liberty, liner, whale,
@@ -477,16 +509,34 @@ All five games live in one cabinet (the arcade menu).
 
 ## 5. Known loose ends / ideas not yet done
 
-- `PROCESS.md` "Still to do": real artwork for the wing side paintings (currently colour
-  studies), all the placeholder pictures in the details room and atrium, the RSVP mechanism
-  (needs a service — a static page can't collect responses), real content for the info panel
-  texts marked "Placeholder", logistics beyond 24 April 2027.
-- The owner plans to put **interactive objects on the centre table** (the `detTable` stop and
-  camera tilt were built for this).
-- Offered, not done: petals drifting down in Wing I; pietra serena (grey stone) trim; compressing
-  the sculpture files further (they total ~14 MB); moving the details-room side-wall tour stops
-  to the room's middle; a level (non-tilted) end-wall close-up would need the table moved ~0.5 m.
-- Performance has only been checked on a desktop. Wing I carries ~300k triangles of roses.
+_Brought up to date 25 Sept 2026 (the repo at `3e55499`)._
+
+**Open, in whatever order the owner chooses**
+- **RSVP, steps 2 and 3.** Step 1 (the postcard and the curtain) is built, but a posted card is kept only in that
+  guest's own browser (`ka-rsvp`). Still to do: somewhere to store the replies (the guest store) and a personal
+  link for each guest. Needed from the owner first: the card's final questions and the columns of her guest list.
+  (The arcade's scoreboard already runs on Upstash Redis through Vercel, `api/scores.js`.)
+- **The phone edition** (`mobile/`, §4b) is behind the 3D build: Anthony's artifacts, the three hidden pets, the
+  RSVP postcard and the hourglass are not in it yet.
+- **Photographs for the atrium walls.** The four photo frames (three on Kelly's wall, Anthony's main frame; his
+  other frame is the arcade screen) are still empty (`blank: true` in `ATRIUM_PICTURES`), and their write-ups say
+  "Photographs to come." (`meta: 'Placeholder'`).
+- **The two oval frames** either side of the centrepiece on the details room's end wall are empty.
+- **The wall texts** (`CARDS`, the "Read the full details" cards) are placeholder text, most of it "To be
+  confirmed."; the anecdotes in the pictures' and sculptures' write-ups are drafts.
+- **Sound**: not started; the owner has not decided whether she wants it.
+
+**Offered, not done**
+- Pietra serena (grey stone) trim; compressing the sculpture files (about 26 MB in `assets/sculpture/`); moving the
+  details-room side-wall tour stops to the room's middle.
+
+**Declined by the owner** (do not offer these again)
+- Petals drifting down in Wing I, and a walk whose pace scales with distance (short hops gentle, long crossings
+  quicker) plus a very slight head-bob: both declined 25 Sept 2026; the walking stays as it is.
+
+**Housekeeping**
+- The 3D build's performance has only been checked on a desktop (phones get the mobile edition). Wing I carries
+  ~300k triangles of roses.
 - Dead code that could be removed: `sign()` / `signTexture()` (the old WING I/II wall labels).
 - Two small test servers may be left running (ports 8000 and 8011). Harmless; `pkill -f http.server` stops them.
 
@@ -534,7 +584,8 @@ hooks) to a copy of `gallery3d.js`. Query parameters:
   `P.wingFarZ` (−10); wings lie along ±x between z −5 and −10; the details room is z −10.145 to −19,
   x ±5. `H` = 3.95 (wall height / vault springing). Eye height 1.62.
 - Sections are marked with `// ---------------- name` banners: plan, scene, details room,
-  architectural detail, objects in the wings, real sculpture, camera moves, ui, clickable doorways, loop.
+  architectural detail, objects in the wings, real sculpture, camera moves, ui, clickable doorways, on the table
+  (the save-the-date; the pop-up invitation), the gift-shop stand, the postcard (RSVP) and the curtain, loop.
 - Botanical pieces use `InstancedMesh` via the small `instancer()` helper.
 - Match the file's existing comment style: short, explains *why*.
 
@@ -542,13 +593,12 @@ hooks) to a copy of `gallery3d.js`. Query parameters:
 
 The repo is on GitHub (private): github.com/kellywheelis/wedding-website, pushed over SSH (key in ~/.ssh/id_ed25519,
 added to the owner's account 23 Sept 2026). Push after each approved commit. Vercel deploys from it (kaweddinggallery.vercel.app), from the repo root with
-no build step: the root `vercel.json` rewrites `/`, `/gallery3d.js` and `/assets/*` to the files inside this folder,
-and the root `.vercelignore` keeps everything but the page, `gallery3d.js` and `assets/` off the live site. History so far:
-
-    146d569  prototyping
-    fd3b79b  Add empty txt file
-    1c55908  Rebuild the 3D gallery: true vaults, details room, galleries, navigation
-    (next)   the commit made together with this handoff
+no build step: the root `vercel.json` sends phones to `/mobile/` (§4b) and rewrites `/`, `/gallery3d.js`, `/assets/*`,
+`/game/*` and `/mobile/*` to the files inside this folder; `api/scores.js` is served as `/api/scores` (§4c). The root
+`.vercelignore` keeps the working material off the live site: the `.md` files, the `*.dc.html` prototypes and their
+scripts, `walls.json`, `tools/`, `uploads/` and `screenshots/`, and (since 25 Sept 2026) the three tracked folders of
+raw game-art exports at the repo root. The history is in `git log`; each commit message says
+what changed.
 
 Commit with `git add -A && git commit` from the repo root. The owner asks for commits explicitly;
 don't commit or push on your own initiative.

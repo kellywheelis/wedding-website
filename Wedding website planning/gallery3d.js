@@ -57,11 +57,11 @@ const STATIONS = [
 
   { id: 'w1', x: -1150 * U, z: -7.5, yaw: Math.PI / 2, room: 'w1', accent: '#93AEA2',
     eyebrow: 'Wing I · principal work', title: 'The Birth of Venus',
-    body: 'Botticelli gave a woman the entire centre of the canvas, in gold light, with flowers in the air and nobody hurrying her. That is the tone we want for the ceremony: golden, unhurried, and every head turned her way.',
+    body: 'Botticelli gave a woman the entire center of the canvas, in gold light, with flowers in the air and nobody hurrying her. That is the tone we want for the ceremony: golden, unhurried, and every head turned her way.',
     meta: 'Sandro Botticelli, c. 1485 · Uffizi, Florence' },
   { id: 'w1close', x: -CLOSE_X, z: -7.5, yaw: Math.PI / 2, eye: 1.95, room: 'w1', accent: '#93AEA2', tour: false,
     eyebrow: 'Wing I · principal work · up close', title: 'The Birth of Venus',
-    body: 'Botticelli gave a woman the entire centre of the canvas, in gold light, with flowers in the air and nobody hurrying her. That is the tone we want for the ceremony: golden, unhurried, and every head turned her way.',
+    body: 'Botticelli gave a woman the entire center of the canvas, in gold light, with flowers in the air and nobody hurrying her. That is the tone we want for the ceremony: golden, unhurried, and every head turned her way.',
     meta: 'Sandro Botticelli, c. 1485 · Uffizi, Florence' },
   { id: 'w1a', x: -6.8, z: -7.5, yaw: 0, room: 'w1', accent: '#93AEA2',
     eyebrow: 'Wing I · complementary work', title: 'The Procession',
@@ -127,7 +127,7 @@ const STATIONS = [
     meta: 'Sandro Botticelli, 1483 · The Story of Nastagio degli Onesti, IV' },
 
   { id: 'det', look: 'free', x: 0, z: -12.5, yaw: 0, room: 'det', accent: '#C9A667',
-    eyebrow: 'Exhibit details · the centrepiece', title: 'The only thing missing from this exhibit is you',
+    eyebrow: 'Exhibit details · the centerpiece', title: 'The only thing missing from this exhibit is you',
     body: 'Every other work in the building is already hung. This frame is kept for our guests: you are the last piece of the collection, and the one we built the rest around.',
     meta: 'Empty frame, gilt · on loan from the future' },
   // Walk on visits the room in this order: the centrepiece, the table, then sections 1 to 7
@@ -137,15 +137,15 @@ const STATIONS = [
   // the six sections on the walls: you stand before the group, raised to the height of its pictures (`eye`)
   { id: 'detMain', look: 'free', x: 2.2, z: -12.77, yaw: -Math.PI / 2, eye: 2.3, room: 'det', card: 'main', accent: '#C9A667',
     eyebrow: 'Exhibit details · 1', title: 'The Main Details',
-    body: 'Two garden parties, painted four and a half centuries before ours. Villa Cetinale, Sovicille, in the hills outside Siena, Saturday 24 April 2027, with the weekend around it. The maze is real. The cypress avenue is very real. Everything else is in the wall text.',
-    meta: 'Villa Cetinale · Sovicille (Siena), Italy · 24 April 2027' },
+    body: 'Two garden parties, painted four and a half centuries before ours. Villa Cetinale, Sovicille, in the hills outside Siena, Saturday, April 24, 2027, with the weekend around it. The maze is real. The cypress avenue is very real. Everything else is in the wall text.',
+    meta: 'Villa Cetinale · Sovicille (Siena), Italy · April 24, 2027' },
   { id: 'detSchedule', look: 'free', x: -2.4, z: -11.7225, yaw: Math.PI / 2, eye: 2.3, room: 'det', card: 'schedule', accent: '#C9A667',
     eyebrow: 'Exhibit details · 2', title: 'The Full Schedule',
     body: 'The month of April, as Ferrara painted it: Venus arriving in triumph, the Three Graces, and everyone in their best clothes, ready to dance. Four days in the same month, in the same spirit. Arrive on Thursday, leave on Monday, and dance in between.',
     meta: 'Francesco del Cossa, April (Triumph of Venus), c. 1470 · Palazzo Schifanoia, Ferrara' },
   { id: 'detTravel', look: 'free', x: -2.2, z: -15.9225, yaw: Math.PI / 2, eye: 2.3, room: 'det', card: 'travel', accent: '#C9A667',
     eyebrow: 'Exhibit details · 3 · travel & transportation', title: 'Pegasus, Centaurs & Chariots',
-    body: 'Or, as the modern world insists on calling them: planes, trains and automobiles. Pegasus is quickest, the centaurs run roughly to timetable, and a chariot needs somewhere to park. Those arriving by sea should ask Galatea about her dolphins.',
+    body: 'Or, as the modern world insists on calling them: planes, trains and automobiles. Pegasus is quickest, the centaurs run roughly on schedule, and a chariot needs somewhere to park. Those arriving by sea should ask Galatea about her dolphins.',
     meta: '' },
   { id: 'detStay', look: 'free', x: 2.4, z: -17.1925, yaw: -Math.PI / 2, eye: 2.3, room: 'det', card: 'stay', accent: '#C9A667',
     eyebrow: 'Exhibit details · 4', title: 'Accommodations',
@@ -167,7 +167,7 @@ const STATIONS = [
     meta: 'Postcards · the RSVP box · the registry note' },
   // reached only by clicking
   { id: 'detClose', x: 0, z: -16.75, yaw: 0, eye: 2.5, room: 'det', accent: '#C9A667', tour: false,
-    eyebrow: 'Exhibit details · the centrepiece · up close', title: 'The only thing missing from this exhibit is you',
+    eyebrow: 'Exhibit details · the centerpiece · up close', title: 'The only thing missing from this exhibit is you',
     body: 'Every other work in the building is already hung. This frame is kept for our guests: you are the last piece of the collection, and the one we built the rest around.',
     meta: 'Empty frame, gilt · on loan from the future' },
   // the save-the-date, picked up off the table: same standing spot, and Step back puts it down again
@@ -203,15 +203,15 @@ const NOTES = {
 const TBC = 'To be confirmed.';
 const CARDS = {
   main: { title: 'The Main Details', sections: [
-    { h: 'When', p: ['Saturday 24 April 2027. The weekend runs from 22 to 26 April. ' + TBC] },
+    { h: 'When', p: ['Saturday, April 24, 2027. The weekend runs from April 22 to 26. ' + TBC] },
     { h: 'Where', p: ['Villa Cetinale, Sovicille (SI), Tuscany, Italy. Full address and a map link: ' + TBC] },
     { h: 'The essentials', p: [TBC] } ] },
   schedule: { title: 'The Full Schedule', sections: [
-    { h: 'Thursday 22 April', p: ['Event, time, place and dress code. ' + TBC] },
-    { h: 'Friday 23 April', p: [TBC] },
-    { h: 'Saturday 24 April · the wedding', p: [TBC] },
-    { h: 'Sunday 25 April', p: [TBC] },
-    { h: 'Monday 26 April', p: [TBC] },
+    { h: 'Thursday, April 22', p: ['Event, time, place and dress code. ' + TBC] },
+    { h: 'Friday, April 23', p: [TBC] },
+    { h: 'Saturday, April 24 · the wedding', p: [TBC] },
+    { h: 'Sunday, April 25', p: [TBC] },
+    { h: 'Monday, April 26', p: [TBC] },
     { h: 'Dress codes', p: [TBC] } ] },
   travel: { title: 'Travel & Transportation', sections: [
     { h: 'By Pegasus (nearest airports)', p: [TBC] },
@@ -1057,10 +1057,10 @@ const DETAIL_PICTURES = [
   { frame: 'plain', wall: 'left', at: DET.zMid + 3.45, y: 1.64, w: 0.85, h: 0.607, sec: 'schedule', src: 'assets/det-dance-to-the-music-of-time.jpg', crop: [0.05, 0.09, 0.96, 0.89],       // trimmed inside its shaped edge
     note: ['A Dance to the Music of Time', 'Father Time plays the lyre and the Seasons dance to it. The small cupid in the corner is holding the hourglass, which makes him the one keeping us to schedule.', 'Follower of Laurent de La Hyre, 17th century'] },
   { frame: 'plain', wall: 'left', at: DET.zMid + 2.26, y: 1.64, w: 0.95, h: 0.396, sec: 'schedule', src: 'assets/det-banquet-of-cupid-and-psyche.jpg', crop: [0.115, 0.255, 0.995, 0.7],   // the banquet panel alone, without the ceiling round it
-    note: ['The Wedding Banquet of Cupid and Psyche', 'Every god on Olympus came to the wedding. It is painted on a ceiling as if it were a tapestry stretched overhead: Bacchus pours, the Graces see to the perfume, and the Hours scatter flowers. Even up there, dinner ran to a timetable.', 'Raphael and workshop, 1518 · Villa Farnesina, Rome'] },
+    note: ['The Wedding Banquet of Cupid and Psyche', 'Every god on Olympus came to the wedding. It is painted on a ceiling as if it were a tapestry stretched overhead: Bacchus pours, the Graces see to the perfume, and the Hours scatter flowers. Even up there, dinner ran on schedule.', 'Raphael and workshop, 1518 · Villa Farnesina, Rome'] },
   // LEFT WALL, far side. 3 Travel: "Pegasus, Centaurs & Chariots", with Galatea's dolphins in the middle
   { wall: 'left', at: DET.zMid - 0.03, y: 2.3, w: 0.8, h: 1.2, sec: 'travel', src: 'assets/det-pegasus-and-mercury.jpg',
-    note: ['Pegasus with Mercury', 'Mercury is the god of travellers, and Pegasus is the only flight that has never lost a bag. The rest of this painting, Mantegna’s Parnassus, hangs in Wing II.', 'Andrea Mantegna, 1497 (detail) · Musée du Louvre, Paris'] },
+    note: ['Pegasus with Mercury', 'Mercury is the god of travelers, and Pegasus is the only flight that has never lost a bag. The rest of this painting, Mantegna’s Parnassus, hangs in Wing II.', 'Andrea Mantegna, 1497 (detail) · Musée du Louvre, Paris'] },
   { wall: 'left', at: DET.zMid - 1.35, y: 2.3, w: 1.14, h: 1.5, sec: 'travel', src: 'assets/det-triumph-of-galatea.jpg',
     note: ['The Triumph of Galatea', 'Galatea travels by shell, drawn by two dolphins, steering one-handed and ignoring three cupids who are taking aim at her. The only guest who will not need an airport transfer.', 'Raphael, c. 1512 · Villa Farnesina, Rome'] },
   { wall: 'left', at: DET.zMid - 2.695, y: 2.3, w: 0.85, h: 1.2, sec: 'travel', src: 'assets/det-pallas-and-the-centaur.jpg',
@@ -2355,8 +2355,8 @@ const SCULPTURES = {
   detStatueL: { src: 'assets/sculpture/apollo-belvedere.glb', height: 2.0, level: true,   // the scan was captured off level: stood flat and centred by its base
     title: 'Apollo Belvedere, after Leochares (cast of the Vatican marble)',
     credit: '3D scan by Statens Museum for Kunst, Copenhagen · public domain · via Wikimedia Commons' },
-  detStatueR: { src: 'assets/sculpture/diana.glb', height: 1.9, nudge: [0.11, 0.13], title: 'Diana of Villa Bartholoni',
-    credit: '3D scan by Rama, Musées d’art et d’histoire de Genève · public domain · via Wikimedia Commons' },
+  detStatueR: { src: 'assets/sculpture/diana.glb', height: 1.9, nudge: [0.11, 0.13], title: 'Diana the Huntress (Diana of Villa Bartholoni), 1831',
+    credit: '3D scan by Rama · CC BY-SA 3.0 FR · via Wikimedia Commons' },
   w2statue: { src: 'assets/sculpture/venus-italica.glb', height: 1.55, title: 'Venus Italica, Antonio Canova',
     credit: '3D scan by Rama, Musées d’art et d’histoire de Genève · CC BY-SA 3.0 FR · via Wikimedia Commons' },
   w2bust: { src: 'assets/sculpture/costanza.glb', height: 0.7, turn: 0, title: 'Costanza Bonarelli, Gian Lorenzo Bernini, c. 1636–38 (cast of the Bargello marble)',
@@ -2397,7 +2397,7 @@ const SCULPTURES = {
     ['The Court of Gonzaga (Camera degli Sposi), Andrea Mantegna, 1465–74', 'Palazzo Ducale, Mantua · public domain'],
     ['Allegory of the Planets and Continents (sketch for a ceiling), Giovanni Battista Tiepolo, 1752', 'The Metropolitan Museum of Art, New York · public domain'],
     ['Pop-Up Invitation, Truong Hoai Vu', 'vuth.art · illustration and paper engineering, shown with the artist’s permission'],
-    ...Object.values(SCULPTURES).map((c) => [c.title, c.credit + ' · simplified for the web, shared under the same licence'])
+    ...Object.values(SCULPTURES).map((c) => [c.title, c.credit + ' · simplified for the web, shared under the same license'])
   ];
   rows.forEach(([what, who]) => {
     const p = document.createElement('p');
@@ -2416,16 +2416,68 @@ const SCULPTURES = {
 // write-ups for the sculpture in the details room: click a statue or bust and this fills the bottom panel
 const SCULPTURE_NOTES = {
   detStatueL: ['Apollo Belvedere', 'For three hundred years this was the most famous statue in the world. Apollo has just loosed an arrow and is watching it land; he already knows it has struck. Goethe wept in front of it, Napoleon carried it off to Paris, and every art student in Europe drew it. He stands by the curtain because he is the god of light, music and poetry, all three of which we have booked. He is also the only guest who has ever hit his mark on the first try, and we hope his aim is contagious.', 'Roman copy after Leochares, c. 120–140 · Vatican Museums (cast at Statens Museum for Kunst, Copenhagen)'],
-  detStatueR: ['Diana of Versailles', 'Apollo’s twin sister, reaching over her shoulder for an arrow, with a stag at her side. Goddess of the hunt, the moon and the countryside, which makes her the patron of everyone driving through the Tuscan hills after dark.', 'Roman copy after Leochares, 1st–2nd century · Musée du Louvre, Paris (cast: Musées d’art et d’histoire de Genève)'],
+  detStatueR: ['Diana the Huntress', 'Apollo’s twin sister, reaching over her shoulder for an arrow, with a stag at her side. Goddess of the hunt, the moon and the countryside, which makes her the patron of everyone driving through the Tuscan hills after dark.', 'Unknown sculptor, 1831, marble · Geneva · in the pose of the Diana of Versailles (Louvre)'],
   detEndL: ['Ariadne', 'Abandoned on an island by the man she had just saved, she lay down and slept. Bacchus found her there, married her, and set her wedding crown in the sky as a constellation. He is at the door as you came in, still wearing the ivy. Things turned out fine.', 'Roman, 2nd century · Musée Saint-Raymond, Toulouse'],
   detEntryR: ['Antinous as Dionysus', 'Ivy and grapes in his hair: the god of wine, as the emperor Hadrian had his beloved Antinous portrayed, at the door to welcome you in. A confession: neither of us drinks. A request: please do not let that stop you. Tuscany makes some of the best wine on earth, and somebody has to enjoy it on our behalf. His bride, Ariadne, is at the far end of the room.', 'Roman, c. 130–138 · Vatican Museums (cast at Statens Museum for Kunst, Copenhagen)'],
   detEntryL: ['Beatrice d’Este', 'Married at fifteen to the Duke of Milan, and by twenty running the most brilliant court in Italy: Leonardo worked for her husband, and the poets worked for her. A Renaissance bride, at the door to welcome you in.', 'After Gian Cristoforo Romano, c. 1490 · Musée du Louvre, Paris (cast at Statens Museum for Kunst, Copenhagen)'],
-  w1statue: ['Venus with the Apple', 'The apple is the prize from the Judgement of Paris: three goddesses, one young man, and a choice between power, wisdom and love. He chose love, and she has held on to the apple ever since. We are not saying he was right about everything. He was right about that.', 'Bertel Thorvaldsen, 1809 · Statens Museum for Kunst, Copenhagen'],
+  w1statue: ['Venus with the Apple', 'The apple is the prize from the Judgment of Paris: three goddesses, one young man, and a choice between power, wisdom and love. He chose love, and she has held on to the apple ever since. We are not saying he was right about everything. He was right about that.', 'Bertel Thorvaldsen, 1809 · Statens Museum for Kunst, Copenhagen'],
   w1small: ['Cupid Playing the Lyre', 'Between assignments, Cupid has put the bow down and picked up a lyre. He is in the ceremony wing for a reason: he has offered to play. There will be real musicians as well. He asked first.', 'Bertel Thorvaldsen · Statens Museum for Kunst, Copenhagen'],
   w2statue: ['Venus Italica', 'When Napoleon carried the Medici Venus off to Paris, Florence commissioned Canova to make a replacement. She was so loved that when the original came home, they kept both. She is stepping out of her bath and reaching for a towel, which is roughly the energy of getting ready for a party. This is the reception wing. Take your time.', 'Antonio Canova, 1804–12 · Galleria Palatina, Florence; this version Musée d’art et d’histoire, Geneva'],
   w2bust: ['Costanza Bonarelli', 'Bernini carved the woman he loved the way nobody had carved anyone before: hair undone, collar open, halfway through saying something. No commission, no flattery, no goddess. Just a man looking at a woman. The rest of their story is not a wedding story. The look is.', 'Gian Lorenzo Bernini, c. 1636–38 · Museo Nazionale del Bargello, Florence (cast at Statens Museum for Kunst)']
 };
-const marbleScan = new THREE.MeshStandardMaterial({ color: '#ece6d9', roughness: 0.55 });
+const marbleScan = new THREE.MeshStandardMaterial({ color: '#f1ebdf', roughness: 0.5, vertexColors: true });
+// the scans' simplification (tools/convert_scan.py) leaves some tiny triangles wound inside out; the renderer skips
+// them, and they show as dark pinholes. Any triangle facing against its own vertices' normals is turned round
+function fixWinding(g) {
+  const idx = g.index, pos = g.attributes.position, nor = g.attributes.normal; if (!idx || !nor) return;
+  const a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3(), n = new THREE.Vector3(), m = new THREE.Vector3(), s = new THREE.Vector3();
+  for (let t = 0; t < idx.count; t += 3) {
+    const i = idx.getX(t), j = idx.getX(t + 1), k = idx.getX(t + 2);
+    a.fromBufferAttribute(pos, i); b.fromBufferAttribute(pos, j); c.fromBufferAttribute(pos, k);
+    n.subVectors(c, b).cross(m.subVectors(a, b));
+    s.fromBufferAttribute(nor, i).add(m.fromBufferAttribute(nor, j)).add(m.fromBufferAttribute(nor, k));
+    if (n.dot(s) < 0) { idx.setX(t + 1, k); idx.setX(t + 2, j); }
+  }
+  idx.needsUpdate = true;
+}
+// marble in vertex colors: the hollows (folds, curls, eyes) go darker and warmer, as old marble does in a museum
+// photo, so the carving reads; and the stone is clouded a little, with a few faint gray threads
+function marbleShade(g) {
+  const idx = g.index, pos = g.attributes.position, nor = g.attributes.normal; if (!idx || !nor) return;
+  const nv = pos.count, P = pos.array, N = nor.array, I = idx.array, cav = new Float32Array(nv), cnt = new Float32Array(nv);
+  // how far a vertex's neighbors rise above its surface: positive in a hollow, negative on a ridge
+  const edge = (i, j) => {
+    const dx = P[3 * j] - P[3 * i], dy = P[3 * j + 1] - P[3 * i + 1], dz = P[3 * j + 2] - P[3 * i + 2], L = Math.hypot(dx, dy, dz) || 1;
+    cav[i] += (N[3 * i] * dx + N[3 * i + 1] * dy + N[3 * i + 2] * dz) / L; cnt[i]++;
+  };
+  for (let t = 0; t < I.length; t += 3) { const a = I[t], b = I[t + 1], c = I[t + 2]; edge(a, b); edge(a, c); edge(b, a); edge(b, c); edge(c, a); edge(c, b); }
+  for (let i = 0; i < nv; i++) cav[i] = cnt[i] ? cav[i] / cnt[i] : 0;
+  for (let r = 0; r < 3; r++) {                                            // spread a little, so it reads as shadowed hollows rather than grit
+    const acc = new Float32Array(nv), k = new Float32Array(nv);
+    for (let t = 0; t < I.length; t += 3) { const a = I[t], b = I[t + 1], c = I[t + 2];
+      acc[a] += cav[b] + cav[c]; acc[b] += cav[a] + cav[c]; acc[c] += cav[a] + cav[b]; k[a] += 2; k[b] += 2; k[c] += 2; }
+    for (let i = 0; i < nv; i++) if (k[i]) cav[i] = 0.4 * cav[i] + 0.6 * acc[i] / k[i];
+  }
+  g.computeBoundingBox(); const bb = g.boundingBox, H = (bb.max.y - bb.min.y) || 1;
+  const hash = (x, y, z) => { const h = Math.sin(x * 127.1 + y * 311.7 + z * 74.7) * 43758.5453; return h - Math.floor(h); };
+  const vnoise = (x, y, z) => {
+    const xi = Math.floor(x), yi = Math.floor(y), zi = Math.floor(z), xf = x - xi, yf = y - yi, zf = z - zi;
+    const u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf), w = zf * zf * (3 - 2 * zf); let r = 0;
+    for (let dx = 0; dx < 2; dx++) for (let dy = 0; dy < 2; dy++) for (let dz = 0; dz < 2; dz++)
+      r += hash(xi + dx, yi + dy, zi + dz) * (dx ? u : 1 - u) * (dy ? v : 1 - v) * (dz ? w : 1 - w);
+    return r;
+  };
+  const col = new Float32Array(nv * 3);
+  for (let i = 0; i < nv; i++) {
+    const x = (P[3 * i] - bb.min.x) / H, y = (P[3 * i + 1] - bb.min.y) / H, z = (P[3 * i + 2] - bb.min.z) / H;
+    const occl = Math.min(1, Math.max(0, cav[i] * 16));                   // 0 on open surfaces, 1 deep in a fold
+    const cloud = 0.97 + 0.05 * vnoise(x * 5, y * 5, z * 5) + 0.02 * vnoise(x * 17, y * 17, z * 17);
+    const wv = x * 3 + y * 7 + z * 2 + 2.2 * vnoise(x * 3, y * 3, z * 3) + 0.8 * vnoise(x * 9, y * 9, z * 9);
+    const sh = cloud * (1 - 0.09 * Math.pow(1 - Math.abs(Math.sin(wv * 3.1)), 14));
+    col[3 * i] = sh * (1 - 0.42 * occl); col[3 * i + 1] = sh * (1 - 0.47 * occl); col[3 * i + 2] = sh * (1 - 0.55 * occl);
+  }
+  g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+}
 // stand a scan flat: fit a plane through its lowest vertices (the underside of its base) and rotate the whole
 // figure so that plane lies level; repeated with a thinner slice once it is roughly level, to refine
 function levelBase(model) {
@@ -2480,7 +2532,7 @@ function levelBase(model) {
         model.scale.setScalar(k);
         const [nx, nz] = cfg.nudge || [0, 0];                                    // metres, to centre the statue's own base on its plinth
         model.position.set(-c.x * k + nx, spot.top - box.min.y * k, -c.z * k + nz);   // stood on the spot, centred
-        if (!cfg.keep) model.traverse((o) => { if (o.isMesh) o.material = marbleScan; });
+        if (!cfg.keep) model.traverse((o) => { if (o.isMesh) { fixWinding(o.geometry); marbleShade(o.geometry); o.material = marbleScan; } });
         // the scans run to 100,000 triangles each, and the cursor's ray is tested against the scene every frame
         // of a walk; testing that many triangles drops frames. So the scan itself is left out of the ray test and
         // a plain invisible box round it is what the cursor and clicks meet instead

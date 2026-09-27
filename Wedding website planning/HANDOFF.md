@@ -545,6 +545,12 @@ detail, so she gains least; re-converting her at more triangles would help.
   hair's own curve, `reach`, or they sank into it). A Darth Vader helmet was made and then removed at her word. The
   Hawaiian shirt was redrawn (big hibiscus and leaves all over, an open camp collar, buttons: `hibiscus`, `leaf`) and the
   lemon shirt too (an Amalfi print of lemons with leaves in even staggered rows, `lemon`; the V-neck drawn over it).
+  After that commit (a65ada6), the painter's smock was redrawn: a gathered yoke, a big soft burgundy artist's bow, a
+  stitched patch pocket with two brushes, irregular paint splatters with drips and spray, and a brush wiped across it.
+  The facehugger's fingers are now measured against the actual hair and head under them (`buildFigure` passes them to
+  `hat.build(p, under)`; rays from outside find the surface at each point of each finger, which is lifted 0.3 mm clear
+  where it would sink in): a fringe had hidden the top pair where they leave the body. Its body was made a little bigger
+  (1.14 x 1.16, raised 0.3 mm) so the tips of printed eyes and lashes no longer show beside it.
 - Server: `api/guest.js` sends `figs` with sign-in and takes `{ action: 'figs', figs }` (the household's whole shelf);
   store `figs:<id>`, and `figlog` keeps every save for the owner's record. The private page shows each household's
   figures with pictures ("The LEGO shelf", `paintLego` in rsvp-admin.html).

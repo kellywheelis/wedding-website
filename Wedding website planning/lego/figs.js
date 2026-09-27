@@ -443,18 +443,23 @@ export const HATS = [
     const blk = plastic('#1b1b1b', { roughness: 0.5 }), dome = mesh(new THREE.SphereGeometry(5.95, 32, 16, 0, PI * 2, 0, PI / 2), blk); dome.scale.y = 0.95; dome.position.y = 36.9;
     const ears = [-1, 1].map((sd) => at(mesh(new THREE.CylinderGeometry(3.0, 3.0, 0.75, 40), blk), sd * 4.5, 42.0, -0.6, PI / 2));
     return [dome, lathe([[6.0, 36.5], [6.12, 36.7], [6.12, 37.5], [5.98, 37.7]], '#1b1b1b', { roughness: 0.5 }), ...ears]; } },
-  { id: 'facehugger', name: 'Facehugger', build: (p = {}) => {          // clamped over the face: a pale body with two air sacs, eight long knuckled fingers
+  { id: 'facehugger', name: 'Facehugger', build: (p = {}, under = []) => {          // clamped over the face: a pale body with two air sacs, eight long knuckled fingers
     const skin = '#D6C49C', out = [], hair = p.hair || '';               // gripping round the head (outside whatever hair is under them), its tail round the neck
     const [R, Rh, Th] = hair === 'bald' ? [5.25] : hair === 'buzz' ? [5.6, 5.3, 40.4] : /curl/.test(hair) ? [6.7, 6.6, 42.0] : [6.1, 5.95, 41.4];   // the fingers' reach, and
     const reach = (y) => (Rh && y > 36.4 ? R - Rh + Rh * Math.sqrt(Math.max(0.2, 1 - ((y - 36.4) / (Th - 36.4)) ** 2)) + 0.3 * smooth((y - 36.4) / 1.5) : R);   // over the
-    // crown the hair's own curve followed, clear of it (under a steady reach the top pair sank into the hair)
-    const body = sphereAt(3.1, 0, 33.4, 4.3, skin); body.scale.set(1, 1.08, 0.72); out.push(body);
-    [-1, 1].forEach((sd) => { const sac = sphereAt(1.0, sd * 0.85, 35.2, 5.5, skin); sac.scale.set(0.8, 1.75, 0.45); out.push(sac); });
+    // crown the hair's own curve followed; then each finger is measured against the hair and head it lies on (`under`), point by point, and lifted just
+    // clear wherever it would sink in (a fringe hid the top pair where they leave the body, the owner saw)
+    const ray = new THREE.Raycaster(), clear = (v) => { const a = Math.atan2(v.x, v.z), r = Math.hypot(v.x, v.z);
+      ray.set(V3(Math.sin(a) * 15, v.y, Math.cos(a) * 15), V3(-Math.sin(a), 0, -Math.cos(a))); const h = ray.intersectObjects(under, false)[0], sr = h ? 15 - h.distance + 0.3 : 0;
+      return sr > r ? V3(Math.sin(a) * sr, v.y, Math.cos(a) * sr) : v; };
+    const body = sphereAt(3.1, 0, 33.7, 4.3, skin); body.scale.set(1.14, 1.16, 0.72); out.push(body);   // big enough to cover the eyes and lashes
+    [-1, 1].forEach((sd) => { const sac = sphereAt(1.0, sd * 0.85, 35.5, 5.5, skin); sac.scale.set(0.8, 1.75, 0.45); out.push(sac); });
     [-1, 1].forEach((sd) => [[36.3, 2.4], [35.0, 0.9], [33.4, -0.8], [31.8, -2.0]].forEach(([y0, rise]) => {   // fanned: the top pair up over the crown, the lowest down
-      const wy = 3.1 * Math.sqrt(Math.max(0, 1 - ((y0 - 33.4) / 3.35) ** 2)), a0 = Math.asin(Math.min(0.95, wy * 0.9 / 5.3));   // toward the jaw; bent at two knuckles
+      const wy = 3.53 * Math.sqrt(Math.max(0, 1 - ((y0 - 33.7) / 3.6) ** 2)), a0 = Math.asin(Math.min(0.95, wy * 0.9 / 5.3));   // toward the jaw; bent at two knuckles
       const pts = [[a0, 5.3, 0], [0.95, R + 0.2, 0.35], [1.35, R, 0.6], [1.75, R + 0.2, 0.8], [2.2, R - 0.15, 0.95], [2.5, R - 1.1, 1.0]].map(([a, r, t], i) => { a = Math.max(a, a0);
         const y = y0 + rise * t, rr = Rh ? (i ? reach(y) + r - R : r) : Math.min(r, y > 36 ? r * Math.sqrt(Math.max(0.35, 1 - ((y - 36) / 6) ** 2)) : r); return V3(sd * Math.sin(a) * rr, y, Math.cos(a) * rr); });
-      out.push(strand(skin, pts, 0.38, 0.2, 1)); [1, 3].forEach((i) => out.push(sphereAt(0.46, pts[i].x, pts[i].y, pts[i].z, skin))); }));
+      const c = new THREE.CatmullRomCurve3(pts), path = [pts[0], ...Array.from({ length: 18 }, (_, k) => clear(c.getPoint((k + 1) / 18)))];
+      out.push(strand(skin, path, 0.38, 0.2, 1)); [1, 3].forEach((i) => { const kn = clear(pts[i]); out.push(sphereAt(0.46, kn.x, kn.y, kn.z, skin)); }); }));   // knuckles
     out.push(strand(skin, [V3(0, 30.4, 4.6), V3(1.0, 29.3, 4.5), V3(2.7, 28.75, 3.2), V3(3.6, 28.7, 0.8), V3(3.3, 28.7, -1.8), V3(1.4, 28.7, -3.4), V3(-1.2, 28.75, -3.4), V3(-3.0, 28.8, -2.0), V3(-3.6, 28.9, 0.5)], 0.62, 0.3, 1));
     return out; } },
 ];
@@ -529,8 +534,27 @@ export const TORSOS = [
     vneck(x, skin, 44, 26); } },
   { id: 'chef', name: 'Chef jacket', col: C.white, arms: C.white, draw(x) { lines(x, '#d8d4c8', 3, [[150, 0], [150, 205]]); [[110, 60], [110, 110], [110, 160], [190, 60], [190, 110], [190, 160]].forEach(([bx, by]) => { x.fillStyle = '#555'; x.beginPath(); x.arc(bx, by, 5, 0, 7); x.fill(); });
     x.fillStyle = C.red; x.fillRect(96, 0, 64, 16); } },
-  { id: 'smock', name: "Painter's smock", col: '#E9E1CF', arms: '#E9E1CF', draw(x, skin) { neck(x, skin, 22, 32); [[C.red, 60, 90], [C.blue, 180, 70], [C.yellow, 140, 140], [C.green, 80, 170], [C.orange, 200, 160], [C.darkPink, 110, 60]].forEach(([c, px, py]) => { x.fillStyle = c; x.beginPath(); x.arc(px, py, 9, 0, 7); x.fill(); x.beginPath(); x.arc(px + 9, py + 7, 4, 0, 7); x.fill(); });
-    x.fillStyle = C.darkRed; x.beginPath(); x.moveTo(104, 20); x.lineTo(152, 20); x.lineTo(128, 44); x.closePath(); x.fill(); } },
+  { id: 'smock', name: "Painter's smock", col: '#E9E1CF', arms: '#E9E1CF', draw(x, skin) {   // a loose linen smock: gathered at a yoke, a patch pocket of brushes,
+    let sd = 7; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647;                   // paint splattered and dripped and a brush wiped across it,
+    lines(x, '#CDBF9F', 2.5, [[30, 58], [80, 66], [128, 68], [176, 66], [226, 58]]);                 // a big soft artist's bow at the collar
+    for (let k = 0; k < 13; k++) { const gx = 44 + k * 14; lines(x, '#D6CAAD', 1.5, [[gx, 70], [gx + (k % 2 ? 2 : -2), 92]]); }
+    x.strokeStyle = '#B9AB8A'; x.lineWidth = 2; x.setLineDash([5, 4]); x.strokeRect(146, 118, 58, 52); x.setLineDash([]); lines(x, '#CDBF9F', 2.5, [[146, 118], [204, 118]]);
+    const splat = (cx, cy, r, col, drip) => { x.fillStyle = col; x.beginPath(); for (let k = 0; k <= 14; k++) { const a = k / 14 * 2 * PI, rr = r * (0.72 + 0.5 * rnd()); x[k ? 'lineTo' : 'moveTo'](cx + Math.cos(a) * rr, cy + Math.sin(a) * rr); } x.fill();
+      for (let k = 0; k < 7; k++) { const a = rnd() * 2 * PI, d = r * (1.3 + rnd() * 1.1); x.beginPath(); x.arc(cx + Math.cos(a) * d, cy + Math.sin(a) * d, r * (0.08 + rnd() * 0.18), 0, 7); x.fill(); }
+      if (drip) { x.fillRect(cx - r * 0.18, cy, r * 0.36, drip); x.beginPath(); x.arc(cx, cy + drip, r * 0.27, 0, 7); x.fill(); } };
+    splat(62, 104, 11, C.red, 22); splat(212, 96, 8, C.blue); splat(118, 150, 10, '#F2B705', 16); splat(84, 178, 8, C.green); splat(200, 180, 9, C.orange, 12);
+    splat(170, 138, 6, C.darkPink); splat(40, 146, 7, C.blue); splat(226, 124, 6, '#F2B705'); splat(108, 96, 5, C.green);
+    [[C.red, 0], [C.blue, 3.5], ['#F2B705', 7]].forEach(([c, o]) => { x.strokeStyle = c; x.lineCap = 'round'; for (let k = 0; k < 3; k++) { x.lineWidth = 1.2 + rnd() * 1.4; x.beginPath();   // a brush
+      x.moveTo(34 + rnd() * 4, 194 - o - k * 1.2); x.lineTo(62 + rnd() * 8, 189 - o - k * 1.2); x.lineTo(84 + o * 2 + rnd() * 14, 185 - o - k * 1.1); x.stroke(); } });   // wiped clean on it
+    [[160, '#9a2a1f', C.blue], [178, '#3b2412', C.red]].forEach(([bx, hc, tip], i) => { x.save(); x.translate(bx, 124); x.rotate(i ? 0.18 : -0.12);   // brushes in the pocket
+      x.fillStyle = hc; x.fillRect(-3, -40, 6, 38); x.fillStyle = '#A7AAAD'; x.fillRect(-3.5, -50, 7, 11); x.fillStyle = tip; x.beginPath(); x.moveTo(-3.5, -50); x.quadraticCurveTo(0, -64, 3.5, -50); x.fill(); x.restore(); });
+    x.fillStyle = '#E9E1CF'; x.fillRect(146, 119, 58, 8);                                           // the pocket's hem over them
+    neck(x, skin, 22, 32);
+    const bow = '#7A1A3C', bowD = '#5A1029'; x.fillStyle = bow;                                       // the bow: two loops, two tails, a knot
+    [-1, 1].forEach((s) => { x.beginPath(); x.moveTo(128, 34); x.quadraticCurveTo(128 + s * 30, 10, 128 + s * 44, 24); x.quadraticCurveTo(128 + s * 44, 44, 128, 38); x.fill();
+      x.beginPath(); x.moveTo(128 + s * 3, 38); x.quadraticCurveTo(128 + s * 16, 60, 128 + s * 22, 78); x.lineTo(128 + s * 10, 74); x.quadraticCurveTo(128 + s * 6, 56, 128, 40); x.fill(); });
+    lines(x, bowD, 2, [[140, 28], [160, 30]]); lines(x, bowD, 2, [[116, 28], [96, 30]]);
+    x.fillStyle = bowD; x.beginPath(); x.ellipse(128, 36, 7, 6, 0, 0, 7); x.fill(); } },
   { id: 'hoodie', name: 'Hoodie', col: C.gray, arms: C.gray, draw(x, skin) { neck(x, skin, 26, 36); lines(x, C.white, 4, [[112, 40], [110, 90]]); lines(x, C.white, 4, [[144, 40], [146, 90]]); x.strokeStyle = '#7f8487'; x.lineWidth = 4; x.strokeRect(70, 130, 116, 50); } },
   { id: 'denim', name: 'Denim jacket', col: C.jeans, arms: C.jeans, draw(x) { vneck(x, C.white, 90, 36); lines(x, '#3f5b86', 4, [[128, 90], [128, 205]]); [[60, 70], [196, 70]].forEach(([px, py]) => { x.strokeStyle = '#3f5b86'; x.lineWidth = 4; x.strokeRect(px - 26, py - 16, 52, 30); }); [110, 150, 190].forEach((yy) => { x.fillStyle = '#c9a667'; x.beginPath(); x.arc(118, yy, 4, 0, 7); x.fill(); }); } },
   { id: 'sweater', name: 'Heart sweater', col: '#C95D6E', arms: '#C95D6E', draw(x, skin) { neck(x, skin, 20, 30); const hx = 128, hy = 110; x.fillStyle = C.white; x.beginPath(); x.moveTo(hx, hy + 36); x.bezierCurveTo(hx - 60, hy - 4, hx - 30, hy - 50, hx, hy - 18); x.bezierCurveTo(hx + 30, hy - 50, hx + 60, hy - 4, hx, hy + 36); x.fill();
@@ -907,15 +931,17 @@ export function buildFigure(fig) {
   const fh = byId(FACIAL_HAIR, p.fh), gl = byId(GLASSES, p.gl);
   const g = new THREE.Group();
   const hat = byId(HATS, p.hat);
-  g.add(legsMesh(legs, skin), torsoMesh(torso, skin), headMesh(face, skin, hc, fh, gl));
+  const head = headMesh(face, skin, hc, fh, gl), under = [head];       // under: the head and hair a hat sits on (the facehugger's fingers keep outside them)
+  g.add(legsMesh(legs, skin), torsoMesh(torso, skin), head);
   if (fh.geo) g.add(fh.geo(hc));
   const armCol = torso.arms || skin;
   const right = armMesh(-1, armCol, skin), left = armMesh(1, armCol, skin);
   g.add(right, left);
   CUT = hat.cut ?? null;                                             // under a hat, the hair starts at its rim (capMesh)
-  if (!hat.hidesHair) hair.build(hc, skin).forEach((m) => { if (CUT == null || m.userData.cap || m.position.y < CUT - 0.8) g.add(m); });   // a bun above the rim is left off
+  if (!hat.hidesHair) hair.build(hc, skin).forEach((m) => { if (CUT == null || m.userData.cap || m.position.y < CUT - 0.8) { g.add(m); under.push(m); } });   // a bun above the rim is left off
   CUT = null;
-  hat.build(p).forEach((m) => g.add(m));
+  g.updateMatrixWorld(true);
+  hat.build(p, under).forEach((m) => g.add(m));
   const pet = byId(PETS, p.pet), pm = pet.build(), held = acc.build();
   if (held.length) { const a = new THREE.Group(); held.forEach((m) => a.add(m));
     if (acc.shoulder) { a.position.set(-7.4, 27.6, 0.4); a.scale.setScalar(1.35); a.rotation.y = 0.35; }   // a parrot sits on the shoulder

@@ -62,6 +62,8 @@ const PHOTO_NOTES = {
       meta: 'Photograph · junior year of high school' },
   },
   anthony: {
+    'portrait-amsterdam': { title: 'Moments Before', body: 'Amsterdam, about a minute before the proposal. Kelly thought she was taking a nice picture of her boyfriend. He knew what was coming; she didn’t. The curators ask that you look closely at that smile and consider everything he was holding in.',
+      meta: 'Photograph by Kelly · Amsterdam · moments before the question' },
     'amsterdam-tea': { title: 'After the Question', body: 'Anthony on the stoop of their Amsterdam hotel suite, a few hours after pulling off his surprise proposal. His nerves had earned this: tea, a smoke, and the quiet satisfaction of a plan that worked.',
       meta: 'Photograph · Amsterdam · the day of the proposal' },
     'peaky-blinders': { title: 'By Order of the Peaky Blinders', body: 'Anthony as a Peaky Blinder, on one of the rare occasions he has dressed up for Halloween. Kelly was thrilled to help, and would like it noted that she is available again next year.',
@@ -576,6 +578,242 @@ function ornateFrame(w, h, style = 'gilt', fwSet) {
   return g;
 }
 
+
+// ---- frames for the couple's photograph walls, unlike the gallery's (candidates shown to the owner, 27 Sept 2026).
+// Each is built round a picture w x h (an oval if `oval`), fw the width of its border, facing +z, and returns a group
+// with userData.pictureZ as the gallery's frames do.
+//   'filigree'      openwork gilt lace: scrolls with the wall showing through, a solid gilt rim at the picture
+//   'petal'         a Florentine tole frame: a gilt band ringed with gilt leaves, small burgundy flowers at the corners
+//   'mirror'        a Venetian mirror frame: bevelled glass panels etched with flowers, gilt beads, glass rosettes
+//   'cassetta'      an Italian box frame: a flat burgundy frieze scratched through to gold, gilt rails, corner rosettes
+//   'tortoise'      tortoiseshell, polished, with a gilt slip
+//   'blackfiligree' ebonised, with gilt filigree over the corners
+//   for the two main portraits (ovals), grander, in the same family:
+//   'grandlace'     the lace, wider, between gilt rims, with a tall lace crest above and a smaller one below
+//   'laurel'        a gilt band wreathed in olive branches that rise from the foot and meet at the top (no bow: the owner, 27 Sept 2026)
+//   'bowtop'        a rounded gilt moulding with a beaded edge and a gilt ribbon bow above, its tails trailing
+//   'regalcassetta' the burgundy cassetta, oval, between gilt rims, with a lace crest
+const PHOTO_FRAME_STYLES = ['filigree', 'petal', 'mirror', 'cassetta', 'tortoise', 'blackfiligree', 'grandlace', 'laurel', 'bowtop', 'regalcassetta'];
+function ringGeo(w, h, fw, oval, inset = 0, width = null) {        // a flat band round the picture (from inset to inset + width outside it), uv in the frame's own square
+  const a0 = w / 2 + inset, b0 = h / 2 + inset, a1 = a0 + (width ?? fw), b1 = b0 + (width ?? fw), W = w + 2 * fw, H = h + 2 * fw;
+  const outer = new THREE.Shape(), hole = new THREE.Path();
+  if (oval) { outer.absellipse(0, 0, a1, b1, 0, Math.PI * 2, false, 0); hole.absellipse(0, 0, a0, b0, 0, Math.PI * 2, true, 0); }
+  else { outer.moveTo(-a1, -b1); outer.lineTo(a1, -b1); outer.lineTo(a1, b1); outer.lineTo(-a1, b1); outer.closePath(); hole.moveTo(-a0, -b0); hole.lineTo(-a0, b0); hole.lineTo(a0, b0); hole.lineTo(a0, -b0); hole.closePath(); }
+  outer.holes.push(hole);
+  const g = new THREE.ShapeGeometry(outer, 64), pos = g.attributes.position, uv = [];
+  for (let k = 0; k < pos.count; k++) uv.push((pos.getX(k) + W / 2) / W, (pos.getY(k) + H / 2) / H);
+  g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  return g;
+}
+function bandCanvas(w, h, fw, draw, px = 1400) {                    // a canvas over the frame's whole square, px to the metre; draw(x, S, W, H) in canvas units
+  const W = w + 2 * fw, H = h + 2 * fw, c = document.createElement('canvas');
+  c.width = Math.max(64, Math.round(W * px)); c.height = Math.max(64, Math.round(H * px));
+  const x = c.getContext('2d'); draw(x, px, W, H, c); return c;
+}
+// points along the middle of the band, evenly spaced, each with its direction along the band (ang) and outward (out)
+function bandPoints(w, h, fw, oval, step) {
+  const pts = [];
+  if (oval) {
+    const a = w / 2 + fw / 2, b = h / 2 + fw / 2, N = 720, arc = [0];
+    for (let i = 1; i <= N; i++) { const t0 = (i - 1) / N * Math.PI * 2, t1 = i / N * Math.PI * 2; arc.push(arc[i - 1] + Math.hypot(a * (Math.cos(t1) - Math.cos(t0)), b * (Math.sin(t1) - Math.sin(t0)))); }
+    const L = arc[N], n = Math.max(8, Math.round(L / step));
+    for (let k = 0; k < n; k++) { const target = (k / n) * L; let i = arc.findIndex((v) => v >= target); i = Math.max(1, i); const t = (i / N) * Math.PI * 2;
+      const x = a * Math.cos(t), y = b * Math.sin(t), tx = -a * Math.sin(t), ty = b * Math.cos(t); pts.push({ x, y, ang: Math.atan2(ty, tx), out: Math.atan2(y / (b * b), x / (a * a)) }); }
+  } else {
+    const a = w / 2 + fw / 2, b = h / 2 + fw / 2;
+    [[-a, -b, a, -b], [a, -b, a, b], [a, b, -a, b], [-a, b, -a, -b]].forEach(([x0, y0, x1, y1]) => {
+      const len = Math.hypot(x1 - x0, y1 - y0), n = Math.max(1, Math.round((len - fw) / step)), ang = Math.atan2(y1 - y0, x1 - x0);
+      for (let k = 1; k < n; k++) { const t = (fw / 2 + (k / n) * (len - fw)) / len; pts.push({ x: x0 + (x1 - x0) * t, y: y0 + (y1 - y0) * t, ang, out: ang - Math.PI / 2 }); }
+    });
+  }
+  return pts;
+}
+const cornersOf = (w, h, fw) => [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([sx, sy]) => ({ x: sx * (w / 2 + fw / 2), y: sy * (h / 2 + fw / 2), out: Math.atan2(sy, sx) }));
+const rim = (w, h, fw, oval, inset, width, z, mat) => { const m = new THREE.Mesh(ringGeo(w, h, fw, oval, inset, width), mat); m.position.z = z; return m; };
+// gilt filigree: scrolls drawn as lace (opaque gold on clear), with a height map from the same drawing for relief
+function filigreeMaterial(c) {
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
+  const b = document.createElement('canvas'); b.width = c.width; b.height = c.height; const bx = b.getContext('2d'); bx.fillStyle = '#000'; bx.fillRect(0, 0, b.width, b.height); bx.filter = 'blur(1.5px)'; bx.drawImage(c, 0, 0);
+  const bt = new THREE.CanvasTexture(b);
+  return new THREE.MeshStandardMaterial({ map: t, bumpMap: bt, bumpScale: 3, alphaTest: 0.5, transparent: false, color: '#fff2cc', roughness: 0.34, metalness: 0.45, side: THREE.DoubleSide });
+}
+function drawScroll(x, u) {                                           // one lace motif at the origin: C-scrolls back to back, a leaf outward, a bead
+  x.beginPath(); x.arc(-0.2 * u, 0.02 * u, 0.16 * u, 0.25 * Math.PI, 1.85 * Math.PI); x.stroke();
+  x.beginPath(); x.arc(0.2 * u, 0.02 * u, 0.16 * u, -0.85 * Math.PI, 0.75 * Math.PI); x.stroke();
+  x.beginPath(); x.arc(-0.2 * u, 0.02 * u, 0.06 * u, 0, Math.PI * 2); x.stroke(); x.beginPath(); x.arc(0.2 * u, 0.02 * u, 0.06 * u, 0, Math.PI * 2); x.stroke();
+  x.beginPath(); x.moveTo(0, -0.12 * u); x.quadraticCurveTo(0.1 * u, -0.28 * u, 0, -0.42 * u); x.quadraticCurveTo(-0.1 * u, -0.28 * u, 0, -0.12 * u); x.fill();
+  x.beginPath(); x.arc(0, 0.2 * u, 0.05 * u, 0, Math.PI * 2); x.fill();
+}
+function drawFan(x, u) {                                              // a larger corner cluster
+  for (let k = -2; k <= 2; k++) { x.save(); x.rotate(k * 0.42); x.beginPath(); x.moveTo(0, 0); x.quadraticCurveTo(0.14 * u, -0.34 * u, 0, -0.62 * u); x.quadraticCurveTo(-0.14 * u, -0.34 * u, 0, 0); x.stroke(); x.restore(); }
+  x.beginPath(); x.arc(0, 0, 0.13 * u, 0, Math.PI * 2); x.fill();
+  [-1, 1].forEach((s) => { x.beginPath(); x.arc(s * 0.3 * u, 0.12 * u, 0.14 * u, 0, Math.PI * 2); x.stroke(); });
+}
+function lace(w, h, fw, oval, S, x, withCorners = true) {          // the whole band of lace, into a canvas of the frame's square
+  const W = w + 2 * fw, H = h + 2 * fw, cx = (X) => (X + W / 2) * S, cy = (Y) => (H / 2 - Y) * S, u = fw * S;
+  x.strokeStyle = x.fillStyle = '#E6C679'; x.lineCap = 'round'; x.lineWidth = Math.max(2, 0.07 * u);
+  const edge = (off) => { x.beginPath(); if (oval) x.ellipse(cx(0), cy(0), (w / 2 + off) * S, (h / 2 + off) * S, 0, 0, Math.PI * 2); else x.rect(cx(-w / 2 - off), cy(h / 2 + off), (w + 2 * off) * S, (h + 2 * off) * S); x.stroke(); };
+  x.lineWidth = Math.max(3, 0.12 * u); edge(0.06 * fw); x.lineWidth = Math.max(2, 0.07 * u); edge(0.9 * fw);
+  bandPoints(w, h, fw, oval, fw * 0.62).forEach((p) => { x.save(); x.translate(cx(p.x), cy(p.y)); x.rotate(-p.ang); drawScroll(x, u); x.restore(); });
+  if (withCorners && !oval) cornersOf(w, h, fw).forEach((p) => { x.save(); x.translate(cx(p.x), cy(p.y)); x.rotate(-p.out - Math.PI / 2 + Math.PI); drawFan(x, u * 1.05); x.restore(); });
+}
+function photoFrame(w, h, styleFull, fw, oval) {
+  const [style, detail] = String(styleFull).split(':');
+  const g = new THREE.Group(), add = (m) => { g.add(m); return m; };
+  const flat = (mat, z = 0.004) => add(rim(w, h, fw, oval, 0, fw, z, mat));
+  const crest = (Y, size, down) => {                                  // a lace crest standing over the frame's top (or hanging below)
+    const c = document.createElement('canvas'); c.width = 512; c.height = 384; const x = c.getContext('2d');
+    x.translate(256, 300); x.strokeStyle = x.fillStyle = '#E6C679'; x.lineCap = 'round'; x.lineWidth = 9;
+    drawFan(x, 330); [-1, 1].forEach((sd) => { x.save(); x.translate(sd * 120, -30); x.scale(sd, 1); drawScroll(x, 190); x.restore(); x.save(); x.translate(sd * 200, 20); x.rotate(sd * 0.5); drawScroll(x, 130); x.restore(); });
+    const m = add(new THREE.Mesh(new THREE.PlaneGeometry(size, size * 0.75), filigreeMaterial(c))); m.position.set(0, Y, 0.009); if (down) m.rotation.z = Math.PI; return m; };
+  if (style === 'grandlace' || style === 'regalcassetta') {
+    if (style === 'grandlace') flat(filigreeMaterial(bandCanvas(w, h, fw, (x, S) => lace(w, h, fw, oval, S, x))), 0.006);
+    else { const c = bandCanvas(w, h, fw, (x, S, W, H) => { x.fillStyle = '#5c1230'; x.fillRect(0, 0, x.canvas.width, x.canvas.height);
+        const u = fw * S, cx = (X) => (X + W / 2) * S, cy = (Y) => (H / 2 - Y) * S; x.fillStyle = x.strokeStyle = '#d9b25e'; x.lineWidth = Math.max(1.5, 0.04 * u);
+        bandPoints(w, h, fw, oval, fw * 0.5).forEach((p, k) => { x.save(); x.translate(cx(p.x), cy(p.y)); x.rotate(-p.ang);
+          if (k % 2) { x.beginPath(); x.moveTo(0, -0.2 * u); x.lineTo(0.14 * u, 0); x.lineTo(0, 0.2 * u); x.lineTo(-0.14 * u, 0); x.closePath(); x.stroke(); x.beginPath(); x.arc(0, 0, 0.04 * u, 0, Math.PI * 2); x.fill(); }
+          else [-1, 1].forEach((sg) => { x.beginPath(); x.arc(0, sg * 0.2 * u, 0.035 * u, 0, Math.PI * 2); x.fill(); }); x.restore(); }); });
+      const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; flat(new THREE.MeshStandardMaterial({ map: t, roughness: 0.5, metalness: 0.1 }), 0.005); }
+    add(rim(w, h, fw, oval, -0.004, fw * 0.14, 0.011, giltPlain)); add(rim(w, h, fw, oval, fw * 0.88, fw * 0.14, 0.011, giltPlain));
+    crest(h / 2 + fw * 1.75, fw * 4.2, false); if (style === 'grandlace') crest(-h / 2 - fw * 1.25, fw * 2.4, true);
+    g.userData.pictureZ = 0.004; return g;
+  }
+  if (style === 'laurel') {
+    add(rim(w, h, fw, oval, 0, fw, 0.004, antiqueGold)); add(rim(w, h, fw, oval, -0.004, fw * 0.13, 0.011, giltPlain));   // a darker band, so the leaves read
+    const leafGeo = (L, W) => { const sh = new THREE.Shape(); sh.moveTo(0, 0); sh.quadraticCurveTo(W, L * 0.5, 0, L); sh.quadraticCurveTo(-W, L * 0.5, 0, 0);
+      return new THREE.ExtrudeGeometry(sh, { depth: 0.001, bevelEnabled: true, bevelSize: 0.0012, bevelThickness: 0.0016, bevelSegments: 2, curveSegments: 8 }); };
+    const a = w / 2 + fw * 0.55, b = h / 2 + fw * 0.55, geos = [], olives = [];
+    [-1, 1].forEach((sd) => { const n = 26; for (let k = 1; k < n; k++) {   // each branch from the foot (-90 deg) up its side to the top (+90 deg)
+      const t = -Math.PI / 2 + sd * 0 + (k / n) * Math.PI, th = Math.PI / 2 - sd * (Math.PI / 2 + t) ;
+      const ang = -Math.PI / 2 + (k / n) * Math.PI, px = sd * a * Math.cos(ang), py = b * Math.sin(ang), tx = -sd * a * Math.sin(ang), ty = b * Math.cos(ang), dir = Math.atan2(ty, tx);
+      [-1, 1].forEach((side) => { const gl = leafGeo(fw * 0.62, fw * 0.15), m = new THREE.Matrix4().makeRotationZ(dir - Math.PI / 2 + side * 0.62);
+        m.premultiply(new THREE.Matrix4().makeTranslation(px, py, 0.008 + (k % 2) * 0.0015)); gl.applyMatrix4(m); geos.push(gl); });
+      if (k % 4 === 2) olives.push([px + Math.cos(dir + Math.PI / 2) * fw * 0.28 * sd, py + Math.sin(dir + Math.PI / 2) * fw * 0.28 * sd]); } });
+    add(new THREE.Mesh(mergeGeometries(geos), giltPlain));
+    olives.forEach(([X, Y]) => { const o = add(new THREE.Mesh(new THREE.SphereGeometry(fw * 0.09, 12, 8), giltPlain)); o.scale.set(0.8, 1.2, 0.6); o.position.set(X, Y, 0.013); });
+    const fy = -b;                                                     // where the branches meet at the foot: an ornament there (detail)
+    if (detail === 'rosette') {
+      for (let k = 0; k < 8; k++) { const a2 = k * Math.PI / 4, pe = add(new THREE.Mesh(new THREE.SphereGeometry(fw * 0.2, 12, 8), giltPlain)); pe.scale.set(1, 0.55, 0.45); pe.rotation.z = a2; pe.position.set(Math.cos(a2) * fw * 0.24, fy + Math.sin(a2) * fw * 0.24, 0.016); }
+      const bo = add(new THREE.Mesh(new THREE.SphereGeometry(fw * 0.16, 14, 10), giltPlain)); bo.scale.z = 0.6; bo.position.set(0, fy, 0.022);
+    } else if (detail === 'fan') crest(fy - fw * 0.55, fw * 2.4, true);
+    else if (detail === 'shell') {
+      for (let k = -3; k <= 3; k++) { const a2 = Math.PI / 2 + k * 0.28, r = add(new THREE.Mesh(new THREE.SphereGeometry(fw * 0.3, 12, 8), giltPlain)); r.scale.set(0.24, 1, 0.4); r.rotation.z = a2 - Math.PI / 2;
+        r.position.set(Math.cos(a2) * fw * 0.3, fy - fw * 0.28 + Math.sin(a2) * fw * 0.3, 0.017); }
+      const hinge = add(new THREE.Mesh(new THREE.SphereGeometry(fw * 0.12, 12, 8), giltPlain)); hinge.scale.set(1.4, 0.7, 0.5); hinge.position.set(0, fy - fw * 0.32, 0.02);
+    } else if (detail === 'monogram') {                              // a burgundy enamel medallion with the couple's K A in gold, in a gilt rim
+      const med = new THREE.Group(); med.position.set(0, fy - fw * 0.1, 0.014); g.add(med); const R = fw * 0.62;
+      const rimM = new THREE.Mesh(new THREE.TorusGeometry(R, fw * 0.07, 10, 48), giltPlain); rimM.scale.set(0.82, 1, 0.6); med.add(rimM);
+      const face = new THREE.Mesh(new THREE.CircleGeometry(R, 48), new THREE.MeshStandardMaterial({ map: monogramFace(), roughness: 0.35, metalness: 0.15 })); face.scale.set(0.82, 1, 1); face.position.z = 0.002; med.add(face);
+    }
+    g.userData.pictureZ = 0.004; return g;
+  }
+  if (style === 'bowtop') {
+    add(rim(w, h, fw, oval, 0, fw, 0.003, giltPlain));
+    const a = w / 2 + fw * 0.55, b = h / 2 + fw * 0.55, pts = []; for (let i = 0; i < 128; i++) { const t = i / 128 * Math.PI * 2; pts.push(new THREE.Vector3(a * Math.cos(t), b * Math.sin(t), 0.012)); }
+    add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, true), 256, fw * 0.3, 16, true), giltPlain));   // the rounded moulding
+    const beads = []; bandPoints(w, h, fw * 0.2, oval, fw * 0.16).forEach((p) => { const sg = new THREE.SphereGeometry(fw * 0.055, 8, 6); sg.translate(p.x, p.y, 0.012); beads.push(sg); });
+    add(new THREE.Mesh(mergeGeometries(beads), giltPlain));
+    const top = h / 2 + fw * 1.15, s = fw * 3.0;                     // the bow: two loops, a knot, and two tails following the frame down
+    [-1, 1].forEach((sd) => { const loop = new THREE.Shape(); loop.moveTo(0, 0); loop.bezierCurveTo(sd * s * 0.3, s * 0.45, sd * s * 0.95, s * 0.5, sd * s * 0.9, s * 0.05); loop.bezierCurveTo(sd * s * 0.85, -s * 0.3, sd * s * 0.3, -s * 0.1, 0, 0);
+      const hole = new THREE.Path(); hole.moveTo(sd * s * 0.12, s * 0.02); hole.bezierCurveTo(sd * s * 0.35, s * 0.3, sd * s * 0.78, s * 0.32, sd * s * 0.74, s * 0.05); hole.bezierCurveTo(sd * s * 0.7, -s * 0.15, sd * s * 0.35, -s * 0.05, sd * s * 0.12, s * 0.02); loop.holes.push(hole);
+      const m = add(new THREE.Mesh(new THREE.ExtrudeGeometry(loop, { depth: 0.003, bevelEnabled: true, bevelSize: 0.002, bevelThickness: 0.003, bevelSegments: 2, curveSegments: 16 }), giltPlain)); m.position.set(0, top, 0.012);
+      const tail = []; for (let i = 0; i <= 20; i++) { const t = Math.PI / 2 - sd * (0.08 + i / 20 * 0.7); tail.push(new THREE.Vector3((w / 2 + fw * 0.95) * Math.cos(t), (h / 2 + fw * 0.95) * Math.sin(t), 0.017)); }
+      const tg = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(tail), 40, fw * 0.1, 8, false); tg.scale(1, 1, 0.4); add(new THREE.Mesh(tg, giltPlain)); });
+    const kn = add(new THREE.Mesh(new THREE.SphereGeometry(s * 0.13, 16, 10), giltPlain)); kn.scale.set(1, 1.2, 0.55); kn.position.set(0, top, 0.02);
+    g.userData.pictureZ = 0.004; return g;
+  }
+  if (style === 'filigree') {
+    const c = bandCanvas(w, h, fw, (x, S) => lace(w, h, fw, oval, S, x));
+    flat(filigreeMaterial(c), 0.006);
+    add(rim(w, h, fw, oval, -0.003, fw * 0.14, 0.01, giltPlain));          // the solid rim that holds the picture
+  } else if (style === 'petal') {
+    add(rim(w, h, fw, oval, 0, fw * 0.62, 0.005, giltPlain));
+    add(rim(w, h, fw, oval, -0.003, fw * 0.12, 0.011, giltPlain));
+    const leaf = (L, W) => { const sh = new THREE.Shape(); sh.moveTo(0, 0); sh.quadraticCurveTo(W, L * 0.45, 0, L); sh.quadraticCurveTo(-W, L * 0.45, 0, 0);
+      const e = new THREE.ExtrudeGeometry(sh, { depth: 0.0015, bevelEnabled: true, bevelSize: 0.0012, bevelThickness: 0.0015, bevelSegments: 2, curveSegments: 8 }); return e; };
+    const geos = [];
+    bandPoints(w, h, fw * 0.62, oval, fw * 0.3).forEach((p, k) => {
+      const big = k % 2 === 0, gl = leaf(fw * (big ? 0.62 : 0.42), fw * (big ? 0.13 : 0.1));
+      const m = new THREE.Matrix4().makeRotationZ(p.out - Math.PI / 2); m.premultiply(new THREE.Matrix4().makeTranslation(p.x + Math.cos(p.out) * fw * 0.08, p.y + Math.sin(p.out) * fw * 0.08, 0.008 + (big ? 0 : 0.002)));
+      gl.applyMatrix4(m); geos.push(gl); });
+    add(new THREE.Mesh(mergeGeometries(geos), giltPlain));
+    const bloom = (X, Y) => { [0, 1, 2, 3, 4].forEach((k) => { const a = k * Math.PI * 0.4, d = add(new THREE.Mesh(new THREE.SphereGeometry(fw * 0.1, 10, 8), enamelRed));
+      d.scale.z = 0.4; d.position.set(X + Math.cos(a) * fw * 0.11, Y + Math.sin(a) * fw * 0.11, 0.016); }); const m = add(new THREE.Mesh(new THREE.SphereGeometry(fw * 0.07, 10, 8), giltPlain)); m.scale.z = 0.5; m.position.set(X, Y, 0.019); };
+    if (oval) [1, -1].forEach((sy) => bloom(0, sy * (h / 2 + fw * 0.3))); else cornersOf(w, h, fw * 0.62).forEach((p) => bloom(p.x, p.y));
+  } else if (style === 'mirror') {
+    const c = bandCanvas(w, h, fw, (x, S, W, H) => {
+      const u = fw * S, gr = x.createLinearGradient(0, 0, x.canvas.width, x.canvas.height); gr.addColorStop(0, '#d9e1e6'); gr.addColorStop(0.35, '#a9b7c0'); gr.addColorStop(0.6, '#e8eef1'); gr.addColorStop(1, '#8e9ea8');
+      x.fillStyle = gr; x.fillRect(0, 0, x.canvas.width, x.canvas.height);
+      const cx = (X) => (X + W / 2) * S, cy = (Y) => (H / 2 - Y) * S;
+      bandPoints(w, h, fw, oval, fw * 1.6).forEach((p) => { x.save(); x.translate(cx(p.x), cy(p.y)); x.rotate(-p.ang);   // etched flowers, and the joints between panels
+        x.strokeStyle = 'rgba(255,255,255,.75)'; x.lineWidth = Math.max(1.5, 0.035 * u);
+        for (let k = 0; k < 6; k++) { x.save(); x.rotate(k * Math.PI / 3); x.beginPath(); x.ellipse(0, -0.14 * u, 0.06 * u, 0.13 * u, 0, 0, Math.PI * 2); x.stroke(); x.restore(); }
+        [-1, 1].forEach((sd) => { x.beginPath(); x.moveTo(sd * 0.28 * u, 0); x.quadraticCurveTo(sd * 0.45 * u, -0.2 * u, sd * 0.6 * u, 0); x.stroke(); });
+        x.strokeStyle = 'rgba(40,55,65,.45)'; x.lineWidth = Math.max(1, 0.03 * u); x.beginPath(); x.moveTo(0.8 * u, -0.5 * u); x.lineTo(0.8 * u, 0.5 * u); x.stroke(); x.restore(); });
+    });
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
+    const glass = new THREE.MeshStandardMaterial({ map: t, roughness: 0.08, metalness: 0.35, color: '#ffffff' });
+    flat(glass, 0.006);
+    add(rim(w, h, fw, oval, -0.003, fw * 0.12, 0.011, giltPlain)); add(rim(w, h, fw, oval, fw * 0.9, fw * 0.12, 0.011, giltPlain));
+    const ros = (X, Y) => { const r = add(new THREE.Mesh(new THREE.SphereGeometry(fw * 0.16, 16, 10), new THREE.MeshStandardMaterial({ color: '#e9f0f4', roughness: 0.05, metalness: 0.5 }))); r.scale.z = 0.45; r.position.set(X, Y, 0.012); };
+    if (oval) [1, -1].forEach((sy) => ros(0, sy * (h / 2 + fw / 2))); else cornersOf(w, h, fw).forEach((p) => ros(p.x, p.y));
+  } else if (style === 'cassetta') {
+    const c = bandCanvas(w, h, fw, (x, S, W, H) => {
+      x.fillStyle = '#5c1230'; x.fillRect(0, 0, x.canvas.width, x.canvas.height);
+      const u = fw * S, cx = (X) => (X + W / 2) * S, cy = (Y) => (H / 2 - Y) * S; x.fillStyle = x.strokeStyle = '#d9b25e'; x.lineWidth = Math.max(1.5, 0.04 * u);
+      bandPoints(w, h, fw, oval, fw * 0.5).forEach((p, k) => { x.save(); x.translate(cx(p.x), cy(p.y)); x.rotate(-p.ang);   // a scratched-through pattern of lozenges and dots
+        if (k % 2) { x.beginPath(); x.moveTo(0, -0.2 * u); x.lineTo(0.14 * u, 0); x.lineTo(0, 0.2 * u); x.lineTo(-0.14 * u, 0); x.closePath(); x.stroke(); x.beginPath(); x.arc(0, 0, 0.04 * u, 0, Math.PI * 2); x.fill(); }
+        else { [-1, 1].forEach((s) => { x.beginPath(); x.arc(0, s * 0.2 * u, 0.035 * u, 0, Math.PI * 2); x.fill(); }); }
+        x.restore(); });
+    });
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
+    flat(new THREE.MeshStandardMaterial({ map: t, roughness: 0.5, metalness: 0.1 }), 0.005);
+    add(rim(w, h, fw, oval, -0.003, fw * 0.16, 0.011, giltPlain)); add(rim(w, h, fw, oval, fw * 0.84, fw * 0.16, 0.011, giltPlain));
+    const ros = (X, Y) => { const r = add(new THREE.Mesh(new THREE.SphereGeometry(fw * 0.13, 14, 10), giltPlain)); r.scale.z = 0.5; r.position.set(X, Y, 0.013); };
+    if (oval) [1, -1].forEach((sy) => ros(0, sy * (h / 2 + fw / 2))); else cornersOf(w, h, fw).forEach((p) => ros(p.x, p.y));
+  } else if (style === 'tortoise' || style === 'blackfiligree') {
+    const base = oval ? ornateOvalFrame(w, h, fw, 'plain') : ornateFrame(w, h, 'plain', fw);
+    if (style === 'tortoise') base.traverse((o) => { if (o.name === 'frame') o.material = tortoiseMat; });
+    base.children.slice().forEach((ch) => g.add(ch));
+    if (style === 'blackfiligree') {                                  // gilt lace over the corners (the oval's top and bottom)
+      const piece = (X, Y, rot) => { const c = document.createElement('canvas'); c.width = c.height = 256; const x = c.getContext('2d');
+        x.translate(128, 150); x.strokeStyle = x.fillStyle = '#E6C679'; x.lineCap = 'round'; x.lineWidth = 7; drawFan(x, 150);
+        const m = add(new THREE.Mesh(new THREE.PlaneGeometry(fw * 1.5, fw * 1.5), filigreeMaterial(c))); m.position.set(X, Y, fw * 0.32); m.rotation.z = rot; };
+      if (oval) [1, -1].forEach((sy) => piece(0, sy * (h / 2 + fw * 0.5), sy > 0 ? 0 : Math.PI));
+      else cornersOf(w, h, fw).forEach((p) => piece(p.x, p.y, p.out - Math.PI / 2));
+    }
+    g.userData.pictureZ = base.userData.pictureZ;
+    return g;
+  }
+  g.userData.pictureZ = 0.004;
+  return g;
+}
+const enamelRed = new THREE.MeshStandardMaterial({ color: '#7A1A3C', roughness: 0.3 });
+let MONO = null;                                                       // the couple's monogram, gold on burgundy enamel, for a medallion (loaded once)
+function monogramFace() {
+  if (MONO) return MONO;
+  const c = document.createElement('canvas'); c.width = c.height = 256; const x = c.getContext('2d'); x.fillStyle = '#5c1230'; x.fillRect(0, 0, 256, 256);
+  MONO = new THREE.CanvasTexture(c); MONO.colorSpace = THREE.SRGBColorSpace;
+  const img = new Image(); img.onload = () => { const t = document.createElement('canvas'); t.width = t.height = 256; const tx = t.getContext('2d');
+    tx.drawImage(img, 40, 40, 176, 176); tx.globalCompositeOperation = 'source-in'; tx.fillStyle = '#e2c27a'; tx.fillRect(0, 0, 256, 256); x.drawImage(t, 0, 0); MONO.needsUpdate = true; };
+  img.src = 'assets/monogram-ka.png'; return MONO;
+}
+const antiqueGold = new THREE.MeshStandardMaterial({ color: '#8a6526', roughness: 0.5, metalness: 0.35 });   // the laurel frame's band   // the tole frame's painted flowers
+const tortoiseMat = (() => {                                          // mottled amber and brown under a gloss
+  const c = document.createElement('canvas'); c.width = 256; c.height = 128; const x = c.getContext('2d'); x.fillStyle = '#6b3510'; x.fillRect(0, 0, 256, 128);
+  let s = 7; const r = () => (s = (s * 16807) % 2147483647) / 2147483647;
+  for (let i = 0; i < 90; i++) { const g = x.createRadialGradient(0, 0, 0, 0, 0, 1); const hue = r();
+    g.addColorStop(0, hue < 0.35 ? 'rgba(214,146,58,.9)' : hue < 0.7 ? 'rgba(150,80,26,.8)' : 'rgba(30,14,6,.85)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+    x.save(); x.translate(r() * 256, r() * 128); x.rotate(r() * 3); x.scale(8 + r() * 26, 4 + r() * 12); x.fillStyle = g; x.beginPath(); x.arc(0, 0, 1, 0, Math.PI * 2); x.fill(); x.restore(); }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = THREE.RepeatWrapping; t.anisotropy = 8;
+  return new THREE.MeshStandardMaterial({ map: t, roughness: 0.22, metalness: 0.05 });
+})();
+const velvetMat = (() => {                                            // a burgundy velvet mat (the Victorian photograph's)
+  const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d'); x.fillStyle = '#5a1029'; x.fillRect(0, 0, 128, 128);
+  for (let i = 0; i < 2600; i++) { x.fillStyle = Math.random() < 0.5 ? 'rgba(255,200,210,.05)' : 'rgba(0,0,0,.1)'; x.fillRect(Math.random() * 128, Math.random() * 128, 1, 1); }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(4, 4);
+  return new THREE.MeshStandardMaterial({ map: t, roughness: 1 });
+})();
 
 // ---- shell
 const floor = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), stone);
@@ -1153,9 +1391,10 @@ const matBoard = new THREE.MeshStandardMaterial({ color: '#F1EBDD', roughness: 0
 function framedPicture(p, i) {
   const grp = new THREE.Group();
   const box = p.box || (p.mat ? [p.w + 2 * p.mat, p.h + 2 * p.mat] : null);   // matted: the frame holds a mat board, the picture sits in its opening
-  const frame = box ? ornateFrame(box[0], box[1], p.frame, p.fw) : p.oval ? ornateOvalFrame(p.w, p.h, p.fw, p.frame) : ornateFrame(p.w, p.h, p.frame, p.fw);
+  const own = PHOTO_FRAME_STYLES.includes(String(p.frame).split(':')[0]), fwOf = p.fw || 0.05;   // a style may name a detail after a colon (laurel:monogram)   // a photograph wall's own frame styles (photoFrame)
+  const frame = box ? (own ? photoFrame(box[0], box[1], p.frame, fwOf, false) : ornateFrame(box[0], box[1], p.frame, p.fw)) : own ? photoFrame(p.w, p.h, p.frame, fwOf, !!p.oval) : p.oval ? ornateOvalFrame(p.w, p.h, p.fw, p.frame) : ornateFrame(p.w, p.h, p.frame, p.fw);
   frame.position.z = -0.07;
-  if (box) { const board = new THREE.Mesh(new THREE.PlaneGeometry(box[0], box[1]), matBoard); board.position.z = -0.07 + frame.userData.pictureZ; grp.add(board); }
+  if (box) { const board = new THREE.Mesh(new THREE.PlaneGeometry(box[0], box[1]), p.matStyle === 'velvet' ? velvetMat : matBoard); board.position.z = -0.07 + frame.userData.pictureZ; grp.add(board); }
   let picGeo = new THREE.PlaneGeometry(p.w, p.h);
   if (p.oval) {                                                      // an elliptical canvas, its picture mapped as if it were the full rectangle
     picGeo = new THREE.ShapeGeometry(new THREE.Shape().absellipse(0, 0, p.w / 2, p.h / 2, 0, Math.PI * 2, false, 0), 48);

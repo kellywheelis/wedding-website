@@ -26,6 +26,10 @@
   .item .fr { position: absolute; inset: 0; box-shadow: 0 2px 5px rgba(40, 25, 5, .35); }
   .item .fr.gilt { background: linear-gradient(135deg, #7d5418, #e9c46c 28%, #a97c2a 52%, #f5dc92 72%, #8a5e1d); }
   .item .fr.plain { background: linear-gradient(135deg, #0e0a08, #3a2c22 45%, #120d0a); }
+  .item .fr.cassetta, .item .fr.regalcassetta { background: #5c1230; box-shadow: inset 0 0 0 2px #d9b25e, inset 0 0 0 5px #5c1230, inset 0 0 0 6px rgba(217,178,94,.7), 0 2px 5px rgba(40,25,5,.35); }
+  .item .fr.filigree, .item .fr.grandlace { background: radial-gradient(circle, #e2c070 38%, transparent 42%) 0 0 / 7px 7px; box-shadow: inset 0 0 0 2px #d9b25e, 0 0 0 1px rgba(217,178,94,.6); }
+  .item .fr[class~="laurel:monogram"], .item .fr.laurel { background: repeating-linear-gradient(60deg, #d9b25e 0 3px, #8a6526 3px 7px); }
+  .item .fr.bowtop { background: linear-gradient(135deg, #b8862b, #f5dc92 45%, #b8862b); border-radius: 50%; }
   .item .in { position: absolute; overflow: hidden; }
   .item .fr.plain + .in { outline: 2px solid #c9a24a; }
   .item .mat { position: absolute; background: #F1EBDD; box-shadow: inset 0 1px 3px rgba(0, 0, 0, .25); }
@@ -232,11 +236,11 @@ function renderTray() {
   Object.keys(CAT).forEach((k) => { const on = L.photos.some((p) => p.src === k), b = document.createElement('button');
     b.className = on ? 'onwall' : ''; b.title = CAT[k].name + (on ? ' (on the wall: click to take it off)' : ' (click to hang it)');
     b.innerHTML = '<img src="' + IMG(k) + '" alt="">'; b.onclick = () => { push(); if (on) { L.photos = L.photos.filter((p) => p.src !== k); sel = null; }
-      else { L.photos.push(ph(k, CZ, 2.0, CAT[k].oval ? 0.3 : 0.32, CAT[k].oval ? 'gilt' : 'plain', 0.05)); sel = L.photos.length - 1; } render(); dirty(true); };
+      else { L.photos.push(ph(k, CZ, 2.0, CAT[k].oval ? 0.3 : 0.32, CAT[k].oval ? 'filigree' : 'cassetta', 0.05)); sel = L.photos.length - 1; } render(); dirty(true); };   // her styles: lace ovals, cassetta rectangles
     t.appendChild(b); });
   const bl = document.getElementById('blanks'); bl.innerHTML = '';
   BLANKS.forEach(([name, a, oval, h]) => { const b = document.createElement('button'); b.className = 'btn'; b.textContent = '+ ' + name;
-    b.onclick = () => { push(); L.photos.push(ph('blank', CZ, 2.0, h, oval ? 'gilt' : 'plain', 0.05, { aspect: a, oval })); sel = L.photos.length - 1; render(); dirty(true); }; bl.appendChild(b); });
+    b.onclick = () => { push(); L.photos.push(ph('blank', CZ, 2.0, h, oval ? 'filigree' : 'cassetta', 0.05, { aspect: a, oval })); sel = L.photos.length - 1; render(); dirty(true); }; bl.appendChild(b); });
 }
 // the selected item's controls
 function renderSel() {
@@ -249,7 +253,7 @@ function renderSel() {
   body.innerHTML = `<b>${label(p)}</b>` +
     slider('sH', isBlank ? 'Height' : 'Photo height', 0.12, 1.1, 0.01, p.h) +
     (isBlank && !(p.oval && p.aspect === 1) ? slider('sA', 'Width', 0.3, 2.5, 0.01, p.aspect, '% of height', 100) : '') +
-    `<div class="row"><label>Frame</label><select id="sF"><option value="gilt">Gilt</option><option value="plain">Black &amp; gold</option></select></div>` +
+    `<div class="row"><label>Frame</label><select id="sF"><option value="cassetta">Burgundy cassetta</option><option value="filigree">Gilt filigree lace</option><option value="gilt">Carved gilt</option><option value="plain">Black &amp; gold</option><optgroup label="For the main portrait"><option value="grandlace">Grand lace, with crest</option><option value="laurel:monogram">Olive laurel, K·A medallion</option><option value="laurel">Olive laurel wreath</option><option value="bowtop">Gilt with ribbon bow</option><option value="regalcassetta">Burgundy cassetta, with crest</option></optgroup></select></div>` +
     slider('sW', 'Frame width', 0.02, 0.14, 0.005, p.fw) +
     `<div class="row"><label>Mat</label><select id="sM"><option value="0">None</option><option value="m">White mat</option></select></div>` +
     (matted ? slider('sMW', 'Mat width', 0.02, 0.3, 0.005, p.box ? Math.min((p.box[0] - p.h * c.a) / 2, (p.box[1] - p.h) / 2) : p.mat) : '') +

@@ -96,6 +96,7 @@ window.CONTENT = {
      }
     },
     "anthony": {
+     "portrait-amsterdam": {"title": "Moments Before", "body": "Amsterdam, about a minute before the proposal. Kelly thought she was taking a nice picture of her boyfriend. He knew what was coming; she didn’t. The curators ask that you look closely at that smile and consider everything he was holding in.", "meta": "Photograph by Kelly · Amsterdam · moments before the question"},
      "amsterdam-tea": {"title": "After the Question", "body": "Anthony on the stoop of their Amsterdam hotel suite, a few hours after pulling off his surprise proposal. His nerves had earned this: tea, a smoke, and the quiet satisfaction of a plan that worked.", "meta": "Photograph · Amsterdam · the day of the proposal"},
      "peaky-blinders": {"title": "By Order of the Peaky Blinders", "body": "Anthony as a Peaky Blinder, on one of the rare occasions he has dressed up for Halloween. Kelly was thrilled to help, and would like it noted that she is available again next year.", "meta": "Photograph · Halloween · costume assisted by Kelly"},
      "paris": {"title": "Paris", "body": "Anthony at the Eiffel Tower, looking entirely unbothered by one of the most famous structures on earth. Obligatory landmark tourist photo: done ✓", "meta": "Photograph · Paris, France"},

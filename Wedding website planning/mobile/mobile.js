@@ -134,6 +134,7 @@
   // wall editor; the 3D gallery reads the same files), scaled to a plaster panel the width of the screen, the name plaque
   // under them. Frames gilt or black and gold, ovals oval, mats white; each a button to the lightbox, where ovals open as ovals.
   // On Anthony's wall, across the hall, the viewer's left is the hall's -z, so it is drawn the other way round.
+  const frameClass = (f) => ({ plain: 'plain', cassetta: 'cassetta', regalcassetta: 'cassetta', filigree: 'lace', grandlace: 'lace', laurel: 'laurel' })[String(f).split(':')[0]] || 'gilt';   // the 3D frame styles, drawn small
   const drawWall = async (who) => {
     const box = el('wall-' + who); if (!box) return;
     const L = await fetch('/assets/' + who + '-wall/layout.json', { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
@@ -147,12 +148,12 @@
     const f = C.rooms[0].frames && C.rooms[0].frames[who], name = who === 'kelly' ? 'Kelly' : 'Anthony';
     box.innerHTML = L.photos.map((p) => {
       const [w, h, b] = size(p), pw = p.h * p.aspect, img = '/assets/' + who + '-wall/' + p.src + '.jpg', pos = `left:${pct(X(p.z, w), W)};top:${pct(Y(p.y + h / 2), H)};width:${pct(w, W)};height:${pct(h, H)};--fw:${pct(p.fw, w)};--fh:${pct(p.fw, h)}`;
-      if (p.src === 'blank') return `<span class="kw ${p.frame === 'plain' ? 'plain' : 'gilt'}${p.oval && !b ? ' oval' : ''}" style="${pos}"><span class="in">${b ? `<span class="mat"><span class="blank" style="left:${pct((b[0] - pw) / 2, b[0])};top:${pct((b[1] - p.h) / 2, b[1])};width:${pct(pw, b[0])};height:${pct(p.h, b[1])}${p.oval ? ';border-radius:50%' : ''}"></span></span>` : '<span class="blank"></span>'}</span></span>`;   // a blank frame: an empty mount
+      if (p.src === 'blank') return `<span class="kw ${frameClass(p.frame)}${p.oval && !b ? ' oval' : ''}" style="${pos}"><span class="in">${b ? `<span class="mat"><span class="blank" style="left:${pct((b[0] - pw) / 2, b[0])};top:${pct((b[1] - p.h) / 2, b[1])};width:${pct(pw, b[0])};height:${pct(p.h, b[1])}${p.oval ? ';border-radius:50%' : ''}"></span></span>` : '<span class="blank"></span>'}</span></span>`;   // a blank frame: an empty mount
       const note = ((C.rooms[0].photoNotes || {})[who] || {})[p.src];   // the photograph's own write-up, if it has one
       lbItems.push({ img, title: note ? note.title : f ? f.title : name, body: note ? note.body : '', meta: note ? note.meta : f && f.meta !== 'Placeholder' ? f.meta : '', aspect: p.aspect, oval: p.oval }); const i = lbItems.length - 1;
       const inner = b ? `<span class="mat"><img src="${img.replace(/\.jpg$/, '-s.jpg')}" onerror="this.onerror=null;this.src='${img}'" alt="" loading="lazy" decoding="async" style="left:${pct((b[0] - pw) / 2, b[0])};top:${pct((b[1] - p.h) / 2, b[1])};width:${pct(pw, b[0])};height:${pct(p.h, b[1])}${p.oval ? ';border-radius:50%' : ''}"></span>`
         : `<img src="${img.replace(/\.jpg$/, '-s.jpg')}" alt="" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='${img}'">`;   // the small copy in the panel; the full one in the lightbox
-      return `<button class="kw ${p.frame === 'plain' ? 'plain' : 'gilt'}${p.oval && !b ? ' oval' : ''}" data-lb="${i}" aria-label="A photograph of ${name}" style="${pos}"><span class="in">${inner}</span></button>`;
+      return `<button class="kw ${frameClass(p.frame)}${p.oval && !b ? ' oval' : ''}" data-lb="${i}" aria-label="A photograph of ${name}" style="${pos}"><span class="in">${inner}</span></button>`;
     }).join('') + `<span class="kplaque" style="left:${pct(X(L.plaque.z, 1.2), W)};top:${pct(Y(L.plaque.y + 0.12), H)};width:${pct(1.2, W)};height:${pct(0.24, H)}">${name.toUpperCase()}</span>`;
   };
   drawWall('kelly'); drawWall('anthony');

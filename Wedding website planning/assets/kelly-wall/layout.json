@@ -5,7 +5,7 @@
    "z": -2,
    "y": 2.309,
    "h": 0.88,
-   "frame": "gilt",
+   "frame": "laurel:monogram",
    "fw": 0.095,
    "aspect": 0.743,
    "oval": true,
@@ -24,7 +24,7 @@
    "z": -1.621,
    "y": 1.579,
    "h": 0.35,
-   "frame": "gilt",
+   "frame": "filigree",
    "fw": 0.045,
    "aspect": 0.778,
    "oval": true
@@ -34,7 +34,7 @@
    "z": -2,
    "y": 1.547,
    "h": 0.28,
-   "frame": "plain",
+   "frame": "cassetta",
    "fw": 0.05,
    "aspect": 0.665,
    "oval": false,
@@ -45,7 +45,7 @@
    "z": -1.184,
    "y": 1.6,
    "h": 0.32,
-   "frame": "plain",
+   "frame": "cassetta",
    "fw": 0.05,
    "aspect": 0.633,
    "oval": false
@@ -55,7 +55,7 @@
    "z": -2.743,
    "y": 2.071,
    "h": 0.32,
-   "frame": "gilt",
+   "frame": "filigree",
    "fw": 0.045,
    "aspect": 1,
    "oval": true
@@ -65,7 +65,7 @@
    "z": -1.257,
    "y": 2.071,
    "h": 0.32,
-   "frame": "gilt",
+   "frame": "filigree",
    "fw": 0.045,
    "aspect": 1,
    "oval": true
@@ -75,7 +75,7 @@
    "z": -1.257,
    "y": 2.564,
    "h": 0.27,
-   "frame": "gilt",
+   "frame": "cassetta",
    "fw": 0.05,
    "aspect": 1.227,
    "oval": false
@@ -85,7 +85,7 @@
    "z": -2.409,
    "y": 3.096,
    "h": 0.27,
-   "frame": "plain",
+   "frame": "cassetta",
    "fw": 0.05,
    "aspect": 1.499,
    "oval": false
@@ -95,7 +95,7 @@
    "z": -2.743,
    "y": 2.564,
    "h": 0.27,
-   "frame": "gilt",
+   "frame": "cassetta",
    "fw": 0.05,
    "aspect": 1.2,
    "oval": false
@@ -105,7 +105,7 @@
    "z": -2.816,
    "y": 1.6,
    "h": 0.32,
-   "frame": "plain",
+   "frame": "cassetta",
    "fw": 0.05,
    "aspect": 0.546,
    "oval": false
@@ -115,7 +115,7 @@
    "z": -1.591,
    "y": 3.096,
    "h": 0.27,
-   "frame": "plain",
+   "frame": "cassetta",
    "fw": 0.05,
    "aspect": 1.296,
    "oval": false
@@ -125,7 +125,7 @@
    "z": -2.379,
    "y": 1.579,
    "h": 0.35,
-   "frame": "gilt",
+   "frame": "filigree",
    "fw": 0.05,
    "aspect": 0.732,
    "oval": true

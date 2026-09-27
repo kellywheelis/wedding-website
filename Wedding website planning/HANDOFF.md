@@ -901,6 +901,16 @@ _Brought up to date 26 Sept 2026 (after `b5897ba`)._
   also serves test pages at `/__test/` and gives them `window.__ka` (openPostcards, postCard, openCard, GUEST);
   with `DEV_RSVP_CLOSED=N` the deadline falls N seconds after it starts (0: already past). The harness has no
   server: `fakeguest=1|2` stands in a signed-in household for renders (`postcard=` uses it).
+- **The photo walls' own frames** (27 Sept 2026, her choice from two sample boards): `photoFrame` in gallery3d.js,
+  used by `framedPicture` for any style in `PHOTO_FRAME_STYLES`. Her picks: every rectangle a burgundy **cassetta**
+  (a flat frieze scratched through to gold, gilt rails, corner rosettes) and every oval the gilt **filigree** lace
+  (openwork scrolls, the wall showing through; `lace`, `filigreeMaterial`, `drawScroll`, `drawFan`). New pieces in
+  the editor start in those. The two main portraits are `laurel:monogram` (her choice): a darker antique-gold band
+  wreathed in olive branches, and at the foot a burgundy enamel medallion with the K·A monogram in gold (`monogramFace`,
+  from assets/monogram-ka.png); she turned down its first ribbon tie. A style may carry a detail after a colon. Other
+  options built for them: grandlace, bowtop, regalcassetta, and laurel feet rosette, fan, shell. Also built and not chosen: petal (Florentine tole), mirror (Venetian),
+  tortoise, blackfiligree, and a burgundy velvet mat (`matStyle: 'velvet'`). The editor's Frame menu and the phone's
+  small panels (`frameClass`) know the styles.
 - **The info panel and the guest button** (27 Sept 2026, the owner's sketch): the guest button (`guestBtn`: "Guest sign-in" /
   "Signed in · …") is top right of the view, a pill like Turn around, shown and hidden with it (`markRoom`); the bottom bar
   keeps the rooms and Credits, the gap between them left open. On a wide screen the panel's title takes a narrower column

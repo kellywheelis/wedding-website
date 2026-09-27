@@ -94,6 +94,11 @@ if (!/[?&]desktop/.test(location.search) && /iPhone|iPod|Android.*Mobile|Windows
      reaching the compass in the middle (half its width is at most ~130px, plus a 16px gap); back to the corner when narrow */
   #tally { left:min(7.4%,111px);bottom:2px;box-sizing:border-box;width:min(384px,calc(50% - 146px - min(7.4%,111px)));padding:12px 24px;text-align:center }
   @media (max-width: 960px) { #tally { left:14px;bottom:10px;width:auto;padding:8px 24px;text-align:left } }
+  /* the info panel: on a wide screen the title takes a narrower column, so a write-up runs to four or five lines (the
+     owner, 27 Sept 2026); narrow, the two stack as before */
+  @media (min-width: 760px) { .labelgrid { grid-template-columns: minmax(220px, 330px) minmax(0, 1fr) !important; } }
+  /* the guest button is top right of the view; where the screen is narrow the details room's row of buttons drops below it */
+  @media (max-width: 1100px) { #sections { top: calc(clamp(10px,1.6vw,18px) + 46px) !important; } }
 </style>
 </head>
 <body>
@@ -106,6 +111,7 @@ if (!/[?&]desktop/.test(location.search) && /iPhone|iPod|Android.*Mobile|Windows
   </div>
 </div>
     <button id="turn" aria-label="Turn around" style="opacity:0;transition:opacity 900ms ease;position:absolute;right:clamp(12px,2vw,24px);bottom:clamp(10px,1.6vw,18px);z-index:12;height:42px;padding:0 clamp(14px,2vw,20px);border-radius:22px;background:rgba(26,18,8,.55);backdrop-filter:blur(2px);border:1px solid rgba(232,192,122,.7);color:#F2E6C9;font-size:11px;letter-spacing:.24em;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:opacity 500ms ease">&#8634;&nbsp; Turn around</button>
+    <button id="guestBtn" style="opacity:0;pointer-events:none;position:absolute;right:clamp(12px,2vw,24px);top:clamp(10px,1.6vw,18px);z-index:12;height:36px;padding:0 clamp(12px,1.6vw,18px);border-radius:18px;background:rgba(26,18,8,.55);backdrop-filter:blur(2px);border:1px solid rgba(232,192,122,.7);color:#F2E6C9;font-size:10px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;white-space:nowrap;max-width:min(300px,42vw);overflow:hidden;text-overflow:ellipsis;transition:opacity 500ms ease">Guest sign-in</button>
     <div id="sections" style="position:absolute;left:50%;top:clamp(12px,2vw,24px);transform:translateX(-50%);z-index:11;display:none;transition:opacity 700ms ease;gap:5px;flex-wrap:nowrap;justify-content:center;max-width:calc(100% - 40px)">
       <button data-card="logistics" data-stop="detFrontL" style="background:rgba(26,18,8,.55);backdrop-filter:blur(2px);border:1px solid rgba(232,192,122,.95);box-shadow:0 0 0 1px rgba(26,18,8,.5),inset 0 0 0 1px rgba(232,192,122,.35);color:#F2DFA8;height:34px;padding:0 10px;border-radius:17px;font-size:9px;letter-spacing:.15em;text-transform:uppercase;white-space:nowrap">Logistics</button>
       <button data-card="schedule" data-stop="detSchedule" style="background:rgba(26,18,8,.55);backdrop-filter:blur(2px);border:1px solid rgba(232,192,122,.95);box-shadow:0 0 0 1px rgba(26,18,8,.5),inset 0 0 0 1px rgba(232,192,122,.35);color:#F2DFA8;height:34px;padding:0 10px;border-radius:17px;font-size:9px;letter-spacing:.15em;text-transform:uppercase;white-space:nowrap">Schedule</button>
@@ -125,7 +131,7 @@ if (!/[?&]desktop/.test(location.search) && /iPhone|iPod|Android.*Mobile|Windows
   </div>
 
   <div id="label" style="position:relative;z-index:12;flex:none;padding:0 clamp(14px,3vw,34px);opacity:0;transition:opacity 700ms ease">
-    <div style="max-width:1040px;margin:0 auto;border-top:1px solid rgba(201,166,103,.6);padding:clamp(10px,1.4vw,15px) 0 clamp(4px,.8vw,8px);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:8px clamp(20px,3vw,40px);align-items:start">
+    <div class="labelgrid" style="max-width:1040px;margin:0 auto;border-top:1px solid rgba(201,166,103,.6);padding:clamp(10px,1.4vw,15px) 0 clamp(4px,.8vw,8px);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:8px clamp(20px,3vw,40px);align-items:start">
       <div>
         <p id="eyebrow" style="margin:0 0 8px;font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:#C9A667;transition:color 700ms ease"></p>
         <h2 id="title" style="margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-weight:400;font-size:clamp(23px,3vw,33px);line-height:1.18;color:#F6F1E4"></h2>
@@ -150,7 +156,6 @@ if (!/[?&]desktop/.test(location.search) && /iPhone|iPod|Android.*Mobile|Windows
         <span class="navarrow" aria-hidden="true"><svg width="14" height="10" viewBox="0 0 14 10" fill="none" stroke="#C9A667" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5h11M8 1l4 4-4 4"/></svg></span>
         <button data-room="det" style="flex:0 1 150px;min-width:0;height:32px;padding:0 10px;background:transparent;border:1px solid rgba(201,166,103,.3);color:#A79C85;font-size:9px;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;transition:all 400ms ease;white-space:nowrap;overflow:hidden">Details</button>
       </div>
-      <button id="guestBtn" style="height:32px;padding:0 clamp(10px,1.4vw,14px);background:transparent;border:1px solid rgba(201,166,103,.3);color:#A79C85;font-size:9px;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;flex:none;white-space:nowrap;max-width:220px;overflow:hidden;text-overflow:ellipsis">Guest sign-in</button>
       <button id="creditsBtn" style="height:32px;padding:0 clamp(10px,1.4vw,14px);background:transparent;border:1px solid rgba(201,166,103,.3);color:#A79C85;font-size:9px;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;flex:none;white-space:nowrap">Credits</button>
     </div>
   </div>

@@ -893,6 +893,11 @@ _Brought up to date 26 Sept 2026 (after `b5897ba`)._
   also serves test pages at `/__test/` and gives them `window.__ka` (openPostcards, postCard, openCard, GUEST);
   with `DEV_RSVP_CLOSED=N` the deadline falls N seconds after it starts (0: already past). The harness has no
   server: `fakeguest=1|2` stands in a signed-in household for renders (`postcard=` uses it).
+- **The info panel and the guest button** (27 Sept 2026, the owner's sketch): the guest button (`guestBtn`: "Guest sign-in" /
+  "Signed in · …") is top right of the view, a pill like Turn around, shown and hidden with it (`markRoom`); the bottom bar
+  keeps the rooms and Credits, the gap between them left open. On a wide screen the panel's title takes a narrower column
+  (`.labelgrid`, 220-330 px) so a write-up runs four or five lines; below 760 px they stack as before. Under 1100 px the
+  details room's section buttons drop below the guest button.
 - **Kept out of search engines** (27 Sept 2026, the owner's choice): every response carries `X-Robots-Tag: noindex,
   nofollow, noimageindex` (vercel.json) and the gallery and phone pages a matching robots meta tag (the private page
   already had one). Guests reach the site by its link and the invitation QR codes.

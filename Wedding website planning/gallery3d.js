@@ -3677,6 +3677,8 @@ function markRoom(room) {
   });
   el('turn').style.opacity = holding || !navShown ? '0' : '1';      // hidden while a card is held, and until the motto has gone
   el('turn').style.pointerEvents = holding ? 'none' : 'auto';
+  el('guestBtn').style.opacity = el('turn').style.opacity;          // top right of the view, shown and hidden with Turn around
+  el('guestBtn').style.pointerEvents = holding || !navShown ? 'none' : 'auto';
 }
 // turn around on the spot: a half turn, with the view levelled and back at standing height. Turning again faces the
 // stop once more and takes up its own tilt and height.

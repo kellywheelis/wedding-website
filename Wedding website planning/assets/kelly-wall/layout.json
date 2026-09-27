@@ -1,7 +1,7 @@
 {
  "photos": [
   {
-   "src": "main-portrait",
+   "src": "side-portrait",
    "z": -2,
    "y": 2.309,
    "h": 0.88,
@@ -9,7 +9,15 @@
    "fw": 0.095,
    "aspect": 0.743,
    "oval": true,
-   "locked": true
+   "locked": true,
+   "frameA": 0.743,
+   "frameOval": true,
+   "crop": [
+    0.0551,
+    0,
+    0.9449,
+    1
+   ]
   },
   {
    "src": "baby",

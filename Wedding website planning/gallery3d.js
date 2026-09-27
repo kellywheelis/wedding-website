@@ -21,21 +21,27 @@ const P = {
 
 const CLOSE_X = 10.45;        // where you stand for a close look at a wing's principal work, 1.95 m from it
 const GALLERY_Z = -2.6;      // centre of the two atrium mini galleries, along the hall
+// Anthony's artifacts (the owner, 27 Sept 2026): the card and the case centred in the wall between his photographs and
+// the pilaster (his photographs mirror Kelly's across the hall, their main portrait at z -2.0), 15 cm higher than first
+// hung; Amelia's plinth under the middle of the pair, 30 cm taller, so she is in view
+const ART = { card: GALLERY_Z + 1.808, case: GALLERY_Z + 2.408, y: 2.1, amelia: GALLERY_Z + 2.108, lift: 0.3 };
 const SUN_Y = 2.31;          // the height of the LEGO Sunflowers' centre: level with Kelly's main portrait, so the two balance (the owner, 27 Sept 2026; it was 1.88); the build station's shelf hangs 0.76 below it
-// Kelly's photographs: their arrangement is kept in assets/kelly-wall/layout.json, made with the wall editor
-// (tools/wall-editor.html, at /wall-editor on the local dev server, which saves it). Each photo: src (a file in
-// assets/kelly-wall), z along the hall and y (its centre), h and aspect (the picture), oval, frame ('gilt' | 'plain'),
-// fw (the moulding), and a mat: `mat` (a margin all round) or `box` [w, h] (the frame's opening, the picture centred in it)
-const KELLY_WALL = (await fetch('assets/kelly-wall/layout.json', { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : null)).catch(() => null)) || { photos: [], plaque: { z: -2.24, y: 0.86 } };
-const kellyBox = (p) => p.box || (p.mat ? [p.h * p.aspect + 2 * p.mat, p.h + 2 * p.mat] : null);
-const KELLY_VIEW = (() => {                                        // where the wall's stop stands: back far enough to take in every photo and the plaque
-  let z0 = Infinity, z1 = -Infinity, y0 = KELLY_WALL.plaque.y - 0.12, y1 = KELLY_WALL.plaque.y + 0.12;
-  KELLY_WALL.photos.forEach((p) => { const bx = kellyBox(p), W = (bx ? bx[0] : p.h * p.aspect) + 2 * p.fw, H = (bx ? bx[1] : p.h) + 2 * p.fw;
-    z0 = Math.min(z0, p.z - W / 2); z1 = Math.max(z1, p.z + W / 2); y0 = Math.min(y0, p.y - H / 2); y1 = Math.max(y1, p.y + H / 2); });
-  if (!KELLY_WALL.photos.length) { z0 = z1 = KELLY_WALL.plaque.z; }
+// The couple's photographs (Kelly's on the left wall, Anthony's on the right): each wall's arrangement is kept in
+// assets/<who>-wall/layout.json, made with the wall editor (tools/wall-editor.html, at /wall-editor on the local dev
+// server, which saves it). Each photo: src (a file in that folder), z along the hall and y (its centre), h and aspect
+// (the picture), oval, frame ('gilt' | 'plain'), fw (the moulding), and a mat: `mat` (a margin all round) or `box`
+// [w, h] (the frame's opening, the picture centred in it); and the wall's name plaque, z and y.
+const PHOTO_WALLS = Object.fromEntries(await Promise.all(['kelly', 'anthony'].map(async (who) => [who,
+  (await fetch('assets/' + who + '-wall/layout.json', { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : null)).catch(() => null)) || { photos: [], plaque: { z: GALLERY_Z, y: 0.86 } }])));
+const photoBox = (p) => p.box || (p.mat ? [p.h * p.aspect + 2 * p.mat, p.h + 2 * p.mat] : null);
+function wallView(W, sx) {                                        // where a wall's stop stands: back far enough to take in every photo and the plaque
+  let z0 = W.plaque.z - 0.6, z1 = W.plaque.z + 0.6, y0 = W.plaque.y - 0.12, y1 = W.plaque.y + 0.12;
+  W.photos.forEach((p) => { const bx = photoBox(p), w = (bx ? bx[0] : p.h * p.aspect) + 2 * p.fw, h = (bx ? bx[1] : p.h) + 2 * p.fw;
+    z0 = Math.min(z0, p.z - w / 2); z1 = Math.max(z1, p.z + w / 2); y0 = Math.min(y0, p.y - h / 2); y1 = Math.max(y1, p.y + h / 2); });
   const cz = (z0 + z1) / 2, cy = (y0 + y1) / 2, d = THREE.MathUtils.clamp(Math.max((y1 - y0) * 0.95, (z1 - z0) * 0.62) + 0.3, 2.3, 4.4), eye = THREE.MathUtils.clamp(cy, 1.55, 2.0);
-  return { x: -P.corrX + d, z: cz, eye, pitch: Math.atan2(cy - eye, d) };
-})();
+  return { x: sx * (P.corrX - d), z: cz, eye, pitch: Math.atan2(cy - eye, d) };
+}
+const WALL_VIEW = { kelly: wallView(PHOTO_WALLS.kelly, -1), anthony: wallView(PHOTO_WALLS.anthony, 1) };
 
 const STATIONS = [
   { id: 'atrium', x: 0, z: 0, yaw: 0, room: 'atrium', accent: '#C9A667',
@@ -43,7 +49,7 @@ const STATIONS = [
     body: 'Villa Cetinale, in the hills outside Siena. Two wings and five days of open hours. Wing I is through the opening on your left, Wing II on your right; the hall straight ahead holds the exhibit details — travel, lodging, and the program.',
     meta: 'Turn and choose a wing' },
 
-  { id: 'kelly', x: KELLY_VIEW.x, z: KELLY_VIEW.z, yaw: Math.PI / 2, eye: KELLY_VIEW.eye, pitch: KELLY_VIEW.pitch, room: 'atrium', accent: '#C9A667',   // facing her photographs, all in view
+  { id: 'kelly', x: WALL_VIEW.kelly.x, z: WALL_VIEW.kelly.z, yaw: Math.PI / 2, eye: WALL_VIEW.kelly.eye, pitch: WALL_VIEW.kelly.pitch, room: 'atrium', accent: '#C9A667',   // facing her photographs, all in view
     eyebrow: 'The atrium · Kelly', title: 'The Kelly Collection',
     body: 'Portraiture keeps two records: the formal likeness and the unofficial one. The formal one hangs at the center, one of the few serious portraits she has ever allowed. The rest of the wall is the unofficial record: a delighted baby, a banana, Mojo Jojo, an artist and creator, and her dearest friends (and wedding party!). It is, of course, only a glimpse; the collection is too large for any one wall.',
     meta: 'Photographs, various dates · lent by the sitter' },
@@ -56,23 +62,23 @@ const STATIONS = [
     eyebrow: 'The atrium · Kelly · build station', title: 'The LEGO Shelf',
     body: 'Kelly has been building with LEGO bricks for as long as she can remember, so of course there is a build station. Create your own minifigures from the different options, from the everyday to the fully Italian, and give each one a name!',
     meta: 'Build station · click the shelf, or Build a minifigure below' },
-  { id: 'anthony', x: 0, z: GALLERY_Z, yaw: -Math.PI / 2, room: 'atrium', accent: '#C9A667',
+  { id: 'anthony', x: WALL_VIEW.anthony.x, z: WALL_VIEW.anthony.z, yaw: -Math.PI / 2, eye: WALL_VIEW.anthony.eye, pitch: WALL_VIEW.anthony.pitch, room: 'atrium', accent: '#C9A667',   // facing his photographs
     eyebrow: 'The atrium · Anthony', title: 'Anthony',
-    body: 'Photographs to come.', meta: 'Placeholder' },
-  { id: 'anthony2', x: 0, z: GALLERY_Z - 1.3, yaw: -Math.PI / 2, eye: 2.12, room: 'atrium', accent: '#C9A667', tour: false, back: 'anthony', game: 'menu',
+    body: 'Write-up to come.', meta: 'Placeholder' },
+  { id: 'anthony2', x: 0, z: GALLERY_Z - 1.3, yaw: -Math.PI / 2, eye: SUN_Y, room: 'atrium', accent: '#C9A667', tour: false, back: 'anthony', game: 'menu',
     eyebrow: 'The atrium · Anthony · interactive installation', title: 'The Arcade',
     body: 'Five playable pieces. Getting to Italy, Cross the Piazza, Catch the Bouquet, Flight to Siena, and The Seating Chart. Arrows move, space jumps. Click the frame again to play.',
     meta: 'Anthony Alvarez & Kelly Wheelis, 2026 · interactive installation · Esc steps away' },
   // his artifacts: close-ups a step in from the wall stops (the pieces are small), reached by clicking them from his wall
-  { id: 'anthonyCard', x: 1.95, z: GALLERY_Z + 1.05, yaw: -Math.PI / 2, eye: 1.95, pitch: 0, room: 'atrium', accent: '#C9A667', tour: false, back: 'anthony',
+  { id: 'anthonyCard', x: 1.95, z: ART.card, yaw: -Math.PI / 2, eye: ART.y, pitch: 0, room: 'atrium', accent: '#C9A667', tour: false, back: 'anthony',
     eyebrow: 'The atrium · Anthony · from the collection', title: 'Destiny HERO – Diamond Dude',
     body: 'Anthony is a card battler of some notoriety, with experience that runs across numerous titles and competitions. This is his favorite card, slabbed and graded, hung where a portrait would go. Ask him about it, and allow time.',
     meta: 'Yu-Gi-Oh! trading card, graded slab · from the collection of Anthony Alvarez' },
-  { id: 'anthonyCase', x: 1.75, z: GALLERY_Z + 1.75, yaw: -Math.PI / 2, eye: 1.95, pitch: 0, room: 'atrium', accent: '#C9A667', tour: false, back: 'anthony',
+  { id: 'anthonyCase', x: 1.75, z: ART.case, yaw: -Math.PI / 2, eye: ART.y, pitch: 0, room: 'atrium', accent: '#C9A667', tour: false, back: 'anthony',
     eyebrow: 'The atrium · Anthony · in case of emergency', title: 'The Essentials',
     body: 'It is widely known that Anthony runs on three things: a Peach Red Bull, Hot Sauce, and Marlboro Southern Cuts. One of each, kept behind glass with a hammer, just in case. He plans to cut back after the wedding and quit in time, at which point this becomes a museum piece in the truest sense.',
     meta: 'Mixed media behind glass, with hammer · please do not actually break the glass' },
-  { id: 'anthonyAmelia', x: 1.2, z: GALLERY_Z + 1.1, yaw: -1.87, eye: 1.45, pitch: -0.22, room: 'atrium', accent: '#C9A667', tour: false, back: 'anthony',
+  { id: 'anthonyAmelia', x: 1.2, z: ART.amelia - 0.3, yaw: -1.87, eye: 1.45 + ART.lift, pitch: -0.22, room: 'atrium', accent: '#C9A667', tour: false, back: 'anthony',
     eyebrow: 'The atrium · Anthony · the first gift', title: 'A2: Amelia',
     body: 'The first gift Kelly ever gave Anthony: a brick-built Amelia, put together stud by stud. Amelia immediately tried to fight it. Although the muse is still slightly wary of her tiny brick doppelganger, she allows it to continue to exist among us for now.',
     meta: 'Micro-brick model, built by Kelly Wheelis · Siena marble plinth' },
@@ -1220,21 +1226,22 @@ sectionTitle('GUEST POLICIES', 'front', 3.4, 'detFrontR', 2.4);
 // assets/) to hang a photograph; until then it shows an empty mount.
 const ATRIUM_PICTURES = [
   { who: 'kelly', stop: 'kelly2', dz: -1.3, y: SUN_Y, w: 0.8, h: 1.05, blank: true },
-  { who: 'anthony', stop: 'anthony', dz: 0, y: 2.0, w: 1.15, h: 1.5, blank: true },
-  { who: 'anthony', stop: 'anthony2', dz: -1.3, y: 2.12, w: 0.84, h: 1.08, blank: true }   // the arcade screen: 224 x 288, so 7:9
+  { who: 'anthony', stop: 'anthony2', dz: -1.3, y: SUN_Y, w: 0.84, h: 1.08, blank: true }   // the arcade screen: 224 x 288, so 7:9; level with the Sunflowers across the hall (the owner, 27 Sept 2026)
 ];
-// ---- Kelly's photographs (from the owner's folder, prepared into assets/kelly-wall), hung as KELLY_WALL (the layout file)
-// says. Clicking one goes to the wall's stop; from there, to a close look at it.
-KELLY_WALL.photos.forEach((p, i) => {
-  const grp = framedPicture({ ...p, w: p.h * p.aspect, src: 'assets/kelly-wall/' + p.src + '.jpg', crop: p.oval ? [0.012, 0.012, 0.988, 0.988] : null }, 100 + i);   // an oval's edge kept inside its picture
-  grp.position.set(-(P.corrX - 0.075), p.y, p.z); grp.rotation.y = Math.PI / 2;
-  grp.userData.station = ST.kelly;
-  const bx = kellyBox(p), ow = (bx ? bx[0] : p.h * p.aspect) + 2 * p.fw, oh = (bx ? bx[1] : p.h) + 2 * p.fw;
-  const kelly = STATIONS[ST.kelly], dist = THREE.MathUtils.clamp(Math.max(1.3 * oh, 0.9 * ow), 0.7, 2.0), id = 'kellyPhoto' + i;
-  STATIONS.push({ id, x: -P.corrX + dist, z: p.z, yaw: Math.PI / 2, eye: THREE.MathUtils.clamp(p.y, 1.3, 3.05), room: 'atrium', accent: kelly.accent, tour: false, back: 'kelly',
-    eyebrow: kelly.eyebrow, title: kelly.title, body: kelly.body, meta: kelly.meta });
-  ST[id] = STATIONS.length - 1;
-  grp.userData.closer = ST[id];
+// ---- the couple's photographs (from the owner's folders, prepared into assets/<who>-wall), hung as their layout files
+// say. Clicking one goes to the wall's stop; from there, to a close look at it.
+Object.entries(PHOTO_WALLS).forEach(([who, W]) => { const sx = who === 'kelly' ? -1 : 1, yaw = sx < 0 ? Math.PI / 2 : -Math.PI / 2;
+  W.photos.forEach((p, i) => {
+    const grp = framedPicture({ ...p, w: p.h * p.aspect, src: 'assets/' + who + '-wall/' + p.src + '.jpg', crop: p.oval ? [0.012, 0.012, 0.988, 0.988] : null }, 100 + i);   // an oval's edge kept inside its picture
+    grp.position.set(sx * (P.corrX - 0.075), p.y, p.z); grp.rotation.y = yaw;
+    grp.userData.station = ST[who];
+    const bx = photoBox(p), ow = (bx ? bx[0] : p.h * p.aspect) + 2 * p.fw, oh = (bx ? bx[1] : p.h) + 2 * p.fw;
+    const wall = STATIONS[ST[who]], dist = THREE.MathUtils.clamp(Math.max(1.3 * oh, 0.9 * ow), 0.7, 2.0), id = who + 'Photo' + i;
+    STATIONS.push({ id, x: sx * (P.corrX - dist), z: p.z, yaw, eye: THREE.MathUtils.clamp(p.y, 1.3, 3.05), room: 'atrium', accent: wall.accent, tour: false, back: who,
+      eyebrow: wall.eyebrow, title: wall.title, body: wall.body, meta: wall.meta });
+    ST[id] = STATIONS.length - 1;
+    grp.userData.closer = ST[id];
+  });
 });
 let K2FRAME = null;                                                 // the frame the LEGO Sunflowers replace, once they have loaded
 ATRIUM_PICTURES.forEach((p, i) => {
@@ -1293,7 +1300,7 @@ Object.keys(GALLERY_NAMES).forEach((who) => {
   face.position.z = 0.0135;
   const g = new THREE.Group();
   g.add(plate, face);
-  g.position.set(sx * (P.corrX - 0.02), who === 'kelly' ? KELLY_WALL.plaque.y : 0.86, who === 'kelly' ? KELLY_WALL.plaque.z : GALLERY_Z);   // under the large frame (Kelly's: where her layout puts it)
+  g.position.set(sx * (P.corrX - 0.02), PHOTO_WALLS[who].plaque.y, PHOTO_WALLS[who].plaque.z);   // under the large frame (Kelly's: where her layout puts it)
   g.rotation.y = sx < 0 ? Math.PI / 2 : -Math.PI / 2;
   g.userData.station = ST[who];
   scene.add(g);
@@ -1693,7 +1700,7 @@ function slabLabelCanvas() {
   const step = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.47, 0.008), walnutTable);
   step.position.set(0, -0.02, 0.026);
   g.add(board, step);
-  hangArtifact(g, GALLERY_Z + 1.05, 1.95, 'anthonyCard');   // where the right-hand frame was, at eye level
+  hangArtifact(g, ART.card, ART.y, 'anthonyCard');
 })();
 
 // 2. IN CASE OF EMERGENCY BREAK GLASS: a red steel case under the arcade with a glass front and a hammer on a chain,
@@ -1863,7 +1870,7 @@ function slabLabelCanvas() {
   face.position.z = 0.0065;
   plate.add(face); plate.position.set(0, -CH / 2 - 0.075, 0.006);
   g.add(plate);
-  hangArtifact(g, GALLERY_Z + 1.75, 1.95, 'anthonyCase');   // beside the slab
+  hangArtifact(g, ART.case, ART.y, 'anthonyCase');   // beside the slab
 })();
 
 // ---- raised gilt numerals above the wing arches, built from bars and serifs
@@ -2171,18 +2178,18 @@ const gltfLoaderReady = () => Promise.all([import('three/addons/loaders/GLTFLoad
     }, undefined, () => console.warn('Amelia did not load'));
   }).catch(() => console.warn('sculpture loader unavailable for Amelia'));
   const g = new THREE.Group();
-  [[0.42, 0.1, 0.42, 0.05], [0.34, 0.72, 0.34, 0.46], [0.4, 0.08, 0.4, 0.86]].forEach(([w, h, d, y]) => {   // a slim square plinth to waist height, her paws near its edges, in the busts' pedestals' style
+  [[0.42, 0.1, 0.42, 0.05], [0.34, 0.72 + ART.lift, 0.34, 0.46 + ART.lift / 2], [0.4, 0.08, 0.4, 0.86 + ART.lift]].forEach(([w, h, d, y]) => {   // a slim square plinth to waist height, her paws near its edges, in the busts' pedestals' style
     const p = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), plinthMat);
     p.position.y = y; g.add(p);
   });
-  dog.position.y = 0.9; dog.rotation.y = Math.PI * 0.75;              // she stands diagonally, nose toward the plinth's front-left corner              // she stands diagonally, nose toward the plinth's front-left corner, her plume to the room
+  dog.position.y = 0.9 + ART.lift; dog.rotation.y = Math.PI * 0.75;              // she stands diagonally, nose toward the plinth's front-left corner              // she stands diagonally, nose toward the plinth's front-left corner, her plume to the room
   g.add(dog);
   const plate = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.055, 0.012), brass);   // her name, on the plinth's face
   const face = new THREE.Mesh(new THREE.PlaneGeometry(0.26, 0.055), new THREE.MeshStandardMaterial({ map: plaqueTexture('AMELIA', 84), roughness: 0.45, metalness: 0.15 }));
   face.position.z = 0.0065;
-  plate.add(face); plate.position.set(-0.176, 0.765, 0); plate.rotation.y = -Math.PI / 2;   // just under the cap, as a museum plate sits
+  plate.add(face); plate.position.set(-0.176, 0.765 + ART.lift, 0); plate.rotation.y = -Math.PI / 2;   // just under the cap, as a museum plate sits
   g.add(plate);
-  g.position.set(2.15, 0, GALLERY_Z + 1.4);                           // on the floor below the slab and the case
+  g.position.set(2.15, 0, ART.amelia);                                // on the floor, under the middle of the slab and the case
   g.userData.station = ST.anthony;
   g.userData.closer = ST.anthonyAmelia;
   scene.add(g);

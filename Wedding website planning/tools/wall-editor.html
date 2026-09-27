@@ -52,12 +52,8 @@
 </style></head>
 <body>
 <header>
-  <h1>Kelly's wall</h1>
-  <div class="opts"><span>Start from</span>
-    <button class="btn" data-preset="A" title="Mirrored pairs around the main portrait">A · Symmetric salon</button>
-    <button class="btn" data-preset="B" title="The main portrait on its own, three themed rows beside it">B · Series in rows</button>
-    <button class="btn" data-preset="C" title="Matching black frames with white mats, in a grid">C · Matted grid</button>
-  </div>
+  <div class="opts" id="walls"><button class="btn" data-wall="kelly">Kelly's wall</button><button class="btn" data-wall="anthony">Anthony's wall</button></div>
+  <div class="opts" id="presets"><span>Start from</span></div>
   <button class="btn" id="sym" title="Mirror every pair around the main portrait, exactly; space what is on the centre line evenly">Make symmetric</button>
   <button class="btn" id="undo" title="Undo (Cmd/Ctrl+Z)">Undo</button>
   <button class="btn primary" id="save">Save to the gallery</button>
@@ -68,7 +64,7 @@
   <aside>
     <div class="panel" id="selPanel"><h2>Selected</h2><div id="selBody" class="none">Click a photograph (or the plaque) to size and frame it. Drag to move; the arrow keys nudge it 1 cm (with Shift, 5 cm). Pink lines show when it lines up with another.</div></div>
     <div class="panel"><h2>Your photographs</h2><div id="tray"></div><p class="hint">Click one to put it on the wall or take it off. Outlined: on the wall.</p></div>
-    <div class="panel"><h2>When you are happy</h2><p class="hint" style="margin:0">Press <b>Save to the gallery</b>, then reload the gallery (<a href="/" target="gallery">open it</a>) and walk to your wall, on the left just inside the entrance. Nothing is live on the website until you say commit.</p></div>
+    <div class="panel"><h2>When you are happy</h2><p class="hint" style="margin:0">Press <b>Save to the gallery</b>, then reload the gallery (<a href="/" target="gallery">open it</a>) and walk to <span id="where">the wall</span>. Nothing is live on the website until you say commit.</p></div>
   </aside>
 </main>
 <script>
@@ -76,17 +72,25 @@
 // pilasters at z 0.667 and -5 (faces 0.27 either side); the Sunflowers hang at z -3.9, their centre at SUN_Y (as in gallery3d.js),
 // the LEGO shelf's top 0.76 below it.
 const Z0 = 0.62, Z1 = -5.02, HGT = 3.95, SUN_Y = 2.31, SH = SUN_Y - 0.76;
-const CAT = {                                        // the prepared photographs (assets/kelly-wall): aspect (w / h) and whether cut as an oval or circle
+const WALL = new URLSearchParams(location.search).get('wall') === 'anthony' ? 'anthony' : 'kelly';   // which wall: ?wall=anthony
+const DIR = WALL === 'kelly' ? 1 : -1;               // facing Kelly's wall its left end is +z; facing Anthony's (across the hall), -z
+const CZ = WALL === 'kelly' ? -2.0 : -2.52;          // where a new photograph first lands
+const CATS = {};
+CATS.kelly = {                                       // the prepared photographs (assets/<who>-wall): aspect (w / h) and whether cut as an oval or circle
   'main-portrait': { a: 0.743, oval: true, name: 'Main portrait' }, 'side-portrait': { a: 0.835, oval: true, name: 'Side portrait' },
   'baby': { a: 0.778, oval: true, name: 'Baby' }, 'baby-banana': { a: 0.665, name: 'Banana baby' }, 'elementary': { a: 0.732, oval: true, name: 'Elementary school' },
   'maid-of-honor': { a: 1.227, name: 'Maid of Honor' }, 'bridal-party': { a: 1.2, name: 'Bridal party' }, 'eyes': { a: 1.499, name: 'Eyes' },
   'mojo': { a: 1, oval: true, name: 'Mojo Jojo' }, 'sfx': { a: 1, oval: true, name: 'SFX' }, 'halloween': { a: 0.633, name: 'Halloween' },
   'fun': { a: 0.546, name: 'Fun' }, 'highschool': { a: 1.296, name: 'High school' },
 };
-const IMG = (k) => '/assets/kelly-wall/' + k + '.jpg';
+CATS.anthony = {
+  'main-portrait': { a: 0.743, oval: true, name: 'Portrait' },   // reshaped to Kelly's main oval, so the two match 'portrait-2': { a: 1.003, oval: true, name: 'Portrait (round)' },
+  'mom-and-grandma': { a: 1.309, name: 'Mom and Grandma' }, 'best-man': { a: 1.43, name: 'Best man' }, 'dating-profile': { a: 1.445, name: 'Dating profile' },
+};
+const CAT = CATS[WALL], IMG = (k) => '/assets/' + WALL + '-wall/' + k + '.jpg';
 const ph = (src, z, y, h, frame = 'gilt', fw = 0.05, more = {}) => ({ src, z, y, h, frame, fw, ...more });
-// ---- the three options (see the header's buttons). Each is a starting point; everything can be moved after.
-const PRESETS = {
+// ---- the options (the header's buttons), per wall. Each is a starting point; everything can be moved after.
+const PRESETS_K = {
   // A: symmetric salon: the main portrait on the axis, a column either side mirroring the other (ovals, then black
   // frames, then rounds), the friends and the eyes across the top, the plaque below
   A: () => { const c = -2.0, d = 0.692;
@@ -117,6 +121,21 @@ const PRESETS = {
       cell('baby-banana', 0, 2), cell('maid-of-honor', 1, 2), cell('bridal-party', 2, 2), cell('mojo', 3, 2),
     ], plaque: { z: (cols[1] + cols[2]) / 2, y: 1.12 } }; },
 };
+const PRESETS_A = {
+  // A: a portrait column, matched to Kelly's wall across the hall: the portrait's centre at her main portrait's height,
+  // the round one above at her top row's, the three snapshots below at her bottom row's, the plaque at hers
+  A: () => { const c = -2.52, rh = 0.22, fw = 0.045, gap = 0.07, w = (k) => rh * CAT[k].a + 2 * fw;
+    return { photos: [
+      ph('main-portrait', c, 2.309, 0.88, 'gilt', 0.095), ph('portrait-2', c, 3.094, 0.3, 'gilt', 0.045),
+      ph('mom-and-grandma', +(c - (w('dating-profile') / 2 + gap + w('mom-and-grandma') / 2)).toFixed(3), 1.564, rh, 'gilt', fw),
+      ph('dating-profile', c, 1.564, rh, 'plain', fw),
+      ph('best-man', +(c + (w('dating-profile') / 2 + gap + w('best-man') / 2)).toFixed(3), 1.564, rh, 'gilt', fw),
+    ], plaque: { z: c, y: 1.2 } }; },
+};
+const PRESETS = WALL === 'kelly' ? PRESETS_K : PRESETS_A;
+const PRESET_NAMES = WALL === 'kelly' ? { A: ['A · Symmetric salon', 'Mirrored pairs around the main portrait'], B: ['B · Series in rows', 'The main portrait on its own, three themed rows beside it'], C: ['C · Matted grid', 'Matching black frames with white mats, in a grid'] }
+  : { A: ['A · Portrait column', 'The portraits one above the other, the snapshots in a row below, at the heights of Kelly\u2019s wall'] };
+const NAME = WALL === 'kelly' ? 'KELLY' : 'ANTHONY';
 
 // ---- state
 let L = null, sel = null, S = 170;                  // the layout; the selected item (a photo, or 'plaque'); pixels per metre
@@ -124,7 +143,7 @@ const hist = [], stage = document.getElementById('stage'), bg = document.getElem
 const snap = () => JSON.stringify(L);
 function push() { hist.push(snap()); if (hist.length > 200) hist.shift(); }
 function undo() { if (!hist.length) return; L = JSON.parse(hist.pop()); sel = null; render(); dirty(true); }
-const X = (z) => (Z0 - z) * S, Y = (y) => (HGT - y) * S;
+const X = (z) => (DIR > 0 ? Z0 - z : z - Z1) * S, Y = (y) => (HGT - y) * S, LX = (z, w) => Math.min(X(z - w / 2), X(z + w / 2));   // LX: the screen left of something w wide centred at z
 const outer = (p) => { const b = p.box || (p.mat ? [p.h * CAT[p.src].a + 2 * p.mat, p.h + 2 * p.mat] : null), w = b ? b[0] : p.h * CAT[p.src].a, h = b ? b[1] : p.h; return [w + 2 * p.fw, h + 2 * p.fw, b]; };
 function dirty(v) { document.getElementById('status').textContent = v ? 'Not saved yet' : 'Saved. Reload the gallery to see it.'; }
 
@@ -136,10 +155,11 @@ function drawWall() {
   x.fillStyle = '#E8DEC9'; x.fillRect(0, 0, W, H);
   x.fillStyle = '#DCD0B6'; x.fillRect(0, Y(HGT), W, (HGT - 3.78) * S);                       // the cornice
   x.fillStyle = '#9C8466'; x.fillRect(0, Y(0.12), W, 0.12 * S);                               // the skirting
-  [0.667, -5].forEach((z) => { x.fillStyle = '#DCD2BC'; x.fillRect(X(z + 0.27), 0, 0.54 * S, H); x.strokeStyle = '#c9bea5'; x.strokeRect(X(z + 0.27), 0, 0.54 * S, H); });   // the pilasters
-  x.fillStyle = 'rgba(140, 110, 70, .28)'; x.font = 'italic ' + Math.round(S * 0.085) + 'px Georgia'; x.fillText('your artifacts', X(0.3), Y(3.3));
+  [0.667, -5].forEach((z) => { x.fillStyle = '#DCD2BC'; x.fillRect(LX(z, 0.54), 0, 0.54 * S, H); x.strokeStyle = '#c9bea5'; x.strokeRect(LX(z, 0.54), 0, 0.54 * S, H); });   // the pilasters
+  if (WALL === 'kelly') { x.fillStyle = 'rgba(140, 110, 70, .28)'; x.font = 'italic ' + Math.round(S * 0.085) + 'px Georgia'; x.fillText('your artifacts', X(0.3), Y(3.3)); }
   x.setLineDash([6, 6]); x.strokeStyle = 'rgba(140, 110, 70, .25)'; x.beginPath(); x.moveTo(0, Y(1.6)); x.lineTo(W, Y(1.6)); x.stroke(); x.setLineDash([]);
-  x.fillStyle = 'rgba(140, 110, 70, .35)'; x.font = Math.round(S * 0.06) + 'px Georgia'; x.fillText('eye level', X(Z1 + 0.5), Y(1.63));
+  x.fillStyle = 'rgba(140, 110, 70, .35)'; x.font = Math.round(S * 0.06) + 'px Georgia'; x.fillText('eye level', W - 0.5 * S, Y(1.63));
+  if (WALL === 'anthony') { drawAnthony(x); return; }
   // the LEGO Sunflowers in their gilt frame (opening 0.8 x 1.05), and the shelf under them
   const g = x.createLinearGradient(X(-3.38), 0, X(-4.42), 0); g.addColorStop(0, '#8a5e1d'); g.addColorStop(0.3, '#e9c46c'); g.addColorStop(0.7, '#b8862b'); g.addColorStop(1, '#f5dc92');
   x.fillStyle = g; x.fillRect(X(-3.377), Y(SUN_Y + 0.648), 1.046 * S, 1.296 * S);
@@ -151,6 +171,20 @@ function drawWall() {
   x.fillStyle = '#f2efe8'; x.fillRect(X(-3.9), Y(SH + 0.05), 0.4 * S, 0.02 * S);
 }
 
+// Anthony's wall, as the gallery has it: the arcade (z -3.9, level with the Sunflowers across the hall), his graded card on
+// its walnut plaque and the emergency case, and Amelia on her plinth on the floor, as ART in gallery3d.js places them
+function drawAnthony(x) {
+  const R = (zc, yc, w, h, fill) => { x.fillStyle = fill; x.fillRect(LX(zc, w), Y(yc + h / 2), w * S, h * S); };
+  const g = x.createLinearGradient(LX(-3.9, 1.09), 0, LX(-3.9, 1.09) + 1.09 * S, 0); g.addColorStop(0, '#8a5e1d'); g.addColorStop(0.3, '#e9c46c'); g.addColorStop(0.7, '#b8862b'); g.addColorStop(1, '#f5dc92');
+  R(-3.9, SUN_Y, 1.088, 1.328, g); R(-3.9, SUN_Y, 0.84, 1.08, '#1a1210');
+  x.fillStyle = '#f2d98a'; x.font = 'bold ' + Math.round(S * 0.07) + 'px monospace'; x.textAlign = 'center';
+  x.fillText('GETTING', X(-3.9), Y(SUN_Y + 0.33)); x.fillText('TO ITALY', X(-3.9), Y(SUN_Y + 0.23)); x.font = Math.round(S * 0.035) + 'px monospace'; x.fillText('THE ARCADE', X(-3.9), Y(SUN_Y - 0.3)); x.textAlign = 'left';
+  const cz = -0.792, kz = -0.192, ay = 2.1, am = -0.492, lift = 0.3;   // as ART in gallery3d.js
+  R(cz, ay, 0.3, 0.44, '#5a3620'); R(cz, ay + 0.02, 0.22, 0.35, '#e8eef0'); R(cz, ay + 0.02, 0.166, 0.242, '#7a5a2a');   // the slab on its plaque
+  R(kz, ay, 0.46, 0.44, '#c8102e'); R(kz, ay, 0.4, 0.36, '#f3ecdc'); ['#f08a3a', '#b8331f', '#c9a24a'].forEach((c, i) => R(kz - 0.13 + i * 0.13, ay - 0.05, 0.06, 0.14, c));   // the case
+  R(am, 0.47 + lift / 2, 0.34, 0.8 + lift, '#c9a24a'); R(am, 0.07, 0.42, 0.1, '#b08a3a'); R(am, 0.9 + lift, 0.4, 0.08, '#b08a3a');   // Amelia's plinth, and Amelia
+  x.fillStyle = '#f4f2ee'; x.beginPath(); x.ellipse(X(am), Y(1.1 + lift), 0.2 * S, 0.14 * S, 0, 0, 7); x.fill(); x.beginPath(); x.ellipse(X(am) + DIR * -0.12 * S, Y(1.24 + lift), 0.09 * S, 0.08 * S, 0, 0, 7); x.fill();
+}
 // ---- the photographs and the plaque, as elements over the wall
 function render() { renderItems(); renderTray(); renderSel(); }
 function renderItems() {
@@ -158,7 +192,7 @@ function renderItems() {
   L.photos.forEach((p, i) => {
     const [ow, oh, b] = outer(p), w = p.h * CAT[p.src].a, e = document.createElement('div');
     e.className = 'item' + (CAT[p.src].oval && !b ? ' oval' : '') + (sel === i ? ' sel' : ''); e.dataset.i = i;
-    Object.assign(e.style, { left: X(p.z + ow / 2) + 'px', top: Y(p.y + oh / 2) + 'px', width: ow * S + 'px', height: oh * S + 'px' });
+    Object.assign(e.style, { left: LX(p.z, ow) + 'px', top: Y(p.y + oh / 2) + 'px', width: ow * S + 'px', height: oh * S + 'px' });
     const fr = document.createElement('div'); fr.className = 'fr ' + p.frame; e.appendChild(fr);
     const inn = document.createElement('div'); inn.className = 'in'; Object.assign(inn.style, { left: p.fw * S + 'px', top: p.fw * S + 'px', right: p.fw * S + 'px', bottom: p.fw * S + 'px' }); e.appendChild(inn);
     const img = document.createElement('img'); img.className = 'pic'; img.src = IMG(p.src); img.draggable = false;
@@ -168,8 +202,8 @@ function renderItems() {
     inn.appendChild(img);
     stage.appendChild(e);
   });
-  const q = document.createElement('div'); q.className = 'plaque' + (sel === 'plaque' ? ' sel' : ''); q.textContent = 'KELLY';
-  Object.assign(q.style, { left: X(L.plaque.z + 0.6) + 'px', top: Y(L.plaque.y + 0.12) + 'px', width: 1.2 * S + 'px', height: 0.24 * S + 'px', fontSize: 0.1 * S + 'px' });
+  const q = document.createElement('div'); q.className = 'plaque' + (sel === 'plaque' ? ' sel' : ''); q.textContent = NAME;
+  Object.assign(q.style, { left: LX(L.plaque.z, 1.2) + 'px', top: Y(L.plaque.y + 0.12) + 'px', width: 1.2 * S + 'px', height: 0.24 * S + 'px', fontSize: 0.1 * S + 'px' });
   stage.appendChild(q);
 }
 function renderTray() {
@@ -177,7 +211,7 @@ function renderTray() {
   Object.keys(CAT).forEach((k) => { const on = L.photos.some((p) => p.src === k), b = document.createElement('button');
     b.className = on ? 'onwall' : ''; b.title = CAT[k].name + (on ? ' (on the wall: click to take it off)' : ' (click to hang it)');
     b.innerHTML = '<img src="' + IMG(k) + '" alt="">'; b.onclick = () => { push(); if (on) { L.photos = L.photos.filter((p) => p.src !== k); sel = null; }
-      else { L.photos.push(ph(k, -2.0, 2.0, CAT[k].oval ? 0.3 : 0.32, CAT[k].oval ? 'gilt' : 'plain', 0.05)); sel = L.photos.length - 1; } render(); dirty(true); };
+      else { L.photos.push(ph(k, CZ, 2.0, CAT[k].oval ? 0.3 : 0.32, CAT[k].oval ? 'gilt' : 'plain', 0.05)); sel = L.photos.length - 1; } render(); dirty(true); };
     t.appendChild(b); });
 }
 // the selected item's controls
@@ -185,7 +219,7 @@ function renderSel() {
   const body = document.getElementById('selBody');
   if (sel == null) { body.className = 'none'; body.innerHTML = 'Click a photograph (or the plaque) to size and frame it. Drag to move; the arrow keys nudge it 1 cm (with Shift, 5 cm). Pink lines show when it lines up with another.'; return; }
   body.className = '';
-  if (sel === 'plaque') { body.innerHTML = '<b>The KELLY plaque</b><p class="hint">Drag it where you want it. Centre ' + L.plaque.y.toFixed(2) + ' m from the floor.</p>'; return; }
+  if (sel === 'plaque') { body.innerHTML = '<b>The ' + NAME + ' plaque</b><p class="hint">Drag it where you want it. Centre ' + L.plaque.y.toFixed(2) + ' m from the floor.</p>'; return; }
   const p = L.photos[sel], c = CAT[p.src], matted = !!p.box || !!p.mat;
   const slider = (id, label, min, max, step, val, unit = 'cm', k = 100) => `<div class="row"><label>${label}</label><input type="range" id="${id}" min="${min}" max="${max}" step="${step}" value="${val}"><output id="${id}o">${Math.round(val * k)} ${unit}</output></div>`;
   body.innerHTML = `<b>${c.name}</b>` +
@@ -218,7 +252,7 @@ stage.addEventListener('pointerdown', (ev) => {
 });
 stage.addEventListener('pointermove', (ev) => {
   if (!drag) return; drag.moved = true;
-  let z = drag.z0 - (ev.clientX - drag.mx) / S, y = drag.y0 - (ev.clientY - drag.my) / S;
+  let z = drag.z0 - DIR * (ev.clientX - drag.mx) / S, y = drag.y0 - (ev.clientY - drag.my) / S;
   const me = drag.i === 'plaque' ? [1.2, 0.24] : outer(drag.o), tol = 0.012, gz = [], gy = [];
   const others = L.photos.map((p, k) => (k === drag.i ? null : [p.z, p.y, ...outer(p)])).filter(Boolean);
   if (drag.i !== 'plaque') others.push([L.plaque.z, L.plaque.y, 1.2, 0.24]);
@@ -236,7 +270,7 @@ stage.addEventListener('pointerup', () => { if (drag) { if (!drag.moved) hist.po
 document.addEventListener('keydown', (ev) => {
   if ((ev.metaKey || ev.ctrlKey) && ev.key === 'z') { ev.preventDefault(); undo(); return; }
   if (sel == null || ev.target.tagName === 'INPUT' || ev.target.tagName === 'SELECT') return;
-  const d = ev.shiftKey ? 0.05 : 0.01, o = sel === 'plaque' ? L.plaque : L.photos[sel], mv = { ArrowLeft: [d, 0], ArrowRight: [-d, 0], ArrowUp: [0, d], ArrowDown: [0, -d] }[ev.key];
+  const d = ev.shiftKey ? 0.05 : 0.01, o = sel === 'plaque' ? L.plaque : L.photos[sel], mv = { ArrowLeft: [DIR * d, 0], ArrowRight: [-DIR * d, 0], ArrowUp: [0, d], ArrowDown: [0, -d] }[ev.key];
   if (!mv) return; ev.preventDefault(); push(); o.z = +(o.z + mv[0]).toFixed(3); o.y = +(o.y + mv[1]).toFixed(3); render(); dirty(true);
 });
 
@@ -264,12 +298,17 @@ function makeSymmetric() {
 }
 // ---- options, undo, save
 document.getElementById('sym').onclick = () => { push(); const msg = makeSymmetric(); render(); dirty(true); document.getElementById('status').textContent = msg + '. Not saved yet'; };
+Object.entries(PRESET_NAMES).forEach(([k, [label, tip]]) => { const b = document.createElement('button'); b.className = 'btn'; b.dataset.preset = k; b.textContent = label; b.title = tip; document.getElementById('presets').appendChild(b); });
+document.querySelectorAll('[data-wall]').forEach((b) => { b.classList.toggle('on', b.dataset.wall === WALL);
+  b.onclick = () => { if (b.dataset.wall === WALL) return; if (/Not saved/.test(document.getElementById('status').textContent) && !confirm('Leave without saving this wall?')) return; location.search = '?wall=' + b.dataset.wall; }; });
+document.getElementById('where').textContent = WALL === 'kelly' ? 'your wall, on the left just inside the entrance' : 'Anthony\u2019s wall, on the right just inside the entrance';
+document.title = (WALL === 'kelly' ? 'Kelly' : 'Anthony') + '\u2019s wall \u00b7 arrange the photographs';
 document.querySelectorAll('[data-preset]').forEach((b) => b.onclick = () => { push(); L = PRESETS[b.dataset.preset](); sel = null; render(); dirty(true);
   document.querySelectorAll('[data-preset]').forEach((x) => x.classList.toggle('on', x === b)); });
 document.getElementById('undo').onclick = undo;
 document.getElementById('save').onclick = async () => {
   const out = { photos: L.photos.map((p) => ({ ...p, aspect: CAT[p.src].a, oval: !!CAT[p.src].oval })), plaque: L.plaque };
-  try { const r = await fetch('/__save-kelly-wall', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(out) });
+  try { const r = await fetch('/__save-wall?wall=' + WALL, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(out) });
     if (!r.ok) throw new Error((await r.json()).error || r.status); dirty(false); }
   catch (e) { document.getElementById('status').textContent = 'Could not save (' + e.message + '). Is the local server running?'; }
 };
@@ -277,7 +316,7 @@ document.getElementById('save').onclick = async () => {
 function fit() { S = Math.max(110, Math.min(230, (window.innerWidth - 420) / (Z0 - Z1), (window.innerHeight - 90) / HGT)); drawWall(); if (L) render(); }
 window.addEventListener('resize', fit);
 (async () => {
-  const saved = await fetch('/assets/kelly-wall/layout.json', { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+  const saved = await fetch('/assets/' + WALL + '-wall/layout.json', { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
   L = saved && saved.photos ? { photos: saved.photos.filter((p) => CAT[p.src]).map(({ aspect, oval, ...p }) => p), plaque: saved.plaque } : PRESETS.A();
   const q = new URLSearchParams(location.search).get('preset'); if (q && PRESETS[q]) L = PRESETS[q]();
   fit(); dirty(false); document.getElementById('status').textContent = saved ? 'The saved arrangement' : 'Option A (not saved yet)';

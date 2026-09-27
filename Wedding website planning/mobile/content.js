@@ -45,7 +45,7 @@ window.CONTENT = {
     },
     "anthony": {
      "title": "Anthony",
-     "body": "Photographs to come.",
+     "body": "Write-up to come.",
      "meta": "Placeholder"
     }
    },

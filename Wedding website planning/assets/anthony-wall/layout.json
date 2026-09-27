@@ -1,0 +1,58 @@
+{
+ "photos": [
+  {
+   "src": "main-portrait",
+   "z": -2.0,
+   "y": 2.309,
+   "h": 0.88,
+   "frame": "gilt",
+   "fw": 0.095,
+   "aspect": 0.743,
+   "oval": true
+  },
+  {
+   "src": "portrait-2",
+   "z": -1.376,
+   "y": 1.954,
+   "h": 0.3,
+   "frame": "gilt",
+   "fw": 0.045,
+   "aspect": 1.003,
+   "oval": true
+  },
+  {
+   "src": "mom-and-grandma",
+   "z": -2.64,
+   "y": 2.664,
+   "h": 0.22,
+   "frame": "gilt",
+   "fw": 0.045,
+   "aspect": 1.309,
+   "oval": false
+  },
+  {
+   "src": "dating-profile",
+   "z": -2.0,
+   "y": 1.575,
+   "h": 0.22,
+   "frame": "plain",
+   "fw": 0.045,
+   "aspect": 1.445,
+   "oval": false
+  },
+  {
+   "src": "best-man",
+   "z": -2.64,
+   "y": 1.954,
+   "h": 0.22,
+   "frame": "gilt",
+   "fw": 0.045,
+   "aspect": 1.43,
+   "oval": false
+  }
+ ],
+ "plaque": {
+  "z": -2.0,
+  "y": 1.2
+ }
+}

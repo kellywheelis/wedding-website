@@ -72,13 +72,14 @@ http.createServer(async (req, res) => {
     catch (e) { res.writeHead(500, { 'content-type': 'text/plain' }); res.end(String(e.stack || e)); }
     return;
   }
-  // the wall editor (tools/wall-editor.html) for arranging Kelly's photographs, and where it saves: here only, never on
+  // the wall editor (tools/wall-editor.html) for arranging the couple's photographs, and where it saves: here only, never on
   // the live site. The layout it saves is the file the gallery reads, so a reload of the gallery shows the arrangement.
   if (url.pathname === '/wall-editor') { res.writeHead(200, { 'content-type': TYPES['.html'], 'cache-control': 'no-store' }); fs.createReadStream(path.join(ROOT, 'Wedding website planning', 'tools', 'wall-editor.html')).pipe(res); return; }
-  if (url.pathname === '/__save-kelly-wall' && req.method === 'POST') {
+  if (url.pathname === '/__save-wall' && req.method === 'POST') {                  // ?wall=kelly | anthony
     let raw = ''; for await (const c of req) { raw += c; if (raw.length > 200000) break; }
-    try { const j = JSON.parse(raw); if (!Array.isArray(j.photos) || !j.plaque) throw new Error('not a layout');
-      fs.writeFileSync(path.join(ROOT, 'Wedding website planning', 'assets', 'kelly-wall', 'layout.json'), JSON.stringify(j, null, 1) + '\n');
+    try { const j = JSON.parse(raw), who = url.searchParams.get('wall'); if (!['kelly', 'anthony'].includes(who)) throw new Error('which wall?');
+      if (!Array.isArray(j.photos) || !j.plaque) throw new Error('not a layout');
+      fs.writeFileSync(path.join(ROOT, 'Wedding website planning', 'assets', who + '-wall', 'layout.json'), JSON.stringify(j, null, 1) + '\n');
       res.writeHead(200, { 'content-type': 'application/json' }); res.end('{"ok":true}'); }
     catch (e) { res.writeHead(400, { 'content-type': 'application/json' }); res.end(JSON.stringify({ error: String(e.message || e) })); }
     return;

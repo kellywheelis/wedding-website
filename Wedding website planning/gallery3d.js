@@ -4347,21 +4347,34 @@ let volFront = null, volShadow = null;
     new THREE.MeshStandardMaterial(k === 4 ? { map: wainTex, roughness: 0.85 } : { color: '#fbfaf5', roughness: 0.85 })));
   wainscot.position.set(0, -0.5 + edge / 2, 0.0015);
   relief.add(wainscot);
-  const ring = (ow, oh, iw, ih, z) => {
+  // the two rings as the owner's cut file makes them (SAVE-THE-DATE-PACK 2-CUT, cut-frames.svg / TEST-frame-dense.svg):
+  // ring A with a course of 59 pearls pressed into it, ring B with 30 dentils pressed round it. The pressing is drawn
+  // into each ring's face (a colour map and a bump map over the ring's own outline, in inches from its centre).
+  const DENTILS = [0.0000,0.6442,0.0000,0.7118,0.1055,0.6301,0.1192,0.6963,0.2064,0.5885,0.2331,0.6503,0.2982,0.5212,0.3369,0.5759,0.3770,0.4311,0.4259,0.4763,0.4394,0.3221,0.4964,0.3559,0.4825,0.1991,0.5451,0.2200,0.5046,0.0673,0.5700,0.0744,0.5046,-0.0673,0.5700,-0.0744,0.4825,-0.1991,0.5451,-0.2200,0.4394,-0.3221,0.4964,-0.3559,0.3770,-0.4311,0.4259,-0.4763,0.2982,-0.5212,0.3369,-0.5759,0.2064,-0.5885,0.2331,-0.6503,0.1055,-0.6301,0.1192,-0.6963,0.0000,-0.6442,0.0000,-0.7118,-0.1055,-0.6301,-0.1192,-0.6963,-0.2064,-0.5885,-0.2331,-0.6503,-0.2982,-0.5212,-0.3369,-0.5759,-0.3770,-0.4311,-0.4259,-0.4763,-0.4394,-0.3221,-0.4964,-0.3559,-0.4825,-0.1991,-0.5451,-0.2200,-0.5046,-0.0673,-0.5700,-0.0744,-0.5046,0.0673,-0.5700,0.0744,-0.4825,0.1991,-0.5451,0.2200,-0.4394,0.3221,-0.4964,0.3559,-0.3770,0.4311,-0.4259,0.4763,-0.2982,0.5212,-0.3369,0.5759,-0.2064,0.5885,-0.2331,0.6503,-0.1055,0.6301,-0.1192,0.6963];   // ring B's 30 dentils: x1, y1, x2, y2 in inches from its centre (the cut file's own)
+  const ringFace = (ow, oh, draw) => {
+    const W = 1024, H = Math.round(1024 * oh / ow), px = (x) => (x / ow + 0.5) * W, py = (y) => (0.5 - y / oh) * H, u = W / ow;   // u: pixels to the inch
+    const col = document.createElement('canvas'), bmp = document.createElement('canvas'); col.width = bmp.width = W; col.height = bmp.height = H;
+    const c = col.getContext('2d'), b = bmp.getContext('2d'); c.fillStyle = '#d9ab4c'; c.fillRect(0, 0, W, H); b.fillStyle = '#c8c8c8'; b.fillRect(0, 0, W, H);
+    draw(c, b, px, py, u);
+    const t = (cv, srgb) => { const x = new THREE.CanvasTexture(cv); if (srgb) x.colorSpace = THREE.SRGBColorSpace; x.anisotropy = 8; x.repeat.set(1 / (ow * IN), 1 / (oh * IN)); x.offset.set(0.5, 0.5); return x; };
+    return new THREE.MeshStandardMaterial({ map: t(col, true), bumpMap: t(bmp, false), bumpScale: 2, roughness: 0.38, metalness: 0.4 });
+  };
+  const ring = (ow, oh, iw, ih, z, face) => {
     const sh = new THREE.Shape().absellipse(0, 0, ow * IN / 2, oh * IN / 2, 0, Math.PI * 2, false, 0);
     sh.holes.push(new THREE.Path().absellipse(0, 0, iw * IN / 2, ih * IN / 2, 0, Math.PI * 2, true, 0));
-    const m = new THREE.Mesh(new THREE.ExtrudeGeometry(sh, { depth: 0.004, bevelEnabled: false, curveSegments: 64 }), giltPlain);
+    const m = new THREE.Mesh(new THREE.ExtrudeGeometry(sh, { depth: 0.004, bevelEnabled: false, curveSegments: 64 }), [face || giltPlain, giltPlain]);
     m.position.set(WINDOW_X, 0, z);
     relief.add(m);
   };
-  ring(1.411, 1.691, 1.030, 1.301, 0);                            // ring A, the larger, underneath
-  ring(1.245, 1.525, 0.916, 1.187, 0.004);                        // ring B on top, lapping the window's cut edge
-  const pearls = new THREE.InstancedMesh(new THREE.SphereGeometry(0.6 / 25.4 * IN, 8, 6), giltPlain, 59);   // ring A's pearl course
-  for (let i = 0; i < 59; i++) {
-    const t = i / 59 * Math.PI * 2;
-    pearls.setMatrixAt(i, new THREE.Matrix4().makeTranslation(WINDOW_X + Math.cos(t) * 1.328 * IN / 2, Math.sin(t) * 1.608 * IN / 2, 0.0042));
-  }
-  relief.add(pearls);
+  ring(1.411, 1.691, 1.030, 1.301, 0, ringFace(1.411, 1.691, (c, b, px, py, u) => {   // ring A, the larger, underneath: its pearls, a dimple each
+    for (let i = 0; i < 59; i++) { const t = Math.PI / 2 + i / 59 * Math.PI * 2, x = px(Math.cos(t) * 0.6638), y = py(Math.sin(t) * 0.8040), r = 0.0236 * u;
+      const gb = b.createRadialGradient(x, y, 0, x, y, r); gb.addColorStop(0, '#303030'); gb.addColorStop(0.75, '#8a8a8a'); gb.addColorStop(1, '#c8c8c8'); b.fillStyle = gb; b.beginPath(); b.arc(x, y, r, 0, Math.PI * 2); b.fill();
+      const gc = c.createRadialGradient(x, y, 0, x, y, r); gc.addColorStop(0, '#a47a2c'); gc.addColorStop(1, '#d9ab4c'); c.fillStyle = gc; c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.fill(); }
+  }));
+  ring(1.245, 1.525, 0.916, 1.187, 0.004, ringFace(1.245, 1.525, (c, b, px, py, u) => {   // ring B on top, lapping the window's cut edge: its dentils, a groove each
+    c.lineCap = b.lineCap = 'round'; c.strokeStyle = '#a47a2c'; b.strokeStyle = '#404040'; c.lineWidth = b.lineWidth = 0.02 * u;
+    for (let i = 0; i < DENTILS.length; i += 4) [c, b].forEach((x) => { x.beginPath(); x.moveTo(px(DENTILS[i]), py(DENTILS[i + 1])); x.lineTo(px(DENTILS[i + 2]), py(DENTILS[i + 3])); x.stroke(); });
+  }));
   const eyelet = new THREE.Mesh(new THREE.TorusGeometry(0.085 * IN, 0.03 * IN, 10, 28), brass);
   eyelet.position.z = 0.0085;
 

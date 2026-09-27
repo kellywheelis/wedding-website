@@ -31,6 +31,10 @@
   .item .mat { position: absolute; background: #F1EBDD; box-shadow: inset 0 1px 3px rgba(0, 0, 0, .25); }
   .item img { position: absolute; display: block; pointer-events: none; }
   .item.oval .fr, .item.oval .in, .item.oval .pic { border-radius: 50%; }
+  .item img.pic { object-fit: cover; }
+  .swapgrid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin-top: 6px; }
+  .swapgrid button { padding: 0; border: 1px solid #cdbf9f; background: #eee5d4; aspect-ratio: 1; cursor: pointer; overflow: hidden; border-radius: 3px; font-size: 10px; color: #8a7a66; }
+  .swapgrid button img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .item .pic.blank { position: absolute; background: #efe6d2; box-shadow: inset 0 0 0 1px rgba(150, 120, 80, .35); display: flex; align-items: center; justify-content: center; color: rgba(120, 95, 60, .55); font-size: 11px; letter-spacing: .12em; }
   #blanks { display: flex; flex-wrap: wrap; gap: 6px; }
   .item.locked { cursor: default; }
@@ -91,11 +95,18 @@ CATS.kelly = {                                       // the prepared photographs
 CATS.anthony = {
   'main-portrait': { a: 0.743, oval: true, name: 'Portrait' },   // reshaped to Kelly's main oval, so the two match
   'portrait-2': { a: 1.003, oval: true, name: 'Portrait (round)' },
-  'mom-and-grandma': { a: 1.309, name: 'Mom and Grandma' }, 'best-man': { a: 1.43, name: 'Best man' }, 'selfie': { a: 1.445, name: 'Selfie' },
+  'mom-and-grandma': { a: 1.309, name: 'Mom and Grandma' }, 'best-man': { a: 1.43, name: 'Best man' },
+  'selfie': { a: 1.445, name: 'Selfie' },
+  'portrait-amsterdam': { a: 0.742, oval: true, name: 'Portrait (Amsterdam)' }, 'paris': { a: 0.562, name: 'Paris' }, 'amsterdam-tea': { a: 0.749, name: 'Smoke and tea, Amsterdam' },
+  'gdc-team': { a: 1.779, name: 'The team at GDC' }, 'mishka': { a: 0.79, name: 'With Mishka' }, 'peaky-blinders': { a: 1, oval: true, name: 'Peaky Blinders costume' },
+  'proposal-practice': { a: 1.335, name: 'Proposal practice' },
 };
 const CAT = CATS[WALL], IMG = (k) => '/assets/' + WALL + '-wall/' + k + '.jpg';
 // a piece's shape: a photograph's from the catalogue; a blank frame's (or a piece this page does not know) from itself
-const asp = (p) => (CAT[p.src] ? CAT[p.src].a : p.aspect || 1), ovl = (p) => (CAT[p.src] ? !!CAT[p.src].oval : !!p.oval);
+const asp = (p) => (p.frameA ? p.frameA : CAT[p.src] ? CAT[p.src].a : p.aspect || 1), ovl = (p) => (p.frameA ? !!p.frameOval : CAT[p.src] ? !!CAT[p.src].oval : !!p.oval);
+// a photograph swapped into a frame of another shape is trimmed evenly to fill it: the part of it that shows, [left, top, right, bottom]
+const cropOf = (p) => { if (!p.frameA || !CAT[p.src]) return null; const pa = CAT[p.src].a, fa = p.frameA;
+  if (Math.abs(pa - fa) < 0.005) return null; if (pa > fa) { const k = (1 - fa / pa) / 2; return [+k.toFixed(4), 0, +(1 - k).toFixed(4), 1]; } const k = (1 - pa / fa) / 2; return [0, +k.toFixed(4), 1, +(1 - k).toFixed(4)]; };
 const BLANKS = [['Oval', 0.75, true, 0.4], ['Circle', 1, true, 0.3], ['Portrait rectangle', 0.75, false, 0.36], ['Landscape rectangle', 1.33, false, 0.26], ['Square', 1, false, 0.3]];
 const label = (p) => (CAT[p.src] ? CAT[p.src].name : p.src === 'blank' ? 'Blank frame \u00b7 ' + (p.oval ? (p.aspect === 1 ? 'circle' : 'oval') : p.aspect === 1 ? 'square' : p.aspect > 1 ? 'landscape' : 'portrait') : p.src);
 const ph = (src, z, y, h, frame = 'gilt', fw = 0.05, more = {}) => ({ src, z, y, h, frame, fw, ...more });
@@ -243,6 +254,7 @@ function renderSel() {
     `<div class="row"><label>Mat</label><select id="sM"><option value="0">None</option><option value="m">White mat</option></select></div>` +
     (matted ? slider('sMW', 'Mat width', 0.02, 0.3, 0.005, p.box ? Math.min((p.box[0] - p.h * c.a) / 2, (p.box[1] - p.h) / 2) : p.mat) : '') +
     `<div class="row"><label>Position</label><label style="width:auto;color:inherit"><input type="checkbox" id="sL"${p.locked ? ' checked' : ''}> Locked</label></div>` +
+    `<div class="row"><button class="btn" id="sSwap">${isBlank ? 'Put a photo in this frame' : 'Replace photo'}</button></div><div id="swapBox"></div>` +
     `<p class="hint">Centre ${p.y.toFixed(2)} m from the floor.${p.locked ? ' Locked: it cannot be dragged or nudged, and Make symmetric builds around it without moving it.' : ''}</p><div class="row"><button class="btn" id="sDup">Line others up with this</button><button class="btn" id="sDel">Take it off</button></div>`;
   const $ = (id) => document.getElementById(id);
   $('sF').value = p.frame; $('sM').value = matted ? 'm' : '0';
@@ -252,6 +264,17 @@ function renderSel() {
   if ($('sA')) { const e = $('sA'); e.onpointerdown = () => push(); e.oninput = () => { if (p.box) p.box = [+(p.box[0] + p.h * (+e.value - p.aspect)).toFixed(3), p.box[1]]; p.aspect = +(+e.value).toFixed(3); $('sAo').textContent = Math.round(p.aspect * 100) + '% of height'; renderItems(); dirty(true); }; }
   live('sMW', (v) => { delete p.box; p.mat = v; });
   $('sF').onchange = () => { push(); p.frame = $('sF').value; render(); dirty(true); };
+  $('sSwap').onclick = () => {                                       // the photographs not on the wall (and a blank frame): one click swaps it in
+    const free = Object.keys(CAT).filter((k) => !L.photos.some((o) => o.src === k)), box = $('swapBox');
+    if (box.innerHTML) { box.innerHTML = ''; return; }
+    box.innerHTML = '<p class="hint" style="margin:6px 0 0">The frame, its size, place and lock stay as they are; the photo is trimmed to fit its shape.</p><div class="swapgrid">' +
+      free.map((k) => `<button data-swap="${k}" title="${CAT[k].name}"><img src="${IMG(k).replace(/\.jpg$/, '-s.jpg')}" onerror="this.onerror=null;this.src='${IMG(k)}'" alt=""></button>`).join('') +
+      (isBlank ? '' : '<button data-swap="blank" title="Empty the frame (a blank frame)">Blank</button>') + '</div>';
+    box.querySelectorAll('[data-swap]').forEach((b) => b.onclick = () => { push(); const fa = asp(p), fo = ovl(p), k = b.dataset.swap;
+      if (k === 'blank') { p.src = 'blank'; p.aspect = fa; p.oval = fo; delete p.frameA; delete p.frameOval; }
+      else { p.src = k; p.frameA = fa; p.frameOval = fo; if (Math.abs(CAT[k].a - fa) < 0.005 && !!CAT[k].oval === fo) { delete p.frameA; delete p.frameOval; } }
+      render(); dirty(true); });
+  };
   $('sL').onchange = () => { push(); if ($('sL').checked) p.locked = true; else delete p.locked; render(); dirty(true); };
   $('sM').onchange = () => { push(); if ($('sM').value === 'm') { p.mat = 0.06; } else { delete p.mat; delete p.box; } render(); dirty(true); };
   $('sDel').onclick = () => { push(); L.photos.splice(sel, 1); sel = null; render(); dirty(true); };
@@ -331,7 +354,7 @@ document.querySelectorAll('[data-preset]').forEach((b) => b.onclick = () => { pu
   document.querySelectorAll('[data-preset]').forEach((x) => x.classList.toggle('on', x === b)); });
 document.getElementById('undo').onclick = undo;
 document.getElementById('save').onclick = async () => {
-  const out = { photos: L.photos.map((p) => ({ ...p, aspect: asp(p), oval: ovl(p) })), plaque: L.plaque };
+  const out = { photos: L.photos.map((p) => { const o = { ...p, aspect: asp(p), oval: ovl(p) }, c = cropOf(p); if (c) o.crop = c; else delete o.crop; return o; }), plaque: L.plaque };
   try { const r = await fetch('/__save-wall?wall=' + WALL, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(out) });
     if (!r.ok) throw new Error((await r.json()).error || r.status); dirty(false); }
   catch (e) { document.getElementById('status').textContent = 'Could not save (' + e.message + '). Is the local server running?'; }

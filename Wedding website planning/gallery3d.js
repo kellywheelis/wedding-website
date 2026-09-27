@@ -1275,7 +1275,8 @@ const ATRIUM_PICTURES = [
 Object.entries(PHOTO_WALLS).forEach(([who, W]) => { const sx = who === 'kelly' ? -1 : 1, yaw = sx < 0 ? Math.PI / 2 : -Math.PI / 2;
   W.photos.forEach((p, i) => {
     const blank = p.src === 'blank';                                // a blank frame, a placeholder for a photograph to come: an empty mount, no close-up
-    const grp = framedPicture({ ...p, w: p.h * p.aspect, src: blank ? null : 'assets/' + who + '-wall/' + p.src + '.jpg', blank, crop: p.oval && !blank ? [0.012, 0.012, 0.988, 0.988] : null }, 100 + i);   // an oval's edge kept inside its picture
+    const c = p.crop || [0, 0, 1, 1], e = 0.012, crop = blank ? null : p.oval ? [c[0] + (c[2] - c[0]) * e, c[1] + (c[3] - c[1]) * e, c[2] - (c[2] - c[0]) * e, c[3] - (c[3] - c[1]) * e] : p.crop || null;   // a photo trimmed to its frame (the wall editor's
+    const grp = framedPicture({ ...p, w: p.h * p.aspect, src: blank ? null : 'assets/' + who + '-wall/' + p.src + '.jpg', blank, crop }, 100 + i);   // Replace photo), and an oval's edge kept inside its picture
     grp.position.set(sx * (P.corrX - 0.075), p.y, p.z); grp.rotation.y = yaw;
     grp.userData.station = ST[who];
     if (blank) return;

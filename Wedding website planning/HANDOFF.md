@@ -135,7 +135,12 @@ the canvas size and the triangles drawn (`tickFps` in gallery3d.js; nothing is m
   file names show in the page's code). A piece can be locked (`locked: true`, the Locked box when it is selected; a padlock
   shows on it): it cannot be dragged or nudged, and Make symmetric builds around it (its partner mirrors it; on the
   centre line it stays and the pieces between it and the next fixed one are spaced evenly). Anthony's main portrait is
-  locked at its twin's place (z -2.0, y 2.309), at her wish. The editor keeps every piece of a saved layout, known or not (it once dropped
+  locked at its twin's place (z -2.0, y 2.309), at her wish. Replace photo (27 Sept 2026, her wish): a selected frame (or blank) takes any photo
+  not on the wall, keeping its place, size, shape, frame, mat and lock; a photo of another shape is trimmed evenly to fill
+  it (`frameA` / `frameOval` hold the frame's shape in the layout, `crop` [l, t, r, b] the part shown, which the gallery
+  honours inside an oval's edge; the phone crops by object-fit). Seven more of Anthony's (27 Sept): portrait-amsterdam
+  (a new main-portrait contender, same oval), paris, amsterdam-tea, gdc-team, mishka, peaky-blinders (a circle),
+  proposal-practice. The editor keeps every piece of a saved layout, known or not (it once dropped
   what its catalogue lacked, and a note typed into Anthony's catalogue hid his round portrait from it for a while). Save posts to the dev server (`/__save-wall?wall=kelly|anthony`, local only), which writes that wall's layout.json; reload the gallery
   to see it. The `kelly` stop stands back to take in whatever she hangs (`KELLY_VIEW`); each photo has a close-up stop
   (`kellyPhoto0`..). Mats (`matBoard`), black oval frames and slimmer mouldings (`fw`) were added to `framedPicture`,

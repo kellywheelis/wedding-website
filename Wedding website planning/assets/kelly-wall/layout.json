@@ -8,13 +8,14 @@
    "frame": "gilt",
    "fw": 0.095,
    "aspect": 0.743,
-   "oval": true
+   "oval": true,
+   "locked": true
   },
   {
    "src": "baby",
-   "z": -1.623,
-   "y": 1.547,
-   "h": 0.3,
+   "z": -1.621,
+   "y": 1.579,
+   "h": 0.35,
    "frame": "gilt",
    "fw": 0.045,
    "aspect": 0.778,
@@ -28,7 +29,8 @@
    "frame": "plain",
    "fw": 0.05,
    "aspect": 0.665,
-   "oval": false
+   "oval": false,
+   "locked": true
   },
   {
    "src": "halloween",
@@ -42,9 +44,9 @@
   },
   {
    "src": "mojo",
-   "z": -2.626,
-   "y": 2.08,
-   "h": 0.26,
+   "z": -2.743,
+   "y": 2.071,
+   "h": 0.32,
    "frame": "gilt",
    "fw": 0.045,
    "aspect": 1,
@@ -52,9 +54,9 @@
   },
   {
    "src": "sfx",
-   "z": -1.374,
-   "y": 2.08,
-   "h": 0.26,
+   "z": -1.257,
+   "y": 2.071,
+   "h": 0.32,
    "frame": "gilt",
    "fw": 0.045,
    "aspect": 1,
@@ -112,9 +114,9 @@
   },
   {
    "src": "elementary",
-   "z": -2.377,
-   "y": 1.547,
-   "h": 0.3,
+   "z": -2.379,
+   "y": 1.579,
+   "h": 0.35,
    "frame": "gilt",
    "fw": 0.05,
    "aspect": 0.732,

@@ -94,7 +94,7 @@ http.createServer(async (req, res) => {
   if (!file.startsWith(ROOT) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) { res.writeHead(404); res.end('not found'); return; }
   res.writeHead(200, { 'content-type': TYPES[path.extname(file).toLowerCase()] || 'application/octet-stream', 'cache-control': 'no-store' });
   if (process.env.DEV_EXTRA && file.endsWith('gallery3d.js')) {        // with test pages on: a handle on the RSVP's functions for them
-    res.end(fs.readFileSync(file, 'utf8') + '\nwindow.__ka = { openPostcards, postCard, openCard, GUEST, openShelf, paintShelf };\n'); return;
+    res.end(fs.readFileSync(file, 'utf8') + '\nwindow.__ka = { openPostcards, postCard, openCard, GUEST, openShelf, paintShelf, goTo, ST, STATIONS, tallyTotal };\n'); return;
   }
   fs.createReadStream(file).pipe(res);
 }).listen(PORT, '127.0.0.1', () => console.log('RSVP dev server: http://127.0.0.1:' + PORT + '/'));

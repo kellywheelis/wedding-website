@@ -124,7 +124,11 @@ the canvas size and the triangles drawn (`tickFps` in gallery3d.js; nothing is m
   (oval, circle, portrait, landscape, square; any size, frame, mat); the gallery hangs them as empty mounts with no
   close-up, the phone as empty mounts. Every photograph on a wall also has a small copy, `<name>-s.jpg` (480 px on the long
   side), which the phone's wall panels show (the full one opens in the lightbox; a missing small copy falls back to the
-  full): make one whenever a photograph is added. Anthony's selfie is `selfie.jpg` (renamed from its first name, since
+  full): make one whenever a photograph is added. Each photograph can have its own write-up, `PHOTO_NOTES[who][file name]` in
+  gallery3d.js (title, body, meta; the phone reads `photoNotes` in content.js, carried by make_mobile_content.py), shown at
+  its close-up and in the phone's lightbox; without one it shows the wall's. The close-ups are `tally: false`: captions
+  within a wall, not works, so the collection's count (56) and its fireworks are unchanged. First two (27 Sept 2026):
+  Anthony's selfie (his dating profile picture, which convinced Kelly to swipe right) and him with his best man, Nick (2011). Anthony's selfie is `selfie.jpg` (renamed from its first name, since
   file names show in the page's code). A piece can be locked (`locked: true`, the Locked box when it is selected; a padlock
   shows on it): it cannot be dragged or nudged, and Make symmetric builds around it (its partner mirrors it; on the
   centre line it stays and the pieces between it and the next fixed one are spaced evenly). Anthony's main portrait is
@@ -143,7 +147,7 @@ the canvas size and the triangles drawn (`tickFps` in gallery3d.js; nothing is m
   match hers (the owner's wish): the portrait's centre at 2.309 as hers, the round one at her top row's, the snapshots
   at her bottom row's, the plaque at 1.2; and the arcade screen now hangs at `SUN_Y`, level with the Sunflowers across
   the hall (it was 2.12; the `anthony2` stop's eye follows). On the phone his panel comes before the arcade
-  (`wallSection` / `drawWall` in mobile.js draw both walls). His wall's write-up is "Write-up to come.".
+  (`wallSection` / `drawWall` in mobile.js draw both walls). His wall's write-up is "Anthony: A Recent Acquisition" (her choice, 27 Sept 2026).
   His whole arrangement was then moved 52 cm along the hall so its main portrait mirrors hers exactly (z -2.0, y 2.309;
   his plaque at hers, z -2.0, y 1.2). His main portrait was then made her main portrait's twin (84 x 107 cm outside, the
   picture 65 x 88, moulding 9.5): his oval reshaped to hers (aspect 0.743; main-portrait.jpg cut from his PNG 19 px off
@@ -896,7 +900,7 @@ _Brought up to date 26 Sept 2026 (after `b5897ba`)._
 - **Photographs for the atrium walls.** Kelly's are hung (26 Sept 2026) and on the phone (from the same layout file); her
   wall's write-up is "The Kelly Collection" (her choice of four options, 27 Sept 2026). Each photograph's own write-up is
   still to come (she will go through them; the close-ups and the phone's lightbox show the wall's title for now). Anthony's wall has
-  five of his photographs for now (27 Sept 2026); its write-up is "Write-up to come." (`meta: 'Placeholder'`).
+  five of his photographs for now (27 Sept 2026); its write-up is "Anthony: A Recent Acquisition".
 - **The two oval frames** either side of the centrepiece on the details room's end wall are empty.
 - **The wall texts** (the "Read the full details" cards; `CARDS` in `api/_private.js`, served only to signed-in
   guests) are placeholder text, most of it "To be confirmed." (the RSVP deadline under Guest Policies was filled

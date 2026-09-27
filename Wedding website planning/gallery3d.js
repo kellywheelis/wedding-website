@@ -33,6 +33,16 @@ const SUN_Y = 2.31;          // the height of the LEGO Sunflowers' centre: level
 // [w, h] (the frame's opening, the picture centred in it); and the wall's name plaque, z and y.
 const PHOTO_WALLS = Object.fromEntries(await Promise.all(['kelly', 'anthony'].map(async (who) => [who,
   (await fetch('assets/' + who + '-wall/layout.json', { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : null)).catch(() => null)) || { photos: [], plaque: { z: GALLERY_Z, y: 0.86 } }])));
+// each photograph's own write-up, by wall and file name (the owner's, as she gives them); a photograph without one shows
+// its wall's. They are captions within the wall, so they do not count as works in the collection's tally.
+const PHOTO_NOTES = {
+  anthony: {
+    selfie: { title: 'The Profile Picture', body: 'The photograph that started it all. This was Anthony\u2019s dating profile picture, and it is the one that convinced Kelly to swipe right. The curators consider it the most consequential selfie in the collection. (Amelia definitely helped.)',
+      meta: 'Phone photograph · dating profile · the one that worked' },
+    'best-man': { title: 'Anthony and Nick', body: 'Anthony with his best man, Nick, in an early work from their long collaboration. On April 24, Nick will be standing beside him again.',
+      meta: 'Photograph, 2011 · the best man' },
+  },
+};
 const photoBox = (p) => p.box || (p.mat ? [p.h * p.aspect + 2 * p.mat, p.h + 2 * p.mat] : null);
 function wallFrame(W) {                                          // the extent of a wall's photographs and its plaque
   let z0 = W.plaque.z - 0.6, z1 = W.plaque.z + 0.6, y0 = W.plaque.y - 0.12, y1 = W.plaque.y + 0.12;
@@ -69,8 +79,9 @@ const STATIONS = [
     body: 'Kelly has been building with LEGO bricks for as long as she can remember, so of course there is a build station. Create your own minifigures from the different options, from the everyday to the fully Italian, and give each one a name!',
     meta: 'Build station · click the shelf, or Build a minifigure below' },
   { id: 'anthony', x: WALL_VIEW.anthony.x, z: WALL_VIEW.anthony.z, yaw: -Math.PI / 2, eye: WALL_VIEW.anthony.eye, pitch: WALL_VIEW.anthony.pitch, room: 'atrium', accent: '#C9A667',   // facing his photographs
-    eyebrow: 'The atrium · Anthony', title: 'Anthony',
-    body: 'Write-up to come.', meta: 'Placeholder' },
+    eyebrow: 'The atrium · Anthony', title: 'Anthony: A Recent Acquisition',
+    body: 'The museum’s newest collection, acquired after a single, decisive swipe. On view: a formal portrait, his family, his best man Nick, and the photograph that sealed the deal. Several frames await works from his early period, currently in storage.',
+    meta: 'Photographs, various dates · on permanent loan' },
   { id: 'anthony2', x: 0, z: GALLERY_Z - 1.3, yaw: -Math.PI / 2, eye: SUN_Y, room: 'atrium', accent: '#C9A667', tour: false, back: 'anthony', game: 'menu',
     eyebrow: 'The atrium · Anthony · interactive installation', title: 'The Arcade',
     body: 'Five playable pieces. Getting to Italy, Cross the Piazza, Catch the Bouquet, Flight to Siena, and The Seating Chart. Arrows move, space jumps. Click the frame again to play.',
@@ -1244,9 +1255,9 @@ Object.entries(PHOTO_WALLS).forEach(([who, W]) => { const sx = who === 'kelly' ?
     grp.userData.station = ST[who];
     if (blank) return;
     const bx = photoBox(p), ow = (bx ? bx[0] : p.h * p.aspect) + 2 * p.fw, oh = (bx ? bx[1] : p.h) + 2 * p.fw;
-    const wall = STATIONS[ST[who]], dist = THREE.MathUtils.clamp(Math.max(1.3 * oh, 0.9 * ow), 0.7, 2.0), id = who + 'Photo' + i;
-    STATIONS.push({ id, x: sx * (P.corrX - dist), z: p.z, yaw, eye: THREE.MathUtils.clamp(p.y, 1.3, 3.05), room: 'atrium', accent: wall.accent, tour: false, back: who,
-      eyebrow: wall.eyebrow, title: wall.title, body: wall.body, meta: wall.meta });
+    const wall = STATIONS[ST[who]], dist = THREE.MathUtils.clamp(Math.max(1.3 * oh, 0.9 * ow), 0.7, 2.0), id = who + 'Photo' + i, note = (PHOTO_NOTES[who] || {})[p.src] || wall;
+    STATIONS.push({ id, x: sx * (P.corrX - dist), z: p.z, yaw, eye: THREE.MathUtils.clamp(p.y, 1.3, 3.05), room: 'atrium', accent: wall.accent, tour: false, back: who, tally: false,
+      eyebrow: wall.eyebrow, title: note.title, body: note.body, meta: note.meta });
     ST[id] = STATIONS.length - 1;
     grp.userData.closer = ST[id];
   });
@@ -3494,10 +3505,10 @@ function startLeg() {
 const el = (id) => document.getElementById(id);
 // ---- the collection tally: how many of the works you have stood in front of, by title, kept between visits
 const SEEN = new Set((() => { try { return JSON.parse(localStorage.getItem('ka-seen') || '[]'); } catch (e) { return []; } })());
-function tallyTotal() { return new Set(STATIONS.filter((s) => s.id !== 'atrium').map((s) => s.title)).size; }   // distinct works; the sculptures join once their scans have loaded
+function tallyTotal() { return new Set(STATIONS.filter((s) => s.id !== 'atrium' && s.tally !== false).map((s) => s.title)).size; }   // distinct works; the sculptures join once their scans have loaded
 function paintTally() {
   const t = el('tally'); if (!t) return;
-  const total = tallyTotal(), seen = [...SEEN].filter((x) => STATIONS.some((s) => s.title === x)).length;
+  const total = tallyTotal(), seen = [...SEEN].filter((x) => STATIONS.some((s) => s.tally !== false && s.title === x)).length;
   const found = [...FOUND].filter((x) => HIDDEN[x]).length, n = Object.keys(HIDDEN).length;
   // the three finds are a bonus under the count: hollow stars that fill in gold
   const stars = Array.from({ length: n }, (_, i) => '<span style="color:' + (i < found ? '#E8C07A' : 'rgba(242,223,168,.45)') + '">' + (i < found ? '\u2605' : '\u2606') + '</span>').join('');
@@ -3592,7 +3603,7 @@ function foundHidden(h) {
 }
 function noteSeen(st) {
   if (st.id === 'atrium' || st.id === 'hidden' || SEEN.has(st.title)) return;
-  SEEN.add(st.title);
+  if (st.tally !== false) SEEN.add(st.title);                        // a photograph's caption is not a work of its own
   try { localStorage.setItem('ka-seen', JSON.stringify([...SEEN])); } catch (e) { /* private mode: the tally lasts the visit */ }
   paintTally();
 }

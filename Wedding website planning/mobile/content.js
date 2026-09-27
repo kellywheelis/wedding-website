@@ -37,6 +37,20 @@ window.CONTENT = {
      "meta": "Sandro Botticelli, c. 1483–86 · fresco from Villa Lemmi · Musée du Louvre, Paris"
     }
    ],
+   "photoNotes": {
+    "anthony": {
+     "selfie": {
+      "title": "The Profile Picture",
+      "body": "The photograph that started it all. This was Anthony’s dating profile picture, and it is the one that convinced Kelly to swipe right. The curators consider it the most consequential selfie in the collection. (Amelia definitely helped.)",
+      "meta": "Phone photograph · dating profile · the one that worked"
+     },
+     "best-man": {
+      "title": "Anthony and Nick",
+      "body": "Anthony with his best man, Nick, in an early work from their long collaboration. On April 24, Nick will be standing beside him again.",
+      "meta": "Photograph, 2011 · the best man"
+     }
+    }
+   },
    "frames": {
     "kelly": {
      "title": "The Kelly Collection",
@@ -44,9 +58,9 @@ window.CONTENT = {
      "meta": "Photographs, various dates · lent by the sitter"
     },
     "anthony": {
-     "title": "Anthony",
-     "body": "Write-up to come.",
-     "meta": "Placeholder"
+     "title": "Anthony: A Recent Acquisition",
+     "body": "The museum’s newest collection, acquired after a single, decisive swipe. On view: a formal portrait, his family, his best man Nick, and the photograph that sealed the deal. Several frames await works from his early period, currently in storage.",
+     "meta": "Photographs, various dates · on permanent loan"
     }
    },
    "artifacts": [

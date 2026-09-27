@@ -39,9 +39,9 @@ window.CONTENT = {
    ],
    "frames": {
     "kelly": {
-     "title": "Kelly",
-     "body": "Photographs to come.",
-     "meta": "Placeholder"
+     "title": "The Kelly Collection",
+     "body": "Portraiture keeps two records: the formal likeness and the unofficial one. The formal one hangs at the center, one of the few serious portraits she has ever allowed. The rest of the wall is the unofficial record: a delighted baby, a banana, Mojo Jojo, an artist and creator, and her dearest friends (and wedding party!). It is, of course, only a glimpse; the collection is too large for any one wall.",
+     "meta": "Photographs, various dates · lent by the sitter"
     },
     "anthony": {
      "title": "Anthony",

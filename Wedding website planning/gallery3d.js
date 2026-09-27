@@ -44,8 +44,9 @@ const STATIONS = [
     meta: 'Turn and choose a wing' },
 
   { id: 'kelly', x: KELLY_VIEW.x, z: KELLY_VIEW.z, yaw: Math.PI / 2, eye: KELLY_VIEW.eye, pitch: KELLY_VIEW.pitch, room: 'atrium', accent: '#C9A667',   // facing her photographs, all in view
-    eyebrow: 'The atrium · Kelly', title: 'Kelly',
-    body: 'Write-up to come.', meta: 'Placeholder' },
+    eyebrow: 'The atrium · Kelly', title: 'The Kelly Collection',
+    body: 'Portraiture keeps two records: the formal likeness and the unofficial one. The formal one hangs at the center, one of the few serious portraits she has ever allowed. The rest of the wall is the unofficial record: a delighted baby, a banana, Mojo Jojo, an artist and creator, and her dearest friends (and wedding party!). It is, of course, only a glimpse; the collection is too large for any one wall.',
+    meta: 'Photographs, various dates · lent by the sitter' },
   { id: 'kelly2', x: -1.33, z: GALLERY_Z - 1.3, yaw: Math.PI / 2, eye: SUN_Y - 0.02, pitch: -0.03, room: 'atrium', accent: '#C9A667', tour: false, back: 'kelly', lego: true,   // the whole of the Sunflowers, the parts bins at the foot of the view
     eyebrow: 'The atrium · Kelly · from the collection', title: 'Sunflowers, after Vincent van Gogh',
     body: 'One of Kelly’s holy-grail LEGO sets, and a gift from Anthony, who was sure it would keep her busy for a week or two. He came home on the second day to find all 2,615 pieces finished. She had, in his words, locked in.',

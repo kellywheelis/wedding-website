@@ -128,6 +128,10 @@ the canvas size and the triangles drawn (`tickFps` in gallery3d.js; nothing is m
   together (27 Sept 2026, her wish, to balance the photographs): `SUN_Y` (2.31, it was 1.88) sets the Sunflowers' centre,
   level with her main portrait; the shelf, the kelly2 frame and the kelly2 / kellyShelf stops all follow it, so the
   joke's petal still lands on the accessories bin. The wall editor draws them from the same number.
+  On the phone (27 Sept 2026), "The atrium · Kelly" comes before her Sunflowers: the same layout.json drawn small on a
+  plaster panel (`kwall` in mobile.js / mobile.css: gilt or black frames, ovals, mats, the plaque), each photo a button
+  to the lightbox, where ovals open as ovals. It reads the file at runtime, so it follows the wall editor with no
+  rebuild. The line under "The two galleries" now says only Anthony's frame is waiting. Not in the sideways gallery view.
 - **Anthony's artifacts** (25 Sept 2026, `hangArtifact`): a graded slab of his favourite card,
   Destiny HERO – Diamond Dude, on brass clips on a walnut trophy plaque at eye level to the right of his main frame
   (`cardSlab`; the card face is `assets/diamond-dude.png`, the owner's image of the real card; if that
@@ -856,8 +860,9 @@ _Brought up to date 26 Sept 2026 (after `b5897ba`)._
   the hourglass and the three who hid in `0f9ea7e`, the gallery view in `7c00b14`, the RSVP in `b5897ba`). On her
   own phone the owner found the gallery view and the arcade's pause when held sideways working (26 Sept 2026). Not
   yet tried on a real phone: scanning a printed invitation QR code.
-- **Photographs for the atrium walls.** Kelly's are hung (26 Sept 2026); her wall's write-up says "Write-up to come."
-  and the phone edition does not show her photographs yet (it still says the frames are waiting). Anthony's main frame
+- **Photographs for the atrium walls.** Kelly's are hung (26 Sept 2026) and on the phone (from the same layout file); her
+  wall's write-up is "The Kelly Collection" (her choice of four options, 27 Sept 2026). Each photograph's own write-up is
+  still to come (she will go through them; the close-ups and the phone's lightbox show the wall's title for now). Anthony's main frame
   is still empty (`blank: true` in `ATRIUM_PICTURES`), its write-up "Photographs to come." (`meta: 'Placeholder'`).
 - **The two oval frames** either side of the centrepiece on the details room's end wall are empty.
 - **The wall texts** (the "Read the full details" cards; `CARDS` in `api/_private.js`, served only to signed-in

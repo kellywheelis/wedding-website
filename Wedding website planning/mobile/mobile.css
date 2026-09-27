@@ -90,6 +90,20 @@ main { padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom) + 24px); 
 .frame::after { content: ''; position: absolute; inset: 3.3%; border: 1px solid rgba(60,40,8,.6); box-shadow: inset 0 0 0 2px rgba(255,226,160,.25); pointer-events: none; }
 .frame img { width: 100%; aspect-ratio: var(--ar, 4 / 3); object-fit: cover; background: #2a2118; box-shadow: inset 0 0 40px rgba(0,0,0,.35); }
 .frame.oval { border-radius: 50%; } .frame.oval img, .frame.oval::before, .frame.oval::after { border-radius: 50%; }
+/* Kelly's wall: her photographs drawn small on a plaster panel, as her layout places them (mobile.js, "Kelly's wall") */
+.kwall { position: relative; margin: 18px var(--gutter) 0; aspect-ratio: 1.2; border-radius: 3px; background: linear-gradient(170deg, #ece3cf, #e0d4ba); box-shadow: inset 0 0 34px rgba(120,95,60,.28), 0 10px 26px rgba(0,0,0,.4); }
+.kw { position: absolute; border: 0; padding: 0; cursor: pointer; box-shadow: 0 2px 5px rgba(40,25,5,.4); -webkit-tap-highlight-color: transparent; }
+.kw.gilt { background: linear-gradient(135deg, #7d5418, #e9c46c 28%, #a97c2a 52%, #f5dc92 72%, #8a5e1d); }
+.kw.plain { background: linear-gradient(135deg, #0e0a08, #3a2c22 45%, #120d0a); }
+.kw .in { position: absolute; left: var(--fw); right: var(--fw); top: var(--fh); bottom: var(--fh); overflow: hidden; background: #2a2118; }
+.kw.plain .in { outline: 1px solid #c9a24a; }
+.kw .in > img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.kw .mat { position: absolute; inset: 0; background: #F1EBDD; }
+.kw .mat img { position: absolute; object-fit: cover; }
+.kw.oval, .kw.oval .in, .kw.oval .in > img { border-radius: 50%; }
+#lbImg img.oval { border-radius: 50%; }
+.kwall-tap { margin: 10px var(--gutter) 0; text-align: center; }
+.kplaque { position: absolute; display: flex; align-items: center; justify-content: center; background: linear-gradient(180deg, #e2c27a, #a8843f); color: #3a280c; font: 600 clamp(8px, 2.6vw, 14px) Georgia, serif; letter-spacing: .3em; box-shadow: 0 1px 3px rgba(0,0,0,.35); }
 .art.postcard img { width: 100%; border: 1px solid rgba(201,166,103,.5); box-shadow: 0 10px 26px rgba(0,0,0,.5); }
 .art .label { margin-top: 12px; }
 .art .label h3 { font-size: 24px; color: var(--cream); }

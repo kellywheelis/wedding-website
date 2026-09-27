@@ -39,6 +39,11 @@
       <figcaption class="label"><p class="meta">Anthony Alvarez &amp; Kelly Wheelis, 2026 · playable pieces</p><p class="body">Five playable pieces: Getting to Italy, Cross the Piazza, Catch the Bouquet, Flight to Siena, and The Seating Chart.</p><p class="tap">Tap to play</p></figcaption></figure>`;
   // Anthony's wall: the three pieces from his collection hung beside the arcade (tap one for its write-up)
   if (atrium.artifacts) html += `<div class="text"><p class="eyebrow">The atrium · Anthony · from the collection</p></div><div class="statues">${atrium.artifacts.map(statueHtml).join('')}</div>`;
+  // Kelly's photographs, as she arranged them in the wall editor: drawn small from the gallery's own layout file once it
+  // arrives (see "Kelly's wall", below the lightbox); tap one to look closer
+  const kf = atrium.frames && atrium.frames.kelly;
+  html += `<div class="text"><p class="eyebrow">The atrium · Kelly</p><h3>${esc(kf ? kf.title : 'Kelly')}</h3>${kf && kf.body ? `<p class="body">${esc(kf.body)}</p>` : ''}${kf && kf.meta && kf.meta !== 'Placeholder' ? `<p class="meta">${esc(kf.meta)}</p>` : ''}</div>
+    <div class="kwall" id="kwall"></div><p class="tap under kwall-tap">Tap a photograph to look closer</p>`;
   // Kelly's wall: her LEGO Art Sunflowers (the photo of her build; its falling-leaf joke is the 3D gallery's), then the
   // LEGO shelf, where a signed-in household's own figures stand (built in the station, lego/station.js)
   if (atrium.kellyArt) { const k = atrium.kellyArt; lbItems.push(k);
@@ -47,7 +52,7 @@
   if (atrium.shelf) html += `<div class="text"><p class="eyebrow">${esc(atrium.shelf.eyebrow)}</p><h3>${esc(atrium.shelf.title)}</h3><p class="body">${esc(phone(atrium.shelf.body))}</p></div>
     <div class="lego-shelf"><div class="lego-figs" id="legoFigs"></div><div class="lego-board"></div><p class="lego-note" id="legoNote"></p></div>
     <div class="text"><button type="button" class="detbtn" data-lego>Build a minifigure</button></div>`;
-  html += `<div class="text center"><p class="eyebrow">The two galleries</p><p class="body">Two collections, one exhibit: on the left, Kelly's; on the right, Anthony's. The frames are waiting for photographs.</p><div><span class="plaque">Kelly</span> &nbsp; <span class="plaque">Anthony</span></div></div><div class="rule"></div></section>`;
+  html += `<div class="text center"><p class="eyebrow">The two galleries</p><p class="body">Two collections, one exhibit: on the left, Kelly's; on the right, Anthony's. Anthony's frame is waiting for its photograph.</p><div><span class="plaque">Kelly</span> &nbsp; <span class="plaque">Anthony</span></div></div><div class="rule"></div></section>`;
 
   const wingHtml = (w, sub) => {
     let h = `<section class="chapter" id="${w.id}"><div class="hero"><img src="${w.hero}" alt="${esc(w.title)}" loading="lazy" decoding="async"><div class="cap"><div class="numeral">${w.numeral}</div><h2>${esc(w.title)}</h2><p class="sub">${esc(sub)}</p></div></div>`;
@@ -102,7 +107,7 @@
   // ---- lightbox
   const lb = el('lb');
   const openLb = (i) => { const it = lbItems[i]; lbIndex = i;
-    el('lbImg').innerHTML = `<img src="${it.img}" alt="${esc(it.title)}" decoding="async">`;
+    el('lbImg').innerHTML = `<img src="${it.img}" alt="${esc(it.title)}" decoding="async"${it.oval ? ' class="oval"' : ''}>`;   // Kelly's ovals open as ovals
     el('lbTxt').innerHTML = `<h3>${esc(it.title)}</h3><p class="body">${esc(it.body)}</p><p class="meta">${esc(it.meta)}</p>`;
     lb.classList.add('open'); lb.scrollTop = 0; document.body.style.overflow = 'hidden'; };
   const closeLb = () => { lb.classList.remove('open'); document.body.style.overflow = ''; };
@@ -119,6 +124,28 @@
     const x = e.target.closest('[data-close]'); if (x) { el('card-' + x.dataset.close).classList.remove('open'); return; }
   });
   el('lbX').addEventListener('click', closeLb);
+  // ---- Kelly's wall: her photographs where her layout puts them (assets/kelly-wall/layout.json, made with the wall
+  // editor; the 3D gallery reads the same file), scaled to a plaster panel the width of the screen, the KELLY plaque
+  // under them. Frames gilt or black and gold, ovals oval, mats white; each a button to the lightbox.
+  (async () => {
+    const box = el('kwall'); if (!box) return;
+    const L = await fetch('/assets/kelly-wall/layout.json', { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+    if (!L || !L.photos || !L.photos.length) { box.remove(); document.querySelector('.kwall-tap')?.remove(); return; }
+    const size = (p) => { const b = p.box || (p.mat ? [p.h * p.aspect + 2 * p.mat, p.h + 2 * p.mat] : null); return [(b ? b[0] : p.h * p.aspect) + 2 * p.fw, (b ? b[1] : p.h) + 2 * p.fw, b]; };
+    let z0 = L.plaque.z - 0.6, z1 = L.plaque.z + 0.6, y0 = L.plaque.y - 0.12, y1 = L.plaque.y + 0.12;
+    L.photos.forEach((p) => { const [w, h] = size(p); z0 = Math.min(z0, p.z - w / 2); z1 = Math.max(z1, p.z + w / 2); y0 = Math.min(y0, p.y - h / 2); y1 = Math.max(y1, p.y + h / 2); });
+    const pad = 0.14, W = z1 - z0 + 2 * pad, H = y1 - y0 + 2 * pad, pct = (v, of) => (v / of * 100).toFixed(3) + '%';
+    const X = (z) => z1 + pad - z, Y = (y) => y1 + pad - y;       // metres from the panel's left and top edges (the wall's +z is its left)
+    box.style.aspectRatio = W.toFixed(3) + ' / ' + H.toFixed(3);
+    const kfr = C.rooms[0].frames && C.rooms[0].frames.kelly;
+    box.innerHTML = L.photos.map((p) => {
+      const [w, h, b] = size(p), pw = p.h * p.aspect, img = '/assets/kelly-wall/' + p.src + '.jpg';
+      lbItems.push({ img, title: kfr ? kfr.title : 'Kelly', body: '', meta: kfr && kfr.meta !== 'Placeholder' ? kfr.meta : '', aspect: p.aspect, oval: p.oval }); const i = lbItems.length - 1;
+      const inner = b ? `<span class="mat"><img src="${img}" alt="" loading="lazy" decoding="async" style="left:${pct((b[0] - pw) / 2, b[0])};top:${pct((b[1] - p.h) / 2, b[1])};width:${pct(pw, b[0])};height:${pct(p.h, b[1])}${p.oval ? ';border-radius:50%' : ''}"></span>`
+        : `<img src="${img}" alt="" loading="lazy" decoding="async">`;
+      return `<button class="kw ${p.frame === 'plain' ? 'plain' : 'gilt'}${p.oval && !b ? ' oval' : ''}" data-lb="${i}" aria-label="A photograph of Kelly" style="left:${pct(X(p.z + w / 2), W)};top:${pct(Y(p.y + h / 2), H)};width:${pct(w, W)};height:${pct(h, H)};--fw:${pct(p.fw, w)};--fh:${pct(p.fw, h)}"><span class="in">${inner}</span></button>`;
+    }).join('') + `<span class="kplaque" style="left:${pct(X(L.plaque.z + 0.6), W)};top:${pct(Y(L.plaque.y + 0.12), H)};width:${pct(1.2, W)};height:${pct(0.24, H)}">KELLY</span>`;
+  })();
   // ---- the three who hid: a family pet painted into three of the pictures, unmarked. In the lightbox a tap on the
   // animal names it and fills a gold star; anywhere else on the picture closes it as before. The finds are kept where
   // the 3D gallery keeps them (localStorage ka-found, by picture), so a find on the phone counts there too

@@ -24,7 +24,7 @@ const GALLERY_Z = -2.6;      // centre of the two atrium mini galleries, along t
 // Anthony's artifacts (the owner, 27 Sept 2026): the card and the case centred in the wall between his photographs and
 // the pilaster (his photographs mirror Kelly's across the hall, their main portrait at z -2.0), 15 cm higher than first
 // hung; Amelia's plinth under the middle of the pair, 30 cm taller, so she is in view
-const ART = { card: GALLERY_Z + 1.808, case: GALLERY_Z + 2.408, y: 2.1, amelia: GALLERY_Z + 2.108, lift: 0.3 };
+const ART = { card: GALLERY_Z + 1.866, case: GALLERY_Z + 2.466, y: 2.1, amelia: GALLERY_Z + 2.166, lift: 0.3 };   // 18 cm clear either side of the pair (with her placeholders hung)
 const SUN_Y = 2.31;          // the height of the LEGO Sunflowers' centre: level with Kelly's main portrait, so the two balance (the owner, 27 Sept 2026; it was 1.88); the build station's shelf hangs 0.76 below it
 // The couple's photographs (Kelly's on the left wall, Anthony's on the right): each wall's arrangement is kept in
 // assets/<who>-wall/layout.json, made with the wall editor (tools/wall-editor.html, at /wall-editor on the local dev
@@ -1238,9 +1238,11 @@ const ATRIUM_PICTURES = [
 // say. Clicking one goes to the wall's stop; from there, to a close look at it.
 Object.entries(PHOTO_WALLS).forEach(([who, W]) => { const sx = who === 'kelly' ? -1 : 1, yaw = sx < 0 ? Math.PI / 2 : -Math.PI / 2;
   W.photos.forEach((p, i) => {
-    const grp = framedPicture({ ...p, w: p.h * p.aspect, src: 'assets/' + who + '-wall/' + p.src + '.jpg', crop: p.oval ? [0.012, 0.012, 0.988, 0.988] : null }, 100 + i);   // an oval's edge kept inside its picture
+    const blank = p.src === 'blank';                                // a blank frame, a placeholder for a photograph to come: an empty mount, no close-up
+    const grp = framedPicture({ ...p, w: p.h * p.aspect, src: blank ? null : 'assets/' + who + '-wall/' + p.src + '.jpg', blank, crop: p.oval && !blank ? [0.012, 0.012, 0.988, 0.988] : null }, 100 + i);   // an oval's edge kept inside its picture
     grp.position.set(sx * (P.corrX - 0.075), p.y, p.z); grp.rotation.y = yaw;
     grp.userData.station = ST[who];
+    if (blank) return;
     const bx = photoBox(p), ow = (bx ? bx[0] : p.h * p.aspect) + 2 * p.fw, oh = (bx ? bx[1] : p.h) + 2 * p.fw;
     const wall = STATIONS[ST[who]], dist = THREE.MathUtils.clamp(Math.max(1.3 * oh, 0.9 * ow), 0.7, 2.0), id = who + 'Photo' + i;
     STATIONS.push({ id, x: sx * (P.corrX - dist), z: p.z, yaw, eye: THREE.MathUtils.clamp(p.y, 1.3, 3.05), room: 'atrium', accent: wall.accent, tour: false, back: who,

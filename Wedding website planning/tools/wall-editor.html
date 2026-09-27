@@ -30,7 +30,11 @@
   .item .fr.plain + .in { outline: 2px solid #c9a24a; }
   .item .mat { position: absolute; background: #F1EBDD; box-shadow: inset 0 1px 3px rgba(0, 0, 0, .25); }
   .item img { position: absolute; display: block; pointer-events: none; }
-  .item.oval .fr, .item.oval .in, .item.oval img.pic { border-radius: 50%; }
+  .item.oval .fr, .item.oval .in, .item.oval .pic { border-radius: 50%; }
+  .item .pic.blank { position: absolute; background: #efe6d2; box-shadow: inset 0 0 0 1px rgba(150, 120, 80, .35); display: flex; align-items: center; justify-content: center; color: rgba(120, 95, 60, .55); font-size: 11px; letter-spacing: .12em; }
+  #blanks { display: flex; flex-wrap: wrap; gap: 6px; }
+  .item.locked { cursor: default; }
+  .item.locked::after { content: '\1F512'; position: absolute; left: 50%; transform: translateX(-50%); top: -10px; font-size: 13px; background: #fff; border-radius: 50%; padding: 1px 3px; box-shadow: 0 1px 3px rgba(0,0,0,.3); }
   .item.sel { outline: 2px dashed #2a6fdb; outline-offset: 3px; }
   .plaque { position: absolute; cursor: grab; background: linear-gradient(180deg, #e2c27a, #a8843f); color: #3a280c; display: flex; align-items: center; justify-content: center; font-weight: 600; letter-spacing: .3em; box-shadow: 0 1px 3px rgba(0, 0, 0, .3); }
   .plaque.sel { outline: 2px dashed #2a6fdb; outline-offset: 3px; }
@@ -64,6 +68,7 @@
   <aside>
     <div class="panel" id="selPanel"><h2>Selected</h2><div id="selBody" class="none">Click a photograph (or the plaque) to size and frame it. Drag to move; the arrow keys nudge it 1 cm (with Shift, 5 cm). Pink lines show when it lines up with another.</div></div>
     <div class="panel"><h2>Your photographs</h2><div id="tray"></div><p class="hint">Click one to put it on the wall or take it off. Outlined: on the wall.</p></div>
+    <div class="panel"><h2>Blank frames</h2><div id="blanks"></div><p class="hint">Placeholders for photographs still to come: add as many as you like, then size, frame and arrange them. They hang as empty frames until a photograph takes their place.</p></div>
     <div class="panel"><h2>When you are happy</h2><p class="hint" style="margin:0">Press <b>Save to the gallery</b>, then reload the gallery (<a href="/" target="gallery">open it</a>) and walk to <span id="where">the wall</span>. Nothing is live on the website until you say commit.</p></div>
   </aside>
 </main>
@@ -84,10 +89,15 @@ CATS.kelly = {                                       // the prepared photographs
   'fun': { a: 0.546, name: 'Fun' }, 'highschool': { a: 1.296, name: 'High school' },
 };
 CATS.anthony = {
-  'main-portrait': { a: 0.743, oval: true, name: 'Portrait' },   // reshaped to Kelly's main oval, so the two match 'portrait-2': { a: 1.003, oval: true, name: 'Portrait (round)' },
+  'main-portrait': { a: 0.743, oval: true, name: 'Portrait' },   // reshaped to Kelly's main oval, so the two match
+  'portrait-2': { a: 1.003, oval: true, name: 'Portrait (round)' },
   'mom-and-grandma': { a: 1.309, name: 'Mom and Grandma' }, 'best-man': { a: 1.43, name: 'Best man' }, 'dating-profile': { a: 1.445, name: 'Dating profile' },
 };
 const CAT = CATS[WALL], IMG = (k) => '/assets/' + WALL + '-wall/' + k + '.jpg';
+// a piece's shape: a photograph's from the catalogue; a blank frame's (or a piece this page does not know) from itself
+const asp = (p) => (CAT[p.src] ? CAT[p.src].a : p.aspect || 1), ovl = (p) => (CAT[p.src] ? !!CAT[p.src].oval : !!p.oval);
+const BLANKS = [['Oval', 0.75, true, 0.4], ['Circle', 1, true, 0.3], ['Portrait rectangle', 0.75, false, 0.36], ['Landscape rectangle', 1.33, false, 0.26], ['Square', 1, false, 0.3]];
+const label = (p) => (CAT[p.src] ? CAT[p.src].name : p.src === 'blank' ? 'Blank frame \u00b7 ' + (p.oval ? (p.aspect === 1 ? 'circle' : 'oval') : p.aspect === 1 ? 'square' : p.aspect > 1 ? 'landscape' : 'portrait') : p.src);
 const ph = (src, z, y, h, frame = 'gilt', fw = 0.05, more = {}) => ({ src, z, y, h, frame, fw, ...more });
 // ---- the options (the header's buttons), per wall. Each is a starting point; everything can be moved after.
 const PRESETS_K = {
@@ -144,7 +154,7 @@ const snap = () => JSON.stringify(L);
 function push() { hist.push(snap()); if (hist.length > 200) hist.shift(); }
 function undo() { if (!hist.length) return; L = JSON.parse(hist.pop()); sel = null; render(); dirty(true); }
 const X = (z) => (DIR > 0 ? Z0 - z : z - Z1) * S, Y = (y) => (HGT - y) * S, LX = (z, w) => Math.min(X(z - w / 2), X(z + w / 2));   // LX: the screen left of something w wide centred at z
-const outer = (p) => { const b = p.box || (p.mat ? [p.h * CAT[p.src].a + 2 * p.mat, p.h + 2 * p.mat] : null), w = b ? b[0] : p.h * CAT[p.src].a, h = b ? b[1] : p.h; return [w + 2 * p.fw, h + 2 * p.fw, b]; };
+const outer = (p) => { const b = p.box || (p.mat ? [p.h * asp(p) + 2 * p.mat, p.h + 2 * p.mat] : null), w = b ? b[0] : p.h * asp(p), h = b ? b[1] : p.h; return [w + 2 * p.fw, h + 2 * p.fw, b]; };
 function dirty(v) { document.getElementById('status').textContent = v ? 'Not saved yet' : 'Saved. Reload the gallery to see it.'; }
 
 // ---- the wall itself
@@ -179,7 +189,7 @@ function drawAnthony(x) {
   R(-3.9, SUN_Y, 1.088, 1.328, g); R(-3.9, SUN_Y, 0.84, 1.08, '#1a1210');
   x.fillStyle = '#f2d98a'; x.font = 'bold ' + Math.round(S * 0.07) + 'px monospace'; x.textAlign = 'center';
   x.fillText('GETTING', X(-3.9), Y(SUN_Y + 0.33)); x.fillText('TO ITALY', X(-3.9), Y(SUN_Y + 0.23)); x.font = Math.round(S * 0.035) + 'px monospace'; x.fillText('THE ARCADE', X(-3.9), Y(SUN_Y - 0.3)); x.textAlign = 'left';
-  const cz = -0.792, kz = -0.192, ay = 2.1, am = -0.492, lift = 0.3;   // as ART in gallery3d.js
+  const cz = -0.734, kz = -0.134, ay = 2.1, am = -0.434, lift = 0.3;   // as ART in gallery3d.js
   R(cz, ay, 0.3, 0.44, '#5a3620'); R(cz, ay + 0.02, 0.22, 0.35, '#e8eef0'); R(cz, ay + 0.02, 0.166, 0.242, '#7a5a2a');   // the slab on its plaque
   R(kz, ay, 0.46, 0.44, '#c8102e'); R(kz, ay, 0.4, 0.36, '#f3ecdc'); ['#f08a3a', '#b8331f', '#c9a24a'].forEach((c, i) => R(kz - 0.13 + i * 0.13, ay - 0.05, 0.06, 0.14, c));   // the case
   R(am, 0.47 + lift / 2, 0.34, 0.8 + lift, '#c9a24a'); R(am, 0.07, 0.42, 0.1, '#b08a3a'); R(am, 0.9 + lift, 0.4, 0.08, '#b08a3a');   // Amelia's plinth, and Amelia
@@ -190,14 +200,14 @@ function render() { renderItems(); renderTray(); renderSel(); }
 function renderItems() {
   stage.querySelectorAll('.item, .plaque, .guide').forEach((e) => e.remove());
   L.photos.forEach((p, i) => {
-    const [ow, oh, b] = outer(p), w = p.h * CAT[p.src].a, e = document.createElement('div');
-    e.className = 'item' + (CAT[p.src].oval && !b ? ' oval' : '') + (sel === i ? ' sel' : ''); e.dataset.i = i;
+    const [ow, oh, b] = outer(p), w = p.h * asp(p), e = document.createElement('div');
+    e.className = 'item' + (ovl(p) && !b ? ' oval' : '') + (p.locked ? ' locked' : '') + (sel === i ? ' sel' : ''); e.dataset.i = i;
     Object.assign(e.style, { left: LX(p.z, ow) + 'px', top: Y(p.y + oh / 2) + 'px', width: ow * S + 'px', height: oh * S + 'px' });
     const fr = document.createElement('div'); fr.className = 'fr ' + p.frame; e.appendChild(fr);
     const inn = document.createElement('div'); inn.className = 'in'; Object.assign(inn.style, { left: p.fw * S + 'px', top: p.fw * S + 'px', right: p.fw * S + 'px', bottom: p.fw * S + 'px' }); e.appendChild(inn);
-    const img = document.createElement('img'); img.className = 'pic'; img.src = IMG(p.src); img.draggable = false;
+    let img; if (p.src === 'blank') { img = document.createElement('div'); img.className = 'pic blank'; img.textContent = 'BLANK'; } else { img = document.createElement('img'); img.className = 'pic'; img.src = IMG(p.src); img.draggable = false; }
     if (b) { const m = document.createElement('div'); m.className = 'mat'; Object.assign(m.style, { inset: 0 }); inn.appendChild(m);
-      Object.assign(img.style, { left: (b[0] - w) / 2 * S + 'px', top: (b[1] - p.h) / 2 * S + 'px', width: w * S + 'px', height: p.h * S + 'px', borderRadius: CAT[p.src].oval ? '50%' : '0', boxShadow: 'inset 0 0 2px rgba(0,0,0,.4)' }); }
+      Object.assign(img.style, { left: (b[0] - w) / 2 * S + 'px', top: (b[1] - p.h) / 2 * S + 'px', width: w * S + 'px', height: p.h * S + 'px', borderRadius: ovl(p) ? '50%' : '0', boxShadow: 'inset 0 0 2px rgba(0,0,0,.4)' }); }
     else Object.assign(img.style, { left: 0, top: 0, width: '100%', height: '100%' });
     inn.appendChild(img);
     stage.appendChild(e);
@@ -213,6 +223,9 @@ function renderTray() {
     b.innerHTML = '<img src="' + IMG(k) + '" alt="">'; b.onclick = () => { push(); if (on) { L.photos = L.photos.filter((p) => p.src !== k); sel = null; }
       else { L.photos.push(ph(k, CZ, 2.0, CAT[k].oval ? 0.3 : 0.32, CAT[k].oval ? 'gilt' : 'plain', 0.05)); sel = L.photos.length - 1; } render(); dirty(true); };
     t.appendChild(b); });
+  const bl = document.getElementById('blanks'); bl.innerHTML = '';
+  BLANKS.forEach(([name, a, oval, h]) => { const b = document.createElement('button'); b.className = 'btn'; b.textContent = '+ ' + name;
+    b.onclick = () => { push(); L.photos.push(ph('blank', CZ, 2.0, h, oval ? 'gilt' : 'plain', 0.05, { aspect: a, oval })); sel = L.photos.length - 1; render(); dirty(true); }; bl.appendChild(b); });
 }
 // the selected item's controls
 function renderSel() {
@@ -220,22 +233,26 @@ function renderSel() {
   if (sel == null) { body.className = 'none'; body.innerHTML = 'Click a photograph (or the plaque) to size and frame it. Drag to move; the arrow keys nudge it 1 cm (with Shift, 5 cm). Pink lines show when it lines up with another.'; return; }
   body.className = '';
   if (sel === 'plaque') { body.innerHTML = '<b>The ' + NAME + ' plaque</b><p class="hint">Drag it where you want it. Centre ' + L.plaque.y.toFixed(2) + ' m from the floor.</p>'; return; }
-  const p = L.photos[sel], c = CAT[p.src], matted = !!p.box || !!p.mat;
+  const p = L.photos[sel], c = { a: asp(p) }, matted = !!p.box || !!p.mat, isBlank = p.src === 'blank';
   const slider = (id, label, min, max, step, val, unit = 'cm', k = 100) => `<div class="row"><label>${label}</label><input type="range" id="${id}" min="${min}" max="${max}" step="${step}" value="${val}"><output id="${id}o">${Math.round(val * k)} ${unit}</output></div>`;
-  body.innerHTML = `<b>${c.name}</b>` +
-    slider('sH', 'Photo height', 0.12, 1.1, 0.01, p.h) +
+  body.innerHTML = `<b>${label(p)}</b>` +
+    slider('sH', isBlank ? 'Height' : 'Photo height', 0.12, 1.1, 0.01, p.h) +
+    (isBlank && !(p.oval && p.aspect === 1) ? slider('sA', 'Width', 0.3, 2.5, 0.01, p.aspect, '% of height', 100) : '') +
     `<div class="row"><label>Frame</label><select id="sF"><option value="gilt">Gilt</option><option value="plain">Black &amp; gold</option></select></div>` +
     slider('sW', 'Frame width', 0.02, 0.14, 0.005, p.fw) +
     `<div class="row"><label>Mat</label><select id="sM"><option value="0">None</option><option value="m">White mat</option></select></div>` +
     (matted ? slider('sMW', 'Mat width', 0.02, 0.3, 0.005, p.box ? Math.min((p.box[0] - p.h * c.a) / 2, (p.box[1] - p.h) / 2) : p.mat) : '') +
-    `<p class="hint">Centre ${p.y.toFixed(2)} m from the floor.</p><div class="row"><button class="btn" id="sDup">Line others up with this</button><button class="btn" id="sDel">Take it off</button></div>`;
+    `<div class="row"><label>Position</label><label style="width:auto;color:inherit"><input type="checkbox" id="sL"${p.locked ? ' checked' : ''}> Locked</label></div>` +
+    `<p class="hint">Centre ${p.y.toFixed(2)} m from the floor.${p.locked ? ' Locked: it cannot be dragged or nudged, and Make symmetric builds around it without moving it.' : ''}</p><div class="row"><button class="btn" id="sDup">Line others up with this</button><button class="btn" id="sDel">Take it off</button></div>`;
   const $ = (id) => document.getElementById(id);
   $('sF').value = p.frame; $('sM').value = matted ? 'm' : '0';
   const live = (id, f) => { const e = $(id); if (!e) return; e.onpointerdown = () => push(); e.onkeydown = () => push(); e.oninput = () => { f(+e.value); $(id + 'o').textContent = Math.round(+e.value * 100) + ' cm'; renderItems(); dirty(true); }; };
   live('sH', (v) => { if (p.box) { const k = v / p.h; p.box = [+(p.box[0] + (v - p.h) * c.a).toFixed(3), +(p.box[1] + (v - p.h)).toFixed(3)]; } p.h = v; });
   live('sW', (v) => { p.fw = v; });
+  if ($('sA')) { const e = $('sA'); e.onpointerdown = () => push(); e.oninput = () => { if (p.box) p.box = [+(p.box[0] + p.h * (+e.value - p.aspect)).toFixed(3), p.box[1]]; p.aspect = +(+e.value).toFixed(3); $('sAo').textContent = Math.round(p.aspect * 100) + '% of height'; renderItems(); dirty(true); }; }
   live('sMW', (v) => { delete p.box; p.mat = v; });
   $('sF').onchange = () => { push(); p.frame = $('sF').value; render(); dirty(true); };
+  $('sL').onchange = () => { push(); if ($('sL').checked) p.locked = true; else delete p.locked; render(); dirty(true); };
   $('sM').onchange = () => { push(); if ($('sM').value === 'm') { p.mat = 0.06; } else { delete p.mat; delete p.box; } render(); dirty(true); };
   $('sDel').onclick = () => { push(); L.photos.splice(sel, 1); sel = null; render(); dirty(true); };
   $('sDup').onclick = () => { push(); const me = p; L.photos.forEach((o) => { if (o !== me && Math.abs(o.y - me.y) < 0.2) o.y = me.y; }); render(); dirty(true); };
@@ -247,7 +264,8 @@ let drag = null;
 stage.addEventListener('pointerdown', (ev) => {
   const el = ev.target.closest('.item, .plaque'); if (!el) { sel = null; render(); return; }
   const isP = el.classList.contains('plaque'), i = isP ? 'plaque' : +el.dataset.i, o = isP ? L.plaque : L.photos[i];
-  sel = i; push(); drag = { i, o, z0: o.z, y0: o.y, mx: ev.clientX, my: ev.clientY, moved: false };
+  sel = i; if (o.locked) { render(); return; }                       // a locked piece is selected, not moved
+  push(); drag = { i, o, z0: o.z, y0: o.y, mx: ev.clientX, my: ev.clientY, moved: false };
   stage.setPointerCapture(ev.pointerId); render();
 });
 stage.addEventListener('pointermove', (ev) => {
@@ -271,7 +289,7 @@ document.addEventListener('keydown', (ev) => {
   if ((ev.metaKey || ev.ctrlKey) && ev.key === 'z') { ev.preventDefault(); undo(); return; }
   if (sel == null || ev.target.tagName === 'INPUT' || ev.target.tagName === 'SELECT') return;
   const d = ev.shiftKey ? 0.05 : 0.01, o = sel === 'plaque' ? L.plaque : L.photos[sel], mv = { ArrowLeft: [DIR * d, 0], ArrowRight: [-DIR * d, 0], ArrowUp: [0, d], ArrowDown: [0, -d] }[ev.key];
-  if (!mv) return; ev.preventDefault(); push(); o.z = +(o.z + mv[0]).toFixed(3); o.y = +(o.y + mv[1]).toFixed(3); render(); dirty(true);
+  if (!mv || o.locked) return; ev.preventDefault(); push(); o.z = +(o.z + mv[0]).toFixed(3); o.y = +(o.y + mv[1]).toFixed(3); render(); dirty(true);
 });
 
 // ---- make symmetric: the centre line runs through the largest photograph (the main portrait). Whatever is within 2 cm
@@ -280,20 +298,26 @@ document.addEventListener('keydown', (ev) => {
 // between the topmost and the lowest there (the plaque included) is spaced so the gaps between them are equal.
 function makeSymmetric() {
   if (!L.photos.length) return 'Nothing to line up';
-  const big = L.photos.reduce((a, p) => (p.h * p.h * CAT[p.src].a > a.h * a.h * CAT[a.src].a ? p : a)), ax = big.z;
+  const big = L.photos.reduce((a, p) => (p.h * p.h * asp(p) > a.h * a.h * asp(a) ? p : a)), ax = big.z;
   const all = [...L.photos, L.plaque], onAxis = all.filter((o) => Math.abs(o.z - ax) < 0.02);
-  onAxis.forEach((o) => { o.z = ax; });
+  onAxis.forEach((o) => { if (!o.locked) o.z = ax; });
   const left = L.photos.filter((p) => p.z > ax + 0.02), right = L.photos.filter((p) => p.z < ax - 0.02), cands = [];
   left.forEach((a) => right.forEach((b) => { const dy = Math.abs(a.y - b.y), dd = Math.abs((a.z - ax) - (ax - b.z)); if (dy < 0.15 && dd < 0.3) cands.push([dy + dd, a, b]); }));
   cands.sort((x, y) => x[0] - y[0]); const used = new Set(); let pairs = 0;
   cands.forEach(([, a, b]) => { if (used.has(a) || used.has(b)) return; used.add(a); used.add(b); pairs++;
+    if (a.locked && b.locked) return;                                  // a locked piece stays; its partner mirrors it
+    if (a.locked) { b.z = +(2 * ax - a.z).toFixed(3); b.y = a.y; return; } if (b.locked) { a.z = +(2 * ax - b.z).toFixed(3); a.y = b.y; return; }
     const d = +(((a.z - ax) + (ax - b.z)) / 2).toFixed(3), y = +((a.y + b.y) / 2).toFixed(3); a.z = +(ax + d).toFixed(3); b.z = +(ax - d).toFixed(3); a.y = b.y = y; });
   const lone = [...left, ...right].filter((p) => !used.has(p)).length;
   const hOf = (o) => (o === L.plaque ? 0.24 : outer(o)[1]), line = onAxis.slice().sort((a, b) => b.y - a.y);
-  if (line.length > 2) { const top = line[0], bot = line[line.length - 1], inner = line.slice(1, -1);
+  // the centre line: the top, the lowest and any locked piece stay where they are; what stands between two of them is
+  // spaced evenly between those two
+  const anchors = line.map((o, k) => (k === 0 || k === line.length - 1 || o.locked ? k : -1)).filter((k) => k >= 0);
+  for (let s2 = 0; s2 < anchors.length - 1; s2++) { const top = line[anchors[s2]], bot = line[anchors[s2 + 1]], inner = line.slice(anchors[s2] + 1, anchors[s2 + 1]);
+    if (!inner.length) continue;
     const span = (top.y - hOf(top) / 2) - (bot.y + hOf(bot) / 2), gap = (span - inner.reduce((t, o) => t + hOf(o), 0)) / (inner.length + 1);
     let y = top.y - hOf(top) / 2; inner.forEach((o) => { const was = o.y; y -= gap + hOf(o) / 2; o.y = +y.toFixed(3); y -= hOf(o) / 2;
-      L.photos.forEach((p) => { if (used.has(p) && Math.abs(p.y - was) < 0.02) p.y = o.y; }); }); }   // a pair in the same row moves with it
+      L.photos.forEach((p) => { if (used.has(p) && !p.locked && Math.abs(p.y - was) < 0.02) p.y = o.y; }); }); }   // a pair in the same row moves with it
   return 'Symmetric: ' + pairs + (pairs === 1 ? ' pair' : ' pairs') + ' mirrored around the main portrait' + (lone ? '; ' + lone + (lone === 1 ? ' piece has' : ' pieces have') + ' no partner, left as it is' : '');
 }
 // ---- options, undo, save
@@ -307,7 +331,7 @@ document.querySelectorAll('[data-preset]').forEach((b) => b.onclick = () => { pu
   document.querySelectorAll('[data-preset]').forEach((x) => x.classList.toggle('on', x === b)); });
 document.getElementById('undo').onclick = undo;
 document.getElementById('save').onclick = async () => {
-  const out = { photos: L.photos.map((p) => ({ ...p, aspect: CAT[p.src].a, oval: !!CAT[p.src].oval })), plaque: L.plaque };
+  const out = { photos: L.photos.map((p) => ({ ...p, aspect: asp(p), oval: ovl(p) })), plaque: L.plaque };
   try { const r = await fetch('/__save-wall?wall=' + WALL, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(out) });
     if (!r.ok) throw new Error((await r.json()).error || r.status); dirty(false); }
   catch (e) { document.getElementById('status').textContent = 'Could not save (' + e.message + '). Is the local server running?'; }
@@ -317,7 +341,7 @@ function fit() { S = Math.max(110, Math.min(230, (window.innerWidth - 420) / (Z0
 window.addEventListener('resize', fit);
 (async () => {
   const saved = await fetch('/assets/' + WALL + '-wall/layout.json', { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
-  L = saved && saved.photos ? { photos: saved.photos.filter((p) => CAT[p.src]).map(({ aspect, oval, ...p }) => p), plaque: saved.plaque } : PRESETS.A();
+  L = saved && saved.photos ? { photos: saved.photos, plaque: saved.plaque } : PRESETS.A();   // every piece kept, known or not (a blank frame carries its own shape)
   const q = new URLSearchParams(location.search).get('preset'); if (q && PRESETS[q]) L = PRESETS[q]();
   fit(); dirty(false); document.getElementById('status').textContent = saved ? 'The saved arrangement' : 'Option A (not saved yet)';
   if (new URLSearchParams(location.search).has('sym')) document.getElementById('sym').click();      // for testing: ?sym&save

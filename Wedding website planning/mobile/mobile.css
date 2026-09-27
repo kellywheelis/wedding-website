@@ -100,6 +100,9 @@ main { padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom) + 24px); 
 .kw .in > img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .kw .mat { position: absolute; inset: 0; background: #F1EBDD; }
 .kw .mat img { position: absolute; object-fit: cover; }
+.kw .blank { display: block; width: 100%; height: 100%; background: #efe6d2; }
+.kw .mat .blank { position: absolute; width: auto; height: auto; }
+.kw.oval .in > .blank { border-radius: 50%; }
 .kw.oval, .kw.oval .in, .kw.oval .in > img { border-radius: 50%; }
 #lbImg img.oval { border-radius: 50%; }
 .kwall-tap { margin: 10px var(--gutter) 0; text-align: center; }

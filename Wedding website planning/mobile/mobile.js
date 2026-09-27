@@ -145,11 +145,12 @@
     box.style.aspectRatio = W.toFixed(3) + ' / ' + H.toFixed(3);
     const f = C.rooms[0].frames && C.rooms[0].frames[who], name = who === 'kelly' ? 'Kelly' : 'Anthony';
     box.innerHTML = L.photos.map((p) => {
-      const [w, h, b] = size(p), pw = p.h * p.aspect, img = '/assets/' + who + '-wall/' + p.src + '.jpg';
+      const [w, h, b] = size(p), pw = p.h * p.aspect, img = '/assets/' + who + '-wall/' + p.src + '.jpg', pos = `left:${pct(X(p.z, w), W)};top:${pct(Y(p.y + h / 2), H)};width:${pct(w, W)};height:${pct(h, H)};--fw:${pct(p.fw, w)};--fh:${pct(p.fw, h)}`;
+      if (p.src === 'blank') return `<span class="kw ${p.frame === 'plain' ? 'plain' : 'gilt'}${p.oval && !b ? ' oval' : ''}" style="${pos}"><span class="in">${b ? `<span class="mat"><span class="blank" style="left:${pct((b[0] - pw) / 2, b[0])};top:${pct((b[1] - p.h) / 2, b[1])};width:${pct(pw, b[0])};height:${pct(p.h, b[1])}${p.oval ? ';border-radius:50%' : ''}"></span></span>` : '<span class="blank"></span>'}</span></span>`;   // a blank frame: an empty mount
       lbItems.push({ img, title: f ? f.title : name, body: '', meta: f && f.meta !== 'Placeholder' ? f.meta : '', aspect: p.aspect, oval: p.oval }); const i = lbItems.length - 1;
       const inner = b ? `<span class="mat"><img src="${img}" alt="" loading="lazy" decoding="async" style="left:${pct((b[0] - pw) / 2, b[0])};top:${pct((b[1] - p.h) / 2, b[1])};width:${pct(pw, b[0])};height:${pct(p.h, b[1])}${p.oval ? ';border-radius:50%' : ''}"></span>`
         : `<img src="${img}" alt="" loading="lazy" decoding="async">`;
-      return `<button class="kw ${p.frame === 'plain' ? 'plain' : 'gilt'}${p.oval && !b ? ' oval' : ''}" data-lb="${i}" aria-label="A photograph of ${name}" style="left:${pct(X(p.z, w), W)};top:${pct(Y(p.y + h / 2), H)};width:${pct(w, W)};height:${pct(h, H)};--fw:${pct(p.fw, w)};--fh:${pct(p.fw, h)}"><span class="in">${inner}</span></button>`;
+      return `<button class="kw ${p.frame === 'plain' ? 'plain' : 'gilt'}${p.oval && !b ? ' oval' : ''}" data-lb="${i}" aria-label="A photograph of ${name}" style="${pos}"><span class="in">${inner}</span></button>`;
     }).join('') + `<span class="kplaque" style="left:${pct(X(L.plaque.z, 1.2), W)};top:${pct(Y(L.plaque.y + 0.12), H)};width:${pct(1.2, W)};height:${pct(0.24, H)}">${name.toUpperCase()}</span>`;
   };
   drawWall('kelly'); drawWall('anthony');

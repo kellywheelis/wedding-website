@@ -119,7 +119,14 @@ the canvas size and the triangles drawn (`tickFps` in gallery3d.js; nothing is m
   plaque), drag with snapping to the others' centres and edges, size, frame (gilt / black and gold), frame width, a white
   mat, a tray of all thirteen photos, undo, three starting options (A symmetric salon, B series in rows, C matted
   grid), and Make symmetric (`makeSymmetric`: the centre line through the largest photo; pairs across it mirrored at
-  their average distance and height; what stands on the line between the top and the lowest spaced evenly). Save posts to the dev server (`/__save-wall?wall=kelly|anthony`, local only), which writes that wall's layout.json; reload the gallery
+  their average distance and height; what stands on the line between the top and the lowest spaced evenly). Blank
+  frames (27 Sept 2026): placeholders for photographs to come, `src: 'blank'` carrying their own `aspect` and `oval`
+  (oval, circle, portrait, landscape, square; any size, frame, mat); the gallery hangs them as empty mounts with no
+  close-up, the phone as empty mounts. A piece can be locked (`locked: true`, the Locked box when it is selected; a padlock
+  shows on it): it cannot be dragged or nudged, and Make symmetric builds around it (its partner mirrors it; on the
+  centre line it stays and the pieces between it and the next fixed one are spaced evenly). Anthony's main portrait is
+  locked at its twin's place (z -2.0, y 2.309), at her wish. The editor keeps every piece of a saved layout, known or not (it once dropped
+  what its catalogue lacked, and a note typed into Anthony's catalogue hid his round portrait from it for a while). Save posts to the dev server (`/__save-wall?wall=kelly|anthony`, local only), which writes that wall's layout.json; reload the gallery
   to see it. The `kelly` stop stands back to take in whatever she hangs (`KELLY_VIEW`); each photo has a close-up stop
   (`kellyPhoto0`..). Mats (`matBoard`), black oval frames and slimmer mouldings (`fw`) were added to `framedPicture`,
   `ornateFrame` and `ornateOvalFrame` for her. Her first request was one salon cluster; she found it one big cluster, then
@@ -138,8 +145,8 @@ the canvas size and the triangles drawn (`tickFps` in gallery3d.js; nothing is m
   his plaque at hers, z -2.0, y 1.2). His main portrait was then made her main portrait's twin (84 x 107 cm outside, the
   picture 65 x 88, moulding 9.5): his oval reshaped to hers (aspect 0.743; main-portrait.jpg cut from his PNG 19 px off
   the top and 37 off the bottom), the pieces beside it moved out 5.5 cm and the one below down 2.5 cm to keep his gaps. His artifacts were moved to suit (the owner, 27 Sept 2026; `ART` at the top of
-  gallery3d.js): the card slab and the case centred in the wall between his photographs and the pilaster (about 24 cm
-  clear each side), 15 cm higher (y 2.1); Amelia's plinth under the
+  gallery3d.js): the card slab and the case centred in the wall between his photographs (with her placeholders) and the
+  pilaster (about 18 cm clear each side), 15 cm higher (y 2.1); Amelia's plinth under the
   middle of the pair and 30 cm taller, so she stands in view from his wall's stop. Their close-up stops follow; the
   wall editor draws them from the same numbers.
 - The LEGO Sunflowers and the build station's shelf were raised

@@ -13,9 +13,9 @@
   },
   {
    "src": "mom-and-grandma",
-   "z": -1.295,
-   "y": 2.497,
-   "h": 0.22,
+   "z": -1.291,
+   "y": 2.571,
+   "h": 0.23,
    "frame": "cassetta",
    "fw": 0.045,
    "aspect": 1.309,
@@ -34,9 +34,9 @@
   },
   {
    "src": "best-man",
-   "z": -2.705,
-   "y": 2.497,
-   "h": 0.22,
+   "z": -2.709,
+   "y": 2.571,
+   "h": 0.23,
    "frame": "cassetta",
    "fw": 0.045,
    "aspect": 1.43,
@@ -60,12 +60,13 @@
    "frame": "filigree",
    "fw": 0.05,
    "aspect": 0.75,
-   "oval": true
+   "oval": true,
+   "locked": true
   },
   {
    "src": "gdc-team",
-   "z": -2.744,
-   "y": 1.984,
+   "z": -2.731,
+   "y": 2.03,
    "h": 0.23,
    "frame": "cassetta",
    "fw": 0.05,
@@ -82,9 +83,9 @@
   },
   {
    "src": "proposal-practice",
-   "z": -1.256,
-   "y": 1.984,
-   "h": 0.22,
+   "z": -1.269,
+   "y": 2.03,
+   "h": 0.23,
    "frame": "cassetta",
    "fw": 0.05,
    "aspect": 1.335,
@@ -116,7 +117,8 @@
     0.1253,
     1,
     0.8747
-   ]
+   ],
+   "locked": true
   },
   {
    "src": "peaky-blinders",
@@ -126,11 +128,12 @@
    "frame": "filigree",
    "fw": 0.05,
    "aspect": 1,
-   "oval": true
+   "oval": true,
+   "locked": true
   },
   {
    "src": "mishka",
-   "z": -2.941,
+   "z": -2.944,
    "y": 1.547,
    "h": 0.32,
    "frame": "cassetta",
@@ -140,13 +143,14 @@
   },
   {
    "src": "amsterdam-tea",
-   "z": -1.059,
+   "z": -1.056,
    "y": 1.547,
    "h": 0.32,
    "frame": "cassetta",
    "fw": 0.05,
    "aspect": 0.749,
-   "oval": false
+   "oval": false,
+   "locked": true
   }
  ],
  "plaque": {

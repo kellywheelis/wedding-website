@@ -1,0 +1,128 @@
+{
+ "photos": [
+  {
+   "src": "main-portrait",
+   "z": -2,
+   "y": 2.309,
+   "h": 0.88,
+   "frame": "gilt",
+   "fw": 0.095,
+   "aspect": 0.743,
+   "oval": true
+  },
+  {
+   "src": "baby",
+   "z": -1.623,
+   "y": 1.547,
+   "h": 0.3,
+   "frame": "gilt",
+   "fw": 0.045,
+   "aspect": 0.778,
+   "oval": true
+  },
+  {
+   "src": "baby-banana",
+   "z": -2,
+   "y": 1.547,
+   "h": 0.28,
+   "frame": "plain",
+   "fw": 0.05,
+   "aspect": 0.665,
+   "oval": false
+  },
+  {
+   "src": "halloween",
+   "z": -1.184,
+   "y": 1.6,
+   "h": 0.32,
+   "frame": "plain",
+   "fw": 0.05,
+   "aspect": 0.633,
+   "oval": false
+  },
+  {
+   "src": "mojo",
+   "z": -2.626,
+   "y": 2.08,
+   "h": 0.26,
+   "frame": "gilt",
+   "fw": 0.045,
+   "aspect": 1,
+   "oval": true
+  },
+  {
+   "src": "sfx",
+   "z": -1.374,
+   "y": 2.08,
+   "h": 0.26,
+   "frame": "gilt",
+   "fw": 0.045,
+   "aspect": 1,
+   "oval": true
+  },
+  {
+   "src": "maid-of-honor",
+   "z": -1.257,
+   "y": 2.564,
+   "h": 0.27,
+   "frame": "gilt",
+   "fw": 0.05,
+   "aspect": 1.227,
+   "oval": false
+  },
+  {
+   "src": "eyes",
+   "z": -2.409,
+   "y": 3.096,
+   "h": 0.27,
+   "frame": "plain",
+   "fw": 0.05,
+   "aspect": 1.499,
+   "oval": false
+  },
+  {
+   "src": "bridal-party",
+   "z": -2.743,
+   "y": 2.564,
+   "h": 0.27,
+   "frame": "gilt",
+   "fw": 0.05,
+   "aspect": 1.2,
+   "oval": false
+  },
+  {
+   "src": "fun",
+   "z": -2.816,
+   "y": 1.6,
+   "h": 0.32,
+   "frame": "plain",
+   "fw": 0.05,
+   "aspect": 0.546,
+   "oval": false
+  },
+  {
+   "src": "highschool",
+   "z": -1.591,
+   "y": 3.096,
+   "h": 0.27,
+   "frame": "plain",
+   "fw": 0.05,
+   "aspect": 1.296,
+   "oval": false
+  },
+  {
+   "src": "elementary",
+   "z": -2.377,
+   "y": 1.547,
+   "h": 0.3,
+   "frame": "gilt",
+   "fw": 0.05,
+   "aspect": 0.732,
+   "oval": true
+  }
+ ],
+ "plaque": {
+  "z": -2,
+  "y": 1.2
+ }
+}

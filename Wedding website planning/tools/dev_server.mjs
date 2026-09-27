@@ -72,6 +72,17 @@ http.createServer(async (req, res) => {
     catch (e) { res.writeHead(500, { 'content-type': 'text/plain' }); res.end(String(e.stack || e)); }
     return;
   }
+  // the wall editor (tools/wall-editor.html) for arranging Kelly's photographs, and where it saves: here only, never on
+  // the live site. The layout it saves is the file the gallery reads, so a reload of the gallery shows the arrangement.
+  if (url.pathname === '/wall-editor') { res.writeHead(200, { 'content-type': TYPES['.html'], 'cache-control': 'no-store' }); fs.createReadStream(path.join(ROOT, 'Wedding website planning', 'tools', 'wall-editor.html')).pipe(res); return; }
+  if (url.pathname === '/__save-kelly-wall' && req.method === 'POST') {
+    let raw = ''; for await (const c of req) { raw += c; if (raw.length > 200000) break; }
+    try { const j = JSON.parse(raw); if (!Array.isArray(j.photos) || !j.plaque) throw new Error('not a layout');
+      fs.writeFileSync(path.join(ROOT, 'Wedding website planning', 'assets', 'kelly-wall', 'layout.json'), JSON.stringify(j, null, 1) + '\n');
+      res.writeHead(200, { 'content-type': 'application/json' }); res.end('{"ok":true}'); }
+    catch (e) { res.writeHead(400, { 'content-type': 'application/json' }); res.end(JSON.stringify({ error: String(e.message || e) })); }
+    return;
+  }
   // DEV_EXTRA=/some/folder serves that folder at /__test/ (test pages that drive the site from the same address)
   if (process.env.DEV_EXTRA && url.pathname.startsWith('/__test/')) {
     const f = path.join(process.env.DEV_EXTRA, decodeURIComponent(url.pathname.slice(8)));

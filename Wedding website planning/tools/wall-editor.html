@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kelly's wall · arrange the photographs</title>
+<!-- The wall editor: Kelly's wall drawn to scale (the bay between the two pilasters, her LEGO Sunflowers and shelf, the
+     KELLY plaque), her photographs on it to drag, size and frame. Save writes assets/kelly-wall/layout.json through the
+     local dev server (tools/dev_server.mjs, at /wall-editor); the 3D gallery reads that file, so a reload shows it. -->
+<style>
+  :root { --ink: #3a2a18; --muted: #8a7a66; --line: #d8ccb6; --bg: #f4efe6; --accent: #7A1A3C; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 14px/1.4 Georgia, 'Times New Roman', serif; color: var(--ink); background: var(--bg); }
+  header { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; padding: 10px 16px; border-bottom: 1px solid var(--line); background: #fbf8f2; }
+  header h1 { font-size: 17px; margin: 0 8px 0 0; font-weight: normal; letter-spacing: .04em; }
+  button, select { font: inherit; }
+  .btn { border: 1px solid #b9a88a; background: #fff; color: var(--ink); padding: 5px 11px; border-radius: 4px; cursor: pointer; }
+  .btn:hover { background: #f7f1e6; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.on { background: #efe3c8; border-color: #b08a3a; }
+  .opts { display: flex; gap: 6px; align-items: center; }
+  .opts span { color: var(--muted); font-size: 13px; }
+  #status { color: var(--muted); font-size: 13px; }
+  main { display: flex; gap: 14px; padding: 14px 16px; align-items: flex-start; }
+  #stage { position: relative; flex: none; box-shadow: 0 2px 10px rgba(60, 40, 10, .15); user-select: none; touch-action: none; }
+  #bg { display: block; }
+  .item { position: absolute; cursor: grab; }
+  .item.dragging { cursor: grabbing; }
+  .item .fr { position: absolute; inset: 0; box-shadow: 0 2px 5px rgba(40, 25, 5, .35); }
+  .item .fr.gilt { background: linear-gradient(135deg, #7d5418, #e9c46c 28%, #a97c2a 52%, #f5dc92 72%, #8a5e1d); }
+  .item .fr.plain { background: linear-gradient(135deg, #0e0a08, #3a2c22 45%, #120d0a); }
+  .item .in { position: absolute; overflow: hidden; }
+  .item .fr.plain + .in { outline: 2px solid #c9a24a; }
+  .item .mat { position: absolute; background: #F1EBDD; box-shadow: inset 0 1px 3px rgba(0, 0, 0, .25); }
+  .item img { position: absolute; display: block; pointer-events: none; }
+  .item.oval .fr, .item.oval .in, .item.oval img.pic { border-radius: 50%; }
+  .item.sel { outline: 2px dashed #2a6fdb; outline-offset: 3px; }
+  .plaque { position: absolute; cursor: grab; background: linear-gradient(180deg, #e2c27a, #a8843f); color: #3a280c; display: flex; align-items: center; justify-content: center; font-weight: 600; letter-spacing: .3em; box-shadow: 0 1px 3px rgba(0, 0, 0, .3); }
+  .plaque.sel { outline: 2px dashed #2a6fdb; outline-offset: 3px; }
+  .guide { position: absolute; pointer-events: none; background: #e0337a; }
+  aside { flex: 1; min-width: 280px; max-width: 360px; }
+  .panel { background: #fbf8f2; border: 1px solid var(--line); border-radius: 6px; padding: 12px; margin-bottom: 12px; }
+  .panel h2 { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; font-weight: normal; }
+  .row { display: flex; align-items: center; gap: 8px; margin: 7px 0; }
+  .row label { width: 92px; color: var(--muted); font-size: 13px; }
+  .row input[type=range] { flex: 1; }
+  .row output { width: 52px; text-align: right; font-size: 13px; }
+  #tray { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  #tray button { position: relative; border: 2px solid transparent; padding: 0; background: #eee5d4; border-radius: 4px; cursor: pointer; aspect-ratio: 1; overflow: hidden; }
+  #tray button img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  #tray button.onwall { border-color: #b08a3a; }
+  #tray button.onwall::after { content: '✓'; position: absolute; right: 3px; top: 1px; color: #fff; text-shadow: 0 0 3px #000; font-size: 13px; }
+  .hint { color: var(--muted); font-size: 12.5px; margin: 6px 0 0; }
+  .none { color: var(--muted); font-size: 13px; }
+</style></head>
+<body>
+<header>
+  <h1>Kelly's wall</h1>
+  <div class="opts"><span>Start from</span>
+    <button class="btn" data-preset="A" title="Mirrored pairs around the main portrait">A · Symmetric salon</button>
+    <button class="btn" data-preset="B" title="The main portrait on its own, three themed rows beside it">B · Series in rows</button>
+    <button class="btn" data-preset="C" title="Matching black frames with white mats, in a grid">C · Matted grid</button>
+  </div>
+  <button class="btn" id="sym" title="Mirror every pair around the main portrait, exactly; space what is on the centre line evenly">Make symmetric</button>
+  <button class="btn" id="undo" title="Undo (Cmd/Ctrl+Z)">Undo</button>
+  <button class="btn primary" id="save">Save to the gallery</button>
+  <span id="status"></span>
+</header>
+<main>
+  <div id="stage"><canvas id="bg"></canvas></div>
+  <aside>
+    <div class="panel" id="selPanel"><h2>Selected</h2><div id="selBody" class="none">Click a photograph (or the plaque) to size and frame it. Drag to move; the arrow keys nudge it 1 cm (with Shift, 5 cm). Pink lines show when it lines up with another.</div></div>
+    <div class="panel"><h2>Your photographs</h2><div id="tray"></div><p class="hint">Click one to put it on the wall or take it off. Outlined: on the wall.</p></div>
+    <div class="panel"><h2>When you are happy</h2><p class="hint" style="margin:0">Press <b>Save to the gallery</b>, then reload the gallery (<a href="/" target="gallery">open it</a>) and walk to your wall, on the left just inside the entrance. Nothing is live on the website until you say commit.</p></div>
+  </aside>
+</main>
+<script>
+// ---- the wall, in metres: z along the hall (the wall's left end is +z), y up from the floor. The bay runs between the
+// pilasters at z 0.667 and -5 (faces 0.27 either side); the Sunflowers hang at z -3.9, their centre at SUN_Y (as in gallery3d.js),
+// the LEGO shelf's top 0.76 below it.
+const Z0 = 0.62, Z1 = -5.02, HGT = 3.95, SUN_Y = 2.31, SH = SUN_Y - 0.76;
+const CAT = {                                        // the prepared photographs (assets/kelly-wall): aspect (w / h) and whether cut as an oval or circle
+  'main-portrait': { a: 0.743, oval: true, name: 'Main portrait' }, 'side-portrait': { a: 0.835, oval: true, name: 'Side portrait' },
+  'baby': { a: 0.778, oval: true, name: 'Baby' }, 'baby-banana': { a: 0.665, name: 'Banana baby' }, 'elementary': { a: 0.732, oval: true, name: 'Elementary school' },
+  'maid-of-honor': { a: 1.227, name: 'Maid of Honor' }, 'bridal-party': { a: 1.2, name: 'Bridal party' }, 'eyes': { a: 1.499, name: 'Eyes' },
+  'mojo': { a: 1, oval: true, name: 'Mojo Jojo' }, 'sfx': { a: 1, oval: true, name: 'SFX' }, 'halloween': { a: 0.633, name: 'Halloween' },
+  'fun': { a: 0.546, name: 'Fun' }, 'highschool': { a: 1.296, name: 'High school' },
+};
+const IMG = (k) => '/assets/kelly-wall/' + k + '.jpg';
+const ph = (src, z, y, h, frame = 'gilt', fw = 0.05, more = {}) => ({ src, z, y, h, frame, fw, ...more });
+// ---- the three options (see the header's buttons). Each is a starting point; everything can be moved after.
+const PRESETS = {
+  // A: symmetric salon: the main portrait on the axis, a column either side mirroring the other (ovals, then black
+  // frames, then rounds), the friends and the eyes across the top, the plaque below
+  A: () => { const c = -2.0, d = 0.692;
+    return { photos: [
+      ph('main-portrait', c, 2.05, 0.88, 'gilt', 0.095),
+      ph('baby', c + d, 2.55, 0.3, 'gilt', 0.045), ph('side-portrait', c - d, 2.55, 0.3, 'gilt', 0.045),
+      ph('baby-banana', c + d, 2.05, 0.36, 'plain', 0.05), ph('halloween', c - d, 2.05, 0.36, 'plain', 0.05),
+      ph('mojo', c + d, 1.55, 0.26, 'gilt', 0.045), ph('sfx', c - d, 1.55, 0.26, 'gilt', 0.045),
+      ph('maid-of-honor', c + d, 3.05, 0.27, 'gilt', 0.05), ph('eyes', c, 3.05, 0.27, 'plain', 0.05), ph('bridal-party', c - d, 3.05, 0.27, 'gilt', 0.05),
+    ], plaque: { z: c, y: 1.2 } }; },
+  // B: series in rows: the main portrait on its own by the Sunflowers; beside it three rows, each one theme at one
+  // height (growing up; friends; personality), wide gaps between the rows
+  B: () => { const r = -1.45, row = (y, items, h, gap = 0.07) => { const ws = items.map(([k, f, fw]) => h * CAT[k].a + 2 * fw), tot = ws.reduce((s, w) => s + w, 0) + gap * (items.length - 1);
+      let z = r + tot / 2; return items.map(([k, f, fw], i) => { const zc = z - ws[i] / 2; z -= ws[i] + gap; return ph(k, +zc.toFixed(3), y, h, f, fw); }); };
+    return { photos: [
+      ph('main-portrait', -2.78, 2.05, 0.86, 'gilt', 0.095),
+      ...row(2.8, [['elementary', 'gilt', 0.045], ['baby-banana', 'plain', 0.045], ['baby', 'gilt', 0.045]], 0.3),
+      ...row(2.1, [['maid-of-honor', 'gilt', 0.05], ['bridal-party', 'gilt', 0.05]], 0.3, 0.08),
+      ...row(1.42, [['eyes', 'plain', 0.045], ['mojo', 'gilt', 0.045], ['sfx', 'gilt', 0.045]], 0.24),
+    ], plaque: { z: -2.0, y: 1.02 } }; },   // the plaque under the whole arrangement, clear of the Sunflowers
+  // C: matted grid: matching slim black frames with white mats, each photograph centred in its mat; the main
+  // portrait takes a double cell at the top of the middle, the others round it
+  C: () => { const cols = [-1.3, -1.78, -2.26, -2.74], rows = [2.72, 2.16, 1.6], box = [0.34, 0.42], fit = (k) => +Math.min(0.32, 0.26 / CAT[k].a).toFixed(3);
+    const cell = (k, ci, ri) => ph(k, cols[ci], rows[ri], fit(k), 'plain', 0.035, { box });
+    return { photos: [
+      ph('main-portrait', (cols[1] + cols[2]) / 2, (rows[0] + rows[1]) / 2, 0.8, 'plain', 0.045, { box: [0.82, 0.96] }),
+      cell('baby', 0, 0), cell('side-portrait', 3, 0), cell('elementary', 0, 1), cell('eyes', 3, 1),
+      cell('baby-banana', 0, 2), cell('maid-of-honor', 1, 2), cell('bridal-party', 2, 2), cell('mojo', 3, 2),
+    ], plaque: { z: (cols[1] + cols[2]) / 2, y: 1.12 } }; },
+};
+
+// ---- state
+let L = null, sel = null, S = 170;                  // the layout; the selected item (a photo, or 'plaque'); pixels per metre
+const hist = [], stage = document.getElementById('stage'), bg = document.getElementById('bg');
+const snap = () => JSON.stringify(L);
+function push() { hist.push(snap()); if (hist.length > 200) hist.shift(); }
+function undo() { if (!hist.length) return; L = JSON.parse(hist.pop()); sel = null; render(); dirty(true); }
+const X = (z) => (Z0 - z) * S, Y = (y) => (HGT - y) * S;
+const outer = (p) => { const b = p.box || (p.mat ? [p.h * CAT[p.src].a + 2 * p.mat, p.h + 2 * p.mat] : null), w = b ? b[0] : p.h * CAT[p.src].a, h = b ? b[1] : p.h; return [w + 2 * p.fw, h + 2 * p.fw, b]; };
+function dirty(v) { document.getElementById('status').textContent = v ? 'Not saved yet' : 'Saved. Reload the gallery to see it.'; }
+
+// ---- the wall itself
+const sun = new Image(); sun.src = '/assets/lego/sunflowers.jpg'; sun.onload = () => drawWall();
+function drawWall() {
+  const W = Math.round((Z0 - Z1) * S), H = Math.round(HGT * S); bg.width = W; bg.height = H; stage.style.width = W + 'px'; stage.style.height = H + 'px';
+  const x = bg.getContext('2d');
+  x.fillStyle = '#E8DEC9'; x.fillRect(0, 0, W, H);
+  x.fillStyle = '#DCD0B6'; x.fillRect(0, Y(HGT), W, (HGT - 3.78) * S);                       // the cornice
+  x.fillStyle = '#9C8466'; x.fillRect(0, Y(0.12), W, 0.12 * S);                               // the skirting
+  [0.667, -5].forEach((z) => { x.fillStyle = '#DCD2BC'; x.fillRect(X(z + 0.27), 0, 0.54 * S, H); x.strokeStyle = '#c9bea5'; x.strokeRect(X(z + 0.27), 0, 0.54 * S, H); });   // the pilasters
+  x.fillStyle = 'rgba(140, 110, 70, .28)'; x.font = 'italic ' + Math.round(S * 0.085) + 'px Georgia'; x.fillText('your artifacts', X(0.3), Y(3.3));
+  x.setLineDash([6, 6]); x.strokeStyle = 'rgba(140, 110, 70, .25)'; x.beginPath(); x.moveTo(0, Y(1.6)); x.lineTo(W, Y(1.6)); x.stroke(); x.setLineDash([]);
+  x.fillStyle = 'rgba(140, 110, 70, .35)'; x.font = Math.round(S * 0.06) + 'px Georgia'; x.fillText('eye level', X(Z1 + 0.5), Y(1.63));
+  // the LEGO Sunflowers in their gilt frame (opening 0.8 x 1.05), and the shelf under them
+  const g = x.createLinearGradient(X(-3.38), 0, X(-4.42), 0); g.addColorStop(0, '#8a5e1d'); g.addColorStop(0.3, '#e9c46c'); g.addColorStop(0.7, '#b8862b'); g.addColorStop(1, '#f5dc92');
+  x.fillStyle = g; x.fillRect(X(-3.377), Y(SUN_Y + 0.648), 1.046 * S, 1.296 * S);
+  x.fillStyle = '#e9e4d8'; x.fillRect(X(-3.5), Y(SUN_Y + 0.525), 0.8 * S, 1.05 * S);
+  if (sun.complete && sun.naturalWidth) x.drawImage(sun, X(-3.52), Y(SUN_Y + 0.5), 0.76 * S, 1.0 * S);
+  x.fillStyle = '#F4F1EA'; x.fillRect(X(-3.44), Y(SH + 0.02), 0.92 * S, 0.03 * S);           // the console: marble top, walnut, gilt
+  x.fillStyle = '#5a3620'; x.fillRect(X(-3.44), Y(SH - 0.01), 0.92 * S, 0.1 * S); x.fillStyle = '#c9a24a'; x.fillRect(X(-3.44), Y(SH - 0.11), 0.92 * S, 0.012 * S);
+  ['#C91A09', '#0055BF', '#F2CD37', '#237841'].forEach((c, i) => { x.fillStyle = c; x.fillRect(X(-3.47 - i * 0.1), Y(SH + 0.1), 0.09 * S, 0.075 * S); });
+  x.fillStyle = '#f2efe8'; x.fillRect(X(-3.9), Y(SH + 0.05), 0.4 * S, 0.02 * S);
+}
+
+// ---- the photographs and the plaque, as elements over the wall
+function render() { renderItems(); renderTray(); renderSel(); }
+function renderItems() {
+  stage.querySelectorAll('.item, .plaque, .guide').forEach((e) => e.remove());
+  L.photos.forEach((p, i) => {
+    const [ow, oh, b] = outer(p), w = p.h * CAT[p.src].a, e = document.createElement('div');
+    e.className = 'item' + (CAT[p.src].oval && !b ? ' oval' : '') + (sel === i ? ' sel' : ''); e.dataset.i = i;
+    Object.assign(e.style, { left: X(p.z + ow / 2) + 'px', top: Y(p.y + oh / 2) + 'px', width: ow * S + 'px', height: oh * S + 'px' });
+    const fr = document.createElement('div'); fr.className = 'fr ' + p.frame; e.appendChild(fr);
+    const inn = document.createElement('div'); inn.className = 'in'; Object.assign(inn.style, { left: p.fw * S + 'px', top: p.fw * S + 'px', right: p.fw * S + 'px', bottom: p.fw * S + 'px' }); e.appendChild(inn);
+    const img = document.createElement('img'); img.className = 'pic'; img.src = IMG(p.src); img.draggable = false;
+    if (b) { const m = document.createElement('div'); m.className = 'mat'; Object.assign(m.style, { inset: 0 }); inn.appendChild(m);
+      Object.assign(img.style, { left: (b[0] - w) / 2 * S + 'px', top: (b[1] - p.h) / 2 * S + 'px', width: w * S + 'px', height: p.h * S + 'px', borderRadius: CAT[p.src].oval ? '50%' : '0', boxShadow: 'inset 0 0 2px rgba(0,0,0,.4)' }); }
+    else Object.assign(img.style, { left: 0, top: 0, width: '100%', height: '100%' });
+    inn.appendChild(img);
+    stage.appendChild(e);
+  });
+  const q = document.createElement('div'); q.className = 'plaque' + (sel === 'plaque' ? ' sel' : ''); q.textContent = 'KELLY';
+  Object.assign(q.style, { left: X(L.plaque.z + 0.6) + 'px', top: Y(L.plaque.y + 0.12) + 'px', width: 1.2 * S + 'px', height: 0.24 * S + 'px', fontSize: 0.1 * S + 'px' });
+  stage.appendChild(q);
+}
+function renderTray() {
+  const t = document.getElementById('tray'); t.innerHTML = '';
+  Object.keys(CAT).forEach((k) => { const on = L.photos.some((p) => p.src === k), b = document.createElement('button');
+    b.className = on ? 'onwall' : ''; b.title = CAT[k].name + (on ? ' (on the wall: click to take it off)' : ' (click to hang it)');
+    b.innerHTML = '<img src="' + IMG(k) + '" alt="">'; b.onclick = () => { push(); if (on) { L.photos = L.photos.filter((p) => p.src !== k); sel = null; }
+      else { L.photos.push(ph(k, -2.0, 2.0, CAT[k].oval ? 0.3 : 0.32, CAT[k].oval ? 'gilt' : 'plain', 0.05)); sel = L.photos.length - 1; } render(); dirty(true); };
+    t.appendChild(b); });
+}
+// the selected item's controls
+function renderSel() {
+  const body = document.getElementById('selBody');
+  if (sel == null) { body.className = 'none'; body.innerHTML = 'Click a photograph (or the plaque) to size and frame it. Drag to move; the arrow keys nudge it 1 cm (with Shift, 5 cm). Pink lines show when it lines up with another.'; return; }
+  body.className = '';
+  if (sel === 'plaque') { body.innerHTML = '<b>The KELLY plaque</b><p class="hint">Drag it where you want it. Centre ' + L.plaque.y.toFixed(2) + ' m from the floor.</p>'; return; }
+  const p = L.photos[sel], c = CAT[p.src], matted = !!p.box || !!p.mat;
+  const slider = (id, label, min, max, step, val, unit = 'cm', k = 100) => `<div class="row"><label>${label}</label><input type="range" id="${id}" min="${min}" max="${max}" step="${step}" value="${val}"><output id="${id}o">${Math.round(val * k)} ${unit}</output></div>`;
+  body.innerHTML = `<b>${c.name}</b>` +
+    slider('sH', 'Photo height', 0.12, 1.1, 0.01, p.h) +
+    `<div class="row"><label>Frame</label><select id="sF"><option value="gilt">Gilt</option><option value="plain">Black &amp; gold</option></select></div>` +
+    slider('sW', 'Frame width', 0.02, 0.14, 0.005, p.fw) +
+    `<div class="row"><label>Mat</label><select id="sM"><option value="0">None</option><option value="m">White mat</option></select></div>` +
+    (matted ? slider('sMW', 'Mat width', 0.02, 0.3, 0.005, p.box ? Math.min((p.box[0] - p.h * c.a) / 2, (p.box[1] - p.h) / 2) : p.mat) : '') +
+    `<p class="hint">Centre ${p.y.toFixed(2)} m from the floor.</p><div class="row"><button class="btn" id="sDup">Line others up with this</button><button class="btn" id="sDel">Take it off</button></div>`;
+  const $ = (id) => document.getElementById(id);
+  $('sF').value = p.frame; $('sM').value = matted ? 'm' : '0';
+  const live = (id, f) => { const e = $(id); if (!e) return; e.onpointerdown = () => push(); e.onkeydown = () => push(); e.oninput = () => { f(+e.value); $(id + 'o').textContent = Math.round(+e.value * 100) + ' cm'; renderItems(); dirty(true); }; };
+  live('sH', (v) => { if (p.box) { const k = v / p.h; p.box = [+(p.box[0] + (v - p.h) * c.a).toFixed(3), +(p.box[1] + (v - p.h)).toFixed(3)]; } p.h = v; });
+  live('sW', (v) => { p.fw = v; });
+  live('sMW', (v) => { delete p.box; p.mat = v; });
+  $('sF').onchange = () => { push(); p.frame = $('sF').value; render(); dirty(true); };
+  $('sM').onchange = () => { push(); if ($('sM').value === 'm') { p.mat = 0.06; } else { delete p.mat; delete p.box; } render(); dirty(true); };
+  $('sDel').onclick = () => { push(); L.photos.splice(sel, 1); sel = null; render(); dirty(true); };
+  $('sDup').onclick = () => { push(); const me = p; L.photos.forEach((o) => { if (o !== me && Math.abs(o.y - me.y) < 0.2) o.y = me.y; }); render(); dirty(true); };
+  $('sDup').title = 'Any photograph within 20 cm of this one’s height moves to exactly its height';
+}
+
+// ---- dragging, with snapping to the others' centres and edges (and the eye-level line)
+let drag = null;
+stage.addEventListener('pointerdown', (ev) => {
+  const el = ev.target.closest('.item, .plaque'); if (!el) { sel = null; render(); return; }
+  const isP = el.classList.contains('plaque'), i = isP ? 'plaque' : +el.dataset.i, o = isP ? L.plaque : L.photos[i];
+  sel = i; push(); drag = { i, o, z0: o.z, y0: o.y, mx: ev.clientX, my: ev.clientY, moved: false };
+  stage.setPointerCapture(ev.pointerId); render();
+});
+stage.addEventListener('pointermove', (ev) => {
+  if (!drag) return; drag.moved = true;
+  let z = drag.z0 - (ev.clientX - drag.mx) / S, y = drag.y0 - (ev.clientY - drag.my) / S;
+  const me = drag.i === 'plaque' ? [1.2, 0.24] : outer(drag.o), tol = 0.012, gz = [], gy = [];
+  const others = L.photos.map((p, k) => (k === drag.i ? null : [p.z, p.y, ...outer(p)])).filter(Boolean);
+  if (drag.i !== 'plaque') others.push([L.plaque.z, L.plaque.y, 1.2, 0.24]);
+  const tryZ = (cands) => { for (const [mine, t] of cands) if (Math.abs(mine - t) < tol) { z += t - mine; gz.push(t); return; } };
+  const tryY = (cands) => { for (const [mine, t] of cands) if (Math.abs(mine - t) < tol) { y += t - mine; gy.push(t); return; } };
+  const zc = [], yc = [];
+  others.forEach(([oz, oy, ow, oh]) => { [[z, oz], [z + me[0] / 2, oz + ow / 2], [z - me[0] / 2, oz - ow / 2]].forEach((c) => zc.push(c));
+    [[y, oy], [y + me[1] / 2, oy + oh / 2], [y - me[1] / 2, oy - oh / 2]].forEach((c) => yc.push(c)); });
+  yc.push([y, 1.6]); tryZ(zc); tryY(yc);
+  drag.o.z = +z.toFixed(3); drag.o.y = +y.toFixed(3); renderItems();
+  gz.forEach((t) => { const g = document.createElement('div'); g.className = 'guide'; Object.assign(g.style, { left: X(t) + 'px', top: 0, width: '1px', height: '100%' }); stage.appendChild(g); });
+  gy.forEach((t) => { const g = document.createElement('div'); g.className = 'guide'; Object.assign(g.style, { top: Y(t) + 'px', left: 0, height: '1px', width: '100%' }); stage.appendChild(g); });
+});
+stage.addEventListener('pointerup', () => { if (drag) { if (!drag.moved) hist.pop(); else dirty(true); drag = null; render(); } });
+document.addEventListener('keydown', (ev) => {
+  if ((ev.metaKey || ev.ctrlKey) && ev.key === 'z') { ev.preventDefault(); undo(); return; }
+  if (sel == null || ev.target.tagName === 'INPUT' || ev.target.tagName === 'SELECT') return;
+  const d = ev.shiftKey ? 0.05 : 0.01, o = sel === 'plaque' ? L.plaque : L.photos[sel], mv = { ArrowLeft: [d, 0], ArrowRight: [-d, 0], ArrowUp: [0, d], ArrowDown: [0, -d] }[ev.key];
+  if (!mv) return; ev.preventDefault(); push(); o.z = +(o.z + mv[0]).toFixed(3); o.y = +(o.y + mv[1]).toFixed(3); render(); dirty(true);
+});
+
+// ---- make symmetric: the centre line runs through the largest photograph (the main portrait). Whatever is within 2 cm
+// of it goes onto it; the rest pair up, a piece left of the line with the one right of it nearest in height and in
+// distance, and each pair is mirrored exactly at their average distance and height. What stands on the centre line
+// between the topmost and the lowest there (the plaque included) is spaced so the gaps between them are equal.
+function makeSymmetric() {
+  if (!L.photos.length) return 'Nothing to line up';
+  const big = L.photos.reduce((a, p) => (p.h * p.h * CAT[p.src].a > a.h * a.h * CAT[a.src].a ? p : a)), ax = big.z;
+  const all = [...L.photos, L.plaque], onAxis = all.filter((o) => Math.abs(o.z - ax) < 0.02);
+  onAxis.forEach((o) => { o.z = ax; });
+  const left = L.photos.filter((p) => p.z > ax + 0.02), right = L.photos.filter((p) => p.z < ax - 0.02), cands = [];
+  left.forEach((a) => right.forEach((b) => { const dy = Math.abs(a.y - b.y), dd = Math.abs((a.z - ax) - (ax - b.z)); if (dy < 0.15 && dd < 0.3) cands.push([dy + dd, a, b]); }));
+  cands.sort((x, y) => x[0] - y[0]); const used = new Set(); let pairs = 0;
+  cands.forEach(([, a, b]) => { if (used.has(a) || used.has(b)) return; used.add(a); used.add(b); pairs++;
+    const d = +(((a.z - ax) + (ax - b.z)) / 2).toFixed(3), y = +((a.y + b.y) / 2).toFixed(3); a.z = +(ax + d).toFixed(3); b.z = +(ax - d).toFixed(3); a.y = b.y = y; });
+  const lone = [...left, ...right].filter((p) => !used.has(p)).length;
+  const hOf = (o) => (o === L.plaque ? 0.24 : outer(o)[1]), line = onAxis.slice().sort((a, b) => b.y - a.y);
+  if (line.length > 2) { const top = line[0], bot = line[line.length - 1], inner = line.slice(1, -1);
+    const span = (top.y - hOf(top) / 2) - (bot.y + hOf(bot) / 2), gap = (span - inner.reduce((t, o) => t + hOf(o), 0)) / (inner.length + 1);
+    let y = top.y - hOf(top) / 2; inner.forEach((o) => { const was = o.y; y -= gap + hOf(o) / 2; o.y = +y.toFixed(3); y -= hOf(o) / 2;
+      L.photos.forEach((p) => { if (used.has(p) && Math.abs(p.y - was) < 0.02) p.y = o.y; }); }); }   // a pair in the same row moves with it
+  return 'Symmetric: ' + pairs + (pairs === 1 ? ' pair' : ' pairs') + ' mirrored around the main portrait' + (lone ? '; ' + lone + (lone === 1 ? ' piece has' : ' pieces have') + ' no partner, left as it is' : '');
+}
+// ---- options, undo, save
+document.getElementById('sym').onclick = () => { push(); const msg = makeSymmetric(); render(); dirty(true); document.getElementById('status').textContent = msg + '. Not saved yet'; };
+document.querySelectorAll('[data-preset]').forEach((b) => b.onclick = () => { push(); L = PRESETS[b.dataset.preset](); sel = null; render(); dirty(true);
+  document.querySelectorAll('[data-preset]').forEach((x) => x.classList.toggle('on', x === b)); });
+document.getElementById('undo').onclick = undo;
+document.getElementById('save').onclick = async () => {
+  const out = { photos: L.photos.map((p) => ({ ...p, aspect: CAT[p.src].a, oval: !!CAT[p.src].oval })), plaque: L.plaque };
+  try { const r = await fetch('/__save-kelly-wall', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(out) });
+    if (!r.ok) throw new Error((await r.json()).error || r.status); dirty(false); }
+  catch (e) { document.getElementById('status').textContent = 'Could not save (' + e.message + '). Is the local server running?'; }
+};
+// fit the wall to the window, then start from the saved layout (or option A)
+function fit() { S = Math.max(110, Math.min(230, (window.innerWidth - 420) / (Z0 - Z1), (window.innerHeight - 90) / HGT)); drawWall(); if (L) render(); }
+window.addEventListener('resize', fit);
+(async () => {
+  const saved = await fetch('/assets/kelly-wall/layout.json', { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+  L = saved && saved.photos ? { photos: saved.photos.filter((p) => CAT[p.src]).map(({ aspect, oval, ...p }) => p), plaque: saved.plaque } : PRESETS.A();
+  const q = new URLSearchParams(location.search).get('preset'); if (q && PRESETS[q]) L = PRESETS[q]();
+  fit(); dirty(false); document.getElementById('status').textContent = saved ? 'The saved arrangement' : 'Option A (not saved yet)';
+  if (new URLSearchParams(location.search).has('sym')) document.getElementById('sym').click();      // for testing: ?sym&save
+  if (new URLSearchParams(location.search).has('save')) document.getElementById('save').click();   // for testing: ?preset=B&save
+})();
+</script>
+</body></html>

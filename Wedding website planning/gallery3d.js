@@ -21,6 +21,21 @@ const P = {
 
 const CLOSE_X = 10.45;        // where you stand for a close look at a wing's principal work, 1.95 m from it
 const GALLERY_Z = -2.6;      // centre of the two atrium mini galleries, along the hall
+const SUN_Y = 2.31;          // the height of the LEGO Sunflowers' centre: level with Kelly's main portrait, so the two balance (the owner, 27 Sept 2026; it was 1.88); the build station's shelf hangs 0.76 below it
+// Kelly's photographs: their arrangement is kept in assets/kelly-wall/layout.json, made with the wall editor
+// (tools/wall-editor.html, at /wall-editor on the local dev server, which saves it). Each photo: src (a file in
+// assets/kelly-wall), z along the hall and y (its centre), h and aspect (the picture), oval, frame ('gilt' | 'plain'),
+// fw (the moulding), and a mat: `mat` (a margin all round) or `box` [w, h] (the frame's opening, the picture centred in it)
+const KELLY_WALL = (await fetch('assets/kelly-wall/layout.json', { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : null)).catch(() => null)) || { photos: [], plaque: { z: -2.24, y: 0.86 } };
+const kellyBox = (p) => p.box || (p.mat ? [p.h * p.aspect + 2 * p.mat, p.h + 2 * p.mat] : null);
+const KELLY_VIEW = (() => {                                        // where the wall's stop stands: back far enough to take in every photo and the plaque
+  let z0 = Infinity, z1 = -Infinity, y0 = KELLY_WALL.plaque.y - 0.12, y1 = KELLY_WALL.plaque.y + 0.12;
+  KELLY_WALL.photos.forEach((p) => { const bx = kellyBox(p), W = (bx ? bx[0] : p.h * p.aspect) + 2 * p.fw, H = (bx ? bx[1] : p.h) + 2 * p.fw;
+    z0 = Math.min(z0, p.z - W / 2); z1 = Math.max(z1, p.z + W / 2); y0 = Math.min(y0, p.y - H / 2); y1 = Math.max(y1, p.y + H / 2); });
+  if (!KELLY_WALL.photos.length) { z0 = z1 = KELLY_WALL.plaque.z; }
+  const cz = (z0 + z1) / 2, cy = (y0 + y1) / 2, d = THREE.MathUtils.clamp(Math.max((y1 - y0) * 0.95, (z1 - z0) * 0.62) + 0.3, 2.3, 4.4), eye = THREE.MathUtils.clamp(cy, 1.55, 2.0);
+  return { x: -P.corrX + d, z: cz, eye, pitch: Math.atan2(cy - eye, d) };
+})();
 
 const STATIONS = [
   { id: 'atrium', x: 0, z: 0, yaw: 0, room: 'atrium', accent: '#C9A667',
@@ -28,18 +43,15 @@ const STATIONS = [
     body: 'Villa Cetinale, in the hills outside Siena. Two wings and five days of open hours. Wing I is through the opening on your left, Wing II on your right; the hall straight ahead holds the exhibit details — travel, lodging, and the program.',
     meta: 'Turn and choose a wing' },
 
-  { id: 'kelly', x: 0, z: GALLERY_Z, yaw: Math.PI / 2, room: 'atrium', accent: '#C9A667',
+  { id: 'kelly', x: KELLY_VIEW.x, z: KELLY_VIEW.z, yaw: Math.PI / 2, eye: KELLY_VIEW.eye, pitch: KELLY_VIEW.pitch, room: 'atrium', accent: '#C9A667',   // facing her photographs, all in view
     eyebrow: 'The atrium · Kelly', title: 'Kelly',
-    body: 'Photographs to come.', meta: 'Placeholder' },
-  { id: 'kelly1', x: 0, z: GALLERY_Z + 1.3, yaw: Math.PI / 2, room: 'atrium', accent: '#C9A667', tour: false, back: 'kelly',
-    eyebrow: 'The atrium · Kelly', title: 'Kelly',
-    body: 'Photographs to come.', meta: 'Placeholder' },
-  { id: 'kelly2', x: -1.33, z: GALLERY_Z - 1.3, yaw: Math.PI / 2, eye: 1.86, pitch: -0.03, room: 'atrium', accent: '#C9A667', tour: false, back: 'kelly', lego: true,   // the whole of the Sunflowers, the parts bins at the foot of the view
+    body: 'Write-up to come.', meta: 'Placeholder' },
+  { id: 'kelly2', x: -1.33, z: GALLERY_Z - 1.3, yaw: Math.PI / 2, eye: SUN_Y - 0.02, pitch: -0.03, room: 'atrium', accent: '#C9A667', tour: false, back: 'kelly', lego: true,   // the whole of the Sunflowers, the parts bins at the foot of the view
     eyebrow: 'The atrium · Kelly · from the collection', title: 'Sunflowers, after Vincent van Gogh',
     body: 'One of Kelly’s holy-grail LEGO sets, and a gift from Anthony, who was sure it would keep her busy for a week or two. He came home on the second day to find all 2,615 pieces finished. She had, in his words, locked in.',
     meta: 'LEGO® Art 31215, made with the Van Gogh Museum · 2,615 pieces · built by Kelly in two days' },
   // the LEGO shelf under the frame across from the arcade: a signed-in household's own figures, and the build station
-  { id: 'kellyShelf', x: -1.98, z: GALLERY_Z - 1.3, yaw: Math.PI / 2, eye: 1.34, pitch: -0.3, room: 'atrium', accent: '#C9A667', tour: false, back: 'kelly', build: true,
+  { id: 'kellyShelf', x: -1.98, z: GALLERY_Z - 1.3, yaw: Math.PI / 2, eye: SUN_Y - 0.54, pitch: -0.3, room: 'atrium', accent: '#C9A667', tour: false, back: 'kelly', build: true,
     eyebrow: 'The atrium · Kelly · build station', title: 'The LEGO Shelf',
     body: 'Kelly has been building with LEGO bricks for as long as she can remember, so of course there is a build station. Create your own minifigures from the different options, from the everyday to the fully Italian, and give each one a name!',
     meta: 'Build station · click the shelf, or Build a minifigure below' },
@@ -398,8 +410,8 @@ const giltPlain = new THREE.MeshStandardMaterial({ color: '#d9ab4c', roughness: 
 // across the moulding: [distance out from the picture, height off the wall], both as fractions of the frame's width
 const FRAME_PROFILE = [[0, 0.1], [0, 0.22], [0.06, 0.27], [0.13, 0.22], [0.17, 0.18], [0.3, 0.2], [0.42, 0.3], [0.55, 0.46], [0.68, 0.56], [0.76, 0.6], [0.85, 0.62], [0.93, 0.56], [0.98, 0.42], [1, 0.26], [1, 0]];
 // the same moulding swept round an oval, with a carved crest at the top and a smaller one below
-function ornateOvalFrame(w, h) {
-  const fw = THREE.MathUtils.clamp(0.085 + 0.036 * Math.max(w, h), 0.12, 0.25), tile = 0.34, N = 96, a = w / 2, b = h / 2;
+function ornateOvalFrame(w, h, fwSet, style = 'gilt') {              // fwSet: the moulding's width, where a photograph wants a slimmer one; style 'plain': ebonised
+  const fw = fwSet || THREE.MathUtils.clamp(0.085 + 0.036 * Math.max(w, h), 0.12, 0.25), tile = 0.34, N = 96, a = w / 2, b = h / 2;
   const arc = [0];
   for (let k = 1; k < FRAME_PROFILE.length; k++) arc.push(arc[k - 1] + Math.hypot(FRAME_PROFILE[k][0] - FRAME_PROFILE[k - 1][0], FRAME_PROFILE[k][1] - FRAME_PROFILE[k - 1][1]));
   const verts = [], uvs = [], index = [];
@@ -423,17 +435,17 @@ function ornateOvalFrame(w, h) {
   geo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
   geo.setIndex(index);
   geo.computeVertexNormals();
-  const g = new THREE.Group(), moulding = new THREE.Mesh(geo, giltMat);
+  const g = new THREE.Group(), moulding = new THREE.Mesh(geo, style === 'plain' ? ebonyMat : giltMat), orn = style === 'plain' ? ebonyMat : giltPlain;
   moulding.name = 'frame'; moulding.castShadow = true;
   g.add(moulding);
   const leaf = (px, py, ang, sc) => {
-    const m = new THREE.Mesh(new THREE.SphereGeometry(1, 12, 8), giltPlain);
+    const m = new THREE.Mesh(new THREE.SphereGeometry(1, 12, 8), orn);
     m.scale.set(sc * 0.95, sc * 0.36, sc * 0.26); m.rotation.z = ang; m.position.set(px + Math.cos(ang) * sc * 0.7, py + Math.sin(ang) * sc * 0.7, fw * 0.6);
     g.add(m);
   };
   [1, -1].forEach((sy) => {
     const py = sy * (b + fw * 0.62), sc = fw * (sy > 0 ? 1 : 0.75);
-    const shell = new THREE.Mesh(new THREE.SphereGeometry(sc * 0.34, 16, 10), giltPlain);
+    const shell = new THREE.Mesh(new THREE.SphereGeometry(sc * 0.34, 16, 10), orn);
     shell.scale.set(1.25, 0.95, 0.5); shell.position.set(0, py + sy * sc * 0.12, fw * 0.66);
     g.add(shell);
     [0.5, 1.0, 2.14, 2.64].forEach((ang) => leaf(0, py, sy > 0 ? ang : -ang, sc * 0.4));
@@ -445,9 +457,9 @@ function ornateOvalFrame(w, h) {
 // a plainer moulding: a flat ogee, hung in ebonised wood with a gilt slip at the picture's edge, as a salon mixes with its gilt
 const PLAIN_PROFILE = [[0, 0.06], [0, 0.18], [0.08, 0.22], [0.22, 0.24], [0.5, 0.3], [0.78, 0.26], [0.93, 0.18], [1, 0.1], [1, 0]];
 const ebonyMat = new THREE.MeshStandardMaterial({ color: '#1e1713', roughness: 0.32, metalness: 0.05 });
-function ornateFrame(w, h, style = 'gilt') {
+function ornateFrame(w, h, style = 'gilt', fwSet) {
   const plain = style === 'plain', PROFILE = plain ? PLAIN_PROFILE : FRAME_PROFILE;
-  const fw = THREE.MathUtils.clamp(0.085 + 0.036 * Math.max(w, h), 0.12, 0.25) * (plain ? 0.8 : 1), tile = 0.34;
+  const fw = fwSet || THREE.MathUtils.clamp(0.085 + 0.036 * Math.max(w, h), 0.12, 0.25) * (plain ? 0.8 : 1), tile = 0.34;
   const arc = [0];
   for (let k = 1; k < PROFILE.length; k++) arc.push(arc[k - 1] + Math.hypot(PROFILE[k][0] - PROFILE[k - 1][0], PROFILE[k][1] - PROFILE[k - 1][1]));
   const verts = [], uvs = [], index = [];
@@ -1076,10 +1088,13 @@ function studyTexture(i, aspect, blank) {
   return t;
 }
 // an ornate gilt frame round a picture; `src` hangs an image, otherwise a placeholder
+const matBoard = new THREE.MeshStandardMaterial({ color: '#F1EBDD', roughness: 0.92 });   // museum mat board, a warm white
 function framedPicture(p, i) {
   const grp = new THREE.Group();
-  const frame = p.oval ? ornateOvalFrame(p.w, p.h) : ornateFrame(p.w, p.h, p.frame);
+  const box = p.box || (p.mat ? [p.w + 2 * p.mat, p.h + 2 * p.mat] : null);   // matted: the frame holds a mat board, the picture sits in its opening
+  const frame = box ? ornateFrame(box[0], box[1], p.frame, p.fw) : p.oval ? ornateOvalFrame(p.w, p.h, p.fw, p.frame) : ornateFrame(p.w, p.h, p.frame, p.fw);
   frame.position.z = -0.07;
+  if (box) { const board = new THREE.Mesh(new THREE.PlaneGeometry(box[0], box[1]), matBoard); board.position.z = -0.07 + frame.userData.pictureZ; grp.add(board); }
   let picGeo = new THREE.PlaneGeometry(p.w, p.h);
   if (p.oval) {                                                      // an elliptical canvas, its picture mapped as if it were the full rectangle
     picGeo = new THREE.ShapeGeometry(new THREE.Shape().absellipse(0, 0, p.w / 2, p.h / 2, 0, Math.PI * 2, false, 0), 48);
@@ -1089,7 +1104,7 @@ function framedPicture(p, i) {
   }
   const pic = new THREE.Mesh(picGeo, new THREE.MeshStandardMaterial({ map: p.src ? tex(p.src) : studyTexture(i, p.w / p.h, p.blank), roughness: 0.62 }));
   if (p.src) markHidden(pic, p.src);
-  pic.position.z = -0.07 + frame.userData.pictureZ;
+  pic.position.z = -0.07 + frame.userData.pictureZ + (box ? 0.002 : 0);
   if (p.src) {
     const t = pic.material.map;
     t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
@@ -1203,12 +1218,23 @@ sectionTitle('GUEST POLICIES', 'front', 3.4, 'detFrontR', 2.4);
 // Each frame has its own stop directly in front of it. Give a frame a `src` (an image in
 // assets/) to hang a photograph; until then it shows an empty mount.
 const ATRIUM_PICTURES = [
-  { who: 'kelly', stop: 'kelly', dz: 0, y: 2.0, w: 1.15, h: 1.5, blank: true },
-  { who: 'kelly', stop: 'kelly1', dz: 1.3, y: 2.12, w: 0.8, h: 1.05, blank: true },
-  { who: 'kelly', stop: 'kelly2', dz: -1.3, y: 1.88, w: 0.8, h: 1.05, blank: true },
+  { who: 'kelly', stop: 'kelly2', dz: -1.3, y: SUN_Y, w: 0.8, h: 1.05, blank: true },
   { who: 'anthony', stop: 'anthony', dz: 0, y: 2.0, w: 1.15, h: 1.5, blank: true },
   { who: 'anthony', stop: 'anthony2', dz: -1.3, y: 2.12, w: 0.84, h: 1.08, blank: true }   // the arcade screen: 224 x 288, so 7:9
 ];
+// ---- Kelly's photographs (from the owner's folder, prepared into assets/kelly-wall), hung as KELLY_WALL (the layout file)
+// says. Clicking one goes to the wall's stop; from there, to a close look at it.
+KELLY_WALL.photos.forEach((p, i) => {
+  const grp = framedPicture({ ...p, w: p.h * p.aspect, src: 'assets/kelly-wall/' + p.src + '.jpg', crop: p.oval ? [0.012, 0.012, 0.988, 0.988] : null }, 100 + i);   // an oval's edge kept inside its picture
+  grp.position.set(-(P.corrX - 0.075), p.y, p.z); grp.rotation.y = Math.PI / 2;
+  grp.userData.station = ST.kelly;
+  const bx = kellyBox(p), ow = (bx ? bx[0] : p.h * p.aspect) + 2 * p.fw, oh = (bx ? bx[1] : p.h) + 2 * p.fw;
+  const kelly = STATIONS[ST.kelly], dist = THREE.MathUtils.clamp(Math.max(1.3 * oh, 0.9 * ow), 0.7, 2.0), id = 'kellyPhoto' + i;
+  STATIONS.push({ id, x: -P.corrX + dist, z: p.z, yaw: Math.PI / 2, eye: THREE.MathUtils.clamp(p.y, 1.3, 3.05), room: 'atrium', accent: kelly.accent, tour: false, back: 'kelly',
+    eyebrow: kelly.eyebrow, title: kelly.title, body: kelly.body, meta: kelly.meta });
+  ST[id] = STATIONS.length - 1;
+  grp.userData.closer = ST[id];
+});
 let K2FRAME = null;                                                 // the frame the LEGO Sunflowers replace, once they have loaded
 ATRIUM_PICTURES.forEach((p, i) => {
   const grp = framedPicture(p, i);
@@ -1266,7 +1292,7 @@ Object.keys(GALLERY_NAMES).forEach((who) => {
   face.position.z = 0.0135;
   const g = new THREE.Group();
   g.add(plate, face);
-  g.position.set(sx * (P.corrX - 0.02), 0.86, GALLERY_Z);        // just under the large frame
+  g.position.set(sx * (P.corrX - 0.02), who === 'kelly' ? KELLY_WALL.plaque.y : 0.86, who === 'kelly' ? KELLY_WALL.plaque.z : GALLERY_Z);   // under the large frame (Kelly's: where her layout puts it)
   g.rotation.y = sx < 0 ? Math.PI / 2 : -Math.PI / 2;
   g.userData.station = ST[who];
   scene.add(g);
@@ -1303,7 +1329,7 @@ function bake(root) {
 // tan studded baseplate where a signed-in household's own figures stand (lego/figs.js). Nobody else's are ever shown:
 // signed out, the baseplate is bare. A click walks to Kelly's wall, the next to the shelf's stop, and from there a click
 // (or the panel's Build a figure) opens the build station (lego/station.js), which saves through api/guest.js.
-const SHELF = { z: GALLERY_Z - 1.3, y: 1.12, len: 0.92, depth: 0.17, scale: 0.00275, figsX: 0.2, figsW: 0.46 };   // figures: 40 mm modeled, 11 cm shown
+const SHELF = { z: GALLERY_Z - 1.3, y: SUN_Y - 0.76, len: 0.92, depth: 0.17, scale: 0.00275, figsX: 0.2, figsW: 0.46 };   // figures: 40 mm modeled, 11 cm shown
 const shelf = new THREE.Group();
 shelf.position.set(-P.corrX, 0, SHELF.z);
 shelf.rotation.y = Math.PI / 2;                                   // local +z into the hall, x along the wall (to the viewer's right)
@@ -1427,7 +1453,7 @@ function paintShelf() {                                            // the househ
 // A click on it from its stop: the view leans in closer first (the owner's wish), then a yellow petal comes loose and
 // drops onto the accessories bin on the shelf below, the view glances left and right (did anyone see?), the petal floats
 // back up and clicks into place, and the view eases back to the stop. Under Reduce motion, no lean and no glance.
-const SUN = { z: GALLERY_Z - 1.3, y: 1.88, w: 0.41, h: 0.54, k: 1.0 / 0.54, lift: 0.028, depth: 0.034, rim: 0.008, relief: 0.025, px: 1230, py: 1620, leafBox: [573, 618, 643, 665], ready: false };
+const SUN = { z: GALLERY_Z - 1.3, y: SUN_Y, w: 0.41, h: 0.54, k: 1.0 / 0.54, lift: 0.028, depth: 0.034, rim: 0.008, relief: 0.025, px: 1230, py: 1620, leafBox: [573, 618, 643, 665], ready: false };
 const sun = new THREE.Group();
 sun.position.set(-P.corrX, SUN.y, SUN.z);
 sun.rotation.y = Math.PI / 2;                                    // as the shelf: local +z into the hall, +x to the viewer's right

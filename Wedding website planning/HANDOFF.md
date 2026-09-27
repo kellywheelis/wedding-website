@@ -107,9 +107,27 @@ the canvas size and the triangles drawn (`tickFps` in gallery3d.js; nothing is m
   painted panel (a placeholder sky until Tiepolo's sketch went in on 25 Sept 2026), a 16-frame salon hang
   (`DETAIL_PICTURES`: the centrepiece, 13 pictures and two empty ovals), centre table, four corner pedestals,
   two large statues flanking the principal picture (the three gilt consoles and four Roman busts it first had are gone).
-- **Atrium galleries**: three frames on Kelly's wall (LEFT), two on Anthony's (RIGHT: the main frame and
-  the arcade; his right-hand frame was removed on 25 Sept 2026 to make room for his artifacts) —
+- **Atrium galleries**: Kelly's wall (LEFT) holds her photographs and the LEGO Sunflowers frame; Anthony's (RIGHT) the
+  main frame and the arcade (his right-hand frame was removed on 25 Sept 2026 to make room for his artifacts) —
   `ATRIUM_PICTURES` — each wall with an engraved brass name plaque (`GALLERY_NAMES`).
+- **Kelly's photographs** (26-27 Sept 2026): from her folder "kelly gallery wall portraits" on the Desktop, prepared into
+  `assets/kelly-wall/` (her ovals and circles came cut out on clear grounds: trimmed to their edges, the edge colours
+  carried outward so no rim shows). Their arrangement is data, `assets/kelly-wall/layout.json`, which gallery3d.js reads
+  before it builds anything (`KELLY_WALL`; each photo: src, z, y, h, aspect, oval, frame 'gilt' | 'plain', fw, and a mat
+  as `mat` or `box`; the plaque's z, y). She arranges it herself in the **wall editor**, `tools/wall-editor.html`, at
+  http://127.0.0.1:8020/wall-editor on the local dev server: her wall to scale (pilasters, the Sunflowers and shelf, the
+  plaque), drag with snapping to the others' centres and edges, size, frame (gilt / black and gold), frame width, a white
+  mat, a tray of all thirteen photos, undo, three starting options (A symmetric salon, B series in rows, C matted
+  grid), and Make symmetric (`makeSymmetric`: the centre line through the largest photo; pairs across it mirrored at
+  their average distance and height; what stands on the line between the top and the lowest spaced evenly). Save posts to the dev server (`/__save-kelly-wall`, local only), which writes layout.json; reload the gallery
+  to see it. The `kelly` stop stands back to take in whatever she hangs (`KELLY_VIEW`); each photo has a close-up stop
+  (`kellyPhoto0`..). Mats (`matBoard`), black oval frames and slimmer mouldings (`fw`) were added to `framedPicture`,
+  `ornateFrame` and `ornateOvalFrame` for her. Her first request was one salon cluster; she found it one big cluster, then
+  "a living room wall", and asked for curated options or to arrange them herself. The wall left of her photographs is
+  kept for her artifacts, as Anthony's are across the hall. The LEGO Sunflowers and the build station's shelf were raised
+  together (27 Sept 2026, her wish, to balance the photographs): `SUN_Y` (2.31, it was 1.88) sets the Sunflowers' centre,
+  level with her main portrait; the shelf, the kelly2 frame and the kelly2 / kellyShelf stops all follow it, so the
+  joke's petal still lands on the accessories bin. The wall editor draws them from the same number.
 - **Anthony's artifacts** (25 Sept 2026, `hangArtifact`): a graded slab of his favourite card,
   Destiny HERO – Diamond Dude, on brass clips on a walnut trophy plaque at eye level to the right of his main frame
   (`cardSlab`; the card face is `assets/diamond-dude.png`, the owner's image of the real card; if that
@@ -838,9 +856,9 @@ _Brought up to date 26 Sept 2026 (after `b5897ba`)._
   the hourglass and the three who hid in `0f9ea7e`, the gallery view in `7c00b14`, the RSVP in `b5897ba`). On her
   own phone the owner found the gallery view and the arcade's pause when held sideways working (26 Sept 2026). Not
   yet tried on a real phone: scanning a printed invitation QR code.
-- **Photographs for the atrium walls.** The four photo frames (three on Kelly's wall, Anthony's main frame; his
-  other frame is the arcade screen) are still empty (`blank: true` in `ATRIUM_PICTURES`), and their write-ups say
-  "Photographs to come." (`meta: 'Placeholder'`).
+- **Photographs for the atrium walls.** Kelly's are hung (26 Sept 2026); her wall's write-up says "Write-up to come."
+  and the phone edition does not show her photographs yet (it still says the frames are waiting). Anthony's main frame
+  is still empty (`blank: true` in `ATRIUM_PICTURES`), its write-up "Photographs to come." (`meta: 'Placeholder'`).
 - **The two oval frames** either side of the centrepiece on the details room's end wall are empty.
 - **The wall texts** (the "Read the full details" cards; `CARDS` in `api/_private.js`, served only to signed-in
   guests) are placeholder text, most of it "To be confirmed." (the RSVP deadline under Guest Policies was filled

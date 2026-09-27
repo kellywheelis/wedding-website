@@ -145,7 +145,8 @@ the canvas size and the triangles drawn (`tickFps` in gallery3d.js; nothing is m
   proposal-practice. The editor keeps every piece of a saved layout, known or not (it once dropped
   what its catalogue lacked, and a note typed into Anthony's catalogue hid his round portrait from it for a while). Save posts to the dev server (`/__save-wall?wall=kelly|anthony`, local only), which writes that wall's layout.json; reload the gallery
   to see it. The `kelly` stop stands back to take in whatever she hangs (`KELLY_VIEW`); each photo has a close-up stop
-  (`kellyPhoto0`..). Mats (`matBoard`), black oval frames and slimmer mouldings (`fw`) were added to `framedPicture`,
+  (`kellyPhoto0`..), and from the close-up a third click leans in (`<who>PhotoNNear`, 70% of the close-up's distance,
+  never nearer than 45 cm; `userData.closest`, Step back returns to the close-up; the owner's wish, 27 Sept 2026). Mats (`matBoard`), black oval frames and slimmer mouldings (`fw`) were added to `framedPicture`,
   `ornateFrame` and `ornateOvalFrame` for her. Her first request was one salon cluster; she found it one big cluster, then
   "a living room wall", and asked for curated options or to arrange them herself. The wall left of her photographs is
   kept for her artifacts, as Anthony's are across the hall.

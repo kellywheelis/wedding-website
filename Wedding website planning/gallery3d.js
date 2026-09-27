@@ -1298,6 +1298,11 @@ Object.entries(PHOTO_WALLS).forEach(([who, W]) => { const sx = who === 'kelly' ?
       eyebrow: wall.eyebrow, title: note.title, body: note.body, meta: note.meta });
     ST[id] = STATIONS.length - 1;
     grp.userData.closer = ST[id];
+    // a click on it from its close-up leans in a little nearer (the owner's wish, 27 Sept 2026); Step back returns to the close-up
+    const near = Math.max(0.45, dist * 0.7);
+    STATIONS.push({ ...STATIONS[ST[id]], id: id + 'Near', x: sx * (P.corrX - near), back: id });
+    ST[id + 'Near'] = STATIONS.length - 1;
+    grp.userData.closest = ST[id + 'Near'];
   });
 });
 let K2FRAME = null;                                                 // the frame the LEGO Sunflowers replace, once they have loaded
@@ -3894,12 +3899,12 @@ function probe(clientX, clientY) {
   const r = canvas.getBoundingClientRect();
   raycaster.setFromCamera(new THREE.Vector2(((clientX - r.left) / r.width) * 2 - 1, -((clientY - r.top) / r.height) * 2 + 1), camera);
   const here = roomAt();
-  let own = false, target = null, surface = null, station, closer, note, cardKey;
+  let own = false, target = null, surface = null, station, closer, closest, note, cardKey;
   for (const hit of raycaster.intersectObjects(scene.children, true)) {
     const room = hit.object.userData.room;
     if (!room) {                            // anything solid ends the line of sight
       surface = hit;
-      for (let o = hit.object; o && station === undefined && !note; o = o.parent) { station = o.userData.station; closer = o.userData.closer; note = o.userData.note; cardKey = cardKey || o.userData.cardKey; }
+      for (let o = hit.object; o && station === undefined && !note; o = o.parent) { station = o.userData.station; closer = o.userData.closer; closest = o.userData.closest; note = o.userData.note; cardKey = cardKey || o.userData.cardKey; }
       break;
     }
     if (room === here) own = true; else target = room;
@@ -3908,7 +3913,9 @@ function probe(clientX, clientY) {
   // a picture only counts from inside its own room, and not through a doorway
   if (station !== undefined && (own || target || STATIONS[station].room !== here)) { station = undefined; note = undefined; }
   // already facing it: the next click is the step closer (and nothing once you are there)
-  if (station !== undefined && closer !== undefined && (idx === station || idx === closer || STATIONS[idx].back === STATIONS[station].id)) station = closer;
+  const up = STATIONS[idx].back && ST[STATIONS[idx].back] !== undefined ? STATIONS[ST[STATIONS[idx].back]].back : undefined;   // leaning in at a photograph, its wall is two steps back
+  if (station !== undefined && closer !== undefined && (idx === station || idx === closer || STATIONS[idx].back === STATIONS[station].id || up === STATIONS[station].id)) station = closer;
+  if (station !== undefined && closest !== undefined && (idx === closer || idx === closest)) station = closest;   // a photograph: from its close-up, the next click leans in
   // a write-up: for things with no stop of their own (the entrance hall), from the atrium; for a picture or title that
   // belongs to a stop, once you stand at that stop. Never through a doorway, nor while that write-up is already showing.
   const atIt = station === undefined ? here === 'atrium' : station === idx && !leg && !queue.length;

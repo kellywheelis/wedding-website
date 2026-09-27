@@ -162,7 +162,8 @@ function close() {
   if (S.onClose) S.onClose();
 }
 // opts: { household: { names, seats }, figs: [saved figures], save: async (figs) => ({ ok, figs } | { ok: false, error }),
-//         onSaved(figs), onClose(), at: index to open on, still: true to hold the preview still (reduced motion) }
+//         onSaved(figs), onClose(), at: index to open on, still: true to hold the preview still (reduced motion),
+//         hint: the line shown when the shelf is empty }
 export function openStation(opts) {
   if (!root) build();
   const saved = (opts.figs || []).map((f) => ({ name: f.name || '', p: F.normal(f.p), when: f.when }));
@@ -171,11 +172,28 @@ export function openStation(opts) {
   if (!S.work.length) { S.work.push(F.randomFig()); S.origin.push(null); }
   S.at = Math.min(opts.at || 0, S.work.length - 1);
   root.querySelector('#lgsTitle').textContent = opts.household.names;
-  msg(saved.length ? '' : 'Build a minifigure for each of you, then put it on the shelf.');
+  msg(saved.length ? '' : opts.hint || 'Build a minifigure for each of you, then put it on the shelf.');
   root.classList.add('open'); root.querySelector('#lgsTurnL').disabled = root.querySelector('#lgsTurnR').disabled = false; paint();
   root.three.w = 0; frame();
 }
 export const stationOpen = () => !!(S && S.open);
+// ---- a visitor without a guest sign-in (the owner's wish, 27 Sept 2026): one minifigure, kept in their own browser
+// (localStorage 'ka-visitor-figs', which the phone guide reads too) and never sent anywhere, so it is on no one's
+// shelf but theirs; they can come back to it and change it on the same device. Held to the server's rules: a name
+// of up to 20 characters, and only part ids.
+export const VISITOR = { names: 'Your shelf', seats: 1 };
+export const VISITOR_HINT = 'Build your minifigure and put it on the shelf. It is kept on this device, just for you. (Guests who sign in have a spot for each of their party.)';
+const VKEY = 'ka-visitor-figs';
+export function visitorFigs() { try { const a = JSON.parse(localStorage.getItem(VKEY) || '[]'); return Array.isArray(a) ? a.slice(0, 1) : []; } catch (e) { return []; } }
+export async function saveVisitorFigs(figs) {
+  if (figs.length > 1) return { ok: false, error: 'One minifigure per visitor. Guests who sign in have a spot for each of their party.' };
+  const out = figs.map((f) => ({ name: String(f.name || '').trim().slice(0, 20), when: Number(f.when) || Date.now(),
+    p: Object.fromEntries(Object.entries(f.p || {}).filter(([k, v]) => /^[a-z]{1,8}$/.test(k) && /^[a-z0-9-]{1,24}$/.test(String(v)))) }));
+  if (out.some((f) => !f.name)) return { ok: false, error: 'Give your minifigure a name first.' };
+  try { if (out.length) localStorage.setItem(VKEY, JSON.stringify(out)); else localStorage.removeItem(VKEY); }
+  catch (e) { return { ok: false, error: 'This browser is not keeping anything (a private window?), so the shelf cannot hold it.' }; }
+  return { ok: true, figs: out };
+}
 export const closeStation = close;
 // a still picture of a figure (a data: URL), for the phone guide's shelf and the private page: one small offscreen
 // renderer, lit as the station's preview, the figure turned a touch to show its depth

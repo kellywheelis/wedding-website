@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import * as FIGS from './lego/figs.js';
-import { openStation, stationOpen, closeStation } from './lego/station.js';
+import { openStation, stationOpen, closeStation, VISITOR, VISITOR_HINT, visitorFigs, saveVisitorFigs } from './lego/station.js';
 import { mergeGeometries } from './assets/lib/three/examples/jsm/utils/BufferGeometryUtils.js';
 
 // ---------------------------------------------------------------- plan
@@ -1485,7 +1485,7 @@ shelf.rotation.y = Math.PI / 2;                                   // local +z in
 const shelfFigs = new THREE.Group(); shelf.add(shelfFigs);
 function paintShelf() {                                            // the household's figures, each on its own small plinth, left to right
   shelfFigs.children.slice().forEach((f) => { shelfFigs.remove(f); FIGS.disposeFigure(f); });
-  const figs = (GUEST.household && GUEST.figs) || [], n = figs.length, pw = FIGS.PLINTH.w * SHELF.scale;
+  const figs = (GUEST.household ? GUEST.figs : visitorFigs()) || [], n = figs.length, pw = FIGS.PLINTH.w * SHELF.scale;   // a visitor's own, from this browser
   const k = Math.min(1, SHELF.figsW / (n * (pw + 0.006))), gap = n > 1 ? Math.min(0.1, (SHELF.figsW - pw * k) / (n - 1)) : 0;   // more than fit: all a little smaller
   figs.forEach((f, i) => {
     const g = FIGS.onPlinth(f); g.scale.setScalar(SHELF.scale * k);
@@ -1608,6 +1608,9 @@ function updateGag(now) {
 }
 
 function openShelf() {
+  if (!GUEST.household) {                                            // a visitor: one minifigure, kept in this browser only
+    openStation({ household: VISITOR, figs: visitorFigs(), still: REDUCED, hint: VISITOR_HINT, save: saveVisitorFigs, onSaved: () => paintShelf() }); return;
+  }
   needGuest(() => openStation({ household: GUEST.household, figs: GUEST.figs || [], still: REDUCED,
     save: async (figs) => {
       const { ok, status, d } = await guestApi('POST', { action: 'figs', figs });
@@ -3759,7 +3762,7 @@ function paintGuestBtn() { el('guestBtn').textContent = GUEST.household ? 'Signe
     history.replaceState(null, '', location.pathname + location.search.replace(/[?&]k=[A-Za-z0-9_-]{22}/, '').replace(/^&/, '?') + location.hash);
     try { const { ok, d } = await guestApi('POST', { action: 'login', key: qr }); if (ok) { GUEST.token = d.token; try { localStorage.setItem('ka-guest', d.token); } catch (e) { /* this visit */ } signedIn(d); return; } } catch (e) { /* fall back to the saved session */ }
   }
-  if (!GUEST.token) return;
+  if (!GUEST.token) { paintShelf(); return; }                      // a visitor: their own minifigure, if they have made one
   try { const { ok, status, d } = await guestApi('GET'); if (ok) signedIn(d); else if (status === 401) signedOut(); } catch (e) { /* offline: the next visit tries again */ }
 })();
 function needGuest(then, why) { if (GUEST.household) { then(); return; } afterSignIn = then; openSignIn(why); }

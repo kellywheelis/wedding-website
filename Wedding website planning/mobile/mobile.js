@@ -319,8 +319,9 @@
   const legoMod = () => lego || (lego = import('/lego/station.js'));
   async function paintLego() {
     const box = el('legoFigs'), note = el('legoNote'); if (!box) return;
-    const figs = (GUEST.household && GUEST.figs) || [];
-    note.textContent = !GUEST.household ? 'Sign in to see your shelf and build your minifigures.' : figs.length ? '' : 'Your shelf is empty. Build a minifigure for each of you.';
+    let visitor = []; try { visitor = JSON.parse(localStorage.getItem('ka-visitor-figs') || '[]').slice(0, 1); } catch (e) { /* none kept */ }   // a visitor's own (lego/station.js)
+    const figs = (GUEST.household ? GUEST.figs : visitor) || [];
+    note.textContent = figs.length ? '' : !GUEST.household ? 'Build a minifigure and put it on your shelf. It stays on this device, just for you.' : 'Your shelf is empty. Build a minifigure for each of you.';
     if (!figs.length) { box.innerHTML = ''; return; }
     try { const m = await legoMod(); await m.picturesReady; box.innerHTML = figs.map((f) => `<figure><img src="${m.snapshot(f)}" alt="${esc(f.name)}"><figcaption><span>${esc(f.name)}</span></figcaption></figure>`).join(''); }
     catch (e) { box.innerHTML = figs.map((f) => `<figure><figcaption>${esc(f.name)}</figcaption></figure>`).join(''); }
@@ -328,6 +329,10 @@
   async function openLego() {
     const m = await legoMod();
     document.body.style.overflow = 'hidden';
+    if (!GUEST.household) {                                          // a visitor: one minifigure, kept in this browser only
+      m.openStation({ household: m.VISITOR, figs: m.visitorFigs(), hint: m.VISITOR_HINT, still: !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches),
+        save: m.saveVisitorFigs, onSaved: () => paintLego(), onClose: () => { document.body.style.overflow = ''; } }); return;
+    }
     m.openStation({ household: GUEST.household, figs: GUEST.figs || [], still: !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches),
       save: async (figs) => {
         const { ok, status, d } = await guestApi('POST', { action: 'figs', figs });
@@ -336,7 +341,7 @@
       },
       onSaved: (figs) => { GUEST.figs = figs; paintLego(); }, onClose: () => { document.body.style.overflow = ''; } });
   }
-  document.addEventListener('click', (e) => { if (e.target.closest('[data-lego]')) needGuest(openLego, 'The build station is for our guests. Sign in with your phone number and the code from your invitation, and build a minifigure for each of you.'); });
+  document.addEventListener('click', (e) => { if (e.target.closest('[data-lego]')) openLego(); });   // open to every visitor: a guest's shelf, or a visitor's own one
   paintLego();
 
   // ---- the RSVP on the phone: the postcard's written side as a sheet; the Events box opens the window of this household's

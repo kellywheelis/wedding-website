@@ -898,6 +898,12 @@ _Brought up to date 26 Sept 2026 (after `b5897ba`)._
   keeps the rooms and Credits, the gap between them left open. On a wide screen the panel's title takes a narrower column
   (`.labelgrid`, 220-330 px) so a write-up runs four or five lines; below 760 px they stack as before. Under 1100 px the
   details room's section buttons drop below the guest button.
+- **Visitors' minifigures** (27 Sept 2026, the owner's wish): anyone may use the build station. A visitor who is not signed
+  in gets one spot, kept only in their own browser (localStorage `ka-visitor-figs`; `VISITOR`, `visitorFigs`,
+  `saveVisitorFigs` in lego/station.js, held to the server's rules) and never sent anywhere, so it is on no shelf but
+  theirs, and they can come back to it on the same device. Signed-in guests keep one per seat on the server as before.
+  A visitor who signs in sees the household's shelf; their own comes back when they sign out. Every shelf is private to
+  whoever built it; only the owner sees guests' builds (the private page); visitors' builds reach no one.
 - **Kept out of search engines** (27 Sept 2026, the owner's choice): every response carries `X-Robots-Tag: noindex,
   nofollow, noimageindex` (vercel.json) and the gallery and phone pages a matching robots meta tag (the private page
   already had one). Guests reach the site by its link and the invitation QR codes.

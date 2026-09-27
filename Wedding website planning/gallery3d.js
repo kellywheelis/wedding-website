@@ -3665,7 +3665,7 @@ async function guestApi(method, body) {
   const r = await fetch('/api/guest', { method, headers: { 'content-type': 'application/json', ...(GUEST.token ? { authorization: 'Bearer ' + GUEST.token } : {}) }, body: body ? JSON.stringify(body) : undefined });
   return { ok: r.ok, status: r.status, d: await r.json().catch(() => ({})) };
 }
-function signedIn(d) { GUEST.household = d.household; GUEST.reply = d.reply || null; GUEST.cards = d.cards || null; GUEST.rsvp = d.rsvp || null; GUEST.figs = d.figs || []; paintGuestBtn(); paintShelf(); }
+function signedIn(d) { GUEST.preview = !!d.preview; GUEST.household = d.household; GUEST.reply = d.reply || null; GUEST.cards = d.cards || null; GUEST.rsvp = d.rsvp || null; GUEST.figs = d.figs || []; paintGuestBtn(); paintShelf(); }
 function signedOut() {
   GUEST.token = ''; GUEST.household = GUEST.reply = GUEST.cards = GUEST.rsvp = GUEST.figs = null;
   paintShelf();
@@ -3699,7 +3699,7 @@ el('signinSheet').addEventListener('submit', async (e) => {
   try {
     const { ok, d } = await guestApi('POST', { action: 'login', phone: el('siPhone').value, code: el('siCode').value });
     if (!ok) { el('siMsg').textContent = d.error || 'That did not work. Please try again.'; return; }
-    GUEST.token = d.token; try { localStorage.setItem('ka-guest', d.token); } catch (err) { /* this visit only */ }
+    GUEST.token = d.token; try { if (d.preview) localStorage.removeItem('ka-guest'); else localStorage.setItem('ka-guest', d.token); } catch (err) { /* this visit only */ }   // the preview guest is not remembered
     signedIn(d); el('siCode').value = '';
     const then = afterSignIn; closeSignIn(); if (then) then();
   } catch (err) { el('siMsg').textContent = 'We could not reach the gallery. Please check your connection and try again.'; }
@@ -4657,7 +4657,7 @@ async function postCard() {
     el('pcPosted').style.display = 'block';
     el('pcPosted').textContent = yes === 'yes' ? 'Posted. Thank you — see you in Siena.' : 'Posted. We\u2019re sorry to miss you.';
     el('pcPosted').dataset.reveal = '1';                                 // either answer draws the curtain
-    CURTAIN.sorry = yes !== 'yes'; try { localStorage.setItem('ka-posted-answer', yes); } catch (e) { /* the visit */ }
+    CURTAIN.sorry = yes !== 'yes'; try { if (!GUEST.preview) localStorage.setItem('ka-posted-answer', yes); } catch (e) { /* the visit */ }
     if (CURTAIN.redraw) CURTAIN.redraw();                                // the words behind the curtain follow the answer
   }, 950);
 }
@@ -4809,7 +4809,7 @@ function closeCurtain() {                                            // for the 
 }
 function revealCurtain(instant) {
   if (!CURTAIN.halves.length) return;
-  try { localStorage.setItem('ka-posted', String(Date.now())); } catch (e) { /* the visit */ }
+  try { if (!GUEST.preview) localStorage.setItem('ka-posted', String(Date.now())); } catch (e) { /* the visit */ }   // the preview guest's post opens it for this visit only
   CURTAIN.open = true; CURTAIN.from = performance.now(); CURTAIN.t = instant ? 1 : 0;
   if (instant) setCurtain(1);
 }

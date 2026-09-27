@@ -84,7 +84,13 @@ export const household = async (id) => parse(await redis.get('hh:' + id));
 export const eventsOf = (hh) => EVENTS.filter((e) => (hh.events || []).includes(e.id));
 
 // the household a request's session belongs to (Authorization: Bearer <token>), or null
+// the preview guest (the owner's, for showing friends the gallery, 26 Sept 2026): phone 777-777-7777 and the code TEST123.
+// It is not in the store and nothing it posts is kept: a sign-in gives the token 'preview', its RSVP and minifigures come
+// back to the page but are never saved, and the pages do not remember the sign-in, so every visit starts fresh.
+export const PREVIEW = { phone: '17777777777', code: 'TEST123', token: 'preview',
+  hh: { id: 'preview', names: 'Guest Preview', seats: 4, events: EVENTS.map((e) => e.id), phones: [] } };
 export async function sessionHousehold(req) {
+  if (/^Bearer preview$/.test(String(req.headers.authorization || ''))) return { token: PREVIEW.token, hh: PREVIEW.hh, preview: true };
   const m = String(req.headers.authorization || '').match(/^Bearer ([0-9a-f]{48})$/);
   if (!m) return null;
   const id = await redis.get('sess:' + m[1]);

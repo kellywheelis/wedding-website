@@ -522,6 +522,29 @@ detail, so she gains least; re-converting her at more triangles would help.
   (`marbleStatuary`) with a gilt ogee along its front edge, a full-depth walnut body (`walnutTable`) with a gilt bead
   beneath, the brass BUILD STATION plaque centered on its front, and two carved gilt scroll brackets (`corbel`, with
   volutes and a leaf). On-screen text says "minifigure" throughout (the owner's word), not "figure".
+- Fourth round (26 Sept, the owner's notes; supersedes the rounds above where they differ): the side part's darker
+  crease is gone (it stood off the hair as a stray strand), leaving the molded groove. The map of Italy is removed. The
+  guidebook is a plain book ("Book": LEGO's unprinted one, a dark red cover with a raised edge, cream pages, a rounded
+  spine with two ridges). Held things stand upright in the hand again: `gripRot` and `level` are gone (tipped with the
+  hand, wands and rolling pins leaned toward the viewer), and the wizard wand's own slight lean is gone too. The
+  suitcase is bigger and stands on the floor (`floor: true`): an upright case on four wheels with a top handle, ribs and
+  the SIENA sticker, beside the figure's right foot, or just in front of it when a pet stands at the other side. On a
+  plinth with a suitcase, `onPlinth` centers what stands on it (feet, case, pet; the hands may reach past the edge, as
+  with a pet alone) and shrinks the figure only if that would not fit (only suitcase + turtle, by 3.6%). Harness
+  `shelfp=[{parts},...]` puts chosen figures on the gallery shelf.
+- Fifth round (26 Sept; supersedes the fourth where they differ): the book is gone. The suitcase is LEGO's own (part 4449,
+  measured from its LDraw model: 16 x 9.6 x 6.4 mm, two halves meeting at a seam, a round bar on two posts, two small
+  feet), reddish brown, at 0.85 of true size, standing on the floor just behind the figure's right leg with most of it
+  showing (a little further behind it when a pet stands at the other side). `onPlinth` never shrinks the figure now: with
+  a suitcase and a pet together the plinth is made a little larger instead (about 30-32 x 22-24 mm); the shelf's spacing
+  leaves room. The pizza slice is minifigure-sized and held up by its crust with the hand turned on its wrist (`across:
+  true`: the grip across, its opening up; `armMesh` keeps the hand in `userData.hand`). Six more long hairstyles: center
+  part, side-swept, over one shoulder (a flattened lock, `strand()`), side braid, half up (a small knot), long curls with
+  bangs. Three more hats: Batman cowl (it hides the hair, `hidesHair`), Disney ears (the Mickey ear hat), a facehugger
+  (its fingers sit outside the hair, `hat.build(p)` getting the figure's parts; over the crown the top pair follows the
+  hair's own curve, `reach`, or they sank into it). A Darth Vader helmet was made and then removed at her word. The
+  Hawaiian shirt was redrawn (big hibiscus and leaves all over, an open camp collar, buttons: `hibiscus`, `leaf`) and the
+  lemon shirt too (an Amalfi print of lemons with leaves in even staggered rows, `lemon`; the V-neck drawn over it).
 - Server: `api/guest.js` sends `figs` with sign-in and takes `{ action: 'figs', figs }` (the household's whole shelf);
   store `figs:<id>`, and `figlog` keeps every save for the owner's record. The private page shows each household's
   figures with pictures ("The LEGO shelf", `paintLego` in rsvp-admin.html).
@@ -794,6 +817,12 @@ _Brought up to date 26 Sept 2026 (after `b5897ba`)._
   from Resend's test address, `onboarding@resend.dev`, which only reaches the Resend account's own email; to add
   Anthony, verify kaweddinggallery.com with Resend and change `FROM`. The dev server prints the emails instead of
   sending them (`DEV_MAIL=fail` plays a refusal).
+- The preview guest (the owner's, 26 Sept 2026, for showing friends the gallery): phone 777-777-7777 and the code
+  test123 (`PREVIEW` in `api/_lib.js`) sign in as "Guest Preview", 4 seats, every event, the details cards shown. It is
+  not in the store and never appears on the private page: its token is the word `preview`, its RSVP and minifigures
+  come back to the page but are never saved (and no email is sent), and the pages do not remember the sign-in
+  (`d.preview`: no `ka-guest`; its post does not keep the curtain open, `GUEST.preview`). A refresh or a new visit
+  starts fresh, as if for the first time.
 - Trying it locally: `tools/dev_server.mjs` runs the site and the api against an in-memory store (Node.js needed;
   none is installed on this Mac, a copy was used from the session's scratch folder). With `DEV_EXTRA=<folder>` it
   also serves test pages at `/__test/` and gives them `window.__ka` (openPostcards, postCard, openCard, GUEST);

@@ -277,6 +277,14 @@ function tail(col, from, dir, len, r0, r1) {
   m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize()); return m;
 }
 const V3 = (x, y, z) => new THREE.Vector3(x, y, z);
+// a lock of hair along a path (over the shoulder), tapering from r0 to r1 and rounded at its tip, flattened front to back
+function strand(col, pts, r0, r1, flat = 0.5) {
+  const c = new THREE.CatmullRomCurve3(pts), n = 32, geo = new THREE.TubeGeometry(c, n, 1, 16, false), pos = geo.attributes.position;
+  for (let i = 0; i < pos.count; i++) { const k = Math.floor(i / 17), t = k / n, cp = c.getPointAt(t), r = (r0 + (r1 - r0) * t) * (t > 0.9 ? Math.sqrt(Math.max(0.02, (1 - t) / 0.1)) : 1);
+    pos.setXYZ(i, cp.x + (pos.getX(i) - cp.x) * r, cp.y + (pos.getY(i) - cp.y) * r, cp.z + (pos.getZ(i) - cp.z) * r * flat); }
+  geo.computeVertexNormals(); return hairMesh(geo, col);
+}
+const centerPart = (y0) => (a, y) => -0.4 * Math.exp(-(wrap(a) ** 2) / 0.004) * smooth((y - y0) / 2);   // a parting down the middle
 const hatHair = (hc) => capMesh({ line: lineFn(HL.short), R: 5.6, top: 40.6, thick: 0.65 }, hc);   // what shows under a hat
 const longUnder = (hc) => capMesh({ line: lineFn(HL.long), R: 5.7, top: 40.9, flare: 0.42, lean: 0.3, vol: locks(10, 0.12) }, hc);
 
@@ -284,9 +292,7 @@ export const HAIRS = [
   { id: 'short', name: 'Classic short', build: (hc) => [capMesh({ line: lineFn(HL.short), vol: locks(9, 0.16) }, hc)] },
   { id: 'sidepart', name: 'Side part', build: (hc) => [capMesh({ line: lineAsym([[0, 36.7], [0.6, 36.4], [1.15, 34.8], [1.55, 31.7], [2.3, 30.4], [PI, 30.0]], [[0, 36.2], [0.45, 35.7], [0.85, 35.5], [1.2, 34.3], [1.55, 31.7], [2.3, 30.4], [PI, 30.0]]),
     vol: (a, y) => { const w = wrap(a), part = 0.42, top = smooth((y - 36.2) / 2.5);   // a combed part left of the crown's middle: a groove, the hair swept up and over from it
-      return 0.12 * Math.max(0, Math.sin(a * 9 + y * 0.5)) ** 2 - 0.6 * Math.exp(-((w - part) ** 2) / 0.012) * top + 1.1 * Math.exp(-((w - part + 0.42) ** 2) / 0.1) * top; } }, hc),
-    (() => { const c = new THREE.CatmullRomCurve3([36.4, 38.0, 39.6, 40.6, 41.1].map((y, k) => { const r = [5.95, 5.85, 5.3, 4.4, 3.2][k]; return V3(Math.sin(0.42) * r, y, Math.cos(0.42) * r); }));   // the part line itself, a darker crease
-      return mesh(new THREE.TubeGeometry(c, 16, 0.16, 6, false), plastic(new THREE.Color(hc).multiplyScalar(0.55).getStyle(), { roughness: 0.6 })); })()] },
+      return 0.12 * Math.max(0, Math.sin(a * 9 + y * 0.5)) ** 2 - 0.6 * Math.exp(-((w - part) ** 2) / 0.012) * top + 1.1 * Math.exp(-((w - part + 0.42) ** 2) / 0.1) * top; } }, hc)] },
   { id: 'slick', name: 'Slicked back', build: (hc) => [capMesh({ line: lineFn(HL.high), top: 40.9, vol: locks(14, 0.1) }, hc)] },
   { id: 'messy', name: 'Tousled', build: (hc) => [capMesh({ line: jag(lineFn(HL.short), 9, 0.45), vol: messy }, hc)] },
   { id: 'buzz', name: 'Buzz cut', build: (hc) => [capMesh({ line: lineFn(HL.high), R: 5.3, top: 40.4, thick: 0.35 }, hc)] },
@@ -297,6 +303,26 @@ export const HAIRS = [
   { id: 'bangs', name: 'Long with bangs', build: (hc) => [capMesh({ line: lineFn(HL.bangs), flare: 0.42, lean: 0.3, vol: locks(12, 0.12) }, hc)] },
   { id: 'wavy', name: 'Long waves', build: (hc) => [capMesh({ line: lineFn(HL.long), flare: 0.45, lean: 0.3, vol: plus(locks(10, 0.1), waves) }, hc)] },
   { id: 'curlylong', name: 'Long curls', build: (hc) => [capMesh({ line: lineFn([[0, 37.0], [0.35, 36.4], [0.85, 35.2], [1.2, 25.0], [PI, 24.0]]), R: 6.1, top: 41.9, flare: 0.5, lean: 0.3, vol: curls(0.65) }, hc)] },
+  // ---- more long styles (the owner asked for more)
+  { id: 'centerpart', name: 'Long, center part', build: (hc) => [capMesh({ line: lineFn([[0, 37.2], [0.3, 36.7], [0.85, 35.2], [1.2, 23.8], [1.6, 23.0], [PI, 22.4]]), flare: 0.42, lean: 0.3, vol: plus(locks(12, 0.1), centerPart(36.6)) }, hc)] },
+  { id: 'sideswept', name: 'Long, side-swept', build: (hc) => [capMesh({   // a deep part on the viewer's right, a sweep of fringe across the brow to the left
+    line: lineAsym([[0, 35.7], [0.35, 35.1], [0.7, 34.7], [1.0, 33.6], [1.25, 24.2], [PI, 22.4]], [[0, 36.3], [0.5, 37.0], [0.75, 36.7], [1.05, 35.0], [1.25, 24.2], [PI, 22.4]]),
+    flare: 0.42, lean: 0.3, vol: (a, y) => { const w = wrap(a), top = smooth((y - 35.8) / 2.4);
+      return 0.1 * Math.max(0, Math.sin(a * 11 - y * 0.6)) ** 2 - 0.5 * Math.exp(-((w - 0.52) ** 2) / 0.01) * top + 0.9 * Math.exp(-((w - 0.1) ** 2) / 0.12) * top; } }, hc)] },
+  { id: 'overshoulder', name: 'Long over one shoulder', build: (hc) => [capMesh({   // parted on the left, the hair swept right and brought forward over that shoulder
+    line: lineAsym([[0, 36.6], [0.5, 37.1], [0.85, 35.4], [1.2, 23.8], [PI, 22.4]], [[0, 36.0], [0.4, 35.6], [0.8, 34.9], [1.1, 30.0], [1.3, 23.8], [PI, 22.4]]),
+    flare: 0.42, lean: 0.3, vol: plus(locks(12, 0.1), (a, y) => -0.45 * Math.exp(-((wrap(a) + 0.5) ** 2) / 0.008) * smooth((y - 36.4) / 2)) }, hc),
+    strand(hc, [V3(4.4, 33.8, 1.2), V3(5.2, 31.0, 2.6), V3(5.6, 28.6, 4.2), V3(5.4, 25.8, 4.95), V3(5.0, 23.0, 5.0), V3(4.6, 20.6, 4.9), V3(4.5, 19.4, 4.7)], 2.4, 1.2, 0.42)] },
+  { id: 'sidebraid', name: 'Side braid', build: (hc) => {             // the hair drawn back from a side part into one braid, brought forward over the shoulder
+    const out = [capMesh({ line: lineFn([[0, 36.3], [0.7, 35.9], [1.15, 34.0], [1.55, 31.4], [PI, 30.2]]),
+      vol: (a, y) => -0.4 * Math.exp(-((wrap(a) + 0.45) ** 2) / 0.006) * smooth((y - 36.4) / 2) + 0.1 * Math.max(0, Math.sin(a * 12 + y * 0.4)) }, hc)];
+    const c = new THREE.CatmullRomCurve3([V3(4.4, 32.0, -1.8), V3(5.5, 29.6, 1.0), V3(5.6, 27.8, 3.9), V3(5.3, 25.0, 4.9), V3(5.05, 19.6, 4.9)]), n = 11;
+    for (let k = 0; k <= n; k++) { const t = k / n, p = c.getPointAt(t), s = sphereAt(1.35 - 0.45 * t, p.x + (k % 2 ? 0.32 : -0.32), p.y, p.z, hc); s.scale.set(1, 1.3, 0.72); out.push(s); }
+    const end = c.getPointAt(1); out.push(sphereAt(0.62, end.x, end.y - 1.0, end.z, '#C91A09'), at(mesh(new THREE.ConeGeometry(0.75, 1.9, 16), plastic(hc, { roughness: 0.4 })), end.x, end.y - 2.4, end.z, PI));   // a tie and a tuft
+    return out; } },
+  { id: 'halfup', name: 'Half up, half down', build: (hc) => [capMesh({ line: lineFn([[0, 37.1], [0.5, 36.8], [0.95, 35.3], [1.25, 24.0], [1.6, 23.2], [PI, 22.4]]), flare: 0.42, lean: 0.3, vol: locks(14, 0.1) }, hc),
+    sphereAt(1.95, 0, 40.0, -3.9, hc, 0.85), mesh(new THREE.TorusGeometry(1.5, 0.45, 10, 24), plastic(hc, { roughness: 0.4 })).translateY(39.2).translateZ(-3.6).rotateX(-0.9)] },   // the top drawn back into a small knot
+  { id: 'curlsbangs', name: 'Long curls with bangs', build: (hc) => [capMesh({ line: lineFn([[0, 36.1], [0.75, 35.9], [1.1, 31.5], [1.35, 25.0], [PI, 24.0]]), R: 6.1, top: 41.9, flare: 0.5, lean: 0.3, vol: curls(0.65) }, hc)] },
   { id: 'ponytail', name: 'Ponytail', build: (hc) => [capMesh({ line: lineFn(HL.high), vol: locks(12, 0.1) }, hc), sphereAt(1.5, 0, 38.4, -5.2, hc), tail(hc, V3(0, 38.2, -5.6), V3(0, -1, -0.3), 11, 1.8, 1.1)] },
   { id: 'bun', name: 'Top bun', build: (hc) => [capMesh({ line: lineFn(HL.short), vol: locks(12, 0.1) }, hc), sphereAt(2.7, 0, 41.2, -2.6, hc, 0.9)] },
   { id: 'braid', name: 'Long braid', build: (hc) => { const out = [capMesh({ line: lineFn(HL.short), vol: locks(12, 0.1) }, hc)];
@@ -406,6 +432,31 @@ export const HATS = [
     const pos = brimG.attributes.position; for (let i = 0; i < pos.count; i++) { const x0 = pos.getX(i), z0 = pos.getZ(i), r = Math.hypot(x0, z0), side = Math.abs(x0) / Math.max(r, 1e-6); pos.setY(i, pos.getY(i) + side * side * Math.max(0, r - 7) * 0.55); }   // curled up at the sides
     brimG.computeVertexNormals(); const brimM = mesh(brimG, plastic('#8a5a2b', felt)); brimM.position.y = 36.8;
     return [crown, brimM, lathe([[5.8, 37.4], [5.95, 38.6]], '#3b2412')]; } },
+  // ---- the owner's second list: a mask over the whole head hides the hair (`hidesHair`)
+  { id: 'batman', name: 'Batman cowl', hidesHair: true, build: () => {  // over the head down to the jaw, the mouth and chin bare, white eyes, pointed ears
+    const blk = { roughness: 0.35 }, cowl = mesh(cap({ line: lineFn([[0, 33.1], [0.35, 32.8], [0.8, 31.0], [1.1, 29.6], [1.5, 29.0], [PI, 28.6]]), R: 5.4, top: 40.7, thick: 0.5 }), plastic('#1b1b1b', blk));
+    const eyes = [-1, 1].map((sd) => { const e = mesh(new THREE.CircleGeometry(0.7, 24), plastic(C.white, { roughness: 0.3 })), a = sd * 0.45;
+      e.scale.set(1.35, 0.62, 1); e.position.set(Math.sin(a) * 5.42, 34.1, Math.cos(a) * 5.42); e.rotation.set(0, a, sd * 0.28, 'YXZ'); return e; });   // slanted in, as the cowl's are
+    const ears = [-1, 1].map((sd) => { const e = mesh(new THREE.ConeGeometry(0.95, 3.6, 16), plastic('#1b1b1b', blk)); e.scale.z = 0.5; e.position.set(sd * 2.9, 41.1, 0.3); e.rotation.z = -sd * 0.12; return e; });
+    return [cowl, ...eyes, ...ears]; } },
+  { id: 'mouseears', name: 'Disney ears', cut: 37.2, build: () => {    // the Mickey Mouse ear hat: a black cap and two big round ears
+    const blk = plastic('#1b1b1b', { roughness: 0.5 }), dome = mesh(new THREE.SphereGeometry(5.95, 32, 16, 0, PI * 2, 0, PI / 2), blk); dome.scale.y = 0.95; dome.position.y = 36.9;
+    const ears = [-1, 1].map((sd) => at(mesh(new THREE.CylinderGeometry(3.0, 3.0, 0.75, 40), blk), sd * 4.5, 42.0, -0.6, PI / 2));
+    return [dome, lathe([[6.0, 36.5], [6.12, 36.7], [6.12, 37.5], [5.98, 37.7]], '#1b1b1b', { roughness: 0.5 }), ...ears]; } },
+  { id: 'facehugger', name: 'Facehugger', build: (p = {}) => {          // clamped over the face: a pale body with two air sacs, eight long knuckled fingers
+    const skin = '#D6C49C', out = [], hair = p.hair || '';               // gripping round the head (outside whatever hair is under them), its tail round the neck
+    const [R, Rh, Th] = hair === 'bald' ? [5.25] : hair === 'buzz' ? [5.6, 5.3, 40.4] : /curl/.test(hair) ? [6.7, 6.6, 42.0] : [6.1, 5.95, 41.4];   // the fingers' reach, and
+    const reach = (y) => (Rh && y > 36.4 ? R - Rh + Rh * Math.sqrt(Math.max(0.2, 1 - ((y - 36.4) / (Th - 36.4)) ** 2)) + 0.3 * smooth((y - 36.4) / 1.5) : R);   // over the
+    // crown the hair's own curve followed, clear of it (under a steady reach the top pair sank into the hair)
+    const body = sphereAt(3.1, 0, 33.4, 4.3, skin); body.scale.set(1, 1.08, 0.72); out.push(body);
+    [-1, 1].forEach((sd) => { const sac = sphereAt(1.0, sd * 0.85, 35.2, 5.5, skin); sac.scale.set(0.8, 1.75, 0.45); out.push(sac); });
+    [-1, 1].forEach((sd) => [[36.3, 2.4], [35.0, 0.9], [33.4, -0.8], [31.8, -2.0]].forEach(([y0, rise]) => {   // fanned: the top pair up over the crown, the lowest down
+      const wy = 3.1 * Math.sqrt(Math.max(0, 1 - ((y0 - 33.4) / 3.35) ** 2)), a0 = Math.asin(Math.min(0.95, wy * 0.9 / 5.3));   // toward the jaw; bent at two knuckles
+      const pts = [[a0, 5.3, 0], [0.95, R + 0.2, 0.35], [1.35, R, 0.6], [1.75, R + 0.2, 0.8], [2.2, R - 0.15, 0.95], [2.5, R - 1.1, 1.0]].map(([a, r, t], i) => { a = Math.max(a, a0);
+        const y = y0 + rise * t, rr = Rh ? (i ? reach(y) + r - R : r) : Math.min(r, y > 36 ? r * Math.sqrt(Math.max(0.35, 1 - ((y - 36) / 6) ** 2)) : r); return V3(sd * Math.sin(a) * rr, y, Math.cos(a) * rr); });
+      out.push(strand(skin, pts, 0.38, 0.2, 1)); [1, 3].forEach((i) => out.push(sphereAt(0.46, pts[i].x, pts[i].y, pts[i].z, skin))); }));
+    out.push(strand(skin, [V3(0, 30.4, 4.6), V3(1.0, 29.3, 4.5), V3(2.7, 28.75, 3.2), V3(3.6, 28.7, 0.8), V3(3.3, 28.7, -1.8), V3(1.4, 28.7, -3.4), V3(-1.2, 28.75, -3.4), V3(-3.0, 28.8, -2.0), V3(-3.6, 28.9, 0.5)], 0.62, 0.3, 1));
+    return out; } },
 ];
 
 
@@ -421,6 +472,18 @@ function lines(x, col, w, pts) { x.strokeStyle = col; x.lineWidth = w; x.lineCap
 function dots(x, col, n, r, seed = 3) { let s = seed; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647; x.fillStyle = col; for (let i = 0; i < n; i++) { x.beginPath(); x.arc(20 + rnd() * 216, 8 + rnd() * 190, r * (0.7 + 0.6 * rnd()), 0, 7); x.fill(); } }
 function flower(x, cx, cy, r, petal, mid) { x.fillStyle = petal; for (let k = 0; k < 5; k++) { const a = k * 1.2566; x.beginPath(); x.arc(cx + Math.cos(a) * r, cy + Math.sin(a) * r, r * 0.8, 0, 7); x.fill(); } x.fillStyle = mid; x.beginPath(); x.arc(cx, cy, r * 0.6, 0, 7); x.fill(); }
 function word(x, s, col, px, y = 110) { x.fillStyle = col; x.font = `700 ${px}px Georgia`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(s, 128, y); }
+function leaf(x, cx, cy, len, w, rot, col, rib) {                       // a pointed leaf with a paler midrib
+  x.save(); x.translate(cx, cy); x.rotate(rot); x.fillStyle = col; x.beginPath(); x.moveTo(-len / 2, 0); x.quadraticCurveTo(0, -w, len / 2, 0); x.quadraticCurveTo(0, w, -len / 2, 0); x.fill();
+  x.strokeStyle = rib; x.lineWidth = 1.5; x.beginPath(); x.moveTo(-len / 2 + 2, 0); x.lineTo(len / 2 - 3, 0); x.stroke(); x.restore(); }
+function hibiscus(x, cx, cy, r, col, rot) {                               // five broad petals, a dark heart, a stamen
+  x.save(); x.translate(cx, cy); x.rotate(rot); x.fillStyle = col;
+  for (let k = 0; k < 5; k++) { const a = k * 2 * PI / 5; x.beginPath(); x.ellipse(Math.cos(a) * r * 0.5, Math.sin(a) * r * 0.5, r * 0.55, r * 0.42, a, 0, 7); x.fill(); }
+  x.fillStyle = '#8B1A1A'; x.beginPath(); x.arc(0, 0, r * 0.26, 0, 7); x.fill();
+  x.strokeStyle = '#F2CD37'; x.lineWidth = 2; x.beginPath(); x.moveTo(0, 0); x.lineTo(r * 0.55, -r * 0.35); x.stroke(); x.fillStyle = '#F2CD37'; x.beginPath(); x.arc(r * 0.6, -r * 0.38, 2.2, 0, 7); x.fill(); x.restore(); }
+function lemon(x, cx, cy, rot) {                                           // a lemon, pointed at both ends, with a glint
+  x.save(); x.translate(cx, cy); x.rotate(rot); x.fillStyle = '#F5D02A'; x.strokeStyle = '#D9A90F'; x.lineWidth = 1.5;
+  x.beginPath(); x.moveTo(-15, 0); x.quadraticCurveTo(-13, -10, 0, -10); x.quadraticCurveTo(13, -10, 15, 0); x.quadraticCurveTo(13, 10, 0, 10); x.quadraticCurveTo(-13, 10, -15, 0); x.fill(); x.stroke();
+  x.fillStyle = 'rgba(255,255,255,.55)'; x.beginPath(); x.ellipse(-3, -4.5, 5, 2, -0.2, 0, 7); x.fill(); x.restore(); }
 const tee = (col, extra) => ({ col, arms: col, hands: null, draw(x, skin) { neck(x, skin, 22, 30); if (extra) extra(x, skin); } });
 export const TORSOS = [
   { id: 'teewhite', name: 'White tee', ...tee(C.white) },
@@ -451,10 +514,19 @@ export const TORSOS = [
     x.fillStyle = '#b3131f'; x.beginPath(); x.moveTo(96, 8); x.lineTo(160, 8); x.lineTo(128, 42); x.closePath(); x.fill(); x.beginPath(); x.moveTo(128, 34); x.lineTo(114, 72); x.lineTo(126, 70); x.closePath(); x.fill(); } },
   { id: 'azzurri', name: 'Italy football jersey', col: '#1F5FB8', arms: '#1F5FB8', draw(x) { vneck(x, C.white, 40, 30); vneck(x, '#1F5FB8', 32, 24);
     [[C.green, 150], [C.white, 162], [C.red, 174]].forEach(([c, xx]) => { x.fillStyle = c; x.fillRect(xx, 54, 12, 26); }); word(x, '10', C.white, 44, 130); } },
-  { id: 'hawaiian', name: 'Hawaiian shirt', col: '#35A0B8', arms: '#35A0B8', draw(x, skin) { vneck(x, skin, 48, 28); [[50, 70], [110, 110], [190, 80], [70, 160], [170, 150], [210, 180], [30, 120]].forEach(([fx, fy], i) => flower(x, fx, fy, 9, i % 2 ? C.white : '#F58E8E', C.yellow));
-    lines(x, '#1e7489', 3, [[128, 48], [128, 205]]); } },
-  { id: 'lemons', name: 'Lemon shirt', col: C.white, arms: C.white, draw(x, skin) { vneck(x, skin, 44, 26); let s = 11; const r = () => (s = (s * 16807) % 2147483647) / 2147483647;
-    for (let i = 0; i < 16; i++) { const lx = 20 + r() * 216, ly = 50 + r() * 150; x.fillStyle = C.yellow; x.beginPath(); x.ellipse(lx, ly, 10, 7, r(), 0, 7); x.fill(); x.fillStyle = C.green; x.beginPath(); x.ellipse(lx + 8, ly - 7, 5, 2.5, 0.6, 0, 7); x.fill(); } } },
+  { id: 'hawaiian', name: 'Hawaiian shirt', col: '#35A0B8', arms: '#35A0B8', draw(x, skin) {   // big hibiscus and leaves all over, an open camp collar, buttons
+    [[40, 70, 0.3], [150, 40, 1.2], [215, 95, 2.0], [95, 120, 0.8], [30, 170, 1.9], [175, 165, 0.5], [120, 200, 2.6], [235, 190, 1.4], [70, 25, 2.2], [200, 20, 0.1]].forEach(([lx, ly, a]) => {
+      leaf(x, lx, ly, 42, 14, a, '#1F6B4A', '#4E9E6E'); leaf(x, lx + 12, ly + 8, 32, 11, a + 1.1, '#2C8A5A', '#6DB88A'); });
+    [[62, 92, 22, '#D8342E'], [170, 70, 19, C.white], [116, 160, 23, '#F58E8E'], [220, 140, 19, '#D8342E'], [40, 188, 18, '#F2CD37'], [192, 198, 18, C.white], [96, 44, 15, '#F2CD37']]
+      .forEach(([fx, fy, r, c], i) => hibiscus(x, fx, fy, r, c, i * 0.9));
+    vneck(x, skin, 50, 26);
+    x.fillStyle = '#2E8FA6'; x.strokeStyle = '#1e6d80'; x.lineWidth = 2.5; [-1, 1].forEach((s) => { x.beginPath(); x.moveTo(128 + s * 26, 0); x.lineTo(128 + s * 50, 0);   // the lapels
+      x.lineTo(128 + s * 30, 44); x.lineTo(128 + s * 6, 60); x.lineTo(128, 50); x.closePath(); x.fill(); x.stroke(); });
+    lines(x, '#1e6d80', 2.5, [[128, 56], [128, 205]]); x.fillStyle = '#F4F4F2'; [96, 138, 180].forEach((by) => { x.beginPath(); x.arc(134, by, 4, 0, 7); x.fill(); }); } },
+  { id: 'lemons', name: 'Lemon shirt', col: C.white, arms: C.white, draw(x, skin) {   // an Amalfi lemon print: lemons among leaves, in even staggered rows
+    [58, 104, 150, 196].forEach((ly, row) => [0, 1, 2, 3, 4].forEach((k) => { const lx = 4 + k * 62 + (row % 2) * 31, a = (row * 5 + k * 3) % 7 * 0.35 - 1.0;
+      leaf(x, lx - 12, ly - 9, 20, 7, a - 0.9, '#2E7D32', '#6DAA5E'); leaf(x, lx + 12, ly - 8, 18, 6, a + 0.7, '#3B8F3E', '#7DBB6C'); lemon(x, lx, ly, a); }));
+    vneck(x, skin, 44, 26); } },
   { id: 'chef', name: 'Chef jacket', col: C.white, arms: C.white, draw(x) { lines(x, '#d8d4c8', 3, [[150, 0], [150, 205]]); [[110, 60], [110, 110], [110, 160], [190, 60], [190, 110], [190, 160]].forEach(([bx, by]) => { x.fillStyle = '#555'; x.beginPath(); x.arc(bx, by, 5, 0, 7); x.fill(); });
     x.fillStyle = C.red; x.fillRect(96, 0, 64, 16); } },
   { id: 'smock', name: "Painter's smock", col: '#E9E1CF', arms: '#E9E1CF', draw(x, skin) { neck(x, skin, 22, 32); [[C.red, 60, 90], [C.blue, 180, 70], [C.yellow, 140, 140], [C.green, 80, 170], [C.orange, 200, 160], [C.darkPink, 110, 60]].forEach(([c, px, py]) => { x.fillStyle = c; x.beginPath(); x.arc(px, py, 9, 0, 7); x.fill(); x.beginPath(); x.arc(px + 9, py + 7, 4, 0, 7); x.fill(); });
@@ -539,12 +611,12 @@ export const ACCS = [
     const cone = mesh(new THREE.LatheGeometry([[0, -3.6], [2.25, 3.1], [2.5, 3.4], [2.1, 3.5], [0, 3.5]].map(([r, y]) => new THREE.Vector2(r, y)), 32), new THREE.MeshStandardMaterial({ map: waffle, roughness: 0.7 }));
     const scoop = (col, y, k) => { const m = lathe([[0, 0], [2.35 * k, 0.05], [2.6 * k, 0.4], [2.35 * k, 0.9], [2.2 * k, 1.6], [1.7 * k, 2.35], [0.9 * k, 2.8], [0, 2.95]], col, { roughness: 0.55 }, 36); m.position.y = y; return m; };
     return [cone, scoop('#A8D5A2', 3.3, 1), scoop('#F2B8C6', 5.8, 0.85), sphereAt(0.55, 0.3, 8.6, 0.3, '#C91A09')]; } },
-  { id: 'pizza', name: 'Pizza slice', level: true, build: () => {                     // a thin slice, tip up, held low: melted cheese, pepperoni, a golden crust
-    const sl = new THREE.Shape(); sl.moveTo(-3.1, 0); sl.lineTo(3.1, 0); sl.quadraticCurveTo(0.6, 5.2, 0, 10.2); sl.quadraticCurveTo(-0.6, 5.2, -3.1, 0);
-    const cheese = mesh(new THREE.ExtrudeGeometry(sl, { depth: 0.6, bevelEnabled: true, bevelSize: 0.15, bevelThickness: 0.15, bevelSegments: 2 }), plastic('#F4C24A', { roughness: 0.45 })); cheese.position.set(0, -1.3, -0.3);
-    const crust = mesh(new THREE.CapsuleGeometry(0.75, 5.8, 6, 16), plastic('#C98A45', { roughness: 0.6 })); crust.rotation.z = PI / 2; crust.position.set(0, -1.4, 0);
-    const pep = [[-1.2, 1.4], [1.1, 2.0], [0, 4.3], [-0.2, 6.9], [1.5, 0.3]].map(([x, y]) => { const c = mesh(new THREE.CylinderGeometry(0.8, 0.8, 0.22, 20), plastic('#B83A2C', { roughness: 0.5 })); c.rotation.x = PI / 2; c.position.set(x, y - 1.3, 0.55); c.scale.set(y > 5 ? 0.7 : 1, 1, y > 5 ? 0.7 : 1); return c; });
-    return [cheese, crust, ...pep]; } },
+  { id: 'pizza', name: 'Pizza slice', across: true, build: () => {       // a minifigure-sized slice, held up by its crust: the hand turned so the crust lies
+    const sl = new THREE.Shape(); sl.moveTo(-2.3, 0); sl.lineTo(2.3, 0); sl.quadraticCurveTo(0.4, 3.6, 0, 7.0); sl.quadraticCurveTo(-0.4, 3.6, -2.3, 0);   // in its grip and
+    const cheese = mesh(new THREE.ExtrudeGeometry(sl, { depth: 0.4, bevelEnabled: true, bevelSize: 0.12, bevelThickness: 0.12, bevelSegments: 2 }), plastic('#F4C24A', { roughness: 0.45 })); cheese.position.set(0, 0.2, -0.2);   // the slice rises
+    const crust = mesh(new THREE.CapsuleGeometry(0.72, 4.0, 6, 16), plastic('#C98A45', { roughness: 0.6 })); crust.rotation.z = PI / 2;          // out of its opening
+    const pep = [[-0.9, 1.9], [0.9, 2.3], [0, 4.2], [0.05, 5.8]].map(([x, y]) => { const c = mesh(new THREE.CylinderGeometry(0.58, 0.58, 0.16, 20), plastic('#B83A2C', { roughness: 0.5 })); c.rotation.x = PI / 2; c.position.set(x, y, 0.36); if (y > 5) c.scale.set(0.7, 1, 0.7); return c; });
+    const s = new THREE.Group(); s.add(cheese, crust, ...pep); s.rotation.z = 0.15; return [s]; } },   // leaning a little out
   { id: 'wine', name: 'Glass of red', build: () => [lathe([[0, -1.6], [2.0, -1.6], [2.0, -1.3], [0.3, -1.1], [0.3, 2.2], [1.6, 3.2], [2.2, 5.4], [2.1, 7.2]], '#e8f1f3', { transparent: true, opacity: 0.45, roughness: 0.08 }), lathe([[0, 3.0], [1.4, 3.4], [2.0, 5.2], [0, 5.2]], '#7a0f1f', { roughness: 0.15 })] },
   { id: 'prosecco', name: 'Prosecco', build: () => [lathe([[0, -1.6], [1.8, -1.6], [1.8, -1.3], [0.3, -1.1], [0.3, 2.4], [1.0, 3.2], [1.3, 8.6]], '#e8f1f3', { transparent: true, opacity: 0.45, roughness: 0.08 }), lathe([[0, 3.2], [0.9, 3.4], [1.15, 7.4], [0, 7.4]], '#F2D06B', { roughness: 0.15 })] },
   { id: 'camera', name: 'Camera', build: () => {                         // held up by the grip on its underside, the lens to the front
@@ -563,20 +635,15 @@ export const ACCS = [
     loaf.add(lathe(prof, '#D29A55', { roughness: 0.65 }, 24));
     for (let k = -2; k <= 2; k++) { const cut = sphereAt(0.9, 0, k * 2.9, 1.0, '#EFD3A0'); cut.scale.set(0.38, 1.35, 0.32); cut.rotation.z = 0.55; loaf.add(cut); }
     loaf.position.set(0, 4.2, 0); loaf.rotation.z = -0.22; return [loaf]; } },
-  { id: 'map', name: 'Map of Italy', level: true, build: () => {                      // a folded map, three panels, held at the bottom of the middle one
-    const tex = mapTex(), mats = [0, 1, 2].map((k) => { const t = tex.clone(); t.needsUpdate = true; t.repeat.set(1 / 3, 1); t.offset.set(k / 3, 0); return new THREE.MeshStandardMaterial({ map: t, roughness: 0.7, side: THREE.DoubleSide }); });
-    const out = [], W = 3.8; [-1, 0, 1].forEach((k) => { const pnl = mesh(new THREE.PlaneGeometry(W, 7.0), mats[k + 1]); const a = k * 0.35;
-      pnl.position.set(k * W / 2 * (1 + Math.cos(0.35)), 2.6, k ? -Math.sin(0.35) * W / 2 : 0); pnl.rotation.y = -a; out.push(pnl); });   // held up at the middle panel's foot, facing out
+  { id: 'suitcase', name: 'Suitcase', floor: true, build: () => {       // LEGO's own suitcase (part 4449, measured from its LDraw model: 16 x 9.6 x 6.4 mm, a
+    const S = 0.85, W = 16 * S, H = 9.6 * S, T = 6.4 * S, f = 0.34, u = 0.4 * S, brown = C.brown, out = [];   // 3.2 mm handle), a little under its true size,
+    [1, -1].forEach((sd) => out.push(rbox(W, H, T / 2 - 0.05, 0.45, brown, 0, f + H / 2, sd * T / 4)));   // set down on its two small feet: two halves meeting at a seam,
+    [-1, 1].forEach((sd) => { const post = rbox(4 * u, 4 * u + 0.3, 4 * u, 0.25, brown, sd * 8 * u, f + H + 2 * u - 0.15, 0); out.push(post);   // posts and a round bar on top
+      const foot = at(cyl(0.34, 0.34, T * 0.62, brown), sd * 17 * u, f, 0, PI / 2); out.push(foot); });
+    const bar = mesh(new THREE.CylinderGeometry(4 * u, 4 * u, 18 * u, 24, 1, false, 0, PI), gloss(brown)); bar.rotation.z = PI / 2; bar.position.set(0, f + H + 4 * u, 0);
+    out.push(bar, rbox(18 * u, 0.5, 8 * u, 0.2, brown, 0, f + H + 4 * u - 0.2, 0));
     return out; } },
-  { id: 'suitcase', name: 'Suitcase', level: true, build: () => {        // hanging from the hand: a rounded case with corners, latches and a travel sticker
-    const shell = mesh(new THREE.ExtrudeGeometry((() => { const sh = new THREE.Shape(), w = 3.7, h = 2.9, r = 0.9; sh.moveTo(-w + r, -h); sh.lineTo(w - r, -h); sh.quadraticCurveTo(w, -h, w, -h + r); sh.lineTo(w, h - r); sh.quadraticCurveTo(w, h, w - r, h); sh.lineTo(-w + r, h); sh.quadraticCurveTo(-w, h, -w, h - r); sh.lineTo(-w, -h + r); sh.quadraticCurveTo(-w, -h, -w + r, -h); return sh; })(),
-      { depth: 2.2, bevelEnabled: true, bevelSize: 0.3, bevelThickness: 0.3, bevelSegments: 2 }), plastic('#2E7D9A', { roughness: 0.4 }));
-    shell.position.set(0, -5.4, -1.1);
-    const handle = mesh(new THREE.TorusGeometry(1.1, 0.32, 8, 18, PI), plastic('#1b1b1b')); handle.position.set(0, -2.45, 0);
-    const latches = [-2.2, 2.2].map((x) => at(mesh(new THREE.BoxGeometry(0.9, 0.5, 0.3), plastic('#E8C07A', { metalness: 0.5, roughness: 0.3 })), x, -2.9, 1.45));
-    const sticker = at(mesh(new THREE.CircleGeometry(1.0, 20), new THREE.MeshStandardMaterial({ map: printTex('sticker', 64, 64, (x) => { x.fillStyle = '#F4E3C1'; x.beginPath(); x.arc(32, 32, 30, 0, 7); x.fill(); x.fillStyle = '#7A1A3C'; x.font = '700 15px Georgia'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('SIENA', 32, 33); }), roughness: 0.6 })), 1.6, -6.1, 1.42);
-    return [shell, handle, ...latches, sticker]; } },
-  { id: 'mandolin', name: 'Mandolin', level: true, build: () => {       // carried by the neck
+  { id: 'mandolin', name: 'Mandolin', build: () => {       // carried by the neck
     const body = lathe([[0, -4.6], [2.8, -4.0], [3.9, -1.8], [3.6, 0.8], [2.2, 3.0], [0.9, 4.0], [0, 4.2]], '#9a5424', { roughness: 0.28 }, 32); body.scale.z = 0.42;
     const top = at(mesh(new THREE.CircleGeometry(1, 32), plastic('#E2B878', { roughness: 0.4 })), 0, -0.4, 1.66); top.scale.set(3.5, 3.9, 1);
     const inst = new THREE.Group().add(body, top, at(cyl(0.95, 0.95, 0.1, '#1a1410'), 0, 0.2, 1.72, PI / 2), at(mesh(new THREE.BoxGeometry(1.2, 9, 0.7), plastic('#3a2412')), 0, 8.2, 0.9), at(mesh(new THREE.BoxGeometry(1.8, 2.2, 0.7), plastic('#3a2412')), 0, 13.6, 0.8), at(mesh(new THREE.BoxGeometry(0.9, 2.6, 0.25), plastic('#caa46a')), 0, -3.2, 1.7));
@@ -585,25 +652,18 @@ export const ACCS = [
   { id: 'balloon', name: 'Heart balloon', build: () => { const s = new THREE.Shape(); s.moveTo(0, -3.4); s.bezierCurveTo(-6, 0.6, -3.2, 4.8, 0, 2.2); s.bezierCurveTo(3.2, 4.8, 6, 0.6, 0, -3.4);
     return [grip(2, C.white), at(cyl(0.12, 0.12, 20, '#ddd'), 0, 10, 0), at(mesh(block(s, 2.4, 0.9), plastic('#D6263B', { roughness: 0.2 })), 0, 23.4, 0)]; } },
   { id: 'lemon', name: 'Amalfi lemon', build: () => { const l = sphereAt(2.4, 0, 2.4, 0.6, C.yellow); l.scale.set(1, 1.35, 1); const leaf = sphereAt(1.1, 1.4, 5.4, 0.6, C.green); leaf.scale.set(1.8, 0.5, 0.8); return [l, leaf, sphereAt(0.5, 0, 5.6, 0.6, C.yellow)]; } },
-  { id: 'cake', name: 'Wedding cake slice', level: true, build: () => {  // on a plate balanced on the hand: sponge, cream, pink icing, a strawberry
+  { id: 'cake', name: 'Wedding cake slice', build: () => {  // on a plate balanced on the hand: sponge, cream, pink icing, a strawberry
     const wedge = (y0, h, col) => { const sh = new THREE.Shape(); sh.moveTo(-2.1, -1.4); sh.lineTo(2.1, -1.4); sh.lineTo(0, 3.1); sh.closePath();
       const g2 = new THREE.ExtrudeGeometry(sh, { depth: h, bevelEnabled: false }); g2.rotateX(-PI / 2); const m = mesh(g2, plastic(col, { roughness: 0.6 })); m.position.y = y0; return m; };
     const plate = lathe([[0, 1.3], [3.6, 1.3], [3.9, 1.75], [3.5, 1.75], [3.1, 1.55], [0, 1.55]], '#F6F4EF', { roughness: 0.25 });
     return [plate, wedge(1.55, 1.1, '#F1DDB0'), wedge(2.65, 0.35, '#FFF8EC'), wedge(3.0, 1.0, '#F1DDB0'), wedge(4.0, 0.45, '#F4B8C8'), sphereAt(0.6, 0, 4.9, -0.2, '#D8231F'), sphereAt(0.35, 0.9, 4.65, 0.9, '#FFF8EC'), sphereAt(0.35, -0.9, 4.65, 0.9, '#FFF8EC')]; } },
-  { id: 'rings', name: 'Ring box', level: true, build: () => {           // sitting open on the hand: burgundy velvet, a gold ring with a diamond
+  { id: 'rings', name: 'Ring box', build: () => {           // sitting open on the hand: burgundy velvet, a gold ring with a diamond
     const velvet = { roughness: 0.75 }, base = mesh(block(rect(4.2, 2.0, -2.1, 0), 3.4, 0.35), plastic('#7A1A3C', velvet)); base.position.y = 1.4;
     const cushion = mesh(new THREE.BoxGeometry(3.5, 0.5, 2.7), plastic('#F3ECDD', velvet)); cushion.position.y = 3.3;
     const lid = mesh(block(rect(4.2, 1.6, -2.1, 0), 3.4, 0.35), plastic('#7A1A3C', velvet)); lid.position.set(0, 3.5, -1.7); lid.rotation.x = -1.95; lid.geometry.translate(0, 0, 1.7);
     const ring = mesh(new THREE.TorusGeometry(0.85, 0.24, 10, 28), plastic('#E8C07A', { metalness: 0.75, roughness: 0.2 })); ring.position.set(0, 4.3, 0.2);
     const gem = mesh(new THREE.OctahedronGeometry(0.5), plastic('#EAF6FF', { roughness: 0.02, metalness: 0.1 })); gem.position.set(0, 5.3, 0.2);
     return [base, cushion, lid, ring, gem]; } },
-  { id: 'book', name: 'Guidebook', level: true, build: () => {           // held by its spine, the cover facing out, in front of the body
-    const cover = printTex('guidebook', 96, 128, (x) => { x.fillStyle = '#1f4d38'; x.fillRect(0, 0, 96, 128); x.strokeStyle = '#E8C07A'; x.lineWidth = 3; x.strokeRect(7, 7, 82, 114);
-      x.fillStyle = '#E8C07A'; x.font = '700 17px Georgia'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('ITALIA', 48, 40); x.font = 'italic 12px Georgia'; x.fillText('a guide', 48, 60);
-      x.beginPath(); x.arc(48, 92, 11, 0, 7); x.stroke(); });
-    const pages = new THREE.MeshStandardMaterial({ color: '#F4ECD6', roughness: 0.8 }), green = plastic('#1f4d38', { roughness: 0.5 });
-    const b = mesh(new THREE.BoxGeometry(5.4, 7.4, 1.3), [pages, green, pages, pages, new THREE.MeshStandardMaterial({ map: cover, roughness: 0.5 }), green]);
-    b.position.set(2.5, 1.8, 0.1); b.rotation.y = -0.18; return [b]; } },
   { id: 'flag', name: 'Italian flag', build: () => { const tex = printTex('flag', 90, 60, (x) => { ['#1f8a4c', '#f4f4f2', '#cd212a'].forEach((c, i) => { x.fillStyle = c; x.fillRect(i * 30, 0, 30, 60); }); });
     const f = mesh(new THREE.PlaneGeometry(7.2, 4.8), new THREE.MeshStandardMaterial({ map: tex, side: THREE.DoubleSide, roughness: 0.6 })); return [at(cyl(0.6, 0.6, 22, C.brown), 0, 8, 0), sphereAt(0.9, 0, 19.2, 0, C.gold), at(f, -3.7, 16.4, 0, 0, -0.2)]; } },
   { id: 'sign', name: 'Ciao! sign', build: () => { const tex = printTex('sign', 128, 80, (x) => { x.fillStyle = '#f7efd9'; x.fillRect(0, 0, 128, 80); x.strokeStyle = C.darkRed; x.lineWidth = 6; x.strokeRect(3, 3, 122, 74); x.fillStyle = C.darkRed; x.font = '700 38px Georgia'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('Ciao!', 64, 42); });
@@ -635,7 +695,7 @@ export const ACCS = [
     const fin = at(mesh(block(rect(0.4, 2.2, -0.2, 0), 3.2, 0.1), plastic('#C91A09')), 0, 4.2, -0.6);
     const tip = at(mesh(new THREE.SphereGeometry(0.8, 16, 12), new THREE.MeshStandardMaterial({ color: '#b6ff7a', emissive: '#6dff3a', emissiveIntensity: 1.6 })), 0, 2.4, 5.8);
     const gun = new THREE.Group(); [handle, bodyM, ...rings, fin, tip].forEach((m) => gun.add(m)); gun.rotation.y = -PI / 2; return [gun]; } },   // pointing out to the side
-  { id: 'wand', name: 'Wizard wand', build: () => { const g2 = new THREE.CylinderGeometry(0.28, 0.55, 12, 12); const w = mesh(g2, plastic('#5a3a1e', { roughness: 0.55 })); w.position.set(0, 5.2, 0.9); w.rotation.x = 0.18;
+  { id: 'wand', name: 'Wizard wand', build: () => { const g2 = new THREE.CylinderGeometry(0.28, 0.55, 12, 12); const w = mesh(g2, plastic('#5a3a1e', { roughness: 0.55 })); w.position.set(0, 5.2, 0);
     return [w, at(cyl(0.72, 0.72, 2.4, '#3b2412'), 0, 0, 0), sphereAt(0.75, 0, -1.3, 0, '#3b2412')]; } },
   { id: 'starwand', name: 'Star wand', build: () => { const st = new THREE.Shape(); for (let k = 0; k < 10; k++) { const a = PI / 2 + k * PI / 5, r = k % 2 ? 1.3 : 3.0; st[k ? 'lineTo' : 'moveTo'](Math.cos(a) * r, Math.sin(a) * r); } st.closePath();
     const star = mesh(new THREE.ExtrudeGeometry(st, { depth: 0.6, bevelEnabled: true, bevelSize: 0.2, bevelThickness: 0.2, bevelSegments: 2 }), plastic('#F2CD37', { emissive: '#8a6a00', emissiveIntensity: 0.4 })); star.position.set(0, 12.6, -0.3);
@@ -648,10 +708,6 @@ export const ACCS = [
   { id: 'pan', name: 'Frying pan', build: () => { const pan = lathe([[0, 0], [3.8, 0], [4.4, 1.2], [4.0, 1.2], [3.5, 0.5], [0, 0.5]], '#2b2b2b', { metalness: 0.5, roughness: 0.4 }); pan.rotation.x = PI / 2; pan.position.set(0, 8.0, 0.6);
     return [grip(7.0, '#1b1b1b'), at(cyl(0.5, 0.5, 2.4, '#8f969b', { metalness: 0.6, roughness: 0.3 }), 0, 4.0, 0), pan, sphereAt(1.5, 0.6, 8.8, 1.1, '#F2CD37', 0.5)]; } }
 ];
-function mapTex() { return printTex('italy', 180, 128, (x) => { x.fillStyle = '#efe6cf'; x.fillRect(0, 0, 180, 128); x.fillStyle = '#9cc3d9'; x.fillRect(0, 0, 180, 128);
-  x.fillStyle = '#e9dcb4'; x.beginPath(); [[62, 8], [100, 6], [118, 20], [100, 34], [104, 52], [124, 74], [140, 92], [150, 104], [140, 108], [126, 96], [120, 112], [110, 104], [104, 86], [84, 64], [70, 40], [58, 24]].forEach(([px, py], i) => (i ? x.lineTo(px, py) : x.moveTo(px, py))); x.closePath(); x.fill();
-  x.beginPath(); x.ellipse(118, 116, 12, 6, 0, 0, 7); x.fill(); x.beginPath(); x.ellipse(58, 88, 6, 12, 0, 0, 7); x.fill();
-  x.fillStyle = '#7A1A3C'; x.beginPath(); x.arc(84, 52, 4, 0, 7); x.fill(); x.strokeStyle = 'rgba(80,60,30,.25)'; x.lineWidth = 1; [60, 120].forEach((xx) => { x.beginPath(); x.moveTo(xx, 0); x.lineTo(xx, 128); x.stroke(); }); }); }
 
 // ================================================================ pets
 // LEGO's animals are single moulded pieces: smooth rounded forms in glossy plastic, their eyes and noses printed on, not
@@ -800,7 +856,7 @@ function armMesh(side, col, skinCol) {                                  // side 
   g.children[1].material = g.children[2].material = plastic(col);
   const peg = mesh(new THREE.CylinderGeometry(1.05, 1.05, 1.9, 16), plastic(skinCol)); peg.position.set(side * 8.55, 18.5, 2.35); peg.rotation.x = PI / 2 - 0.25; g.add(peg);
   const hand = mesh(handGeo(), plastic(skinCol)); hand.position.copy(Hc); hand.rotation.set(0.55, -side * 0.3, 0, 'YXZ'); g.add(hand);   // tipped forward and a little in, as a minifig's are, so the C shows
-  g.userData.grip = Hc.clone(); g.userData.gripRot = hand.rotation.clone();
+  g.userData.grip = Hc.clone(); g.userData.hand = hand;
   return g;
 }
 // a skirt: a solid whose cross-section is a rounded rectangle (a superellipse, power n) from `top` [half-width, half-depth]
@@ -850,25 +906,29 @@ export function buildFigure(fig) {
   const skin = byId(SKINS, p.skin).col, hc = byId(HAIR_COLORS, p.hc).col, torso = byId(TORSOS, p.torso), legs = byId(LEGS, p.legs), hair = byId(HAIRS, p.hair), face = byId(FACES, p.face), acc = byId(ACCS, p.acc);
   const fh = byId(FACIAL_HAIR, p.fh), gl = byId(GLASSES, p.gl);
   const g = new THREE.Group();
+  const hat = byId(HATS, p.hat);
   g.add(legsMesh(legs, skin), torsoMesh(torso, skin), headMesh(face, skin, hc, fh, gl));
   if (fh.geo) g.add(fh.geo(hc));
   const armCol = torso.arms || skin;
   const right = armMesh(-1, armCol, skin), left = armMesh(1, armCol, skin);
   g.add(right, left);
-  const hat = byId(HATS, p.hat);
   CUT = hat.cut ?? null;                                             // under a hat, the hair starts at its rim (capMesh)
-  hair.build(hc, skin).forEach((m) => { if (CUT == null || m.userData.cap || m.position.y < CUT - 0.8) g.add(m); });   // a bun above the rim is left off
+  if (!hat.hidesHair) hair.build(hc, skin).forEach((m) => { if (CUT == null || m.userData.cap || m.position.y < CUT - 0.8) g.add(m); });   // a bun above the rim is left off
   CUT = null;
-  hat.build().forEach((m) => g.add(m));
-  const held = acc.build();
+  hat.build(p).forEach((m) => g.add(m));
+  const pet = byId(PETS, p.pet), pm = pet.build(), held = acc.build();
   if (held.length) { const a = new THREE.Group(); held.forEach((m) => a.add(m));
     if (acc.shoulder) { a.position.set(-7.4, 27.6, 0.4); a.scale.setScalar(1.35); a.rotation.y = 0.35; }   // a parrot sits on the shoulder
-    else { a.position.copy(right.userData.grip); if (!acc.level) a.rotation.copy(right.userData.gripRot); }   // held things along the hand's grip; plates and cases level
-    g.add(a); }
-  const pet = byId(PETS, p.pet), pm = pet.build();
+    else if (acc.floor) {                                              // the suitcase stands on the floor just behind the figure's right leg, most of it
+      a.position.set(pm.length && !pet.hand ? -8.4 : -10.7, 0, -6.5);   // showing beside it (with a pet at the other side, a little more behind it, so
+      a.rotation.y = 0.15; a.userData.floor = true;                   // the three fit one plinth), turned a little in
+    }
+    else a.position.copy(right.userData.grip);                        // held things stand upright in the hand (tipped with it, they leaned toward the viewer)
+    if (acc.across) right.userData.hand.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(V3(0, 0, 1), V3(1, 0, 0), V3(0, 1, 0)));   // the hand turned on its
+    g.add(a); }                                                        // wrist, as a minifigure's turns: its grip across, its opening up (a pizza's crust)
   if (pm.length) { const a = new THREE.Group(); pm.forEach((m) => a.add(m));
     if (pet.hand) a.position.copy(left.userData.grip).add(V3(0, 1.5, 0.3));      // a butterfly on the other hand
-    else { a.position.set(10.8, 0, 6.4); a.rotation.y = -0.35; }                  // at the feet, in front and to the side, looking in
+    else { a.position.set(10.8, 0, 6.4); a.rotation.y = -0.35; a.userData.floor = true; }   // at the feet, in front and to the side, looking in
     g.add(a); }
   g.userData.fig = fig;
   return g;
@@ -879,7 +939,19 @@ export const PLINTH = { w: 27, d: 22, h: 7.2 };
 const marble = () => printTex('marble', 128, 128, (x) => { x.fillStyle = '#F2EFE8'; x.fillRect(0, 0, 128, 128); let s0 = 5; const r = () => (s0 = (s0 * 16807) % 2147483647) / 2147483647;
   x.strokeStyle = 'rgba(150,145,138,.35)'; for (let k = 0; k < 7; k++) { x.lineWidth = 0.6 + r() * 1.4; x.beginPath(); let px = r() * 128, py = 0; x.moveTo(px, py); while (py < 128) { px += (r() - 0.5) * 18; py += 8 + r() * 10; x.lineTo(px, py); } x.stroke(); } });
 export function onPlinth(fig) {
-  const g = new THREE.Group(), { w, d, h } = PLINTH, gray = plastic('#8f8a80', { roughness: 0.5 }), white = new THREE.MeshStandardMaterial({ map: marble(), roughness: 0.35 });
+  const g = new THREE.Group(), { h } = PLINTH, gray = plastic('#8f8a80', { roughness: 0.5 }), white = new THREE.MeshStandardMaterial({ map: marble(), roughness: 0.35 });
+  let { w, d } = PLINTH;
+  const f = buildFigure(fig), hasPet = (fig && fig.p && fig.p.pet && fig.p.pet !== 'none' && !byId(PETS, fig.p.pet).hand);
+  f.position.set(hasPet ? -4.0 : 0, h, hasPet ? -4.5 : -1.5);
+  if (byId(ACCS, normal(fig && fig.p).acc).floor) {                  // a suitcase on the floor: the figure and its things centered across the plinth, but
+    const z0 = f.position.z; f.position.set(0, h, 0); f.updateMatrixWorld(true);   // what stands on it (feet, suitcase, pet) kept on it (the hands may reach
+    const all = new THREE.Box3().setFromObject(f), foot = new THREE.Box3(V3(-7.8, 0, -4), V3(7.8, 1, 5)).applyMatrix4(f.matrixWorld);   // past its edge, as
+    f.children.forEach((c) => { if (c.userData.floor) foot.expandByObject(c, true); });   // with a pet); with a pet as well, the plinth is made a little
+    w = Math.max(w, foot.max.x - foot.min.x + 0.4); d = Math.max(d, foot.max.z - foot.min.z + 0.4);   // larger, never the figure smaller
+    const lx = w / 2 - 0.2, lz = d / 2 - 0.2, clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+    f.position.x = clamp(-(all.min.x + all.max.x) / 2, -lx - foot.min.x, lx - foot.max.x);
+    f.position.z = clamp(z0, -lz - foot.min.z, lz - foot.max.z);
+  }
   const slab = (sw, sh, sd, y, m) => { const b = mesh(new THREE.BoxGeometry(sw, sh, sd), m); b.position.y = y + sh / 2; g.add(b); };
   slab(w + 0.8, 1.1, d + 0.8, 0, gray); slab(w - 1.2, h - 2.1, d - 1.2, 1.1, white); slab(w, 1.0, d, h - 1.0, white);
   const name = (fig && fig.name) || '';
@@ -890,8 +962,7 @@ export function onPlinth(fig) {
     while (x.measureText(name.toUpperCase()).width > 260 && px > 14) x.font = '600 ' + --px + 'px Georgia';
     x.fillText(name.toUpperCase(), 150, 31); }), metalness: 0.35, roughness: 0.35 }));
   plate.position.set(0, 1.1 + (h - 2.1) / 2, (d - 1.2) / 2 + 0.05); g.add(plate);
-  const f = buildFigure(fig), hasPet = (fig && fig.p && fig.p.pet && fig.p.pet !== 'none' && !byId(PETS, fig.p.pet).hand);
-  f.position.set(hasPet ? -4.0 : 0, h, hasPet ? -4.5 : -1.5); g.add(f);
+  g.add(f);
   return g;
 }
 // one loose part, for the parts bins beside the shelf: kind 'head' | 'torso' | 'legs' | 'hair' | 'acc', from a partial

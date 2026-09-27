@@ -255,7 +255,7 @@
     try {
       const { ok, d } = await guestApi('POST', { action: 'login', phone: el('siPhone').value, code: el('siCode').value });
       if (!ok) { el('siMsg').textContent = d.error || 'That did not work. Please try again.'; return; }
-      GUEST.token = d.token; try { localStorage.setItem('ka-guest', d.token); } catch (err) { /* this visit only */ }
+      GUEST.token = d.token; try { if (d.preview) localStorage.removeItem('ka-guest'); else localStorage.setItem('ka-guest', d.token); } catch (err) { /* this visit only */ }   // the preview guest is not remembered
       signedIn(d); el('siCode').value = ''; document.activeElement && document.activeElement.blur();
       const then = afterSignIn; closeSignIn(); if (then) then();
     } catch (err) { el('siMsg').textContent = 'We could not reach the gallery. Please check your connection and try again.'; }

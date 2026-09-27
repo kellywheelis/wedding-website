@@ -2,13 +2,14 @@
 //   POST /api/guest { action: 'login', phone, code }  -> { token, household, reply, cards }   (typed: a phone number of the
 //                                                         household and its code, VENUS-4827, any case or spacing)
 //   POST /api/guest { action: 'login', key }          -> the same, from the QR code's link (?k=...)
+//   the preview guest, 777-777-7777 and TEST123 (_lib.js PREVIEW), signs in fresh every time and nothing it posts is kept
 //   GET  /api/guest  (Authorization: Bearer <token>)  -> { household, reply, cards }        (a returning device)
 //   POST /api/guest { action: 'rsvp', reply }  (token) -> { ok, reply }   (and an email to the couple: _notify.js)
 //   POST /api/guest { action: 'logout' }       (token) -> { ok }
 //   POST /api/guest { action: 'figs', figs }   (token) -> { ok, figs }   (the household's whole LEGO shelf, one figure per seat)
 // The household's seats and events decide what a reply may say: never more seats, never an event they are not invited to.
 // Every signed-in answer carries rsvp: { open, by } (the deadline, in _lib.js); once it has passed, a reply is refused (403).
-import { redis, newToken, codeKey, phoneDigits, clip, ipOf, household, eventsOf, sessionHousehold, parse, rsvpState, cleanParts } from './_lib.js';
+import { redis, newToken, codeKey, phoneDigits, clip, ipOf, household, eventsOf, sessionHousehold, parse, rsvpState, cleanParts, PREVIEW } from './_lib.js';
 import { CARDS } from './_private.js';
 import { notifyReply } from './_notify.js';
 
@@ -17,6 +18,7 @@ const TRIES = 10, TRY_WINDOW = 600;                                   // wrong g
 
 const publicHousehold = (hh) => ({ names: hh.names, seats: hh.seats, events: eventsOf(hh) });
 async function signedIn(hh) {
+  if (hh.id === PREVIEW.hh.id) return { household: publicHousehold(hh), reply: null, cards: CARDS, rsvp: rsvpState(), figs: [], preview: true };   // always fresh
   return { household: publicHousehold(hh), reply: parse(await redis.get('reply:' + hh.id)), cards: CARDS, rsvp: rsvpState(), figs: parse(await redis.get('figs:' + hh.id)) || [] };
 }
 
@@ -31,6 +33,7 @@ export default async function handler(req, res) {
   const body = req.body || {};
 
   if (body.action === 'login') {
+    if (!body.key && phoneDigits(body.phone) === PREVIEW.phone && codeKey(body.code) === PREVIEW.code) return res.status(200).json({ token: PREVIEW.token, ...(await signedIn(PREVIEW.hh)) });   // the preview guest
     const ip = ipOf(req), rk = 'lrate:' + ip;
     const tries = Number(await redis.get(rk)) || 0;
     if (tries >= TRIES) return res.status(429).json({ error: 'Too many tries. Please wait ten minutes and try again.' });
@@ -56,7 +59,7 @@ export default async function handler(req, res) {
   const s = await sessionHousehold(req);
   if (!s || !s.hh) return res.status(401).json({ error: 'signed out' });
 
-  if (body.action === 'logout') { await redis.del('sess:' + s.token); return res.status(200).json({ ok: true }); }
+  if (body.action === 'logout') { if (!s.preview) await redis.del('sess:' + s.token); return res.status(200).json({ ok: true }); }
 
   if (body.action === 'rsvp') {
     const rsvp = rsvpState();
@@ -71,6 +74,7 @@ export default async function handler(req, res) {
     const events = yes === 'yes' ? [...new Set((Array.isArray(r.events) ? r.events : []).map(String))].filter((e) => allowed.has(e)) : [];
     const reply = { yes, seats, of: hh.seats, events, name, plus: clip(r.plus, 200), diet: clip(r.diet), note: clip(r.note, 1000),
       card: Math.max(0, Math.min(40, Math.floor(Number(r.card)) || 0)), when: Date.now() };
+    if (s.preview) return res.status(200).json({ ok: true, reply });   // the preview guest's reply: shown, never kept, never emailed
     const before = parse(await redis.get('reply:' + hh.id));
     await redis.set('reply:' + hh.id, JSON.stringify(reply));
     await redis.lpush('replylog', JSON.stringify({ id: hh.id, ...reply }));
@@ -81,9 +85,10 @@ export default async function handler(req, res) {
   if (body.action === 'figs') {                                       // the LEGO shelf: seen only by the household itself
     const list = Array.isArray(body.figs) ? body.figs : null, hh = s.hh;
     if (!list) return res.status(400).json({ error: 'No figures sent.' });
-    if (list.length > hh.seats) return res.status(400).json({ error: 'One figure per seat: your household has ' + hh.seats + '.' });
+    if (list.length > hh.seats) return res.status(400).json({ error: 'One minifigure per seat: your household has ' + hh.seats + '.' });
     const figs = list.map((f) => ({ name: clip(f && f.name, 20), p: cleanParts(f && f.p), when: Number(f && f.when) || Date.now() }));
-    if (figs.some((f) => !f.name)) return res.status(400).json({ error: 'Give each figure a name first.' });
+    if (figs.some((f) => !f.name)) return res.status(400).json({ error: 'Give each minifigure a name first.' });
+    if (s.preview) return res.status(200).json({ ok: true, figs });   // the preview guest's shelf: shown, never kept
     await redis.set('figs:' + hh.id, JSON.stringify(figs));
     await redis.lpush('figlog', JSON.stringify({ id: hh.id, names: hh.names, figs, at: Date.now() }));
     await redis.ltrim('figlog', 0, 1999);

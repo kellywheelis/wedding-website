@@ -589,6 +589,9 @@ function fakeGuest(n) {
 // shelf=N : the fake household's shelf holds N figures (random parts, a fixed seed), to see how a full shelf spaces them
 { const q = new URLSearchParams(location.search); if (q.has('shelf')) { let s = 5; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
   if (!GUEST.household) fakeGuest(1); GUEST.figs = Array.from({ length: +q.get('shelf') }, (_, i) => ({ ...FIGS.randomFig(rnd), name: 'Guest ' + (i + 1) })); paintShelf(); } }
+// shelfp=[{...parts},...] : the fake household's shelf holds these figures (JSON part specs), named Guest 1, Guest 2, ...
+{ const q = new URLSearchParams(location.search); if (q.has('shelfp')) {
+  if (!GUEST.household) fakeGuest(1); GUEST.figs = JSON.parse(q.get('shelfp')).map((p, i) => ({ name: 'Guest ' + (i + 1), p })); paintShelf(); } }
 // fireworks=1.2 : the tally's fireworks as they are 1.2 seconds in (drawn once; headless Chrome plays no animation);
 // several moments, fireworks=0.1,0.2,0.3 , are laid over one another, to see the rockets' paths.
 // complete=1 : every work seen and all three found, then (once the scans are in) whether the fireworks were set off

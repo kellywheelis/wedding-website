@@ -6,6 +6,7 @@
   const phone = (s) => String(s || '').replace(/\b([Cc])lick(ing|ed|s)?\b/g, (m, c, suf) => (c === 'C' ? 'T' : 't') + 'ap' + (suf === 'ing' ? 'ping' : suf === 'ed' ? 'ped' : suf || ''))
     .replace('move the mouse to look inside', 'tilt the phone to look inside').replace('to pick it up and turn the wheel', 'to turn its wheel');
   const esc = (s) => phone(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const rich = (s) => esc(s).replace(/\*([^*\n]+)\*/g, '<em>$1</em>');   // a body's *words* in italics, as in the 3D gallery
   const small = (src) => src.replace(/\.jpg$/, '-s.jpg');
   const picture = (src, alt, ar) => {                              // a lazy picture: the small file on narrow screens, the large on wide ones
     const s = /\.jpg$/.test(src) ? `srcset="${small(src)} 700w, ${src} 1400w" sizes="(min-width: 700px) 700px, 100vw"` : '';
@@ -113,7 +114,7 @@
   const lb = el('lb');
   const openLb = (i) => { const it = lbItems[i]; lbIndex = i;
     el('lbImg').innerHTML = `<img src="${it.img}" alt="${esc(it.title)}" decoding="async"${it.oval ? ' class="oval"' : ''}>`;   // Kelly's ovals open as ovals
-    el('lbTxt').innerHTML = `<h3>${esc(it.title)}</h3><p class="body">${esc(it.body)}</p><p class="meta">${esc(it.meta)}</p>`;
+    el('lbTxt').innerHTML = `<h3>${esc(it.title)}</h3><p class="body">${rich(it.body)}</p><p class="meta">${esc(it.meta)}</p>`;
     lb.classList.add('open'); lb.scrollTop = 0; document.body.style.overflow = 'hidden'; };
   const closeLb = () => { lb.classList.remove('open'); document.body.style.overflow = ''; };
   document.addEventListener('click', (e) => {

@@ -35,7 +35,32 @@ const PHOTO_WALLS = Object.fromEntries(await Promise.all(['kelly', 'anthony'].ma
   (await fetch('assets/' + who + '-wall/layout.json', { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : null)).catch(() => null)) || { photos: [], plaque: { z: GALLERY_Z, y: 0.86 } }])));
 // each photograph's own write-up, by wall and file name (the owner's, as she gives them); a photograph without one shows
 // its wall's. They are captions within the wall, so they do not count as works in the collection's tally.
+// (in a body, *words between asterisks* show in italics)
 const PHOTO_NOTES = {
+  kelly: {
+    'eyes': { title: 'Freshman Year', body: 'Kelly in her freshman year of college, peering over the edge of the frame. Even then, she was watching closely.',
+      meta: 'Black-and-white photograph · freshman year of college' },
+    'bridal-party': { title: 'The Wedding Party, in Costume', body: 'Kelly with Emma, Brendan and Eric of the wedding party, on Halloween. The curators note that this is not the first time they have dressed up together for an occasion, and it will not be the last.',
+      meta: 'Photograph · Halloween · the wedding party' },
+    'mojo': { title: 'Mojo Jojo', body: 'Kelly as Mojo Jojo, in a costume of her own making, right up to the towering helmet. The Powerpuff Girls’ nemesis has rarely looked so good.',
+      meta: 'Photograph · costume made by Kelly' },
+    'fun': { title: 'Living Joyfully', body: 'Kelly in Puerto Vallarta, living her best life on a big wooden rocking horse. The curators looked for a more dignified description and concluded there isn’t one, nor should there be.',
+      meta: 'Photograph · Puerto Vallarta, Mexico' },
+    'elementary': { title: 'Fourth Grade', body: 'Kelly’s fourth-grade school portrait, taken in New York: plaid jumper, white collar, and a steady look at the camera.',
+      meta: 'School portrait · fourth grade, New York' },
+    'baby-banana': { title: 'An Early Start', body: 'Kelly’s love of Halloween started very early. Exhibit A: the banana.',
+      meta: 'Photograph · Halloween, the early years' },
+    'baby': { title: 'Portrait of the Artist as a Baby', body: 'Just cute little Kelly. The curators have nothing to add.',
+      meta: 'Photograph · infancy' },
+    'halloween': { title: 'Mystique', body: 'Kelly as Mystique, the X-Men’s blue shape-shifter, in a costume she made herself: hand-sculpted scales and a great deal of blue, and she was *still* mistaken for Avatar all night. *Gasp.*',
+      meta: 'Photograph · Halloween · costume made by Kelly' },
+    'sfx': { title: 'Work in Progress', body: 'Kelly at Cinema Makeup School, aggressively carving a prop axe out of foam for San Diego Comic-Con 2014. Wedding planning has elicited a similar response at times. (Like building this site!)',
+      meta: 'Photograph, 2014 · Cinema Makeup School' },
+    'maid-of-honor': { title: 'Kelly and Karine', body: 'Kelly with her maid of honor, Karine. On April 24, Karine will be at her side once more.',
+      meta: 'Photograph · the maid of honor' },
+    'highschool': { title: 'Junior Year', body: 'Kelly in her junior year of high school, chin in hands, mid-daydream.',
+      meta: 'Photograph · junior year of high school' },
+  },
   anthony: {
     selfie: { title: 'The Profile Picture', body: 'The photograph that started it all. This was Anthony\u2019s dating profile picture, and it is the one that convinced Kelly to swipe right. The curators consider it the most consequential selfie in the collection. (Amelia definitely helped.)',
       meta: 'Phone photograph · dating profile · the one that worked' },
@@ -3612,7 +3637,7 @@ function paintLabel(st) {
   el('eyebrow').textContent = st.eyebrow;
   el('eyebrow').style.color = st.accent;
   el('title').textContent = st.title;
-  el('body').textContent = st.body;
+  el('body').innerHTML = String(st.body || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\*([^*\n]+)\*/g, '<em>$1</em>');   // *words* in italics
   el('meta').textContent = st.meta;
   el('more').style.visibility = st.card || st.game || st.build ? 'visible' : 'hidden';   // "Read the full details" where a wall text exists; "Play" where a game does. Its space is kept at every stop, so the panel (and the view above it) never changes height
   el('more').dataset.card = st.card || '';

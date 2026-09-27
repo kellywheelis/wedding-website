@@ -128,7 +128,10 @@ the canvas size and the triangles drawn (`tickFps` in gallery3d.js; nothing is m
   gallery3d.js (title, body, meta; the phone reads `photoNotes` in content.js, carried by make_mobile_content.py), shown at
   its close-up and in the phone's lightbox; without one it shows the wall's. The close-ups are `tally: false`: captions
   within a wall, not works, so the collection's count (56) and its fireworks are unchanged. First two (27 Sept 2026):
-  Anthony's selfie (his dating profile picture, which convinced Kelly to swipe right) and him with his best man, Nick (2011). Anthony's selfie is `selfie.jpg` (renamed from its first name, since
+  Anthony's selfie (his dating profile picture, which convinced Kelly to swipe right) and him with his best man, Nick (2011). Then all eleven of Kelly's (27 Sept 2026, from her numbered chart: 1 eyes, 2
+  bridal-party, 3 mojo, 4 fun, 5 elementary, 6 baby-banana, 7 baby, 8 halloween, 9 sfx, 10 maid-of-honor, 11 highschool);
+  her main portrait keeps the wall's write-up. In a write-up's body, `*words*` show in italics (the gallery's panel and the phone's
+  lightbox; everything else stays plain text). Anthony's selfie is `selfie.jpg` (renamed from its first name, since
   file names show in the page's code). A piece can be locked (`locked: true`, the Locked box when it is selected; a padlock
   shows on it): it cannot be dragged or nudged, and Make symmetric builds around it (its partner mirrors it; on the
   centre line it stays and the pieces between it and the next fixed one are spaced evenly). Anthony's main portrait is

@@ -34,14 +34,20 @@ const SUN_Y = 2.31;          // the height of the LEGO Sunflowers' centre: level
 const PHOTO_WALLS = Object.fromEntries(await Promise.all(['kelly', 'anthony'].map(async (who) => [who,
   (await fetch('assets/' + who + '-wall/layout.json', { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : null)).catch(() => null)) || { photos: [], plaque: { z: GALLERY_Z, y: 0.86 } }])));
 const photoBox = (p) => p.box || (p.mat ? [p.h * p.aspect + 2 * p.mat, p.h + 2 * p.mat] : null);
-function wallView(W, sx) {                                        // where a wall's stop stands: back far enough to take in every photo and the plaque
+function wallFrame(W) {                                          // the extent of a wall's photographs and its plaque
   let z0 = W.plaque.z - 0.6, z1 = W.plaque.z + 0.6, y0 = W.plaque.y - 0.12, y1 = W.plaque.y + 0.12;
   W.photos.forEach((p) => { const bx = photoBox(p), w = (bx ? bx[0] : p.h * p.aspect) + 2 * p.fw, h = (bx ? bx[1] : p.h) + 2 * p.fw;
     z0 = Math.min(z0, p.z - w / 2); z1 = Math.max(z1, p.z + w / 2); y0 = Math.min(y0, p.y - h / 2); y1 = Math.max(y1, p.y + h / 2); });
-  const cz = (z0 + z1) / 2, cy = (y0 + y1) / 2, d = THREE.MathUtils.clamp(Math.max((y1 - y0) * 0.95, (z1 - z0) * 0.62) + 0.3, 2.3, 4.4), eye = THREE.MathUtils.clamp(cy, 1.55, 2.0);
-  return { x: sx * (P.corrX - d), z: cz, eye, pitch: Math.atan2(cy - eye, d) };
+  return { z0, z1, y0, y1 };
 }
-const WALL_VIEW = { kelly: wallView(PHOTO_WALLS.kelly, -1), anthony: wallView(PHOTO_WALLS.anthony, 1) };
+// where each wall's stop stands: back far enough to take in every photo and the plaque. The two walls mirror each other,
+// so both stops share one height, tilt and distance, fitted to both (apart, the view stepped up and tipped crossing the hall)
+const WALL_VIEW = (() => {
+  const F = { kelly: wallFrame(PHOTO_WALLS.kelly), anthony: wallFrame(PHOTO_WALLS.anthony) }, fs = Object.values(F);
+  const y0 = Math.min(...fs.map((f) => f.y0)), y1 = Math.max(...fs.map((f) => f.y1)), cy = (y0 + y1) / 2;
+  const d = THREE.MathUtils.clamp(Math.max(...fs.map((f) => Math.max((y1 - y0) * 0.95, (f.z1 - f.z0) * 0.62))) + 0.3, 2.3, 4.4), eye = THREE.MathUtils.clamp(cy, 1.55, 2.0), pitch = Math.atan2(cy - eye, d);
+  return { kelly: { x: -(P.corrX - d), z: (F.kelly.z0 + F.kelly.z1) / 2, eye, pitch }, anthony: { x: P.corrX - d, z: (F.anthony.z0 + F.anthony.z1) / 2, eye, pitch } };
+})();
 
 const STATIONS = [
   { id: 'atrium', x: 0, z: 0, yaw: 0, room: 'atrium', accent: '#C9A667',

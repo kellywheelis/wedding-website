@@ -128,7 +128,7 @@ the canvas size and the triangles drawn (`tickFps` in gallery3d.js; nothing is m
 - **Anthony's photographs** (27 Sept 2026, for now: his childhood photos and perhaps a better formal portrait are still
   to come): five from ~/Desktop/anthony gallery wall portraits, in `assets/anthony-wall/` with its own layout.json, hung
   where his big empty frame was (removed), between the arcade and his artifacts. The code is shared: `PHOTO_WALLS`,
-  `wallView`, `photoBox`; close-up stops `anthonyPhoto0`..; the wall editor switches walls (`?wall=anthony`, drawn from
+  `wallFrame` / `WALL_VIEW` (both walls' stops share one height, tilt and distance), `photoBox`; close-up stops `anthonyPhoto0`..; the wall editor switches walls (`?wall=anthony`, drawn from
   the hall so its left is -z, with the arcade, card, case and Amelia drawn in; option A "Portrait column"). His heights
   match hers (the owner's wish): the portrait's centre at 2.309 as hers, the round one at her top row's, the snapshots
   at her bottom row's, the plaque at 1.2; and the arcade screen now hangs at `SUN_Y`, level with the Sunflowers across

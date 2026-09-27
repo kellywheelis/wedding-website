@@ -1,8 +1,8 @@
 # The LEGO Sunflowers on Kelly's wall (gallery3d.js, "Kelly's LEGO Art Sunflowers"): from a photo of her build, make
 # the relief the gallery shows. It straightens the photo to the set's true 41 x 54 cm (the white frame's four outer
 # corners, found by hand, map to a rectangle 8 mm in from the edge: the tan rim is outside them), then writes to
-# assets/lego/: the color map (sunflowers.jpg, 2050 x 2700, 1/5 mm a pixel), a height map (sunflowers-height.png,
-# 1230 x 1620, 0..25 mm), a normal map from those heights with the photo's fine detail (sunflowers-normal.jpg, 2050 x
+# assets/lego/: the color map (sunflowers.webp, 2050 x 2700, 1/5 mm a pixel), a height map (sunflowers-height.png,
+# 1230 x 1620, 0..25 mm), a normal map from those heights with the photo's fine detail (sunflowers-normal.webp, 2050 x
 # 2700), and the loose leaf that falls in the joke (its
 # picture, heights and normals, and, in the color map, the wall of tiles borrowed from a bare patch to show beneath it);
 # and the phone guide's picture of it, whole (mobile/img/sunflowers.jpg and -s.jpg).
@@ -207,7 +207,7 @@ yyH, xxH = np.mgrid[0:HI[1], 0:HI[0]]
 d = np.hypot((xxH - ox * k) % (pitch * k) - pitch * k / 2, (yyH - oy * k) % (pitch * k) - pitch * k / 2)
 stud_col = np.where((d < sr * k)[..., None], base * np.where((d < sr * k * 0.55)[..., None], 1.3, 1.15), base)
 col[lmh] = stud_col[lmh]
-Image.fromarray(np.clip(col, 0, 255).astype(np.uint8)).save(out + '/sunflowers.jpg', quality=88)
+Image.fromarray(np.clip(col, 0, 255).astype(np.uint8)).save(out + '/sunflowers.webp', quality=90, method=6)   # WebP: 45% lighter than JPEG (27 Sept 2026)
 rgba = np.dstack([np.clip(him, 0, 255), lmh * 255]).astype(np.uint8)[hb[1]:hb[3], hb[0]:hb[2]]
 Image.fromarray(rgba).save(out + '/sunflowers-leaf.png')
 hlum = 0.299 * him[..., 0] + 0.587 * him[..., 1] + 0.114 * him[..., 2]
@@ -221,7 +221,7 @@ def normals(hmm, path, mmpx, q=None):
     n = np.dstack([-gx, gy, np.ones_like(hmm)]); n /= np.linalg.norm(n, axis=2, keepdims=True)
     img = Image.fromarray(((n * 0.5 + 0.5) * 255).astype(np.uint8))
     img.save(path, quality=q) if q else img.save(path)
-normals(hhh, out + '/sunflowers-normal.jpg', 410 / HI[0], 90)
+normals(hhh, out + '/sunflowers-normal.webp', 410 / HI[0], 90)
 hpc = np.asarray(Image.fromarray(np.where(leafm, h, 0).astype(np.float32)).resize(HI, Image.BICUBIC)).astype(float) + hdet * 0.9
 lhh = np.where(lmh, hpc, 0)[hb[1]:hb[3], hb[0]:hb[2]]
 normals(lhh, out + '/sunflowers-leaf-normal.png', 410 / HI[0])

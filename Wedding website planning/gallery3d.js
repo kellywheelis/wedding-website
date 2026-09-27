@@ -1477,7 +1477,7 @@ sun.scale.setScalar(SUN.k);
 const GAG = { t0: -1, yaw: 0, lean: 0, leaf: null, home: null };
 (function buildSunflowers() {
   const lin = (src) => { const t = loader.load(src); t.colorSpace = THREE.NoColorSpace; return t; };
-  const map = loader.load('assets/lego/sunflowers.jpg', () => {
+  const map = loader.load('assets/lego/sunflowers.webp', () => {
     SUN.ready = true; if (K2FRAME) K2FRAME.children[1].visible = false; sun.visible = true; renderer.shadowMap.needsUpdate = true;   // set into the gold frame (the owner's wish), as the arcade screen is
   }, undefined, () => { sun.visible = false; });
   map.colorSpace = THREE.SRGBColorSpace; map.anisotropy = 8;
@@ -1509,7 +1509,7 @@ const GAG = { t0: -1, yaw: 0, lean: 0, leaf: null, home: null };
     if (s > 0) face.scale.x = -1;
     sides.push(box, face);
   });
-  const relief = new THREE.Mesh(new THREE.PlaneGeometry(SUN.w - 0.001, SUN.h - 0.001, 246, 324), new THREE.MeshStandardMaterial({ map, normalMap: lin('assets/lego/sunflowers-normal.jpg'),
+  const relief = new THREE.Mesh(new THREE.PlaneGeometry(SUN.w - 0.001, SUN.h - 0.001, 246, 324), new THREE.MeshStandardMaterial({ map, normalMap: lin('assets/lego/sunflowers-normal.webp'),
     displacementMap: lin('assets/lego/sunflowers-height.png'), displacementScale: SUN.relief, roughness: 0.55, normalScale: new THREE.Vector2(0.7, 0.7) }));   // glossy enough for plastic; shinier, the hall's lights washed the colors out and the fine relief glittered
   relief.position.z = SUN.lift;
   // the leaf that comes loose: its own small relief, cut from the photo, sitting exactly where it grew

@@ -22,6 +22,7 @@
     { "source": "/mobile/:path*", "destination": "/Wedding%20website%20planning/mobile/:path*" }
   ],
   "headers": [
+    { "source": "/(.*)", "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow, noimageindex" }] },
     { "source": "/assets/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=3600, stale-while-revalidate=604800" }] },
     { "source": "/mobile/img/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=3600, stale-while-revalidate=604800" }] }
   ]

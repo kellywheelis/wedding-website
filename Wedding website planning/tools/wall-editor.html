@@ -91,7 +91,7 @@ CATS.kelly = {                                       // the prepared photographs
 CATS.anthony = {
   'main-portrait': { a: 0.743, oval: true, name: 'Portrait' },   // reshaped to Kelly's main oval, so the two match
   'portrait-2': { a: 1.003, oval: true, name: 'Portrait (round)' },
-  'mom-and-grandma': { a: 1.309, name: 'Mom and Grandma' }, 'best-man': { a: 1.43, name: 'Best man' }, 'dating-profile': { a: 1.445, name: 'Dating profile' },
+  'mom-and-grandma': { a: 1.309, name: 'Mom and Grandma' }, 'best-man': { a: 1.43, name: 'Best man' }, 'selfie': { a: 1.445, name: 'Selfie' },
 };
 const CAT = CATS[WALL], IMG = (k) => '/assets/' + WALL + '-wall/' + k + '.jpg';
 // a piece's shape: a photograph's from the catalogue; a blank frame's (or a piece this page does not know) from itself
@@ -137,9 +137,9 @@ const PRESETS_A = {
   A: () => { const c = -2.52, rh = 0.22, fw = 0.045, gap = 0.07, w = (k) => rh * CAT[k].a + 2 * fw;
     return { photos: [
       ph('main-portrait', c, 2.309, 0.88, 'gilt', 0.095), ph('portrait-2', c, 3.094, 0.3, 'gilt', 0.045),
-      ph('mom-and-grandma', +(c - (w('dating-profile') / 2 + gap + w('mom-and-grandma') / 2)).toFixed(3), 1.564, rh, 'gilt', fw),
-      ph('dating-profile', c, 1.564, rh, 'plain', fw),
-      ph('best-man', +(c + (w('dating-profile') / 2 + gap + w('best-man') / 2)).toFixed(3), 1.564, rh, 'gilt', fw),
+      ph('mom-and-grandma', +(c - (w('selfie') / 2 + gap + w('mom-and-grandma') / 2)).toFixed(3), 1.564, rh, 'gilt', fw),
+      ph('selfie', c, 1.564, rh, 'plain', fw),
+      ph('best-man', +(c + (w('selfie') / 2 + gap + w('best-man') / 2)).toFixed(3), 1.564, rh, 'gilt', fw),
     ], plaque: { z: c, y: 1.2 } }; },
 };
 const PRESETS = WALL === 'kelly' ? PRESETS_K : PRESETS_A;
@@ -158,7 +158,7 @@ const outer = (p) => { const b = p.box || (p.mat ? [p.h * asp(p) + 2 * p.mat, p.
 function dirty(v) { document.getElementById('status').textContent = v ? 'Not saved yet' : 'Saved. Reload the gallery to see it.'; }
 
 // ---- the wall itself
-const sun = new Image(); sun.src = '/assets/lego/sunflowers.jpg'; sun.onload = () => drawWall();
+const sun = new Image(); sun.src = '/assets/lego/sunflowers.webp'; sun.onload = () => drawWall();
 function drawWall() {
   const W = Math.round((Z0 - Z1) * S), H = Math.round(HGT * S); bg.width = W; bg.height = H; stage.style.width = W + 'px'; stage.style.height = H + 'px';
   const x = bg.getContext('2d');

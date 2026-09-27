@@ -122,7 +122,10 @@ the canvas size and the triangles drawn (`tickFps` in gallery3d.js; nothing is m
   their average distance and height; what stands on the line between the top and the lowest spaced evenly). Blank
   frames (27 Sept 2026): placeholders for photographs to come, `src: 'blank'` carrying their own `aspect` and `oval`
   (oval, circle, portrait, landscape, square; any size, frame, mat); the gallery hangs them as empty mounts with no
-  close-up, the phone as empty mounts. A piece can be locked (`locked: true`, the Locked box when it is selected; a padlock
+  close-up, the phone as empty mounts. Every photograph on a wall also has a small copy, `<name>-s.jpg` (480 px on the long
+  side), which the phone's wall panels show (the full one opens in the lightbox; a missing small copy falls back to the
+  full): make one whenever a photograph is added. Anthony's selfie is `selfie.jpg` (renamed from its first name, since
+  file names show in the page's code). A piece can be locked (`locked: true`, the Locked box when it is selected; a padlock
   shows on it): it cannot be dragged or nudged, and Make symmetric builds around it (its partner mirrors it; on the
   centre line it stays and the pieces between it and the next fixed one are spaced evenly). Anthony's main portrait is
   locked at its twin's place (z -2.0, y 2.309), at her wish. The editor keeps every piece of a saved layout, known or not (it once dropped
@@ -605,6 +608,8 @@ detail, so she gains least; re-converting her at more triangles would help.
   content.js), the household's figures as `snapshot()` pictures on a CSS shelf, and "Build a figure". The phone page
   and the private page have an import map for three.js, loaded only when needed. Not in the sideways gallery view.
 - LEGO's Fair Play rules for fan sites: never the LEGO logo; "LEGO" only as an adjective; its disclaimer is in Credits.
+- (27 Sept 2026) The Sunflowers' colour and normal maps are WebP (`sunflowers.webp`, `sunflowers-normal.webp`: 1.35 MB
+  instead of 2.1 MB as JPEG, compared at the kelly2 stop: 99.8% of pixels unchanged); tools/lego_relief.py writes WebP.
 - **Her LEGO Art Sunflowers** (31215: 2,615 pieces, 41 x 54 cm with LEGO's frame, which she keeps on) hang in place of
   the `kelly2` frame, at that frame's size: modeled at true size and the group scaled by `SUN.k` (1.94, so 0.80 x 1.05 m;
   at true size the owner found it too small to take in). `SUN`, `sun` in gallery3d.js; the frame shows again if the
@@ -881,6 +886,9 @@ _Brought up to date 26 Sept 2026 (after `b5897ba`)._
   also serves test pages at `/__test/` and gives them `window.__ka` (openPostcards, postCard, openCard, GUEST);
   with `DEV_RSVP_CLOSED=N` the deadline falls N seconds after it starts (0: already past). The harness has no
   server: `fakeguest=1|2` stands in a signed-in household for renders (`postcard=` uses it).
+- **Kept out of search engines** (27 Sept 2026, the owner's choice): every response carries `X-Robots-Tag: noindex,
+  nofollow, noimageindex` (vercel.json) and the gallery and phone pages a matching robots meta tag (the private page
+  already had one). Guests reach the site by its link and the invitation QR codes.
 - **Real-phone checks.** The phone edition caught up with the 3D build on 26 Sept 2026 (§4b: Anthony's artifacts,
   the hourglass and the three who hid in `0f9ea7e`, the gallery view in `7c00b14`, the RSVP in `b5897ba`). On her
   own phone the owner found the gallery view and the arcade's pause when held sideways working (26 Sept 2026). Not

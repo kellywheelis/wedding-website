@@ -7,13 +7,13 @@ project (they are his artwork, used with his permission and credited on the piec
   python3 tools/make_invitation_assets.py "/Users/kellywheelis/Desktop/POPUP-INVITATION/invite"
 
 What it makes
-  frame.png   the cream front frame, straightened from the screenshot: ink re-drawn in burgundy on clean
+  frame.webp  the cream front frame, straightened from the screenshot: ink re-drawn in burgundy on clean
               cream, its missing left edge and the parts under the fingers mirrored from the other side, the
               window (with the ribbon's overhanging tails) and both thumb notches cut out, cut edges shaded
   foil.png    the "VILLA CETINALE" lettering on its own, so the gallery can render it as gold foil
   doors.jpg   the door scene                       card.jpg   the pull-out card's illustrated side
-  layer1.png  front layer (busts, couple) cut to a paper silhouette with a white margin, like the real one
-  layer2.png  cypresses and guests, same           layer3.png the villa, same
+  layer1.webp front layer (busts, couple) cut to a paper silhouette with a white margin, like the real one
+  layer2.webp cypresses and guests, same           layer3.webp the villa, same
   back.jpg    the clouds and birds from the layer-1 file, which on the real card are printed on the back wall
 
 Needs only Python 3 and ffmpeg (pip install --user imageio-ffmpeg). No other libraries.
@@ -37,6 +37,7 @@ def load(path, width, pre='', height=-2):
 def save(name, W, H, rgba):
     args = [FF, '-loglevel', 'error', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgba', '-s', f'{W}x{H}', '-i', '-', '-frames:v', '1']
     if name.endswith('.jpg'): args += ['-q:v', '3']
+    if name.endswith('.webp'): args += ['-c:v', 'libwebp', '-quality', '90', '-pix_fmt', 'yuva420p']   # WebP with its cut-out kept exactly (27 Sept 2026: a fifth of the PNG's size)
     subprocess.run(args + [os.path.join(OUT, name)], input=bytes(rgba), check=True)
     print(f'  {name}  {W}x{H}  {os.path.getsize(os.path.join(OUT, name)) / 1e3:.0f} KB')
 
@@ -277,7 +278,7 @@ def make_frame():
             out[k], out[k + 1], out[k + 2], out[k + 3] = c[0], c[1], c[2], 255
         fo[k] = fo[k + 1] = fo[k + 2] = 255
         fo[k + 3] = foil[i]
-    save('frame.png', W, H, out)
+    save('frame.webp', W, H, out)
     save('foil.png', W, H, fo)
     print(f'  window (fractions of the card): x {wx0 / W:.3f}-{wx1 / W:.3f}, y {wy0 / H:.3f}-{wy1 / H:.3f}; card height/width {H / W:.3f}')
 
@@ -288,6 +289,6 @@ if __name__ == '__main__':
     for src, name in (('doorlayer.jpg', 'doors.jpg'), ('pullout card.jpg', 'card.jpg')):
         W, H, d = load(os.path.join(SRC, src), 1280)
         save(name, W, H, d)
-    cut_layer('layer1.jpg', 'layer1.png', band_top=0.80, split_sky=True)
-    cut_layer('layer2.jpg', 'layer2.png', band_top=0.78)
-    cut_layer('layer3.jpg', 'layer3.png')
+    cut_layer('layer1.jpg', 'layer1.webp', band_top=0.80, split_sky=True)
+    cut_layer('layer2.jpg', 'layer2.webp', band_top=0.78)
+    cut_layer('layer3.jpg', 'layer3.webp')

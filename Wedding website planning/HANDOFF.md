@@ -46,7 +46,7 @@ Everything that matters lives in one subfolder (apart from the deployment files 
 | `assets/fonts/` | Cormorant Garamond and EB Garamond (SIL Open Font License, `OFL-*.txt`), hosted with the site since 26 Sept 2026: the woff2 files and `gallery.css` / `mobile.css`, fetched from Google Fonts' css2 API exactly as each page used to request them. Checked with Google Fonts blocked: the text renders identically. |
 | `assets/lib/three/` | three.js 0.184.0, hosted with the site since 25 Sept 2026 so the gallery does not depend on unpkg being up: `build/three.module.js` + `three.core.js` (their sha384 matched the integrity hashes the page used to carry), `GLTFLoader.js` and the two utils it imports, and `libs/meshopt_decoder.module.js` for the compressed sculptures. The page's import map points here. |
 | `assets/` | Paintings, textures, the KA monogram, reference photos. |
-| `assets/sculpture/` | The twelve real sculpture scans (`.glb`; `isabella.glb` is no longer used) + `SOURCES.md` (where each came from, licence, how it was converted), and `amelia.glb` (Anthony's dog: a 3D generation, not a scan; §4). |
+| `assets/sculpture/` | The twelve real sculpture scans (`.glb`; `isabella.glb`, unused, was deleted 27 Sept 2026) + `SOURCES.md` (where each came from, licence, how it was converted), and `amelia.glb` (Anthony's dog: a 3D generation, not a scan; §4). |
 | `assets/door-walnut-*.jpg` | Generated walnut grain for the entry doors (`tools/make_walnut_textures.html` regenerates them). |
 | `tools/convert_scan.py` | Turns a raw museum scan (`.stl`/`.obj`, often 100 MB+) into a small `.glb`. No dependencies. |
 | `tools/reduce_glb.py` | Shrinks a generated, textured `.glb` (image-to-3D output) into a small vertex-coloured one. Uses macOS `sips` for the texture. |
@@ -99,8 +99,8 @@ the canvas size and the triangles drawn (`tickFps` in gallery3d.js; nothing is m
   wall. Every bay: diagonal ribs, an arch on every edge (wall rib or transverse arch), a carved
   boss at the crown. Walls continue up into the arches as plaster "lunettes".
 - Wing doorways are thick walls set back *into* the wings (flush on the hall side).
-- Stone floor is drawn in code (`floorTexture`): staggered honed slabs. The old `tex-stone.jpg`
-  is unused.
+- Stone floor is drawn in code (`floorTexture`): staggered honed slabs (the old `tex-stone.jpg` was
+  deleted 27 Sept 2026).
 - **Details room**: 10 × 9 m, walls in the invitation burgundy (`BURGUNDY = #7A1A3C`, sampled
   from the monogram; the paint value `BURGUNDY_PAINT = #6c1637` is darker so that it *renders*
   close to the swatch under the warm lamps), pale dado, gilt cornice, **coved ceiling** with a
@@ -177,11 +177,11 @@ the canvas size and the triangles drawn (`tickFps` in gallery3d.js; nothing is m
   rebuild. The line under "The two galleries" now says only Anthony's frame is waiting. Not in the sideways gallery view.
 - **Anthony's artifacts** (25 Sept 2026, `hangArtifact`): a graded slab of his favourite card,
   Destiny HERO – Diamond Dude, on brass clips on a walnut trophy plaque at eye level to the right of his main frame
-  (`cardSlab`; the card face is `assets/diamond-dude.png`, the owner's image of the real card; if that
+  (`cardSlab`; the card face is `assets/diamond-dude.webp`, the owner's image of the real card; if that
   file is missing the drawing in `cardFaceCanvas` shows instead); and, beside it, an IN CASE OF EMERGENCY BREAK
   GLASS case (`emergencyCase`: Peach Red Bull, Last Dab, Southern Cuts, hammer on a
-  chain; the three carry the owner's product images `assets/case-can.png`, `case-sauce.png`,
-  `case-pack.png`, with drawn stand-ins if a file is missing). The third is
+  chain; the three carry the owner's product images `assets/case-can.webp`, `case-sauce.webp`,
+  `case-pack.webp`, with drawn stand-ins if a file is missing). The third is
   Amelia, their dog: a JEKCA Japanese Spitz brick model (ST19PT31) the owner built (her first gift to him).
   Hand-building her from photos never matched (a day lost to it, 25 Sept); she is now
   `assets/sculpture/amelia.glb`, a 3D generation from the maker's three product renders (front, left,
@@ -364,7 +364,7 @@ detail, so she gains least; re-converting her at more triangles would help.
   stream is re-scaled to run from the neck to the peak of the bottom pile whatever the level (`HOURGLASS.thread`). It has a stop of its own (`sc_hourglass`, made at build time, with a
   write-up in STATIONS) and clicks like a sculpture. Bacchus's and Ariadne's write-ups point at each other across
   the room; Apollo's was rewritten. Isabella of Aragon was removed the same day (the owner did not like her;
-  `isabella.glb` stays in assets/sculpture, unused). Bernini's Costanza Bonarelli replaced the Laurana woman in Wing II. The owner did NOT
+  `isabella.glb` stayed in assets/sculpture, unused, until it was deleted 27 Sept 2026). Bernini's Costanza Bonarelli replaced the Laurana woman in Wing II. The owner did NOT
   want full-size statues shrunk to fit these pedestals (a shrunk Dancing Faun was tried and rejected), and does not
   want the Roman portrait busts back. No Cupid and Psyche scan exists in any open collection (searched).
 - Scans face whichever way they were captured: `turn` (radians) spins each to face the room; set by eye from renders,
@@ -922,6 +922,13 @@ _Brought up to date 26 Sept 2026 (after `b5897ba`)._
   theirs, and they can come back to it on the same device. Signed-in guests keep one per seat on the server as before.
   A visitor who signs in sees the household's shelf; their own comes back when they sign out. Every shelf is private to
   whoever built it; only the owner sees guests' builds (the private page); visitors' builds reach no one.
+- **Slimmed** (27 Sept 2026): the images with transparency are WebP, not PNG (the volvelle's wheel, front and back; the
+  invitation's layers and frame; the card slab and the case's product images; the phone's vol-* and inv-* pictures):
+  9.5 MB became 1.9 MB, the cut-outs exact and the colours about 1% off, invisible. tools/make_invitation_assets.py
+  writes WebP. Deleted as unused: isabella.glb, the old tex-* textures (wood, ceiling, stone, vault, plaster-warm), the
+  ref-* reference photos, postcard-good-government.jpg, and the phone's sc-detEndR.jpg and room-atrium-doors.jpg.
+  The painting JPEGs were left as they are: WebP saved almost nothing on them, and harder compression would show.
+  Still possible: load each wing's paintings as a guest heads there (a first visit is ~35 MB, mostly paintings).
 - **Kept out of search engines** (27 Sept 2026, the owner's choice): every response carries `X-Robots-Tag: noindex,
   nofollow, noimageindex` (vercel.json) and the gallery and phone pages a matching robots meta tag (the private page
   already had one). Guests reach the site by its link and the invitation QR codes.

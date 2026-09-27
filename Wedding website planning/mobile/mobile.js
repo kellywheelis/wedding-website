@@ -85,12 +85,12 @@
   }
   // the table: save-the-date and invitation
   html += `<div class="table"><p class="eyebrow">On the table</p><h3>${esc(det.table.title)}</h3><p class="body">${esc(det.table.body)}</p>
-    <div class="piece" id="volPiece"><div class="vol" id="vol"><img class="wheel" src="img/vol-wheel.png" alt="" decoding="async" draggable="false"><canvas id="volFront" width="1000" height="1000"></canvas><div class="eyelet"></div><img class="backface" src="img/vol-back.png" alt="" loading="lazy" decoding="async" draggable="false"></div>
+    <div class="piece" id="volPiece"><div class="vol" id="vol"><img class="wheel" src="img/vol-wheel.webp" alt="" decoding="async" draggable="false"><canvas id="volFront" width="1000" height="1000"></canvas><div class="eyelet"></div><img class="backface" src="img/vol-back.webp" alt="" loading="lazy" decoding="async" draggable="false"></div>
       <p class="hint">Tap the card to turn the wheel · drag to spin</p><button class="flip" id="volFlip">Turn it over</button>
       <div class="stand">Kelly Wheelis<small>${esc(det.volvelle.title)}, 2026 · ${esc(det.volvelle.meta)}</small></div><p class="body">${esc(det.volvelle.body.replace('or click the card', 'or tap the card'))}</p></div>
     <div class="piece inv-wrap" id="invPiece"><div class="inv" id="inv"><div class="pull" id="invPull"><img src="img/inv-card.jpg" alt="The invitation card" loading="lazy" decoding="async" draggable="false"></div><div class="tab" id="invTab"></div>
-      <div class="face"></div><div class="win"><div class="sky"></div><img class="layer l3" src="img/inv-layer3.png" alt="" loading="lazy" decoding="async"><img class="layer l2" src="img/inv-layer2.png" alt="" loading="lazy" decoding="async"><img class="layer l1" src="img/inv-layer1.png" alt="" loading="lazy" decoding="async"><div class="doors" id="invDoors"><div class="dr l"></div><div class="dr r"></div></div></div>
-      <img class="frame-img" src="img/inv-frame.png" alt="" loading="lazy" decoding="async"><div class="foil"></div></div>
+      <div class="face"></div><div class="win"><div class="sky"></div><img class="layer l3" src="img/inv-layer3.webp" alt="" loading="lazy" decoding="async"><img class="layer l2" src="img/inv-layer2.webp" alt="" loading="lazy" decoding="async"><img class="layer l1" src="img/inv-layer1.webp" alt="" loading="lazy" decoding="async"><div class="doors" id="invDoors"><div class="dr l"></div><div class="dr r"></div></div></div>
+      <img class="frame-img" src="img/inv-frame.webp" alt="" loading="lazy" decoding="async"><div class="foil"></div></div>
       <p class="hint" id="invHint">Tap the doors to open them · then pull the tab</p>
       <div class="stand">Truong Hoai Vu<small>${esc(det.invite.title)}, 2026 · Paper and ink · vuth.art</small></div><p class="body">${esc(det.invite.body.replace('move the mouse to look inside', 'tilt the phone to look inside').replace('click', 'tap').replace('click', 'tap'))}</p></div></div>`;
   html += `<div class="det-wrap">`;
@@ -190,7 +190,7 @@
   // ---- the save-the-date: the front panel drawn with its window cut out, the wheel turning behind it
   const vol = el('vol'), cv = el('volFront'), wheel = vol.querySelector('.wheel');
   const STEP = 72; let angle = 0, drag = null;                       // degrees; plate I in the window at 0
-  const front = new Image(); front.decoding = 'async'; front.src = 'img/vol-front.png';
+  const front = new Image(); front.decoding = 'async'; front.src = 'img/vol-front.webp';
   front.onload = () => { const x = cv.getContext('2d'); x.drawImage(front, 0, 0, 1000, 1000);
     x.globalCompositeOperation = 'destination-out'; x.beginPath(); x.ellipse(220, 500, 110, 140, 0, 0, Math.PI * 2); x.fill(); };
   const setAngle = (a) => { angle = a; wheel.style.setProperty('--a', (-a) + 'deg'); };

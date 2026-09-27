@@ -1899,7 +1899,7 @@ function poly(x, pts, col) { x.beginPath(); pts.forEach(([px, py], i) => (i ? x.
 
 // 1. his favourite card, Destiny HERO - Diamond Dude, in a graded slab on brass clips under the right-hand frame.
 // The card face is drawn here in the style of the game's effect monsters; a straight-on photo of the real card
-// saved as assets/diamond-dude.png replaces the drawing (it should be the whole card, borders included).
+// saved as assets/diamond-dude.webp replaces the drawing (it should be the whole card, borders included).
 function cardFaceCanvas() {
   const c = document.createElement('canvas');
   c.width = 420; c.height = 612;
@@ -1979,7 +1979,7 @@ function slabLabelCanvas() {
   card.position.set(0, -0.037, 0.012);                                         // clear of the label above it: where the two overlapped, the card's top edge flickered
   const img = new Image();                                                       // the real card, if a photo of it has been supplied
   img.onload = () => { const t = new THREE.Texture(img); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; t.needsUpdate = true; card.material.map = t; card.material.needsUpdate = true; };
-  img.src = 'assets/diamond-dude.png';
+  img.src = 'assets/diamond-dude.webp';
   const lt = new THREE.CanvasTexture(slabLabelCanvas());
   lt.colorSpace = THREE.SRGBColorSpace; lt.anisotropy = 8;
   const label = new THREE.Mesh(new THREE.PlaneGeometry(0.195, 0.076), new THREE.MeshStandardMaterial({ map: lt, roughness: 0.6 }));
@@ -2033,8 +2033,8 @@ function slabLabelCanvas() {
   items.position.set(0, shelfY + 0.006, shelfZ); items.scale.setScalar(1.3);
   g.add(items);
   const top = 0;
-  // The three are drawn after the real things. A straight-on photo of each, saved in assets/ as case-can.png (the can's
-  // front), case-sauce.png (the bottle's label) or case-pack.png (the pack's front), replaces the drawing.
+  // The three are drawn after the real things. A straight-on photo of each, saved in assets/ as case-can.webp (the can's
+  // front), case-sauce.webp (the bottle's label) or case-pack.webp (the pack's front), replaces the drawing.
   const photo = (src, onto) => { const im = new Image(); im.onload = () => onto(im); im.src = src; };
   // A photograph of a cylinder is a projection: the print at angle a round the can lands at sin(a) across the picture.
   // This runs that backwards, column by column, so that the picture wrapped round the front half of a cylinder looks
@@ -2067,7 +2067,7 @@ function slabLabelCanvas() {
   const canTex = new THREE.CanvasTexture(cc); canTex.colorSpace = THREE.SRGBColorSpace;
   // the real can is hot pink all round. A photo flattens the front half of a can: wrapped back on, it has to span less
   // than a quarter turn to face you whole
-  photo('assets/case-can.png', (im) => { x = cc.getContext('2d'); x.fillStyle = '#e63a86'; x.fillRect(0, 0, 512, 360); unwrap(x, im, 128, 256, 360); canTex.needsUpdate = true; });   // the photo round the front half, pink round the back
+  photo('assets/case-can.webp', (im) => { x = cc.getContext('2d'); x.fillStyle = '#e63a86'; x.fillRect(0, 0, 512, 360); unwrap(x, im, 128, 256, 360); canTex.needsUpdate = true; });   // the photo round the front half, pink round the back
   const silver = new THREE.MeshStandardMaterial({ color: '#cfd3d6', roughness: 0.3, metalness: 0.8 });
   const can = new THREE.Mesh(new THREE.CylinderGeometry(0.031, 0.031, 0.135, 28), [new THREE.MeshStandardMaterial({ map: canTex, roughness: 0.35, metalness: 0.4 }), silver, silver]);
   can.position.set(-0.115, top + 0.0675, 0); can.rotation.y = Math.PI + 0.12;     // a cylinder's seam is at the front: turn the picture round to face out
@@ -2101,7 +2101,7 @@ function slabLabelCanvas() {
   x.fillStyle = '#c9c2b4'; x.font = '600 7px Arial'; x.fillText('HOT SAUCE', 160, 117);
   if ('letterSpacing' in x) x.letterSpacing = '0px';
   const labTex = new THREE.CanvasTexture(lc); labTex.colorSpace = THREE.SRGBColorSpace;
-  photo('assets/case-sauce.png', (im) => { x = lc.getContext('2d'); x.fillStyle = '#111111'; x.fillRect(0, 0, 320, 128); unwrap(x, im, 80, 160, 128); labTex.needsUpdate = true; });
+  photo('assets/case-sauce.webp', (im) => { x = lc.getContext('2d'); x.fillStyle = '#111111'; x.fillRect(0, 0, 320, 128); unwrap(x, im, 80, 160, 128); labTex.needsUpdate = true; });
   const lab = new THREE.Mesh(new THREE.CylinderGeometry(0.0265, 0.0265, 0.07, 24, 1, true), new THREE.MeshStandardMaterial({ map: labTex, roughness: 0.6 }));
   lab.position.set(0, top + 0.05, 0); lab.rotation.y = Math.PI;
   items.add(body, shoulder, neck, cap, lab);
@@ -2124,7 +2124,7 @@ function slabLabelCanvas() {
   x.fillStyle = '#9c8a63'; x.font = '600 10px Georgia'; x.fillText('20 CLASS A CIGARETTES', 112, 336);
   const pTex = new THREE.CanvasTexture(pc); pTex.colorSpace = THREE.SRGBColorSpace;
   const packSide = new THREE.MeshStandardMaterial({ color: '#17120f', roughness: 0.5 });
-  photo('assets/case-pack.png', (im) => {                                         // the real Southern Cut pack is copper: the photo on the front, copper round the sides
+  photo('assets/case-pack.webp', (im) => {                                         // the real Southern Cut pack is copper: the photo on the front, copper round the sides
     packSide.color.set('#b5762f'); x = pc.getContext('2d');
     x.drawImage(im, 0, 0, 224, 360);                                                  // the owner's straight-on photo of the front, edge to edge
     pTex.needsUpdate = true;
@@ -4306,18 +4306,18 @@ let volFront = null, volShadow = null;
 
   // the back panel, printed with the monogram pattern; two-sided, and its artwork flipped so that, seen from
   // behind (which is how a card back is seen), the monograms read the right way round
-  const backMat = printed('assets/volvelle/back.png', { color: PAPER, roughness: 0.9, side: THREE.DoubleSide });
+  const backMat = printed('assets/volvelle/back.webp', { color: PAPER, roughness: 0.9, side: THREE.DoubleSide });
   backMat.map.wrapS = THREE.RepeatWrapping; backMat.map.repeat.x = -1; backMat.map.offset.x = 1;
   const back = new THREE.Mesh(planeUV(new THREE.ShapeGeometry(outline(), 24)), backMat);
   const wheelArt = new THREE.Mesh(new THREE.PlaneGeometry(4.354 * IN, 4.354 * IN),
-    printed('assets/volvelle/wheel.png', { alphaTest: 0.5, roughness: 0.5 }));
+    printed('assets/volvelle/wheel.webp', { alphaTest: 0.5, roughness: 0.5 }));
   volWheel.add(wheelArt);
   volWheel.position.z = 0.003;
 
   const face = outline();
   face.holes.push(ellipse(WINDOW_X, 0.995 * IN / 2, 1.266 * IN / 2), ellipse(0, 0.0625 * IN, 0.0625 * IN));
   volFront = new THREE.Mesh(planeUV(new THREE.ShapeGeometry(face, 48)),
-    printed('assets/volvelle/front.png', { color: PAPER, roughness: 0.9 }));
+    printed('assets/volvelle/front.webp', { color: PAPER, roughness: 0.9 }));
   volFront.position.z = 0.006;
 
   // the pieces laid on by hand: two gold rails, the white panelled wainscot, the two stacked gilt rings
@@ -4574,8 +4574,8 @@ const INV_CARD = { s: 0.76, h: 0.76 / (1280 / 1232), stowZ: -0.012 };
   const backWall = new THREE.Mesh(new THREE.PlaneGeometry(bw, bh), printed(sky, { color: INSIDE }));
   backWall.position.set(wx, wy, 0.002);
   invite.add(backWall);
-  [['layer3.png', 1280 / 814, 0.435, 0.08, 0.03, true],
-    ['layer2.png', 1280 / 816, 0.78, 0, 0.075, true], ['layer1.png', 1280 / 760, 0.80, 0, 0.12, true]].forEach(([src, aspect, w, up, z, cut]) => {
+  [['layer3.webp', 1280 / 814, 0.435, 0.08, 0.03, true],
+    ['layer2.webp', 1280 / 816, 0.78, 0, 0.075, true], ['layer1.webp', 1280 / 760, 0.80, 0, 0.12, true]].forEach(([src, aspect, w, up, z, cut]) => {
     const h = w / aspect;
     const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), printed(load(src), cut ? { alphaTest: 0.5, side: THREE.DoubleSide } : { color: INSIDE }));
     m.position.set(wx, floorY + up + h / 2, z);
@@ -4622,7 +4622,7 @@ const INV_CARD = { s: 0.76, h: 0.76 / (1280 / 1232), stowZ: -0.012 };
   invDoorL = half(-1); invDoorR = half(1);
 
   // the frame, and its gold-foil lettering as a separate leaf so it can shine
-  const frame = new THREE.Mesh(new THREE.PlaneGeometry(1, CH), printed(load('frame.png'), { alphaTest: 0.5 }));
+  const frame = new THREE.Mesh(new THREE.PlaneGeometry(1, CH), printed(load('frame.webp'), { alphaTest: 0.5 }));
   frame.position.z = D + 0.008;
   const foil = new THREE.Mesh(new THREE.PlaneGeometry(1, CH), new THREE.MeshStandardMaterial({ map: load('foil.png'), color: '#d9a93f', transparent: true, alphaTest: 0.3, roughness: 0.3, metalness: 0.35, emissive: '#7a5a14', emissiveIntensity: 0.55 }));
   foil.position.z = D + 0.0088;

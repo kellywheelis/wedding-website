@@ -192,7 +192,33 @@
   const STEP = 72; let angle = 0, drag = null;                       // degrees; plate I in the window at 0
   const front = new Image(); front.decoding = 'async'; front.src = 'img/vol-front.webp';
   front.onload = () => { const x = cv.getContext('2d'); x.drawImage(front, 0, 0, 1000, 1000);
-    x.globalCompositeOperation = 'destination-out'; x.beginPath(); x.ellipse(220, 500, 110, 140, 0, 0, Math.PI * 2); x.fill(); };
+    x.globalCompositeOperation = 'destination-out'; x.beginPath(); x.ellipse(220, 500, 110, 140, 0, 0, Math.PI * 2); x.fill();
+    x.globalCompositeOperation = 'source-over'; volGold(x); };
+  // the pieces laid on by hand, as the 3D build has them (gallery3d.js) and the owner's cut files make them: two gold rails,
+  // the white panelled wainscot, and the two stacked gilt rings round the window, ring A with 59 pearls pressed in and ring
+  // B with 30 dentils pressed round it. The card is 4.521 in square, drawn at 1000 px; the window's centre 1.266 in left of
+  // the pivot. (27 Sept 2026: the phone had only the print.)
+  const VDENT = [0.0000,0.6442,0.0000,0.7118,0.1055,0.6301,0.1192,0.6963,0.2064,0.5885,0.2331,0.6503,0.2982,0.5212,0.3369,0.5759,0.3770,0.4311,0.4259,0.4763,0.4394,0.3221,0.4964,0.3559,0.4825,0.1991,0.5451,0.2200,0.5046,0.0673,0.5700,0.0744,0.5046,-0.0673,0.5700,-0.0744,0.4825,-0.1991,0.5451,-0.2200,0.4394,-0.3221,0.4964,-0.3559,0.3770,-0.4311,0.4259,-0.4763,0.2982,-0.5212,0.3369,-0.5759,0.2064,-0.5885,0.2331,-0.6503,0.1055,-0.6301,0.1192,-0.6963,0.0000,-0.6442,0.0000,-0.7118,-0.1055,-0.6301,-0.1192,-0.6963,-0.2064,-0.5885,-0.2331,-0.6503,-0.2982,-0.5212,-0.3369,-0.5759,-0.3770,-0.4311,-0.4259,-0.4763,-0.4394,-0.3221,-0.4964,-0.3559,-0.4825,-0.1991,-0.5451,-0.2200,-0.5046,-0.0673,-0.5700,-0.0744,-0.5046,0.0673,-0.5700,0.0744,-0.4825,0.1991,-0.5451,0.2200,-0.4394,0.3221,-0.4964,0.3559,-0.3770,0.4311,-0.4259,0.4763,-0.2982,0.5212,-0.3369,0.5759,-0.2064,0.5885,-0.2331,0.6503,-0.1055,0.6301,-0.1192,0.6963];   // ring B's dentils, x1, y1, x2, y2 in inches from its centre (as gallery3d.js's DENTILS)
+  function volGold(x) {
+    const P = 1000 / 4.521, cx = 500 - 1.266 * P, cy = 500, gold = (y0, y1) => { const g = x.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, '#ecc868'); g.addColorStop(0.5, '#d9ab4c'); g.addColorStop(1, '#b8892f'); return g; };
+    const edge = 0.9 * P, rail = 0.077 * P;
+    x.save(); x.shadowColor = 'rgba(60,40,10,.35)'; x.shadowBlur = 3; x.shadowOffsetY = 1.5;
+    [[edge, edge + rail], [1000 - edge - rail, 1000 - edge]].forEach(([y0, y1]) => { x.fillStyle = gold(y0, y1); x.fillRect(0, y0, 1000, y1 - y0); });   // the rails
+    x.fillStyle = '#fbfaf5'; x.fillRect(0, 1000 - edge, 1000, edge); x.restore();                                            // the wainscot, five panels
+    for (let i = 0; i < 5; i++) { const px = (i + 0.5) * 200, py = 1000 - edge / 2;
+      [[0.804, 0.760], [0.724, 0.680], [0.644, 0.600]].forEach(([w, h]) => { x.lineWidth = 1.4;
+        x.strokeStyle = 'rgba(255,255,255,.95)'; x.strokeRect(px - w * P / 2 + 1, py - h * P / 2 + 1.2, w * P, h * P);
+        x.strokeStyle = 'rgba(118,110,98,.62)'; x.strokeRect(px - w * P / 2, py - h * P / 2, w * P, h * P); }); }
+    const ring = (ow, oh, iw, ih) => { x.save(); x.shadowColor = 'rgba(60,40,10,.4)'; x.shadowBlur = 4; x.shadowOffsetY = 2;
+      x.beginPath(); x.ellipse(cx, cy, ow * P / 2, oh * P / 2, 0, 0, Math.PI * 2); x.ellipse(cx, cy, iw * P / 2, ih * P / 2, 0, 0, Math.PI * 2, true);
+      x.fillStyle = gold(cy - oh * P / 2, cy + oh * P / 2); x.fill('evenodd'); x.restore(); };
+    ring(1.411, 1.691, 1.030, 1.301);                                // ring A, and its pearls, a dimple each
+    for (let i = 0; i < 59; i++) { const t = Math.PI / 2 + i / 59 * Math.PI * 2, px = cx + Math.cos(t) * 0.6638 * P, py = cy - Math.sin(t) * 0.8040 * P, r = 0.0236 * P;
+      const g = x.createRadialGradient(px, py - r * 0.3, 0, px, py, r); g.addColorStop(0, '#8e6522'); g.addColorStop(0.7, '#b8892f'); g.addColorStop(1, 'rgba(236,200,104,.9)'); x.fillStyle = g; x.beginPath(); x.arc(px, py, r, 0, Math.PI * 2); x.fill(); }
+    ring(1.245, 1.525, 0.916, 1.187);                                // ring B on top, lapping the window's edge, and its dentils
+    x.lineCap = 'round'; x.lineWidth = 0.02 * P;
+    for (let i = 0; i < VDENT.length; i += 4) { x.strokeStyle = '#9b7128'; x.beginPath(); x.moveTo(cx + VDENT[i] * P, cy - VDENT[i + 1] * P); x.lineTo(cx + VDENT[i + 2] * P, cy - VDENT[i + 3] * P); x.stroke(); }
+  }
   const setAngle = (a) => { angle = a; wheel.style.setProperty('--a', (-a) + 'deg'); };
   const angleAt = (e) => { const r = vol.getBoundingClientRect(); return Math.atan2(e.clientY - (r.top + r.height / 2), e.clientX - (r.left + r.width / 2)) * 180 / Math.PI; };
   vol.addEventListener('pointerdown', (e) => { if (vol.classList.contains('back')) return; drag = { a: angleAt(e), moved: 0, start: angle }; vol.classList.add('dragging'); vol.setPointerCapture(e.pointerId); });

@@ -384,7 +384,8 @@ detail, so she gains least; re-converting her at more triangles would help.
 - The card front is a cut shape (window, pivot hole, thumb notch) with the print laid over it; the
   gold rails, white wainscot, two gilt oval rings as her cut file makes them (ring A with 59 pearls
   pressed in, ring B with 30 dentils pressed round it, drawn into each ring's face by `ringFace`, the dentils at the
-  cut file's own positions, `DENTILS`; the dentils were added 27 Sept 2026 at her word, the pearls once raised), and the brass eyelet are real
+  cut file's own positions, `DENTILS`; the dentils were added 27 Sept 2026 at her word, the pearls once raised; the phone's save-the-date draws the
+  same rails, wainscot and rings over its print, `volGold` in mobile.js, where before it had only the print), and the brass eyelet are real
   geometry. The wheel has five plates, 72 degrees apart.
 - It stands propped on a walnut base (`volStand`) on the centre table, with an engraved brass plaque on
   the base's sloped front (the owner rejected a paper-card label: "looks like a print-out"). Clicking

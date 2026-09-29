@@ -112,6 +112,27 @@
     document.body.appendChild(tag);
   }, 2500); }
 { const q = new URLSearchParams(location.search);
+  // clickw=x,y,z[;x,y,z...] : like click2, but at where a point in the world appears on screen (the camera as it stands)
+  if (q.has('clickw')) setTimeout(() => {
+    const out = [];
+    q.get('clickw').split(';').forEach((trip) => {
+      const [wx, wy, wz] = trip.split(',').map(Number);
+      camera.position.set(cam.x, cam.eye, cam.z); camera.rotation.set(cam.pitch, cam.yaw, 0, 'YXZ'); camera.updateMatrixWorld();
+      const v = new THREE.Vector3(wx, wy, wz).project(camera), r = canvas.getBoundingClientRect(), cx = r.left + (v.x + 1) / 2 * r.width, cy = r.top + (1 - v.y) / 2 * r.height;
+      const pr = probe(cx, cy), from = STATIONS[idx].id;
+      canvas.dispatchEvent(new MouseEvent('click', { clientX: cx, clientY: cy, bubbles: true }));
+      const raf = window.requestAnimationFrame, now = performance.now, draw = renderer.render;
+      let fake = now.call(performance);
+      window.requestAnimationFrame = () => 0; performance.now = () => fake; renderer.render = () => {};
+      for (let i = 0; i < 600 && (i < 2 || leg || queue.length || !settled()); i++) { fake += 40; frame(fake); }
+      window.requestAnimationFrame = raf; performance.now = now; renderer.render = draw;
+      out.push('click at world ' + trip + ' from ' + from + ': -> ' + STATIONS[idx].id + ' "' + STATIONS[idx].title + '" · ' + STATIONS[idx].eyebrow + ' · back to ' + STATIONS[idx].back);
+    });
+    const tag = document.createElement('div');
+    tag.style.cssText = 'position:fixed;left:8px;bottom:8px;z-index:99;background:#000;color:#ff0;font:14px monospace;padding:4px 8px;white-space:pre';
+    tag.textContent = out.join('\n'); document.body.appendChild(tag);
+  }, 2500); }
+{ const q = new URLSearchParams(location.search);
   // back2=n : press the step-back button n times, after earlier actions have settled
   if (q.has('back2')) setTimeout(() => {
     const out = [];

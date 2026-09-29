@@ -1337,9 +1337,9 @@ const DETAIL_PICTURES = [
   // couple in profile who face each other across the centrepiece, as they face each other in their diptych (the owner's
   // choice, 29 Sept 2026; the Uffizi's photographs via Wikimedia Commons, public domain)
   { wall: 'back', at: -3.7, y: 2.7, w: 0.95, h: 1.25, sec: 'you', oval: true, src: 'assets/det-oval-battista-sforza.jpg', crop: [0, 0.035, 1, 0.962],
-    note: ['Battista Sforza, Duchess of Urbino', 'Piero painted the Duke and Duchess of Urbino as a pair, each in profile before the hills of their duchy, looking across at one another. She was famously well read, and governed Urbino herself whenever he was away. Here, as in the original, she has her eyes on him.', 'Piero della Francesca, c. 1473–75 · Gallerie degli Uffizi, Florence'] },
+    direct: true, note: ['Battista Sforza, Duchess of Urbino', 'Piero painted the Duke and Duchess of Urbino as a pair, each in profile before the hills of their duchy, looking across at one another. A scholar in her own right, she governed Urbino whenever he was away, and did it well. Here, as in the original, she still has her eyes on him.', 'Piero della Francesca, c. 1473–75 · Gallerie degli Uffizi, Florence'] },
   { wall: 'back', at: 3.7, y: 2.7, w: 0.95, h: 1.25, sec: 'you', oval: true, src: 'assets/det-oval-federico-montefeltro.jpg', crop: [0, 0.035, 1, 0.95],
-    note: ['Federico da Montefeltro, Duke of Urbino', 'Painted from his good side: a tournament had cost him his right eye. A soldier by trade, and a scholar and collector by choice, he built one of the finest libraries in Italy. From across the room, his eyes are where they belong at a wedding: on his wife.', 'Piero della Francesca, c. 1473–75 · Gallerie degli Uffizi, Florence'] },
+    direct: true, note: ['Federico da Montefeltro, Duke of Urbino', 'Painted from his good side: a tournament had cost him his right eye. A soldier by trade, and a scholar and collector by choice, he built one of the finest libraries in Italy. From across the room, his eyes are where they belong at a wedding: on his wife.', 'Piero della Francesca, c. 1473–75 · Gallerie degli Uffizi, Florence'] },
   // LEFT WALL, entrance side. 2 The schedule: April above; time and the feast beneath
   { wall: 'left', at: DET.zMid + 2.85, y: 2.745, w: 2.0, h: 1.012, sec: 'schedule', src: 'assets/det-april-triumph-of-venus.jpg',
     note: ['April (The Triumph of Venus)', 'From a room in Ferrara that paints the year month by month. April belongs to Venus: she arrives on a barge drawn by swans, lovers gather on the banks, and the three Graces look on. We took the hint about the month.', 'Francesco del Cossa, c. 1470 · Palazzo Schifanoia, Ferrara'] },
@@ -1434,10 +1434,12 @@ DETAIL_PICTURES.forEach((p, i) => {
     const d = THREE.MathUtils.clamp(Math.max(0.95 * p.h, 0.55 * p.w), 0.9, 2.3);
     const at = { left: [-DET.x + d, p.at, Math.PI / 2], right: [DET.x - d, p.at, -Math.PI / 2], front: [p.at, DET.zF - d, Math.PI], back: [p.at, DET.zB + d, 0] }[p.wall];
     const id = 'pic' + i;
-    STATIONS.push({ id, x: at[0], z: at[1], yaw: at[2], eye: THREE.MathUtils.clamp(p.y, 1.3, 2.9), room: 'det', card: secStop.card, tour: false, back: secStop.id,
-      accent: '#C9A667', eyebrow: 'Exhibit details · ' + SECTION_LABEL[p.sec], title: p.note[0], body: p.note[1], meta: p.note[2] });
+    STATIONS.push({ id, x: at[0], z: at[1], yaw: at[2], eye: THREE.MathUtils.clamp(p.y, 1.3, 2.9), room: 'det', card: secStop.card, tour: false, back: p.direct ? 'det' : secStop.id,
+      accent: '#C9A667', eyebrow: 'Exhibit details · ' + (p.direct ? 'beside the centerpiece' : SECTION_LABEL[p.sec]), title: p.note[0], body: p.note[1], meta: p.note[2] });
     ST[id] = STATIONS.length - 1;
     grp.userData.closer = ST[id];
+    if (p.direct) grp.userData.station = ST[id];                     // the Urbino ovals: one click to their own close-up (through the centrepiece's
+                                                                      // section, the first click led to the centrepiece), and Step back to the room
     if (HIDDEN[p.src]) HIDDEN[p.src].closeIdx = ST[id];              // a hidden pet in this picture is found from this close-up
   }
 });

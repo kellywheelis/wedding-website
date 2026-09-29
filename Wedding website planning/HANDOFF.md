@@ -952,7 +952,10 @@ _Brought up to date 26 Sept 2026 (after `b5897ba`)._
   five of his photographs for now (27 Sept 2026); its write-up is "Anthony: A Recent Acquisition".
 - **The two oval frames** either side of the centrepiece hold Piero della Francesca's Battista Sforza (left) and
   Federico da Montefeltro (right), her choice of two options (29 Sept 2026; Raphael's Doni pair was the other), with
-  captions and close-ups; the collection's count rose to 58. Not on the phone yet (its details show no centrepiece pictures).
+  captions and close-ups; the collection's count rose to 58. They are `direct: true`: one click from anywhere goes to
+  their own close-up (as members of the centrepiece's section, a first click had led to the centrepiece, the owner found),
+  headed "Exhibit details · beside the centerpiece" (it read "undefined"), and Step back returns to the room's view.
+  Harness `clickw=x,y,z;...` clicks where a point in the world appears on screen, for tests like this. Not on the phone yet (its details show no centrepiece pictures).
 - **The wall texts** (the "Read the full details" cards; `CARDS` in `api/_private.js`, served only to signed-in
   guests) are placeholder text, most of it "To be confirmed." (the RSVP deadline under Guest Policies was filled
   in 26 Sept 2026); the anecdotes in the pictures' and sculptures' write-ups are drafts.

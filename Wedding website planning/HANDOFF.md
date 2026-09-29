@@ -306,7 +306,13 @@ detail, so she gains least; re-converting her at more triangles would help.
 
 **The details room's sections** (owner's plan, 21 Sept 2026; all texts are still PLACEHOLDERS)
 - Main frame, end wall: "The only thing missing from this exhibit is you" (kept for the guests), with the gift-shop
-  stand (`giftShop`, stop `detShop`) under it: postcard rack, "POSTA · R.S.V.P." letterbox, registry card. The owner
+  stand (`giftShop`, stop `detShop`) under it: postcard rack, the couple's post box (29 Sept 2026: their own box painted
+  merlot and gilt, "POST" and "Alvarez", `assets/postbox-alvarez.webp` as its front on a merlot body traced from the
+  picture's outline; it replaced the first mock-up's "POSTA · R.S.V.P." letterbox; her photo was taken a little from
+  the left, so it was straightened in perspective, the door's gilt border made square, to stand level on its brass
+  base; her original is ~/Downloads/postbox.jpg and the painted one her paint-options work), registry card, and on
+  top of the rack a small merlot and gilt RSVP sign ("choose a postcard"), on a short brass stem over the rack's
+  shortened pole, that stays facing the room while the rack turns. The owner
   wants the RSVP to be a postcard drawn from the rack that flips to a writing side (the form) and is posted in the
   letterbox. Step 1 of that was built on 25 Sept 2026 (see "The RSVP postcard and the curtain" above); the store for
   the replies, guest sign-in and the private page followed on 26 Sept 2026 (§5, "The RSVP").

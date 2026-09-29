@@ -347,7 +347,7 @@ window.CONTENT = {
    "centre": {
     "title": "The only thing missing from this exhibit is you",
     "body": "Every other work in the building is already hung. This frame is kept for our guests: you are the last piece of the collection, and the one we built the rest around.",
-    "meta": "Empty frame, gilt · on loan from the future"
+    "meta": "Gilt frame, velvet curtain · revealed by your RSVP"
    },
    "table": {
     "title": "On the table",

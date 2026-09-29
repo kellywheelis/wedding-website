@@ -213,7 +213,7 @@ const STATIONS = [
   { id: 'det', look: 'free', x: 0, z: -12.5, yaw: 0, room: 'det', accent: '#C9A667',
     eyebrow: 'Exhibit details · the centerpiece', title: 'The only thing missing from this exhibit is you',
     body: 'Every other work in the building is already hung. This frame is kept for our guests: you are the last piece of the collection, and the one we built the rest around.',
-    meta: 'Empty frame, gilt · on loan from the future' },
+    meta: 'Gilt frame, velvet curtain · revealed by your RSVP' },
   // Walk on visits the room in this order (a loop round the walls, 26 Sept 2026; the section numbers ran straight
   // across the room and back): the centerpiece, the table, Main details, Policies, Logistics, Schedule, Travel,
   // Accommodations, and the gift shop last
@@ -255,7 +255,7 @@ const STATIONS = [
   { id: 'detClose', x: 0, z: -16.75, yaw: 0, eye: 2.5, room: 'det', accent: '#C9A667', tour: false,
     eyebrow: 'Exhibit details · the centerpiece · up close', title: 'The only thing missing from this exhibit is you',
     body: 'Every other work in the building is already hung. This frame is kept for our guests: you are the last piece of the collection, and the one we built the rest around.',
-    meta: 'Empty frame, gilt · on loan from the future' },
+    meta: 'Gilt frame, velvet curtain · revealed by your RSVP' },
   // the save-the-date, picked up off the table: same standing spot, and Step back puts it down again
   { id: 'detVolvelle', x: 0, z: -13.6, yaw: 0, pitch: -0.5, room: 'det', accent: '#C9A667', tour: false, back: 'detTable',
     eyebrow: 'Exhibit details · on the table', title: 'Save the Date',
@@ -4760,7 +4760,7 @@ function updateInvitation() {
 // ---------------------------------------------------------------- the gift-shop stand (a first mock-up, to be decided on)
 // A walnut counter under the main frame on the details room's end wall ("the only thing missing is you", and
 // right below it, the way to say you are coming): a revolving rack of postcards of
-// the gallery's pictures, a burgundy enamel letterbox for the RSVP, and a tent card for the registry note.
+// the gallery's pictures, the couple's post box for the RSVP, and a tent card for the registry note.
 // Planned, not built yet: click the rack to spin it and draw a postcard; the postcard flips to its writing side,
 // which is the RSVP form; posting it sends the reply to a form service.
 let shopRack = null;
@@ -4812,12 +4812,12 @@ let shopRack = null;
   };
   // the rack: a brass pole on a round foot, four wire faces, three pockets a face
   shopRack = new THREE.Group();
-  const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.011, 0.011, 0.6, 10), brass);
-  pole.position.y = 0.3;
+  const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.011, 0.011, 0.53, 10), brass);   // its top shortened under the RSVP sign (29 Sept 2026)
+  pole.position.y = 0.265;
   const foot = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.12, 0.025, 28), brass);
   foot.position.y = 0.0125;
   const knob = new THREE.Mesh(new THREE.SphereGeometry(0.024, 14, 10), brass);
-  knob.position.y = 0.61;
+  knob.position.y = 0.54;
   shopRack.add(pole, foot, knob);
   for (let f = 0; f < 4; f++) {
     const face = new THREE.Group();
@@ -4835,38 +4835,41 @@ let shopRack = null;
   shopRack.position.set(-0.42, Hc, 0);
   shopRack.scale.setScalar(1.05);
   g.add(shopRack);
+  // a small RSVP sign on the rack's top (the owner's wish, 29 Sept 2026): merlot enamel lettered in gilt, as the post box
+  // is, on a brass stem over the knob; it stays facing the room while the rack turns beneath it
+  const rc = document.createElement('canvas'); rc.width = 512; rc.height = 208; const rx = rc.getContext('2d');
+  rx.fillStyle = '#5a1629'; rx.fillRect(0, 0, 512, 208);
+  rx.strokeStyle = '#d9ab4c'; rx.lineWidth = 7; rx.strokeRect(14, 14, 484, 180); rx.lineWidth = 2; rx.strokeRect(28, 28, 456, 152);
+  rx.fillStyle = '#e8c56d'; rx.textAlign = 'center'; rx.textBaseline = 'middle'; if ('letterSpacing' in rx) rx.letterSpacing = '12px';
+  rx.font = '600 92px Georgia'; rx.fillText('RSVP', 262, 100);
+  if ('letterSpacing' in rx) rx.letterSpacing = '4px'; rx.font = 'italic 500 26px Georgia'; rx.fillText('choose a postcard', 258, 158);
+  const rt = new THREE.CanvasTexture(rc); rt.colorSpace = THREE.SRGBColorSpace; rt.anisotropy = 8;
+  const signMat = new THREE.MeshStandardMaterial({ map: rt, roughness: 0.4, metalness: 0.1, emissive: '#ffffff', emissiveMap: rt, emissiveIntensity: 0.1 });
+  const rsvpSign = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.09, 0.006), [brass, brass, brass, brass, signMat, signMat]);
+  const topY = 0.564 * 1.05;                                          // the top of the rack's knob, as scaled
+  rsvpSign.position.set(-0.42, Hc + topY + 0.018 + 0.045, 0);
+  const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.004, 0.004, 0.024, 8), brass); stem.position.set(-0.42, Hc + topY + 0.008, 0);
+  g.add(rsvpSign, stem);
 
-  // the letterbox: burgundy enamel with an arched top, a brass-lipped slot and gold lettering
-  const enamel = new THREE.MeshStandardMaterial({ color: BURGUNDY_PAINT, roughness: 0.32, metalness: 0.1 });
-  const box = new THREE.Group(), bw = 0.3, bh = 0.3, bd = 0.2;
-  const lower = new THREE.Mesh(new THREE.BoxGeometry(bw, bh, bd), enamel);
-  lower.position.y = bh / 2 + 0.02;
-  const arch = new THREE.Mesh(new THREE.CylinderGeometry(bw / 2, bw / 2, bd, 28, 1, false, 0, Math.PI), enamel);
-  arch.rotation.set(Math.PI / 2, Math.PI / 2, 0); arch.position.y = bh + 0.02;
-  const plinth = new THREE.Mesh(new THREE.BoxGeometry(bw + 0.03, 0.02, bd + 0.03), brass);
-  plinth.position.y = 0.01;
-  const slot = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.016, 0.01), new THREE.MeshBasicMaterial({ color: '#120509' }));
-  slot.position.set(0, bh + 0.035, bd / 2 + 0.002);
-  const slotLip = new THREE.Mesh(new THREE.BoxGeometry(0.235, 0.046, 0.008), brass);
-  slotLip.position.set(0, bh + 0.035, bd / 2);
-  const lc = document.createElement('canvas');
-  lc.width = 512; lc.height = 384;
-  const lx = lc.getContext('2d');
-  lx.fillStyle = BURGUNDY_PAINT; lx.fillRect(0, 0, 512, 384);
-  lx.strokeStyle = '#d9ab4c'; lx.lineWidth = 6; lx.strokeRect(26, 26, 460, 332);
-  lx.fillStyle = '#e6c06a'; lx.textAlign = 'center';
-  if ('letterSpacing' in lx) lx.letterSpacing = '14px';
-  lx.font = '600 92px Georgia'; lx.fillText('POSTA', 256, 170);
-  if ('letterSpacing' in lx) lx.letterSpacing = '10px';
-  lx.font = 'italic 500 70px Georgia'; lx.fillText('R.S.V.P.', 256, 286);
-  const lt = new THREE.CanvasTexture(lc);
-  lt.colorSpace = THREE.SRGBColorSpace; lt.anisotropy = 8;
-  const face = new THREE.Mesh(new THREE.PlaneGeometry(0.25, 0.19), new THREE.MeshStandardMaterial({ map: lt, roughness: 0.35, emissive: '#ffffff', emissiveMap: lt, emissiveIntensity: 0.12 }));
-  face.position.set(0, 0.145, bd / 2 + 0.002);
-  box.add(lower, arch, plinth, slotLip, slot, face);
-  box.position.set(0.4, Hc, 0.0);
+  // the RSVP post box: the couple's own, "POST" and "Alvarez", painted merlot and gilt (the owner's, 29 Sept 2026;
+  // assets/postbox-alvarez.webp, cut out). The picture is its front; behind it a merlot body in the same arched outline
+  // (traced from the picture's cut-out) gives it depth. It replaces the first mock-up's POSTA letterbox. The photograph
+  // was taken a little from the left; it was straightened (the door's gilt border made square) so the box stands level on its base.
+  const PB = { h: 0.5, d: 0.16 }, pbW = PB.h * 0.6574;
+  const PB_OUTLINE = [0.540,1.000,0.622,0.981,0.681,0.962,0.728,0.943,0.765,0.924,0.798,0.905,0.827,0.886,0.853,0.867,0.876,0.848,0.897,0.829,0.915,0.810,0.931,0.791,0.947,0.772,0.960,0.753,0.971,0.734,0.981,0.715,0.988,0.696,0.994,0.677,0.996,0.658,0.998,0.639,0.998,0.620,0.998,0.601,0.996,0.582,0.995,0.563,0.995,0.544,0.994,0.525,0.994,0.506,0.994,0.487,0.994,0.468,0.994,0.449,0.994,0.430,0.994,0.411,0.994,0.392,0.994,0.373,0.994,0.354,0.994,0.335,0.994,0.316,0.994,0.297,0.994,0.278,0.994,0.259,0.994,0.241,0.994,0.222,0.994,0.203,0.994,0.184,0.994,0.165,0.994,0.146,0.994,0.127,0.994,0.108,0.994,0.089,0.994,0.070,0.994,0.051,0.994,0.032,0.995,0.013,0.043,0.013,0.030,0.032,0.016,0.051,0.002,0.070,0.001,0.089,0.001,0.108,0.001,0.127,0.002,0.146,0.002,0.165,0.002,0.184,0.002,0.203,0.002,0.222,0.002,0.241,0.002,0.259,0.002,0.278,0.002,0.297,0.002,0.316,0.002,0.335,0.004,0.354,0.004,0.373,0.004,0.392,0.004,0.411,0.004,0.430,0.004,0.449,0.004,0.468,0.004,0.487,0.004,0.506,0.004,0.525,0.004,0.544,0.004,0.563,0.004,0.582,0.004,0.601,0.004,0.620,0.004,0.639,0.004,0.658,0.005,0.677,0.008,0.696,0.012,0.715,0.020,0.734,0.032,0.753,0.046,0.772,0.061,0.791,0.078,0.810,0.096,0.829,0.070,0.848,0.119,0.867,0.147,0.886,0.199,0.905,0.233,0.924,0.274,0.943,0.323,0.962,0.380,0.981,0.483,1.000];   // x, y in 0..1 of the picture, bottom-left origin
+  const pbShape = new THREE.Shape(); for (let i = 0; i < PB_OUTLINE.length; i += 2) pbShape[i ? 'lineTo' : 'moveTo']((PB_OUTLINE[i] - 0.5) * pbW, PB_OUTLINE[i + 1] * PB.h);
+  const pbBody = new THREE.Mesh(new THREE.ExtrudeGeometry(pbShape, { depth: PB.d, bevelEnabled: true, bevelSize: 0.004, bevelThickness: 0.004, bevelSegments: 2, curveSegments: 4 }),
+    new THREE.MeshStandardMaterial({ color: '#5a1629', roughness: 0.4, metalness: 0.15 }));
+  pbBody.scale.set(0.985, 0.99, 1); pbBody.position.set(0, 0.012, -PB.d);            // just inside the picture's edge, so none of it shows round the front; on the base
+  const pbFrontTex = tex('assets/postbox-alvarez.webp'); pbFrontTex.wrapS = pbFrontTex.wrapT = THREE.ClampToEdgeWrapping; pbFrontTex.anisotropy = 8;
+  const pbFront = new THREE.Mesh(new THREE.PlaneGeometry(pbW, PB.h), new THREE.MeshStandardMaterial({ map: pbFrontTex, alphaTest: 0.5, roughness: 0.42, metalness: 0.12, emissive: '#ffffff', emissiveMap: pbFrontTex, emissiveIntensity: 0.08 }));
+  pbFront.position.set(0, 0.012 + PB.h / 2, 0.007);                          // in front of the body's rounded edge (it reaches 4 mm past its depth)
+  const plinth = new THREE.Mesh(new THREE.BoxGeometry(pbW + 0.03, 0.012, PB.d + 0.03), brass);
+  plinth.position.set(0, 0.006, -PB.d / 2 + 0.004);                   // its brass base, on the counter
+  const box = new THREE.Group();
+  box.add(pbBody, pbFront, plinth);
+  box.position.set(0.4, Hc, 0.08);
   box.rotation.y = -0.18;
-  box.scale.setScalar(1.1);
   g.add(box);
 
   // a tent card for the registry note

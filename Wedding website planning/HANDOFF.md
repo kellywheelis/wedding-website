@@ -105,7 +105,8 @@ the canvas size and the triangles drawn (`tickFps` in gallery3d.js; nothing is m
   from the monogram; the paint value `BURGUNDY_PAINT = #6c1637` is darker so that it *renders*
   close to the swatch under the warm lamps), pale dado, gilt cornice, **coved ceiling** with a
   painted panel (a placeholder sky until Tiepolo's sketch went in on 25 Sept 2026), a 16-frame salon hang
-  (`DETAIL_PICTURES`: the centrepiece, 13 pictures and two empty ovals), centre table, four corner pedestals,
+  (`DETAIL_PICTURES`: the centrepiece, 13 pictures, and in the two ovals Piero della Francesca's Duke and Duchess of
+  Urbino, facing each other across the centrepiece, since 29 Sept 2026), centre table, four corner pedestals,
   two large statues flanking the principal picture (the three gilt consoles and four Roman busts it first had are gone).
 - **Atrium galleries**: Kelly's wall (LEFT) holds her photographs and the LEGO Sunflowers frame; Anthony's (RIGHT) the
   main frame and the arcade (his right-hand frame was removed on 25 Sept 2026 to make room for his artifacts) —
@@ -949,7 +950,9 @@ _Brought up to date 26 Sept 2026 (after `b5897ba`)._
   wall's write-up is "The Kelly Collection" (her choice of four options, 27 Sept 2026). Each photograph's own write-up is
   still to come (she will go through them; the close-ups and the phone's lightbox show the wall's title for now). Anthony's wall has
   five of his photographs for now (27 Sept 2026); its write-up is "Anthony: A Recent Acquisition".
-- **The two oval frames** either side of the centrepiece on the details room's end wall are empty.
+- **The two oval frames** either side of the centrepiece hold Piero della Francesca's Battista Sforza (left) and
+  Federico da Montefeltro (right), her choice of two options (29 Sept 2026; Raphael's Doni pair was the other), with
+  captions and close-ups; the collection's count rose to 58. Not on the phone yet (its details show no centrepiece pictures).
 - **The wall texts** (the "Read the full details" cards; `CARDS` in `api/_private.js`, served only to signed-in
   guests) are placeholder text, most of it "To be confirmed." (the RSVP deadline under Guest Policies was filled
   in 26 Sept 2026); the anecdotes in the pictures' and sculptures' write-ups are drafts.

@@ -1333,9 +1333,13 @@ const SECTION_LABEL = { main: 'the main details', schedule: 'the schedule', trav
 const DETAIL_PICTURES = [
   // end wall: the centrepiece alone, kept for the guests ("the only thing missing from this exhibit is you")
   { wall: 'back', at: 0, y: 2.55, w: 3.4, h: 2.3, sec: 'you' },
-  // an oval frame either side of it, above the statues, empty for now
-  { wall: 'back', at: -3.7, y: 2.7, w: 0.95, h: 1.25, sec: 'you', oval: true, blank: true },
-  { wall: 'back', at: 3.7, y: 2.7, w: 0.95, h: 1.25, sec: 'you', oval: true, blank: true },
+  // an oval frame either side of it, above the statues: Piero della Francesca's Duke and Duchess of Urbino, a married
+  // couple in profile who face each other across the centrepiece, as they face each other in their diptych (the owner's
+  // choice, 29 Sept 2026; the Uffizi's photographs via Wikimedia Commons, public domain)
+  { wall: 'back', at: -3.7, y: 2.7, w: 0.95, h: 1.25, sec: 'you', oval: true, src: 'assets/det-oval-battista-sforza.jpg', crop: [0, 0.035, 1, 0.962],
+    note: ['Battista Sforza, Duchess of Urbino', 'Piero painted the Duke and Duchess of Urbino as a pair, each in profile before the hills of their duchy, looking across at one another. She was famously well read, and governed Urbino herself whenever he was away. Here, as in the original, she has her eyes on him.', 'Piero della Francesca, c. 1473–75 · Gallerie degli Uffizi, Florence'] },
+  { wall: 'back', at: 3.7, y: 2.7, w: 0.95, h: 1.25, sec: 'you', oval: true, src: 'assets/det-oval-federico-montefeltro.jpg', crop: [0, 0.035, 1, 0.95],
+    note: ['Federico da Montefeltro, Duke of Urbino', 'Painted from his good side: a tournament had cost him his right eye. A soldier by trade, and a scholar and collector by choice, he built one of the finest libraries in Italy. From across the room, his eyes are where they belong at a wedding: on his wife.', 'Piero della Francesca, c. 1473–75 · Gallerie degli Uffizi, Florence'] },
   // LEFT WALL, entrance side. 2 The schedule: April above; time and the feast beneath
   { wall: 'left', at: DET.zMid + 2.85, y: 2.745, w: 2.0, h: 1.012, sec: 'schedule', src: 'assets/det-april-triumph-of-venus.jpg',
     note: ['April (The Triumph of Venus)', 'From a room in Ferrara that paints the year month by month. April belongs to Venus: she arrives on a barge drawn by swans, lovers gather on the banks, and the three Graces look on. We took the hint about the month.', 'Francesco del Cossa, c. 1470 · Palazzo Schifanoia, Ferrara'] },
@@ -2972,6 +2976,7 @@ const SCULPTURES = {
     ['Pallas and the Centaur, Sandro Botticelli, c. 1482', 'Gallerie degli Uffizi, Florence · public domain'],
     ['The Triumph of Galatea, Raphael, c. 1512', 'Villa Farnesina, Rome · public domain'],
     ['April (The Triumph of Venus), Francesco del Cossa, c. 1470', 'Palazzo Schifanoia, Ferrara · public domain'],
+    ['The Duke and Duchess of Urbino, Federico da Montefeltro and Battista Sforza, Piero della Francesca, c. 1473–75', 'Gallerie degli Uffizi, Florence · public domain'],
     ['The Wedding Banquet of Cupid and Psyche, Raphael and workshop, 1518', 'Villa Farnesina, Rome · public domain'],
     ['A Dance to the Music of Time, follower of Laurent de La Hyre, 17th century', 'Public domain'],
     ['Pleasure Garden with a Maze, Lodewijk Toeput (Pozzoserrato), c. 1579–84', 'Royal Collection · public domain'],

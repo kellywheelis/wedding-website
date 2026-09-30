@@ -528,6 +528,11 @@ detail, so she gains least; re-converting her at more triangles would help.
   in the outer part of the screen (`LOOK.edge`) turns the view that way, up to `LOOK.spin` rad/s, folded into
   `cam.yaw` so it persists and walks start from it, but never more than `LOOK.limit` (a quarter turn) from the
   stop's own facing, so you cannot spin round and lose your bearings. Off at close-ups, walk-ups, the stand, during walks and cards.
+  And (29 Sept 2026, the owner's wish, mouse only) the cursor in the top part of the screen (above `LOOK.upEdge`)
+  tilts the view up toward the Tiepolo ceiling, the higher the further (at the very top, `LOOK.upMax` = 1.1 rad above
+  level: from the entry and the table the whole ceiling painting shows); it is a glance, not kept: the view comes
+  back down with the cursor. Not on the phone edition or touch screens. (In the harness the tilt eases over real
+  frames, which headless Chrome does not tick: step `frame()` a few hundred times before judging it.)
 - Touch screens (26 Sept 2026, `touchLook`): a finger has no cursor to hold at the edge, so a one-finger drag looks
   round instead: at `look: 'free'` stops it turns the view (the scene follows the finger, same `LOOK.limit`), elsewhere
   it gives the cursor's few-degree lean and eases back on release. A tap stays a tap (under 10 px of movement); the

@@ -5258,17 +5258,22 @@ resize();
 // At the details room's overview stops (`look: 'free'`) you can also turn to look round: with the cursor in
 // the outer part of the screen the view turns that way, faster the further out it is, and stays turned until
 // you click something. That turn goes into the stop's own heading (cam.yaw), so a walk from there starts
-// from the way you are facing.
-const LOOK = { yaw: 0.1, pitch: 0.055, ease: 0.06, x: 0, y: 0, edge: 0.55, spin: 1.5, limit: Math.PI / 2, last: 0, turning: 0 };   // limit: how far the free look may turn from the stop's facing   // edge: where the turning zone starts (fraction of half the width); spin: rad/s at the very edge
+// from the way you are facing. And with the cursor in the top part of the screen the view tilts up to the
+// ceiling, further the higher it is (at the very top, upMax above level), just to look: it comes back down
+// when the cursor does (the owner's wish, 29 Sept 2026; mouse only, not the phone).
+const LOOK = { yaw: 0.1, pitch: 0.055, ease: 0.06, x: 0, y: 0, edge: 0.55, spin: 1.5, limit: Math.PI / 2, last: 0, turning: 0, upEdge: 0.4, upMax: 1.1 };   // limit: how far the free look may turn from the stop's facing   // edge: where the turning zone starts (fraction of half the width); spin: rad/s at the very edge
 function updateLook(now) {
   const r = canvas.getBoundingClientRect(), on = pointer.inside && !pointer.touch && !volHeld() && !invHeld() && r.width > 0;   // a finger looks round by dragging instead (touchLook)
   const u = on ? (pointer.x - r.left) / r.width * 2 - 1 : 0;
+  const free = on && STATIONS[idx].look === 'free' && !leg && !queue.length && el('card').style.display !== 'grid' && el('postcard').style.display !== 'grid';
+  const v = on ? -((pointer.y - r.top) / r.height * 2 - 1) : 0;         // 1 at the top edge, -1 at the bottom
+  const up = free ? Math.max(0, (v - LOOK.upEdge) / (1 - LOOK.upEdge)) : 0;   // how far into the top band: the tilt to the ceiling
   const tx = touchLook.lean !== null ? touchLook.lean : -u * LOOK.yaw;
-  const ty = on ? -((pointer.y - r.top) / r.height * 2 - 1) * LOOK.pitch : 0;
+  const ty = v * LOOK.pitch + up * up * Math.max(0, LOOK.upMax - cam.pitch - v * LOOK.pitch);
   LOOK.x += (tx - LOOK.x) * LOOK.ease;
   LOOK.y += (ty - LOOK.y) * LOOK.ease;
+  if (up > 0 || LOOK.y > LOOK.pitch + 0.01) pointer.moved = true;   // keep reading what is under the cursor while the view is tilted up
   const dt = Math.min(0.1, (now - LOOK.last) / 1000); LOOK.last = now;
-  const free = on && STATIONS[idx].look === 'free' && !leg && !queue.length && el('card').style.display !== 'grid' && el('postcard').style.display !== 'grid';
   const k = free ? Math.max(0, (Math.abs(u) - LOOK.edge) / (1 - LOOK.edge)) : 0;
   LOOK.turning = k > 0 ? Math.sign(u) : 0;
   if (k > 0) {                                                       // moved: keep reading what is under the cursor as the view turns

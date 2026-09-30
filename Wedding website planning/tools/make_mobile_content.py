@@ -92,7 +92,11 @@ def build(d):
     det = {'id': 'det', 'title': 'Exhibit Details', 'hero': HEROES['det'], 'centre': tbm(st['det']), 'table': tbm(st['detTable']),
            'volvelle': tbm(st['detVolvelle']), 'invite': tbm(st['detInvite']), 'shop': 'img/room-details-shop.jpg',
            'hourglass': {'img': 'img/sc-hourglass.jpg', **tbm(st['sc_hourglass']), 'wedding': d['WEDDING']},   # the countdown is kept live on the phone
-           'sections': sections, 'sculptures': [sculpt(s) for s in DET_SCULPTURE]}
+           'sections': sections, 'sculptures': [sculpt(s) for s in DET_SCULPTURE],
+           # beside the centrepiece: the pictures hung for their own sake (Piero's Duke and Duchess of Urbino), each cropped
+           # as its 3D frame crops it into mobile/img/<name>.jpg and -s.jpg
+           'ovals': [{**pic(p['src'], p['w'] / p['h'], dict(zip(('title', 'body', 'meta'), p['note']))), 'oval': True}
+                     for p in d['DETAIL_PICTURES'] if p.get('direct') and p.get('src') and p.get('note')]}
 
     return {'names': NAMES, 'rooms': [atrium, wing('w1', 'I', 'Wing I', d['W1_PICTURES']), wing('w2', 'II', 'Wing II', d['W2_PICTURES']), det],
             'credits': d['credits'], 'sectionLabel': d['SECTION_LABEL']}

@@ -197,7 +197,16 @@ the canvas size and the triangles drawn (`tickFps` in gallery3d.js; nothing is m
   (`#hanging`) sits inside the Open the doors button's outlined box, which is there from the start in its locked
   position, and the button does nothing yet; when loading finishes the note fades out and "Open the doors"
   (`#enterText`) fades in in the same box, and only then does the button work. After 8 s the note becomes
-  "…a moment more"; at 45 s the button is released regardless. (The old note at the foot of the doors is gone.) A
+  "…a moment more"; at 45 s the button is released regardless. (The old note at the foot of the doors is gone.)
+  Since 29 Sept 2026 the doors wait only for the ATRIUM (about 8 MB on the live site instead of ~34): the wings' and
+  the details room's paintings, scans, table cards, postcards and "See you in Siena" card are named by file in
+  `LATER` (top of gallery3d.js, by room) and go through `afterAtrium()`; `releaseLater()` (called when the doors are
+  ready) lets them load in the background four at a time, the room the visitor is in or walking to first (from
+  `STATIONS[idx]`, so "skip to the details" brings the details room first), then `SEEN_FROM_ATRIUM` (the table's
+  cards, the two ovals, Apollo and Diana), then the rest. A waiting picture is a plain dark ground (`laterTexture`; a
+  see-through one shows nothing) and is swapped in place when its file lands. The doors also wait for the atrium's
+  own statues (their loader arrives separately; the `busy` check in `loading()`). A NEW PICTURE FOR A WING OR THE
+  DETAILS ROOM needs a file name that `LATER` matches, or it loads with the atrium. A
   **collection tally** top-left of the view ("Collection · 7 of 54", distinct stop titles, kept in
   localStorage `ka-seen`; `paintTally`/`noteSeen`); the pill's hint changes by room (`HINTS`); the
   details room's ceiling is Tiepolo's *Allegory of the Planets and Continents* sketch
@@ -726,6 +735,14 @@ the phone's tilt, the tab draws the card out), the seven detail sections with th
   localStorage `ka-found` by picture, the same key as the 3D build, so they carry across. The phone copies of
   Primavera, Amaryllis and Good Government were re-made from `assets/` then, as the 23 Sept copies predated the pets.
   "Tap to look closer" sits directly under each frame (the owner's request).
+- **Caught up 29 Sept 2026**: the Duke and Duchess of Urbino (`det.ovals`, from the `direct` DETAIL_PICTURES; phone
+  copies `img/det-oval-<name>.jpg` + `-s.jpg`, cropped as their 3D frames crop them) sit under the centerpiece text as two
+  gilt ovals facing each other (tap: the write-up, opening as an oval) and as two slides after the centerpiece in the
+  gallery view (59 slides now). Re-rendered then: `room-details.jpg`, `room-details-wide.jpg`, `room-details-shop.jpg`
+  (the Alvarez post box and RSVP sign), `room-atrium-hall-wide.jpg` (both photo walls), `art-anthonyAmelia.jpg` (his
+  re-hung wall) and `sc-detStatueL/R`, `sc-detEndL` (the ovals behind them had been empty). The wings, the upright
+  atrium hero, the other cards and the hourglass card were compared and are unchanged. The harness's `clean=1` now
+  hides the guest button too.
 - **The gallery view** (26 Sept 2026, the owner chose it over a phone 3D build): held sideways (`(orientation:
   landscape) and (max-height: 500px)`, past the doors) the guide is hidden and `#gv` shows the museum as a walk, one
   work to a screen: 57 slides built from the same CONTENT (`slides` in mobile.js: each room's wide hero
@@ -938,7 +955,8 @@ _Brought up to date 26 Sept 2026 (after `b5897ba`)._
   writes WebP. Deleted as unused: isabella.glb, the old tex-* textures (wood, ceiling, stone, vault, plaster-warm), the
   ref-* reference photos, postcard-good-government.jpg, and the phone's sc-detEndR.jpg and room-atrium-doors.jpg.
   The painting JPEGs were left as they are: WebP saved almost nothing on them, and harder compression would show.
-  Still possible: load each wing's paintings as a guest heads there (a first visit is ~35 MB, mostly paintings).
+  Done 29 Sept 2026: the doors now wait only for the atrium; the rest loads behind them (see "25 Sept 2026 review
+  batch" in section 4). Sculpture scans were already compressed (gltfpack/meshopt).
 - **Kept out of search engines** (27 Sept 2026, the owner's choice): every response carries `X-Robots-Tag: noindex,
   nofollow, noimageindex` (vercel.json) and the gallery and phone pages a matching robots meta tag (the private page
   already had one). Guests reach the site by its link and the invitation QR codes.
@@ -955,7 +973,8 @@ _Brought up to date 26 Sept 2026 (after `b5897ba`)._
   captions and close-ups; the collection's count rose to 58. They are `direct: true`: one click from anywhere goes to
   their own close-up (as members of the centrepiece's section, a first click had led to the centrepiece, the owner found),
   headed "Exhibit details · beside the centerpiece" (it read "undefined"), and Step back returns to the room's view.
-  Harness `clickw=x,y,z;...` clicks where a point in the world appears on screen, for tests like this. Not on the phone yet (its details show no centrepiece pictures).
+  Harness `clickw=x,y,z;...` clicks where a point in the world appears on screen, for tests like this. On the phone
+  since 29 Sept 2026 (`det.ovals`; see section 4b).
 - **The wall texts** (the "Read the full details" cards; `CARDS` in `api/_private.js`, served only to signed-in
   guests) are placeholder text, most of it "To be confirmed." (the RSVP deadline under Guest Policies was filled
   in 26 Sept 2026); the anecdotes in the pictures' and sculptures' write-ups are drafts.
@@ -1027,6 +1046,7 @@ hooks) to a copy of `gallery3d.js`. Query parameters:
 | `fakeguest=1\|2`, `pcev=1\|ok` | A signed-in household stood in without a server (1: The Sample Family, all four events; 2: Sample Friends, two); open the card's events window, or tick and confirm it. |
 | `tdrag=dx`, `calm` | A simulated finger dragged dx px across the view, then a tap: reports the turn, the lean and whether the tap was ignored. `calm` turns on "Reduce motion". |
 | `texneed=1800` | For every flat picture, the most screen pixels one of its texels covers from any stop, on a view that many device pixels tall (JSON in `<pre id="texneed">`; read it with `--dump-dom`). Under 1: the file is bigger than it is ever drawn. |
+| `wait=1`, `laterlog=ms` | The atrium-first loading: `wait` keeps the wings' and the details room's files from ever arriving (what a slow connection shows first); `laterlog` holds them back ms longer, then logs to the console the order they start in ("LATER n room file"; with `goto=det` the details room's lead). |
 
 **Gotchas learned the hard way**
 - Headless Chrome's virtual clock **never plays animations or CSS transitions**. The hooks step

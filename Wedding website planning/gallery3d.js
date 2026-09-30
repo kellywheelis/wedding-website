@@ -309,25 +309,71 @@ const camera = new THREE.PerspectiveCamera(70, 1, 0.22, 120);   // near 0.22: th
 camera.position.set(0, EYE, 0);
 
 const loader = new THREE.TextureLoader();
+// The atrium first (29 Sept 2026): "Open the doors" waits only for what the atrium needs. The wings' and the details
+// room's paintings, scans and cards (LATER, by file) wait until then and come in the background, four at a time:
+// first those of the room the visitor is in or walking to, then what shows from the atrium through the arch, then the
+// rest. Until its file arrives a waiting picture is a plain dark ground (a see-through one, nothing at all).
+const LATER = [
+  ['w1', /^assets\/(birth-of-venus|w1-|sculpture\/(venus-apple|amor-lyre)\.)/],
+  ['w2', /^assets\/(primavera|w2-|sculpture\/(venus-italica|costanza)\.)/],
+  ['det', /^assets\/(det-|rack\/|invitation\/|volvelle\/|postbox-|sculpture\/(apollo-belvedere|diana|ariadne-head|antinous-dionysus|beatrice)\.)/]];
+const SEEN_FROM_ATRIUM = /^assets\/(invitation\/|volvelle\/|det-oval-|sculpture\/(apollo-belvedere|diana)\.)/;
+const laterRoom = (src) => (LATER.find(([, re]) => re.test(src)) || [])[0];
+const STAGE = { open: false, jobs: [], running: 0 };
+function afterAtrium(src, start) {                                        // start(done) begins a load and calls done once it has arrived or failed
+  const room = laterRoom(src);
+  if (!room) { start(() => {}); return; }
+  STAGE.jobs.push({ src, room, start });
+  pumpLater();
+}
+function pumpLater() {
+  if (!STAGE.open) return;
+  let heading = 'atrium';
+  try { const s = STATIONS[idx]; heading = s.z < P.wingFarZ ? 'det' : s.x < -P.corrX ? 'w1' : s.x > P.corrX ? 'w2' : 'atrium'; } catch (e) { /* not walking yet */ }
+  const rank = (j) => (j.room === heading ? 0 : SEEN_FROM_ATRIUM.test(j.src) ? 1 : 2);
+  while (STAGE.running < 4 && STAGE.jobs.length) {
+    let k = 0;
+    STAGE.jobs.forEach((j, i) => { if (rank(j) < rank(STAGE.jobs[k])) k = i; });
+    const [job] = STAGE.jobs.splice(k, 1);
+    let finished = false;
+    STAGE.running++;
+    job.start(() => { if (finished) return; finished = true; STAGE.running--; pumpLater(); });
+  }
+}
+function releaseLater() { if (STAGE.open) return; STAGE.open = true; pumpLater(); }
+function laterTexture(src) {
+  const c = document.createElement('canvas'); c.width = c.height = 1;
+  if (/\.jpg$/.test(src)) { const x = c.getContext('2d'); x.fillStyle = '#4a3c2e'; x.fillRect(0, 0, 1, 1); }
+  const t = new THREE.Texture(c); t.needsUpdate = true;
+  afterAtrium(src, (done) => new THREE.ImageLoader().load(src, (img) => {
+    t.dispose(); t.source = new THREE.Source(img); t.needsUpdate = true;    // a fresh upload at the picture's own size
+    done();
+  }, undefined, done));
+  return t;
+}
 // the loading line along the top edge, and the note at the foot of the doors: every texture and model goes through
 // three's default manager, so its progress is the collection's
 (function loading() {
   const bar = document.getElementById('loadbar'), note = document.getElementById('hanging'), enter = document.getElementById('enter');
-  if (!bar) return;
+  if (!bar) { THREE.DefaultLoadingManager.onLoad = releaseLater; setTimeout(releaseLater, 45000); return; }
   let done = false;
   const ready = () => {                                                   // "Hanging the collection…" fades out where the button will be, and "Open the doors" fades in
     if (done) return;
     done = true; bar.style.width = '100%';
+    releaseLater();                                                       // and the rest of the collection starts to come in behind
     setTimeout(() => { bar.style.opacity = '0'; if (note) note.style.opacity = '0'; }, 400);
     setTimeout(() => { bar.remove(); if (note) note.remove(); if (enter) { const t = document.getElementById('enterText'); if (t) t.style.opacity = '1'; enter.style.pointerEvents = 'auto'; } }, 1300);   // the box stays; only the words swap
   };
   THREE.DefaultLoadingManager.onProgress = (url, n, total) => { if (!done) bar.style.width = Math.round(100 * n / Math.max(total, 1)) + '%'; };
-  THREE.DefaultLoadingManager.onLoad = ready;
+  // done only once the atrium's statues are in too: their loader arrives separately and may start them after its pictures
+  let busy = true;
+  THREE.DefaultLoadingManager.onStart = () => { busy = true; };
+  THREE.DefaultLoadingManager.onLoad = () => { busy = false; gltfLoaderReady().then(() => setTimeout(() => { if (!busy) ready(); }, 0), ready); };
   setTimeout(() => { if (!done && note) note.textContent = 'Hanging the collection\u2026 a moment more'; }, 8000);
   setTimeout(ready, 45000);                                               // and never keep anyone at the door longer than this
 })();
 const tex = (src, rx, ry) => {
-  const t = loader.load(src);
+  const t = laterRoom(src) ? laterTexture(src) : loader.load(src);
   t.colorSpace = THREE.SRGBColorSpace;
   t.wrapS = t.wrapT = THREE.RepeatWrapping;
   if (rx) t.repeat.set(rx, ry || rx);
@@ -3122,7 +3168,8 @@ function levelBase(model) {
   gltfLoaderReady().then((gltfLoader) => {
     ids.forEach((id) => {
       const cfg = SCULPTURES[id], spot = SCULPTURE_SPOTS[id];
-      gltfLoader.load(cfg.src, (gltf) => {
+      afterAtrium(cfg.src, (done) => gltfLoader.load(cfg.src, (gltf) => {   // the wings' and the details room's scans wait for the atrium
+        done();
         const model = gltf.scene;
         let base = null;
         if (cfg.level) base = levelBase(model);
@@ -3176,7 +3223,7 @@ function levelBase(model) {
           g.userData.station = ST[sid];
           if (typeof paintTally === 'function') paintTally();
         }
-      }, undefined, () => console.warn('sculpture did not load, keeping the placeholder:', cfg.src));
+      }, undefined, () => { done(); console.warn('sculpture did not load, keeping the placeholder:', cfg.src); }));
     });
   }).catch(() => console.warn('sculpture loader unavailable, keeping the placeholders'));
 })();
@@ -4809,7 +4856,7 @@ let shopRack = null;
       ax.drawImage(img, (img.width - sw) / 2, (img.height - sh) / 2, sw, sh, cx + m, cy + m, w, h);
       atlasTex.needsUpdate = true;
     };
-    img.src = 'assets/rack/' + name + '.jpg';
+    afterAtrium('assets/rack/' + name + '.jpg', (done) => { img.addEventListener('load', done); img.addEventListener('error', done); img.src = 'assets/rack/' + name + '.jpg'; });
   });
   const cardMat = new THREE.MeshStandardMaterial({ map: atlasTex, roughness: 0.8, side: THREE.DoubleSide });
   const card = (i) => {
@@ -5164,7 +5211,7 @@ const CURTAIN = { open: false, t: 0, from: 0, halves: [], ties: [], sorry: false
   CURTAIN.redraw = () => draw(img.complete && img.naturalWidth ? img : null);
   img.onload = () => document.fonts.load('700 150px "Cormorant Garamond"').then(() => draw(img), () => draw(img));
   img.onerror = () => draw(null);
-  img.src = 'assets/det-see-you-in-siena.jpg';
+  afterAtrium('assets/det-see-you-in-siena.jpg', (done) => { img.addEventListener('load', done); img.addEventListener('error', done); img.src = 'assets/det-see-you-in-siena.jpg'; });
   try { CURTAIN.sorry = localStorage.getItem('ka-posted-answer') === 'no'; } catch (e) { /* nothing kept */ }
   if (localStorage.getItem('ka-posted')) revealCurtain(true);
 })();

@@ -75,6 +75,11 @@
   // the details room
   html += `<section class="chapter det" id="det"><div class="hero"><img src="${det.hero}" alt="The details room" loading="lazy" decoding="async"><div class="cap"><h2>${esc(det.title)}</h2><p class="sub">Everything you need to know</p></div></div>
     <div class="text center"><p class="eyebrow">The centerpiece</p><h3>${esc(det.centre.title)}</h3><p class="body">${esc(det.centre.body)}</p><p class="meta">${esc(det.centre.meta)}</p></div>`;
+  // beside it, the Duke and Duchess of Urbino in their gilt ovals, facing each other as they do across the 3D room (she on
+  // the left, he on the right); tap one for its write-up, and it opens as an oval
+  if (det.ovals && det.ovals.length) html += `<div class="text center"><p class="eyebrow">Beside the centerpiece</p></div><div class="ovals">${det.ovals.map((o) => { lbItems.push(o);
+    return `<button class="oval-pic" data-lb="${lbItems.length - 1}" aria-label="${esc(o.title)}"><div class="frame oval"><img src="${small(o.img)}" alt="${esc(o.title)}" loading="lazy" decoding="async" style="--ar:${o.aspect}"></div><h3>${esc(o.title.split(',')[0])}</h3></button>`; }).join('')}</div>
+    <p class="tap under ovals-tap">Tap either to look closer</p>`;
   // the hourglass: the countdown to the wedding, kept to the day as the 3D gallery's plaque is
   if (det.hourglass) {
     const hg = det.hourglass, days = Math.max(0, Math.ceil((hg.wedding - Date.now()) / 86400000));
@@ -441,6 +446,7 @@
   });
   add('det', { kind: 'room', img: wideOf(det.hero), title: det.title, sub: 'Everything you need to know' });
   add('det', { kind: 'text', eyebrow: 'The centerpiece', title: det.centre.title, body: det.centre.body, meta: det.centre.meta });
+  (det.ovals || []).forEach((it) => add('det', { kind: 'art', it }));   // the Duke and Duchess of Urbino, beside it
   if (det.hourglass) add('det', { kind: 'countdown', it: det.hourglass });
   add('det', { kind: 'text', eyebrow: 'Exhibit details · the table', title: det.table.title, body: det.table.body, note: 'Turn your phone upright to handle the save-the-date and the invitation.' });
   const shopSec = det.sections.find((s) => s.key === 'registry');
@@ -458,7 +464,7 @@
   const slideHtml = (s) => {
     switch (s.kind) {
       case 'room': return `<div class="gv-room">${img(s.img, s.title)}<div class="cap">${s.numeral ? `<div class="numeral">${s.numeral}</div>` : ''}<h2>${esc(s.title)}</h2><p class="sub">${esc(s.sub)}</p>${s.it ? '<p class="tap">Tap for the introduction</p>' : ''}</div></div>`;
-      case 'art': return `<figure class="gv-art" data-work>${img(s.it.img, s.it.title)}${cap(s.it)}</figure>`;
+      case 'art': return `<figure class="gv-art${s.it.oval ? ' gv-oval' : ''}" data-work>${img(s.it.img, s.it.title)}${cap(s.it)}</figure>`;
       case 'statue': return `<figure class="gv-statue" data-work>${img(s.it.img, s.it.title)}${cap(s.it)}</figure>`;
       case 'pair': return `<figure class="gv-statue gv-pair" data-work><div>${img(s.it.img, 'Venus')}${img(s.it.img2, 'Mars')}</div>${cap(s.it)}</figure>`;
       case 'countdown': { const days = Math.max(0, Math.ceil((s.it.wedding - Date.now()) / 86400000));

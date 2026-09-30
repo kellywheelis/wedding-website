@@ -412,7 +412,7 @@
   }, 800); }
 { const q = new URLSearchParams(location.search);
   // clean=1 : no interface at all, for postcards of the rooms
-  if (q.has('clean')) { const s = document.createElement('style'); s.textContent = '#topLeft,#turn,#hint,#compass,#sections,#back,[data-fwd],[data-back],#nav,#label,#motto,#tally{display:none!important}'; document.head.appendChild(s); } }
+  if (q.has('clean')) { const s = document.createElement('style'); s.textContent = '#topLeft,#turn,#hint,#compass,#sections,#back,[data-fwd],[data-back],#nav,#label,#motto,#tally,#guestBtn{display:none!important}'; document.head.appendChild(s); } }
 { const q = new URLSearchParams(location.search);
   if (q.has('arcadecheck')) { const p = ATRIUM_PICTURES[4]; const st = STATIONS[ST[p.stop]]; document.title = 'arcade:' + !!window.Arcade + ' games:' + (window.Arcade ? Object.keys(Arcade.games).join(',') : '-') + ' stop:' + st.id + ' game:' + st.game + ' mat:' + (scene.children.find((o) => o.userData.station === ST[p.stop]) ? scene.children.find((o) => o.userData.station === ST[p.stop]).children[1].material.map.constructor.name : '?'); } }
 { const q = new URLSearchParams(location.search);
@@ -642,3 +642,16 @@ function fakeGuest(n) {
     document.querySelectorAll('body *').forEach((e) => { if (e !== canvas && !e.contains(canvas)) e.style.visibility = 'hidden'; }); }, 2500); }
 // bincount=1 : how many parts went into each bin
 { const q = new URLSearchParams(location.search); if (q.has('bincount')) setTimeout(() => { const t = document.createElement('pre'); t.style.cssText = 'position:fixed;left:8px;top:60px;z-index:99;background:#000;color:#0f0;font:14px monospace;padding:4px;margin:0'; t.textContent = (window.__binCounts || []).join(' · ') + '\n' + (window.__rej || ''); document.body.appendChild(t); }, 2000); }
+
+{ const q = new URLSearchParams(location.search);
+  // wait=1 : the wings' and the details room's files never arrive, to see what a slow connection shows before they do
+  if (q.has('wait')) releaseLater = () => {}; }
+
+{ const q = new URLSearchParams(location.search);
+  // laterlog=ms : hold the rest of the collection back ms longer, then log the order its files start in (console, "LATER n src"),
+  // to check it follows the visitor (e.g. goto=det first: the details room's files should lead)
+  if (q.has('laterlog')) {
+    let n = 0; const tag = (j) => { const s = j.start; j.start = (d) => { console.log('LATER ' + (++n) + ' ' + j.room + ' ' + j.src); s(d); }; };
+    STAGE.jobs.forEach(tag); const push = STAGE.jobs.push.bind(STAGE.jobs); STAGE.jobs.push = (...js) => { js.forEach(tag); return push(...js); };
+    const rl = releaseLater; releaseLater = () => setTimeout(rl, +q.get('laterlog') || 0);
+  } }

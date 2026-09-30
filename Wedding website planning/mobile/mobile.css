@@ -130,6 +130,12 @@ main { padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom) + 24px); 
 .statue .plinth::after { content: ''; position: absolute; inset: 0; box-shadow: inset 0 -40px 40px -20px rgba(28,22,17,.8); }
 .statue h3 { font-size: 18px; margin-top: 8px; color: var(--cream); }
 .statue .meta { display: none; }
+/* beside the centerpiece: the Duke and Duchess of Urbino, two gilt ovals facing each other (mobile.js, "beside it") */
+.ovals { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 16px calc(var(--gutter) + 14px) 0; }
+.oval-pic { display: block; align-self: start; text-align: center; }
+.oval-pic .frame { padding: 7%; }
+.oval-pic h3 { font-size: 16px; line-height: 1.25; margin-top: 12px; color: var(--cream); }
+.ovals-tap { text-align: center; margin: 12px var(--gutter) 0; }
 
 /* the details room */
 .chapter.det .text { --ink: var(--cream); }
@@ -285,6 +291,7 @@ body.gv-on #gv { display: block; position: fixed; inset: 0; z-index: 60; backgro
 .gv-slide figcaption h3 { font-size: 18px; color: var(--cream); line-height: 1.2; }
 .gv-slide figcaption .meta { margin: 3px 0 0; font-size: 10px; }
 .gv-art img { display: block; max-width: calc(100vw - 150px); max-height: calc(100dvh - 104px); width: auto; height: auto; border: 5px solid #c9a45c; box-shadow: 0 10px 30px rgba(0,0,0,.6); }
+.gv-oval img { border-radius: 50%; }
 .gv-statue img { display: block; max-height: calc(100dvh - 100px); width: auto; border: 1px solid rgba(201,166,103,.35); }
 .gv-pair > div { display: flex; gap: 12px; }
 .gv-room { position: absolute; inset: 0; }

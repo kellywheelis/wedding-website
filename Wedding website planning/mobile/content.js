@@ -37,6 +37,18 @@ window.CONTENT = {
      "meta": "Sandro Botticelli, c. 1483–86 · fresco from Villa Lemmi · Musée du Louvre, Paris"
     }
    ],
+   "frames": {
+    "kelly": {
+     "title": "The Kelly Collection",
+     "body": "Portraiture keeps two records: the formal likeness and the unofficial one. The formal one hangs at the center, one of the few serious portraits she has ever allowed. The rest of the wall is the unofficial record: a delighted baby, a banana, Mojo Jojo, an artist and creator, and her dearest friends (and wedding party!). It is, of course, only a glimpse; the collection is too large for any one wall.",
+     "meta": "Photographs, various dates · lent by the sitter"
+    },
+    "anthony": {
+     "title": "Anthony: A Recent Acquisition",
+     "body": "The museum’s newest collection, acquired after a single, decisive swipe. On view: a formal portrait, his family, his best man Nick, and the photograph that sealed the deal. Several frames await works from his early period, currently in storage.",
+     "meta": "Photographs, various dates · on permanent loan"
+    }
+   },
    "photoNotes": {
     "kelly": {
      "eyes": {
@@ -96,13 +108,41 @@ window.CONTENT = {
      }
     },
     "anthony": {
-     "portrait-amsterdam": {"title": "Moments Before", "body": "Amsterdam, about a minute before the proposal. Kelly thought she was taking a nice picture of her boyfriend. He knew what was coming; she didn’t. The curators ask that you look closely at that smile and consider everything he was holding in.", "meta": "Photograph by Kelly · Amsterdam · moments before the question"},
-     "amsterdam-tea": {"title": "After the Question", "body": "Anthony on the stoop of their Amsterdam hotel suite, a few hours after pulling off his surprise proposal. His nerves had earned this: tea, a smoke, and the quiet satisfaction of a plan that worked.", "meta": "Photograph · Amsterdam · the day of the proposal"},
-     "peaky-blinders": {"title": "By Order of the Peaky Blinders", "body": "Anthony as a Peaky Blinder, on one of the rare occasions he has dressed up for Halloween. Kelly was thrilled to help, and would like it noted that she is available again next year.", "meta": "Photograph · Halloween · costume assisted by Kelly"},
-     "paris": {"title": "Paris", "body": "Anthony at the Eiffel Tower, looking entirely unbothered by one of the most famous structures on earth. Obligatory landmark tourist photo: done ✓", "meta": "Photograph · Paris, France"},
-     "proposal-practice": {"title": "Rehearsal", "body": "Anthony practicing his proposal on groomsman Cooper during breaks at work. Cooper, by all accounts, said yes.", "meta": "Photograph · a dress rehearsal · with Cooper, groomsman"},
-     "mishka": {"title": "Anthony and Mishka", "body": "Anthony and Mishka, having a moment. The curators have chosen not to interrupt.", "meta": "Photograph · a private moment"},
-     "gdc-team": {"title": "The Masterworks Team", "body": "Anthony with some of his Masterworks team at GDC, the Game Developers Conference.", "meta": "Photograph · GDC · with the Masterworks team"},
+     "portrait-amsterdam": {
+      "title": "Moments Before",
+      "body": "Amsterdam, about a minute before the proposal. Kelly thought she was taking a nice picture of her boyfriend. He knew what was coming; she didn’t. The curators ask that you look closely at that smile and consider everything he was holding in.",
+      "meta": "Photograph by Kelly · Amsterdam · moments before the question"
+     },
+     "amsterdam-tea": {
+      "title": "After the Question",
+      "body": "Anthony on the stoop of their Amsterdam hotel suite, a few hours after pulling off his surprise proposal. His nerves had earned this: tea, a smoke, and the quiet satisfaction of a plan that worked.",
+      "meta": "Photograph · Amsterdam · the day of the proposal"
+     },
+     "peaky-blinders": {
+      "title": "By Order of the Peaky Blinders",
+      "body": "Anthony as a Peaky Blinder, on one of the rare occasions he has dressed up for Halloween. Kelly was thrilled to help, and would like it noted that she is available again next year.",
+      "meta": "Photograph · Halloween · costume assisted by Kelly"
+     },
+     "paris": {
+      "title": "Paris",
+      "body": "Anthony at the Eiffel Tower, looking entirely unbothered by one of the most famous structures on earth. Obligatory landmark tourist photo: done ✓",
+      "meta": "Photograph · Paris, France"
+     },
+     "proposal-practice": {
+      "title": "Rehearsal",
+      "body": "Anthony practicing his proposal on groomsman Cooper during breaks at work. Cooper, by all accounts, said yes.",
+      "meta": "Photograph · a dress rehearsal · with Cooper, groomsman"
+     },
+     "mishka": {
+      "title": "Anthony and Mishka",
+      "body": "Anthony and Mishka, having a moment. The curators have chosen not to interrupt.",
+      "meta": "Photograph · a private moment"
+     },
+     "gdc-team": {
+      "title": "The Masterworks Team",
+      "body": "Anthony with some of his Masterworks team at GDC, the Game Developers Conference.",
+      "meta": "Photograph · GDC · with the Masterworks team"
+     },
      "selfie": {
       "title": "The Profile Picture",
       "body": "The photograph that started it all. This was Anthony’s dating profile picture, and it is the one that convinced Kelly to swipe right. The curators consider it the most consequential selfie in the collection. (Amelia definitely helped.)",
@@ -113,18 +153,6 @@ window.CONTENT = {
       "body": "Anthony with his best man, Nick, in an early work from their long collaboration. On April 24, Nick will be standing beside him again.",
       "meta": "Photograph, 2011 · the best man"
      }
-    }
-   },
-   "frames": {
-    "kelly": {
-     "title": "The Kelly Collection",
-     "body": "Portraiture keeps two records: the formal likeness and the unofficial one. The formal one hangs at the center, one of the few serious portraits she has ever allowed. The rest of the wall is the unofficial record: a delighted baby, a banana, Mojo Jojo, an artist and creator, and her dearest friends (and wedding party!). It is, of course, only a glimpse; the collection is too large for any one wall.",
-     "meta": "Photographs, various dates · lent by the sitter"
-    },
-    "anthony": {
-     "title": "Anthony: A Recent Acquisition",
-     "body": "The museum’s newest collection, acquired after a single, decisive swipe. On view: a formal portrait, his family, his best man Nick, and the photograph that sealed the deal. Several frames await works from his early period, currently in storage.",
-     "meta": "Photographs, various dates · on permanent loan"
     }
    },
    "artifacts": [
@@ -592,6 +620,24 @@ window.CONTENT = {
      "body": "Ivy and grapes in his hair: the god of wine, as the emperor Hadrian had his beloved Antinous portrayed, at the door to welcome you in. A confession: neither of us drinks. A request: please do not let that stop you. Tuscany makes some of the best wine on earth, and somebody has to enjoy it on our behalf. His bride, Ariadne, is at the far end of the room.",
      "meta": "Roman, c. 130–138 · Vatican Museums (cast at Statens Museum for Kunst, Copenhagen)"
     }
+   ],
+   "ovals": [
+    {
+     "img": "img/det-oval-battista-sforza.jpg",
+     "aspect": 0.76,
+     "title": "Battista Sforza, Duchess of Urbino",
+     "body": "Piero painted the Duke and Duchess of Urbino as a pair, each in profile before the hills of their duchy, looking across at one another. A scholar in her own right, she governed Urbino whenever he was away, and did it well. Here, as in the original, she still has her eyes on him.",
+     "meta": "Piero della Francesca, c. 1473–75 · Gallerie degli Uffizi, Florence",
+     "oval": true
+    },
+    {
+     "img": "img/det-oval-federico-montefeltro.jpg",
+     "aspect": 0.76,
+     "title": "Federico da Montefeltro, Duke of Urbino",
+     "body": "Painted from his good side: a tournament had cost him his right eye. A soldier by trade, and a scholar and collector by choice, he built one of the finest libraries in Italy. From across the room, his eyes are where they belong at a wedding: on his wife.",
+     "meta": "Piero della Francesca, c. 1473–75 · Gallerie degli Uffizi, Florence",
+     "oval": true
+    }
    ]
   }
  ],
@@ -609,6 +655,7 @@ window.CONTENT = {
   ["Pallas and the Centaur, Sandro Botticelli, c. 1482", "Gallerie degli Uffizi, Florence · public domain"],
   ["The Triumph of Galatea, Raphael, c. 1512", "Villa Farnesina, Rome · public domain"],
   ["April (The Triumph of Venus), Francesco del Cossa, c. 1470", "Palazzo Schifanoia, Ferrara · public domain"],
+  ["The Duke and Duchess of Urbino, Federico da Montefeltro and Battista Sforza, Piero della Francesca, c. 1473–75", "Gallerie degli Uffizi, Florence · public domain"],
   ["The Wedding Banquet of Cupid and Psyche, Raphael and workshop, 1518", "Villa Farnesina, Rome · public domain"],
   ["A Dance to the Music of Time, follower of Laurent de La Hyre, 17th century", "Public domain"],
   ["Pleasure Garden with a Maze, Lodewijk Toeput (Pozzoserrato), c. 1579–84", "Royal Collection · public domain"],

@@ -18,3 +18,19 @@ Wedding website planning/support.js
 .DS_Store
 .agents/
 .claude/
+# not used by the live site (7 Oct 2026): an old prototype screenshot, the games' test pages, the skills installer's
+# lock file, an unused icon, the volvelle's measurement notes, and the two portraits no longer on the photo walls
+# (the local wall editor still uses them; if one is hung again, take its lines out of this list)
+skills-lock.json
+Wedding website planning/.thumbnail
+Wedding website planning/game/test.html
+Wedding website planning/game/test-board.html
+Wedding website planning/game/test-bonus.html
+Wedding website planning/assets/icons/icon-512.png
+Wedding website planning/assets/volvelle/MEASUREMENTS.txt
+Wedding website planning/assets/kelly-wall/main-portrait.jpg
+Wedding website planning/assets/kelly-wall/main-portrait-s.jpg
+Wedding website planning/assets/anthony-wall/main-portrait.jpg
+Wedding website planning/assets/anthony-wall/main-portrait-s.jpg
+Wedding website planning/assets/anthony-wall/portrait-2.jpg
+Wedding website planning/assets/anthony-wall/portrait-2-s.jpg

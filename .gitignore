@@ -15,3 +15,8 @@ node_modules/
 # dropped by the Upstash marketplace install; not part of the site
 .agents/
 .claude/
+
+# the owner's full-size originals for the photo walls (the site uses the reduced copies in assets/kelly-wall and
+# assets/anthony-wall); kept out of the repository so they can never be published by accident
+anthony gallery wall portraits/
+kelly gallery wall portraits/

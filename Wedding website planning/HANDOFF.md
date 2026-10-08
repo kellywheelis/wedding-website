@@ -909,17 +909,18 @@ two weeks after; it switches itself on (built in advance, hidden).
   frame shows a new photograph every 7 seconds while you are in the details room, faded over the last on a second layer
   (`GUEST_PHOTOS.front`): the newest first, then a shuffled round, new arrivals next; the list is asked again every
   minute. Each is painted matted (`photoTexture`): a mat with its window cut to the photograph, a framer's weighted
-  bottom margin. MAT NOT YET CHOSEN (owner's request, 7 Oct 2026, for portrait photographs in the landscape frame):
-  three options in `PHOTO_MATS` (ivory with a bevel, burgundy velvet with a gilt slip, linen with a gilt slip),
-  `?mat=` picks one to look at; renders in ~/Desktop/Guest photo gallery - mat options/. Keep only the chosen one, drop
-  `?mat=`, and give the phone's frame (mobile.css `.gp-*`, still a blurred backdrop) the same mat. Until the first
+  bottom margin. The mat (her request, 7 Oct 2026, so portrait photographs sit well in the landscape frame) is
+  burgundy velvet, the curtain's, with a gilt slip round each photograph: her pick on 8 Oct 2026 of three (an ivory
+  museum mat with a bevel and a linen one with a gilt slip were the others; removed). Renders of the chosen one in
+  ~/Desktop/Guest photo gallery - mat options/. Until the first
   photograph, the fresco shows gilt THE EXHIBIT IS YOU (`CURTAIN.words`). From the close-up, a click on the frame opens
   the viewer at the photograph showing.
 - **The viewer:** `assets/guest-photos.js`, shared by both editions and loaded only when first opened: all of them in a
   grid, newest first, then one at a time, large, with arrows, the arrow keys or a swipe; Esc steps back. It takes the
   keys while open, so the gallery behind does not walk.
 - **The phone guide** (mobile.js, "the guests' photographs"): the centrepiece's words change, and under them a gilt
-  frame cross-fades the photographs every six seconds while on screen, then "See all N photographs"; sideways, the
+  frame, matted in the same velvet with a gilt slip (`gpPlace` cuts each window as `photoTexture` does; mobile.css
+  `.gp-*`), cross-fades the photographs every six seconds while on screen, then "See all N photographs"; sideways, the
   centrepiece's slide (`#gv-centre`) gets the words and the button.
 - **The private page** (rsvp-admin.html, "The guests' photographs"): when it opens/closes (in her own time), which
   store and how full, the sign's link and QR code (Copy, Download the QR code as an SVG for printing, Open the upload

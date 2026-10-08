@@ -348,10 +348,13 @@ body.gv-on #gv { display: block; position: fixed; inset: 0; z-index: 60; backgro
 .lego-note:empty { display: none; }
 
 /* ---- the guests' photographs, from the wedding day (mobile.js, "the guests' photographs"): a gilt frame under the
-   centrepiece's words, each photograph whole on a blurred, darkened copy of itself, fading one into the next ---------- */
-.gp-show { position: relative; aspect-ratio: 3 / 2; background: #120d09; overflow: hidden; }
+   centrepiece's words, matted in the curtain's burgundy velvet as the 3D frame is (the owner's pick, 8 Oct 2026), each
+   photograph in its own window with a gilt slip (placed by gpPlace), fading one into the next ------------------------- */
+.gp-show { position: relative; aspect-ratio: 3 / 2; overflow: hidden;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .22 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"),
+    radial-gradient(ellipse 80% 75% at 50% 42%, #5a1029 0%, #4a0d22 55%, #350815 100%); }
 .gp-l { position: absolute; inset: 0; opacity: 0; transition: opacity 1.1s ease; }
 .gp-l.on { opacity: 1; }
-.gp-l i { position: absolute; inset: -8%; background: center / cover no-repeat; filter: blur(16px) brightness(.42); }
-.frame .gp-l img { position: absolute; inset: 0; width: 100%; height: 100%; aspect-ratio: auto; object-fit: contain; background: transparent; box-shadow: none; }
+.gp-l b { position: absolute; background: linear-gradient(135deg, #7c5a1c 0%, #e8c87e 18%, #9b7426 36%, #f2d895 55%, #a07a2c 74%, #6e4f16 100%); box-shadow: 0 0 0 1px rgba(40,24,6,.7), 0 2px 7px rgba(0,0,0,.5); }
+.frame .gp-l img { position: absolute; width: auto; height: auto; aspect-ratio: auto; object-fit: cover; background: #120d09; box-shadow: 0 0 0 1px rgba(40,24,6,.55); }
 #guestPhotos .detbtn { margin-top: 18px; }

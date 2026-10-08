@@ -5283,30 +5283,21 @@ function guestPhotosOn(d) {
 // a photograph as the frame shows it: matted, as a photograph is framed (the owner's wish, 7 Oct 2026: a portrait one must
 // still sit well in the landscape frame). The mat's window is cut to each photograph's own shape, as large as fits with a
 // margin all round, a little more below than above as a framer weights it; so the frame looks the same from one to the
-// next. OPTIONS until the owner picks one: ivory (a museum mat, its window bevelled to the white core), velvet (the
-// curtain's burgundy, with a gilt slip round the photograph), linen (warm stone linen, with a gilt slip). ?mat=ivory|velvet|linen
-const PHOTO_MATS = {
-  ivory: { board: '#E9DFCB', specks: ['rgba(255,252,240,.5)', 'rgba(110,90,60,.12)'], edge: 'bevel' },
-  velvet: { board: '#4d0d22', specks: ['rgba(255,200,210,.06)', 'rgba(0,0,0,.16)'], edge: 'gilt' },
-  linen: { board: '#C6B48E', specks: ['rgba(255,250,235,.18)', 'rgba(80,60,30,.10)'], edge: 'gilt', weave: true } };
-const PHOTO_MAT = PHOTO_MATS[(location.search.match(/[?&]mat=(\w+)/) || [])[1]] || PHOTO_MATS.velvet;
+// next. The mat is burgundy velvet, the curtain's own, with a gilt slip round the photograph (her pick of three, 8 Oct
+// 2026, over an ivory museum mat and a linen one); the phone guide's frame is matted the same way (mobile.css .gp-*).
 let matBoardCanvas = null;
 function photoTexture(img) {
   const p = DETAIL_PICTURES[0], c = document.createElement('canvas'); c.width = 2048; c.height = Math.round(2048 * p.h / p.w);
-  const x = c.getContext('2d'), iw = img.naturalWidth, ih = img.naturalHeight, M = PHOTO_MAT;
-  if (!matBoardCanvas) {                                             // the board, made once: its colour, a fine grain, and linen's weave
+  const x = c.getContext('2d'), iw = img.naturalWidth, ih = img.naturalHeight;
+  if (!matBoardCanvas) {                                             // the velvet, made once: its colour and a fine pile
     const b = matBoardCanvas = document.createElement('canvas'); b.width = c.width; b.height = c.height;
-    const y = b.getContext('2d'); y.fillStyle = M.board; y.fillRect(0, 0, b.width, b.height);
-    for (let i = 0; i < 90000; i++) { y.fillStyle = M.specks[i & 1]; y.fillRect(Math.random() * b.width, Math.random() * b.height, 1 + (i % 3 === 0), 1 + (i % 5 === 0)); }
-    if (M.weave) for (let i = 0; i < b.width; i += 3) {
-      y.fillStyle = `rgba(70,50,20,${0.03 + Math.random() * 0.05})`; y.fillRect(i, 0, 1, b.height);
-      if (i < b.height) { y.fillStyle = `rgba(255,248,225,${0.03 + Math.random() * 0.05})`; y.fillRect(0, i, b.width, 1); }
-    }
+    const y = b.getContext('2d'); y.fillStyle = '#4d0d22'; y.fillRect(0, 0, b.width, b.height);
+    for (let i = 0; i < 90000; i++) { y.fillStyle = i & 1 ? 'rgba(0,0,0,.16)' : 'rgba(255,200,210,.06)'; y.fillRect(Math.random() * b.width, Math.random() * b.height, 1 + (i % 3 === 0), 1 + (i % 5 === 0)); }
     const g = y.createRadialGradient(b.width / 2, b.height * 0.45, b.height * 0.2, b.width / 2, b.height / 2, b.width * 0.62);   // the light falling off toward the frame
     g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,.16)'); y.fillStyle = g; y.fillRect(0, 0, b.width, b.height);
   }
   x.drawImage(matBoardCanvas, 0, 0);
-  const m = 0.07 * c.height, edge = M.edge === 'gilt' ? 20 : 13;   // the narrowest margin, and the slip or bevel round the window
+  const m = 0.07 * c.height, edge = 20;                             // the narrowest margin, and the gilt slip round the window
   const k = Math.min((c.width - 2 * m - 2 * edge) / iw, (c.height - 2.15 * m - 2 * edge) / ih), w = Math.round(iw * k), h = Math.round(ih * k);
   const ox = Math.round((c.width - w) / 2), oy = Math.round((c.height - h) / 2 - 0.075 * m);   // weighted: a little more mat below
   const band = (fills) => {                                          // the four sides of the window's edge, each its own shade: top, right, bottom, left
@@ -5314,14 +5305,11 @@ function photoTexture(img) {
     [[[X0, Y0], [X1, Y0], [ox + w, oy], [ox, oy]], [[X1, Y0], [X1, Y1], [ox + w, oy + h], [ox + w, oy]], [[X1, Y1], [X0, Y1], [ox, oy + h], [ox + w, oy + h]], [[X0, Y1], [X0, Y0], [ox, oy], [ox, oy + h]]]
       .forEach((q, i) => { x.beginPath(); q.forEach(([a, b2], j) => (j ? x.lineTo(a, b2) : x.moveTo(a, b2))); x.closePath(); x.fillStyle = fills[i]; x.fill(); });
   };
-  if (M.edge === 'bevel') band(['#FBF8F1', '#E4DACA', '#D9CDB8', '#F5F0E5']);   // the white core, lit from above left
-  else {
-    const g = x.createLinearGradient(ox - edge, oy - edge, ox + w + edge, oy + h + edge);
-    [['0', '#7c5a1c'], ['.18', '#e8c87e'], ['.36', '#9b7426'], ['.55', '#f2d895'], ['.74', '#a07a2c'], ['1', '#6e4f16']].forEach(([s, col]) => g.addColorStop(+s, col));
-    band([g, g, g, g]);
-    band(['rgba(255,240,200,.28)', 'rgba(0,0,0,.12)', 'rgba(0,0,0,.28)', 'rgba(255,240,200,.12)']);   // the slip's rounded face: lit above, shaded below
-    x.strokeStyle = 'rgba(40,24,6,.7)'; x.lineWidth = 2; x.strokeRect(ox - edge, oy - edge, w + 2 * edge, h + 2 * edge);
-  }
+  const g = x.createLinearGradient(ox - edge, oy - edge, ox + w + edge, oy + h + edge);
+  [['0', '#7c5a1c'], ['.18', '#e8c87e'], ['.36', '#9b7426'], ['.55', '#f2d895'], ['.74', '#a07a2c'], ['1', '#6e4f16']].forEach(([s, col]) => g.addColorStop(+s, col));
+  band([g, g, g, g]);
+  band(['rgba(255,240,200,.28)', 'rgba(0,0,0,.12)', 'rgba(0,0,0,.28)', 'rgba(255,240,200,.12)']);   // the slip's rounded face: lit above, shaded below
+  x.strokeStyle = 'rgba(40,24,6,.7)'; x.lineWidth = 2; x.strokeRect(ox - edge, oy - edge, w + 2 * edge, h + 2 * edge);
   x.imageSmoothingQuality = 'high'; x.drawImage(img, ox, oy, w, h);
   const sh = x.createLinearGradient(0, oy, 0, oy + 18); sh.addColorStop(0, 'rgba(0,0,0,.28)'); sh.addColorStop(1, 'rgba(0,0,0,0)');   // the edge above casts a hairline of shadow
   x.fillStyle = sh; x.fillRect(ox, oy, w, 18);

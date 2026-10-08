@@ -441,13 +441,21 @@
     if (window.GuestPhotos) { go(); return; }
     const s = document.createElement('script'); s.src = '/assets/guest-photos.js?v=' + Date.now(); s.onload = go; document.head.appendChild(s);   // stamped, as every script is, so a change is never stale
   }
+  // the photograph's window in the velvet mat, cut as the 3D frame cuts it (gallery3d.js photoTexture): as large as fits in
+  // the 3:2 frame with a narrow margin all round, a little more below, and the gilt slip just outside it
+  function gpPlace(l, p) {
+    const W = 1.5, m = 0.07, e = 0.0145, k = Math.min((W - 2 * m - 2 * e) / p.w, (1 - 2.15 * m - 2 * e) / p.h);
+    const w = p.w * k, h = p.h * k, x = (W - w) / 2, y = (1 - h) / 2 - 0.075 * m, pc = (v, of) => (v / of * 100).toFixed(2) + '%';
+    l.querySelector('img').style.cssText = `left:${pc(x, W)};top:${pc(y, 1)};width:${pc(w, W)};height:${pc(h, 1)}`;
+    l.querySelector('b').style.cssText = `left:${pc(x - e, W)};top:${pc(y - e, 1)};width:${pc(w + 2 * e, W)};height:${pc(h + 2 * e, 1)}`;
+  }
   function gpStep() {                                                // the next photograph fades in over the last, once it has arrived
     const show = el('gpShow'); if (!show || !GP.photos.length) return;
     const i = GP.at % GP.photos.length, p = GP.photos[i], img = new Image();
     GP.at = i + 1;
     img.onload = () => {
       const L = show.querySelectorAll('.gp-l'), l = L[GP.layer ^ 1];
-      l.querySelector('img').src = img.src; l.querySelector('i').style.backgroundImage = `url("${gpSrc(p, 't')}")`;
+      l.querySelector('img').src = img.src; gpPlace(l, p);
       L[GP.layer].classList.remove('on'); l.classList.add('on'); GP.layer ^= 1; GP.shown = p.id;
     };
     img.src = gpSrc(p, 'f');
@@ -460,7 +468,7 @@
     const box = el('guestPhotos');
     if (!n) box.innerHTML = '<div class="text center"><p class="body"><em>The first photographs will hang here as they arrive.</em></p></div>';
     else if (!el('gpShow')) {
-      box.innerHTML = `<figure class="art"><button class="pic" id="gpShow" aria-label="The guests’ photographs"><div class="frame"><div class="gp-show"><div class="gp-l"><i></i><img alt=""></div><div class="gp-l"><i></i><img alt=""></div></div></div></button><p class="tap under">Tap to look closer</p></figure>
+      box.innerHTML = `<figure class="art"><button class="pic" id="gpShow" aria-label="The guests’ photographs"><div class="frame"><div class="gp-show"><div class="gp-l"><b></b><img alt=""></div><div class="gp-l"><b></b><img alt=""></div></div></div></button><p class="tap under">Tap to look closer</p></figure>
         <button class="detbtn" id="gpAll"></button>`;
       el('gpShow').addEventListener('click', () => gpViewer(Math.max(0, GP.photos.findIndex((x) => x.id === GP.shown))));   // at the one showing
       el('gpAll').addEventListener('click', () => gpViewer());

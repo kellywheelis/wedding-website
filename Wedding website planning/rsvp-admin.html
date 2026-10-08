@@ -82,6 +82,25 @@
   <section><h2>Allergies and dietary needs</h2><div id="diet"></div></section>
   <section><h2>The LEGO shelf</h2><p class="note">Every household's minifigures, as they built them. Only you and that household see them.</p><div id="lego"></div></section>
 
+  <!-- the guests' photographs (7 Oct 2026): the sign's link and QR code, every photograph with a Remove button, and all of
+       them in one download (api/gallery.js; the files through /api/photo) -->
+  <section>
+    <div class="row" style="justify-content:space-between"><h2 style="margin:0">The guests’ photographs</h2><div class="row"><button id="galZip">Download all</button></div></div>
+    <p class="note" id="galState"></p>
+    <p class="note" id="galStore"></p>
+    <div class="row" style="margin-top:14px;align-items:flex-start;gap:18px">
+      <div id="galQr" style="width:150px;height:150px;background:#fff;padding:6px;flex:none"></div>
+      <div style="flex:1;min-width:260px">
+        <p class="k" style="margin-top:2px">The link on the sign at the villa</p>
+        <p style="margin:0 0 8px;word-break:break-all"><code class="hc" id="galLink"></code></p>
+        <div class="row"><button class="small" id="galCopy">Copy the link</button><button class="small" id="galSvg">Download the QR code</button><a class="btn" id="galTry" target="_blank" rel="noopener" style="text-decoration:none;padding:4px 8px;font-size:10px">Open the upload page</a><button class="small" id="galNew">Make a new link</button></div>
+        <p class="note">Print the QR code on the sign: it opens the upload page, and nobody without it can add photographs. Until it opens, only you can add, from a device that has opened this page. If the link is ever shared where it should not be, make a new one and reprint the sign: the old one stops working at once.</p>
+      </div>
+    </div>
+    <p class="msg" id="galMsg"></p>
+    <div id="galGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:14px"></div>
+  </section>
+
   <section>
     <h2>The guest list</h2>
     <p class="note">Copy it from your spreadsheet and paste it here: one household to a row, with the columns <b>Names</b>, <b>Phone numbers</b> (several in one cell are fine, separated by commas), <b>Seats</b>, and <b>Events</b> (the names, or words from them, separated by commas; or <i>all</i>). A header row is fine. Each household is given its own code; to keep a code you like, add a <b>Code</b> column. Loading replaces the whole list, but a household keeps its code, QR code and reply as long as it keeps its names, its code, or one of its phone numbers.</p>
@@ -107,7 +126,7 @@
   async function load() {
     const { ok, status, d } = await api('GET');
     if (!ok) { el('app').hidden = true; el('gate').hidden = false; el('gateMsg').textContent = status === 403 ? 'That key is not right.' : (d.error || 'Something went wrong.'); return; }
-    DATA = d; el('gate').hidden = true; el('app').hidden = false; paint();
+    DATA = d; el('gate').hidden = true; el('app').hidden = false; paint(); loadGallery();
   }
   const evName = (id) => (DATA.events.find((e) => e.id === id) || { name: id }).name;
   const when = (t) => t ? new Date(t).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '';
@@ -206,6 +225,87 @@
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + text], { type: 'text/csv' }));
     a.download = 'rsvp-' + new Date().toISOString().slice(0, 10) + '.csv'; a.click();
   });
+  // ---- the guests' photographs (api/gallery.js): when the gallery opens and closes, where the photographs are kept, the
+  // sign's link and QR code, and every photograph, newest first, each with Remove (a click on one opens it full size)
+  let GAL = null;
+  const galApi = async (method, q, body) => {
+    const r = await fetch('/api/gallery' + (q || ''), { method, headers: { 'x-admin-key': KEY, 'content-type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
+    return { ok: r.ok, d: await r.json().catch(() => ({ error: 'The server did not answer.' })) };
+  };
+  const STORE_NAMES = { r2: 'Cloudflare R2', dev: 'this computer (the local test server, which forgets them when it stops)' };
+  const galLink = () => SITE + '/add?k=' + GAL.key;
+  const galQr = () => { const q = qrcode(0, 'Q'); q.addData(galLink()); q.make(); return q; };   // Q: still reads with a quarter of the code smudged
+  async function loadGallery() {
+    const { ok, d } = await galApi('GET', '?all=1');
+    if (!ok) { el('galState').textContent = d.error || 'The photographs could not be loaded.'; return; }
+    GAL = d; paintGallery();
+  }
+  function paintGallery() {
+    const d = GAL, n = d.photos.length, at = (t, o) => new Date(t).toLocaleString(undefined, o);
+    const mb = (b) => (b >= 1e9 ? (b / 1e9).toFixed(2) + ' GB' : Math.round(b / 1e6) + ' MB');
+    el('galState').innerHTML = !d.live ? `The gallery opens on the site at 2 pm in Italy on April 24, 2027 (${esc(at(d.opens, { weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' }))} where you are now), and takes photographs until May 8. Until then the centerpiece stays the RSVP’s.`
+      : d.open ? '<b style="color:var(--cream)">Live.</b> Guests are adding photographs, and each shows on the site at once. Uploads close after May 8.'
+      : '<b style="color:var(--cream)">Closed to new photographs</b> since May 8. Those added stay on the site.';
+    el('galStore').textContent = d.store ? `Kept in ${STORE_NAMES[d.store] || d.store}: ${n} photograph${n === 1 ? '' : 's'}, ${mb(d.used)}. Room for ${d.limit.photos.toLocaleString()} photographs or ${mb(d.limit.bytes)}, whichever comes first.`
+      : 'The photographs’ store (Cloudflare R2) is not connected yet, so nobody can add any. Its four settings go in the Vercel project; HANDOFF.md says how.';
+    el('galLink').textContent = galLink(); el('galTry').href = galLink();
+    if (window.qrcode) el('galQr').innerHTML = galQr().createSvgTag({ cellSize: 4, margin: 2, scalable: true });
+    el('galZip').disabled = !n;
+    el('galGrid').innerHTML = n ? d.photos.map((p) => `<figure style="margin:0"><a href="/api/photo?id=${esc(p.id)}&amp;s=f" target="_blank" rel="noopener"><img src="/api/photo?id=${esc(p.id)}&amp;s=t" alt="" loading="lazy" style="width:100%;aspect-ratio:1;object-fit:cover;display:block;background:#15100c"></a>
+      <figcaption class="row" style="justify-content:space-between;gap:6px;margin-top:5px"><span class="note" style="margin:0;font-size:12.5px">${esc(at(p.t, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }))}</span><button class="small" data-galdel="${esc(p.id)}">Remove</button></figcaption></figure>`).join('')
+      : '<p class="note" style="grid-column:1/-1;margin:0">None yet.</p>';
+  }
+  el('galGrid').addEventListener('click', async (e) => {
+    const b = e.target.closest('[data-galdel]'); if (!b) return;
+    if (!confirm('Remove this photograph from the gallery? It cannot be undone.')) return;
+    b.disabled = true;
+    const { ok, d } = await galApi('POST', '', { action: 'delete', ids: [b.dataset.galdel] });
+    if (!ok) { b.disabled = false; alert(d.error || 'It could not be removed. Try again.'); return; }
+    loadGallery();
+  });
+  const galSay = (t, good) => { el('galMsg').className = 'msg' + (good ? ' good' : ''); el('galMsg').textContent = t; };
+  el('galCopy').addEventListener('click', async () => { try { await navigator.clipboard.writeText(galLink()); galSay('The link is copied.', true); } catch (e) { prompt('Copy the link:', galLink()); } });
+  el('galSvg').addEventListener('click', () => {                    // a drawing, not a picture: it prints sharp at any size
+    if (!window.qrcode) { alert('The QR code maker did not load. Check the connection and refresh the page.'); return; }
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([galQr().createSvgTag({ cellSize: 10, margin: 4 })], { type: 'image/svg+xml' }));
+    a.download = 'gallery-sign-qr-code.svg'; a.click();
+  });
+  el('galNew').addEventListener('click', async () => {
+    if (!confirm('Make a new link? A QR code already printed stops working at once, and the sign must be printed again with the new one.')) return;
+    const { ok, d } = await galApi('POST', '', { action: 'newkey' });
+    if (!ok) { galSay(d.error || 'Something went wrong.'); return; }
+    GAL.key = d.key; paintGallery(); galSay('A new link is ready. The old one no longer works.', true);
+  });
+  // all of them in one .zip, oldest first, each named by its number and when it was added; made here in the browser
+  // (stored, not compressed: a JPEG does not shrink)
+  const CRC_T = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+  const crc32 = (b) => { let c = 0xffffffff; for (let i = 0; i < b.length; i++) c = CRC_T[(c ^ b[i]) & 0xff] ^ (c >>> 8); return (c ^ 0xffffffff) >>> 0; };
+  el('galZip').addEventListener('click', async () => {
+    const list = GAL.photos.slice().sort((a, b) => a.t - b.t), parts = [], central = [], two = (n) => String(n).padStart(2, '0');
+    let off = 0, got = 0;
+    el('galZip').disabled = true;
+    for (let i = 0; i < list.length; i += 4) {                       // four at a time
+      galSay('Gathering ' + Math.min(i + 4, list.length) + ' of ' + list.length + '…');
+      const batch = await Promise.all(list.slice(i, i + 4).map((p) => fetch('/api/photo?id=' + encodeURIComponent(p.id) + '&s=f').then((r) => (r.ok ? r.arrayBuffer() : null)).catch(() => null)));
+      batch.forEach((buf, j) => {
+        if (!buf) return;
+        const data = new Uint8Array(buf), d = new Date(list[i + j].t), crc = crc32(data);
+        const name = new TextEncoder().encode('guest-photo-' + String(i + j + 1).padStart(4, '0') + '-' + d.getFullYear() + '-' + two(d.getMonth() + 1) + '-' + two(d.getDate()) + '-' + two(d.getHours()) + two(d.getMinutes()) + '.jpg');
+        const time = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1), date = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
+        const h = new DataView(new ArrayBuffer(30)), c = new DataView(new ArrayBuffer(46));
+        [[0, 0x04034b50, 4], [4, 20, 2], [10, time, 2], [12, date, 2], [14, crc, 4], [18, data.length, 4], [22, data.length, 4], [26, name.length, 2]].forEach(([at, v, w]) => (w === 4 ? h.setUint32(at, v, true) : h.setUint16(at, v, true)));
+        [[0, 0x02014b50, 4], [4, 20, 2], [6, 20, 2], [12, time, 2], [14, date, 2], [16, crc, 4], [20, data.length, 4], [24, data.length, 4], [28, name.length, 2], [42, off, 4]].forEach(([at, v, w]) => (w === 4 ? c.setUint32(at, v, true) : c.setUint16(at, v, true)));
+        parts.push(h, name, data); central.push(c, name); off += 30 + name.length + data.length; got++;
+      });
+    }
+    const size = central.reduce((n, x) => n + x.byteLength, 0), e = new DataView(new ArrayBuffer(22));
+    e.setUint32(0, 0x06054b50, true); e.setUint16(8, got, true); e.setUint16(10, got, true); e.setUint32(12, size, true); e.setUint32(16, off, true);
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([...parts, ...central, e], { type: 'application/zip' }));
+    const today = new Date(); a.download = 'guest-photographs-' + today.getFullYear() + '-' + two(today.getMonth() + 1) + '-' + two(today.getDate()) + '.zip'; a.click();   // the date where you are
+    galSay(got === list.length ? 'Downloaded all ' + got + '.' : 'Downloaded ' + got + ' of ' + list.length + '; the rest could not be fetched. Try again for those.', got === list.length);
+    el('galZip').disabled = false;
+  });
+
   el('refresh').addEventListener('click', load);
   el('forget').addEventListener('click', () => { try { localStorage.removeItem('ka-admin'); } catch (e) {} KEY = ''; el('app').hidden = true; el('gate').hidden = false; el('gateMsg').textContent = 'Forgotten on this device.'; });
   el('keyGo').addEventListener('click', () => { KEY = el('keyIn').value.trim(); try { localStorage.setItem('ka-admin', KEY); } catch (e) {} load(); });

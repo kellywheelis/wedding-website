@@ -3953,11 +3953,12 @@ function paintLabel(st) {
   el('title').textContent = st.title;
   el('body').innerHTML = String(st.body || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\*([^*\n]+)\*/g, '<em>$1</em>');   // *words* in italics
   el('meta').textContent = st.meta;
-  el('more').style.visibility = st.card || st.game || st.build ? 'visible' : 'hidden';   // "Read the full details" where a wall text exists; "Play" where a game does. Its space is kept at every stop, so the panel (and the view above it) never changes height
+  el('more').style.visibility = st.card || st.game || st.build || st.photos ? 'visible' : 'hidden';   // "Read the full details" where a wall text exists; "Play" where a game does. Its space is kept at every stop, so the panel (and the view above it) never changes height
   el('more').dataset.card = st.card || '';
   el('more').dataset.game = st.game || '';
   el('more').dataset.build = st.build ? '1' : '';
-  el('more').innerHTML = st.game ? 'Play &nbsp;&rarr;' : st.build ? 'Build a minifigure &nbsp;&rarr;' : 'Read the full details &nbsp;&rarr;';
+  el('more').dataset.photos = st.photos ? '1' : '';                 // the centrepiece, from the wedding day: the guests' photographs
+  el('more').innerHTML = st.game ? 'Play &nbsp;&rarr;' : st.build ? 'Build a minifigure &nbsp;&rarr;' : st.photos ? 'See every photograph &nbsp;&rarr;' : 'Read the full details &nbsp;&rarr;';
   // ease the new text in, so a change of write-up catches the eye (restarts the CSS animation)
   ['eyebrow', 'title', 'body', 'meta'].forEach((id) => {
     const n = el(id);
@@ -4120,7 +4121,7 @@ function openCard(key) {
   el('cardSheet').scrollTop = 0;
 }
 const closeCard = () => { el('card').style.display = 'none'; };
-el('more').addEventListener('click', () => { if (el('more').dataset.game) openArcade(); else if (el('more').dataset.build) openShelf(); else openCard(el('more').dataset.card); });
+el('more').addEventListener('click', () => { if (el('more').dataset.photos) openGuestPhotos(); else if (el('more').dataset.game) openArcade(); else if (el('more').dataset.build) openShelf(); else openCard(el('more').dataset.card); });
 el('card').addEventListener('click', (e) => { if (e.target === el('card') || e.target.id === 'cardClose') closeCard(); });
 window.addEventListener('keydown', (e) => {
   if (stationOpen()) return;                                         // the build station has the keys (its name box above all)
@@ -4262,6 +4263,8 @@ canvas.addEventListener('click', (e) => {
   const p = probe(e.clientX, e.clientY);
   // the gift shop, clicked from its own stop: the postcards
   if (p.surface && atShop(p.surface)) { openPostcards(); return; }
+  // from the wedding day, the centrepiece clicked from its close-up: the guests' photographs, at the one showing
+  if (onGuestPhotos(p)) { openGuestPhotos(true); return; }
   // a hidden pet, clicked from its picture's own stop: name the find (a click elsewhere on the picture does what it always did)
   if (p.surface) { const h = hiddenHit(p.surface); if (h && atHiddenStop(h)) { foundHidden(h); return; } }
   // holding something and clicking away from it: put it down (a click on something else walks there, which puts it down too)
@@ -4309,7 +4312,7 @@ function updatePointer() {
     const onShop = p.surface && atShop(p.surface);   // the hidden pets: the pointer lights up over them only from their picture's stop
     const cur = volHeld() && p.surface && isVolvelle(p.surface.object) ? (volDrag ? 'grabbing' : 'grab')
       : onPet ? 'var(--cur-find)'
-      : onShop || p.room || p.station !== undefined || p.note || p.cardKey || (invHeld() && p.surface && p.surface.object.userData.invite) ? 'var(--cur-on)'
+      : onShop || p.room || p.station !== undefined || p.note || p.cardKey || onGuestPhotos(p) || (invHeld() && p.surface && p.surface.object.userData.invite) ? 'var(--cur-on)'
       : LOOK.turning ? (LOOK.turning > 0 ? 'e-resize' : 'w-resize') : '';
     if (canvas.style.cursor !== cur) canvas.style.cursor = cur;        // only when it changes: re-setting a cursor makes some browsers flash the default arrow
     if (p.surface) {
@@ -5097,7 +5100,9 @@ el('pcScene').addEventListener('keydown', (e) => {
 // ---- the curtain: burgundy velvet in two halves under a fringed pelmet, hung over the end wall's centrepiece. It draws
 // back when a card is posted, and stays back on later visits from the same browser (`ka-posted`). Behind it: SEE YOU
 // IN SIENA, gilt lettering over a Sienese fresco of the hills toward the villa (assets/det-see-you-in-siena.jpg).
-const CURTAIN = { open: false, t: 0, from: 0, halves: [], ties: [], sorry: false, redraw: null };
+// From the wedding day the curtain stays back for everyone and the frame shows the guests' photographs (GUEST_PHOTOS, below).
+const GUEST_PHOTOS = { on: false, open: false, photos: [], order: [], shown: null, front: null, fade: 1, from: 0, next: 0, loading: false };
+const CURTAIN = { open: false, t: 0, from: 0, halves: [], ties: [], sorry: false, redraw: null, words: null };
 (function curtain() {
   if (!mainFrame) return;
   const p = DETAIL_PICTURES[0], z = 0.075 + 0.2, railY = p.h / 2 + 0.3, hemY = -p.h / 2 - 0.34;    // hung close over the frame's carving, out of reach of Apollo's hand   // in the frame's own space: the frame's own height, rail just above it
@@ -5185,6 +5190,7 @@ const CURTAIN = { open: false, t: 0, from: 0, halves: [], ties: [], sorry: false
   // what the curtain hides
   const pic = mainFrame.children[1];
   const draw = (img) => {
+    if (GUEST_PHOTOS.shown) return;                                  // a guest's photograph hangs here now: the fresco arriving late must not cover it
     const c = document.createElement('canvas'); c.width = 2048; c.height = Math.round(2048 * p.h / p.w);
     const x = c.getContext('2d');
     if (img) { const k = Math.max(c.width / img.width, c.height / img.height), sw = c.width / k, sh = c.height / k; x.drawImage(img, (img.width - sw) / 2, (img.height - sh) / 2, sw, sh, 0, 0, c.width, c.height); }
@@ -5202,7 +5208,8 @@ const CURTAIN = { open: false, t: 0, from: 0, halves: [], ties: [], sorry: false
       x.lineWidth = Math.max(1.5, px * 0.014); x.strokeStyle = 'rgba(70,45,10,.75)'; x.strokeText(text, cx, y);   // a fine dark contour, as gilding on plaster has
       x.lineWidth = Math.max(1, px * 0.01); x.strokeStyle = 'rgba(255,250,230,.8)'; x.strokeText(text, cx, y - px * 0.02);   // the light catching the top edge
     };
-    if (CURTAIN.sorry) { gilt('WE’RE SORRY TO MISS YOU', 118, c.height * 0.2); gilt('IV · XXIV · MMXXVII', 70, c.height * 0.33); }
+    if (CURTAIN.words) CURTAIN.words.forEach(([text, px, at]) => gilt(text, px, c.height * at));   // the wedding day, before the first photograph arrives
+    else if (CURTAIN.sorry) { gilt('WE’RE SORRY TO MISS YOU', 118, c.height * 0.2); gilt('IV · XXIV · MMXXVII', 70, c.height * 0.33); }
     else { gilt('SEE YOU IN SIENA', 150, c.height * 0.2); gilt('IV · XXIV · MMXXVII', 70, c.height * 0.33); }
     const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
     pic.material.map = t; pic.material.needsUpdate = true;
@@ -5216,11 +5223,12 @@ const CURTAIN = { open: false, t: 0, from: 0, halves: [], ties: [], sorry: false
   if (localStorage.getItem('ka-posted')) revealCurtain(true);
 })();
 function closeCurtain() {                                            // for the owner's testing: R at the centrepiece closes the curtain and forgets the post
+  if (GUEST_PHOTOS.on) return;                                       // not over the guests' photographs
   try { localStorage.removeItem('ka-posted'); localStorage.removeItem('ka-rsvp'); localStorage.removeItem('ka-posted-answer'); } catch (e) { /* nothing kept */ }
   CURTAIN.open = false; CURTAIN.t = 0; CURTAIN.sorry = false; setCurtain(0); if (CURTAIN.redraw) CURTAIN.redraw();
 }
 function revealCurtain(instant) {
-  if (!CURTAIN.halves.length) return;
+  if (!CURTAIN.halves.length || GUEST_PHOTOS.on) return;            // from the wedding day it is already back, for everyone
   try { if (!GUEST.preview) localStorage.setItem('ka-posted', String(Date.now())); } catch (e) { /* the visit */ }   // the preview guest's post opens it for this visit only
   CURTAIN.open = true; CURTAIN.from = performance.now(); CURTAIN.t = instant ? 1 : 0;
   if (instant) setCurtain(1);
@@ -5233,6 +5241,137 @@ function tickCurtain() {
   if (!CURTAIN.open || CURTAIN.t >= 1) return;
   CURTAIN.t = Math.min(1, (performance.now() - CURTAIN.from) / 3400);
   setCurtain(smooth(CURTAIN.t));
+}
+
+// ---- the guests' photographs (the owner's wish, 7 Oct 2026). From 2 pm in Italy on the wedding day (April 24, 2027)
+// the centrepiece stops being the RSVP's reveal and becomes the guests' own exhibit: the curtain is drawn back for everyone,
+// and the frame shows the photographs guests add with the QR code on the sign at the villa (add.html, api/gallery.js), a
+// new one every seven seconds while you are in the details room: the newest first, then the rest in a shuffled round, and
+// any that arrive meanwhile next. Until the first arrives, gilt words on the fresco say the exhibit is open. From the
+// close-up, a click on the frame (or the panel's button) opens them all, large (assets/guest-photos.js, loaded only then).
+// Nothing of it runs before the day: the page asks the server only from two days before (and always on the local dev
+// server, whose DEV_GALLERY setting decides), and the server says when it is live. Uploads close May 8; the photographs stay.
+const PHOTOS_ASK = Date.UTC(2027, 3, 22, 12), PHOTOS_EVERY = 7000, PHOTOS_FADE = 1200;   // two days before it opens
+const PHOTOS_WORDS = { title: 'And now, the exhibit is you', meta: 'Gilt frame · photographs by our guests',
+  body: (open) => 'The frame we kept for our guests now holds the wedding as you saw it: every photograph in it was taken by one of you.' +
+    (open ? ' To add yours, scan the QR code on the sign at the villa.' : '') + ' Click the frame to look through them all.' };
+function askGuestPhotos() {
+  if (Date.now() < PHOTOS_ASK && !/^(127\.0\.0\.1|localhost)$/.test(location.hostname)) return;
+  fetch('/api/gallery').then((r) => (r.ok ? r.json() : null)).then((d) => { if (d && d.live && Array.isArray(d.photos)) guestPhotosOn(d); }, () => { /* offline: the next round */ });
+}
+setTimeout(askGuestPhotos, 2500);
+setInterval(() => { if (!document.hidden) askGuestPhotos(); }, 60000);   // a page left open when it opens switches over; new photographs join the round
+function guestPhotosOn(d) {
+  const G = GUEST_PHOTOS, first = !G.on, had = new Set(G.photos.map((p) => p.id)), now = new Set(d.photos.map((p) => p.id));
+  const fresh = d.photos.filter((p) => !had.has(p.id)).map((p) => p.id);   // newest first, as the server lists them
+  const mix = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  G.order = first ? [...fresh.slice(0, 1), ...mix(fresh.slice(1))] : [...fresh, ...G.order.filter((id) => now.has(id))];   // any the owner removed drop out
+  G.photos = d.photos; G.on = true;
+  if (G.shown && !now.has(G.shown)) {                                // the one on show was removed: the next comes in at once, or the gilt words if none are left
+    G.shown = null;
+    if (G.order.length) G.next = 0; else { if (G.front) G.front.visible = false; if (CURTAIN.redraw) CURTAIN.redraw(); }
+  }
+  const st = STATIONS[ST.detClose], body = PHOTOS_WORDS.body(!!d.open), changed = st.body !== body;
+  Object.assign(st, { title: PHOTOS_WORDS.title, body, meta: PHOTOS_WORDS.meta, photos: true });
+  if (changed && idx === ST.detClose) paintLabel(st);
+  if (first) {
+    if (CURTAIN.halves.length) { CURTAIN.open = true; CURTAIN.t = 1; setCurtain(1); }   // drawn back for everyone (the RSVP's own memory of a posted card is left alone)
+    CURTAIN.words = [['THE EXHIBIT IS YOU', 128, 0.2], ['IV · XXIV · MMXXVII', 70, 0.33]];
+    if (CURTAIN.redraw) CURTAIN.redraw();
+  }
+}
+// a photograph as the frame shows it: matted, as a photograph is framed (the owner's wish, 7 Oct 2026: a portrait one must
+// still sit well in the landscape frame). The mat's window is cut to each photograph's own shape, as large as fits with a
+// margin all round, a little more below than above as a framer weights it; so the frame looks the same from one to the
+// next. OPTIONS until the owner picks one: ivory (a museum mat, its window bevelled to the white core), velvet (the
+// curtain's burgundy, with a gilt slip round the photograph), linen (warm stone linen, with a gilt slip). ?mat=ivory|velvet|linen
+const PHOTO_MATS = {
+  ivory: { board: '#E9DFCB', specks: ['rgba(255,252,240,.5)', 'rgba(110,90,60,.12)'], edge: 'bevel' },
+  velvet: { board: '#4d0d22', specks: ['rgba(255,200,210,.06)', 'rgba(0,0,0,.16)'], edge: 'gilt' },
+  linen: { board: '#C6B48E', specks: ['rgba(255,250,235,.18)', 'rgba(80,60,30,.10)'], edge: 'gilt', weave: true } };
+const PHOTO_MAT = PHOTO_MATS[(location.search.match(/[?&]mat=(\w+)/) || [])[1]] || PHOTO_MATS.velvet;
+let matBoardCanvas = null;
+function photoTexture(img) {
+  const p = DETAIL_PICTURES[0], c = document.createElement('canvas'); c.width = 2048; c.height = Math.round(2048 * p.h / p.w);
+  const x = c.getContext('2d'), iw = img.naturalWidth, ih = img.naturalHeight, M = PHOTO_MAT;
+  if (!matBoardCanvas) {                                             // the board, made once: its colour, a fine grain, and linen's weave
+    const b = matBoardCanvas = document.createElement('canvas'); b.width = c.width; b.height = c.height;
+    const y = b.getContext('2d'); y.fillStyle = M.board; y.fillRect(0, 0, b.width, b.height);
+    for (let i = 0; i < 90000; i++) { y.fillStyle = M.specks[i & 1]; y.fillRect(Math.random() * b.width, Math.random() * b.height, 1 + (i % 3 === 0), 1 + (i % 5 === 0)); }
+    if (M.weave) for (let i = 0; i < b.width; i += 3) {
+      y.fillStyle = `rgba(70,50,20,${0.03 + Math.random() * 0.05})`; y.fillRect(i, 0, 1, b.height);
+      if (i < b.height) { y.fillStyle = `rgba(255,248,225,${0.03 + Math.random() * 0.05})`; y.fillRect(0, i, b.width, 1); }
+    }
+    const g = y.createRadialGradient(b.width / 2, b.height * 0.45, b.height * 0.2, b.width / 2, b.height / 2, b.width * 0.62);   // the light falling off toward the frame
+    g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,.16)'); y.fillStyle = g; y.fillRect(0, 0, b.width, b.height);
+  }
+  x.drawImage(matBoardCanvas, 0, 0);
+  const m = 0.07 * c.height, edge = M.edge === 'gilt' ? 20 : 13;   // the narrowest margin, and the slip or bevel round the window
+  const k = Math.min((c.width - 2 * m - 2 * edge) / iw, (c.height - 2.15 * m - 2 * edge) / ih), w = Math.round(iw * k), h = Math.round(ih * k);
+  const ox = Math.round((c.width - w) / 2), oy = Math.round((c.height - h) / 2 - 0.075 * m);   // weighted: a little more mat below
+  const band = (fills) => {                                          // the four sides of the window's edge, each its own shade: top, right, bottom, left
+    const X0 = ox - edge, Y0 = oy - edge, X1 = ox + w + edge, Y1 = oy + h + edge;
+    [[[X0, Y0], [X1, Y0], [ox + w, oy], [ox, oy]], [[X1, Y0], [X1, Y1], [ox + w, oy + h], [ox + w, oy]], [[X1, Y1], [X0, Y1], [ox, oy + h], [ox + w, oy + h]], [[X0, Y1], [X0, Y0], [ox, oy], [ox, oy + h]]]
+      .forEach((q, i) => { x.beginPath(); q.forEach(([a, b2], j) => (j ? x.lineTo(a, b2) : x.moveTo(a, b2))); x.closePath(); x.fillStyle = fills[i]; x.fill(); });
+  };
+  if (M.edge === 'bevel') band(['#FBF8F1', '#E4DACA', '#D9CDB8', '#F5F0E5']);   // the white core, lit from above left
+  else {
+    const g = x.createLinearGradient(ox - edge, oy - edge, ox + w + edge, oy + h + edge);
+    [['0', '#7c5a1c'], ['.18', '#e8c87e'], ['.36', '#9b7426'], ['.55', '#f2d895'], ['.74', '#a07a2c'], ['1', '#6e4f16']].forEach(([s, col]) => g.addColorStop(+s, col));
+    band([g, g, g, g]);
+    band(['rgba(255,240,200,.28)', 'rgba(0,0,0,.12)', 'rgba(0,0,0,.28)', 'rgba(255,240,200,.12)']);   // the slip's rounded face: lit above, shaded below
+    x.strokeStyle = 'rgba(40,24,6,.7)'; x.lineWidth = 2; x.strokeRect(ox - edge, oy - edge, w + 2 * edge, h + 2 * edge);
+  }
+  x.imageSmoothingQuality = 'high'; x.drawImage(img, ox, oy, w, h);
+  const sh = x.createLinearGradient(0, oy, 0, oy + 18); sh.addColorStop(0, 'rgba(0,0,0,.28)'); sh.addColorStop(1, 'rgba(0,0,0,0)');   // the edge above casts a hairline of shadow
+  x.fillStyle = sh; x.fillRect(ox, oy, w, 18);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
+  return t;
+}
+function tickGuestPhotos(now) {
+  const G = GUEST_PHOTOS;
+  if (!G.on || !mainFrame) return;
+  if (G.front && G.fade < 1) {                                       // the next one fading in over the last
+    G.fade = REDUCED ? 1 : Math.min(1, (now - G.from) / PHOTOS_FADE);
+    G.front.material.opacity = smooth(G.fade);
+    if (G.fade >= 1) {                                               // in: it becomes the frame's own picture, and the layer in front waits for the next
+      const pic = mainFrame.children[1], old = pic.material.map;
+      pic.material.map = G.front.material.map; pic.material.needsUpdate = true;
+      if (old && old !== pic.material.map) old.dispose();
+      G.front.visible = false;
+    }
+    return;
+  }
+  if (G.loading || now < G.next || !G.order.length || document.hidden || STATIONS[idx].room !== 'det') return;   // only while someone is in the room to see it
+  if (G.shown && G.photos.length < 2) return;                       // a single photograph simply stays
+  const id = G.order.shift(); G.order.push(id);
+  const p = G.photos.find((x) => x.id === id);
+  if (!p) return;
+  G.loading = true;
+  const img = new Image();
+  img.onload = () => {
+    G.loading = false;
+    const pic = mainFrame.children[1];
+    if (!G.front) {                                                  // a second layer of the picture, just in front, for the fade
+      G.front = new THREE.Mesh(pic.geometry, new THREE.MeshStandardMaterial({ roughness: 0.62, transparent: true, opacity: 0, depthWrite: false }));
+      G.front.position.copy(pic.position); G.front.position.z += 0.004; mainFrame.add(G.front);
+    }
+    G.front.material.map = photoTexture(img); G.front.material.needsUpdate = true; G.front.material.opacity = 0; G.front.visible = true;
+    G.shown = p.id; G.fade = 0; G.from = performance.now(); G.next = G.from + PHOTOS_EVERY;
+  };
+  img.onerror = () => { G.loading = false; G.next = performance.now() + 3000; };
+  img.src = '/api/photo?id=' + encodeURIComponent(p.id) + '&s=f';
+}
+// the centrepiece's close-up, from the day: the frame (and the curtain round it) opens the photographs
+function onGuestPhotos(p) {
+  if (!GUEST_PHOTOS.on || idx !== ST.detClose || leg || queue.length || !p.surface) return false;
+  for (let o = p.surface.object; o; o = o.parent) if (o === mainFrame) return true;
+  return false;
+}
+function openGuestPhotos(atShown) {                                  // all of them; from the frame, straight to the one it is showing
+  const go = () => { const G = GUEST_PHOTOS, i = atShown ? G.photos.findIndex((x) => x.id === G.shown) : -1; GuestPhotos.open(G.photos, i >= 0 ? i : undefined); };
+  if (window.GuestPhotos) { go(); return; }
+  const s = document.createElement('script'); s.src = 'assets/guest-photos.js?v=' + Date.now(); s.onload = go; document.head.appendChild(s);   // stamped, as every script is, so a change is never stale
 }
 
 // ---------------------------------------------------------------- loop
@@ -5353,7 +5492,7 @@ function frame(now) {
   updateVolvelle();
   updateInvitation();
   if (shopRack && !REDUCED) shopRack.rotation.y += 0.003;          // the postcard rack turns idly (not with "Reduce motion" on)
-  tickCurtain(); tickSand(performance.now());
+  tickCurtain(); tickSand(performance.now()); tickGuestPhotos(performance.now());
   updatePointer();
   renderer.render(scene, camera);
   calmAfterRender();

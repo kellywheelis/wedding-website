@@ -42,6 +42,7 @@ Everything that matters lives in one subfolder (apart from the deployment files 
 | `assets/lego/`, `tools/lego_relief.py` | Kelly's LEGO Sunflowers: the maps made from her photo, and the script that makes them (§4, "The LEGO shelf"). |
 | `rsvp-admin.html`, `../api/guest.js`, `../api/admin.js`, `../api/_lib.js`, `../api/_private.js`, `../api/_notify.js` | The RSVP and guest sign-in (§5, "The RSVP"): the owner's private page, and the server side at the repository root. The private wall texts live in `api/_private.js`; the reply emails in `api/_notify.js`. |
 | `tools/dev_server.mjs`, `tools/make_mobile_content.py` | A local stand-in for the live site with its api (§5); the phone guide's text builder (§4b). |
+| `add.html`, `assets/guest-photos.js`, `../api/gallery.js`, `../api/photo.js`, `../api/_photos.js` | The guests' photographs, live from the wedding day (§4d): the upload page (`/add`), the viewer, the list/upload/delete api, the file server, the store. |
 | `assets/og-preview.jpg`, `assets/icons/` | The card a shared link shows (1200x630: the entry doors without their buttons, rendered with the harness's `gate=1&nobtn=1`), named in both pages' `og:` tags with absolute URLs; and the gilt KA on burgundy as the browser-tab icon, the home-screen icon (`apple-touch-icon.png`, 180 px) and `favicon.ico` (`vercel.json` also serves the last two at the site root). Both pages are titled "Kelly & Anthony · The Gallery". Added 26 Sept 2026. |
 | `assets/fonts/` | Cormorant Garamond and EB Garamond (SIL Open Font License, `OFL-*.txt`), hosted with the site since 26 Sept 2026: the woff2 files and `gallery.css` / `mobile.css`, fetched from Google Fonts' css2 API exactly as each page used to request them. Checked with Google Fonts blocked: the text renders identically. |
 | `assets/lib/three/` | three.js 0.184.0, hosted with the site since 25 Sept 2026 so the gallery does not depend on unpkg being up: `build/three.module.js` + `three.core.js` (their sha384 matched the integrity hashes the page used to carry), `GLTFLoader.js` and the two utils it imports, and `libs/meshopt_decoder.module.js` for the compressed sculptures. The page's import map points here. |
@@ -863,6 +864,75 @@ score, hearts), NEXT sits left of the altar, the "X HAVE ARRIVED" caption under 
 bride/groom sprites (the owner asked for both). No character select: it is the hosts' game.
 
 All five games live in one cabinet (the arcade menu).
+
+## 4d. The guests' photographs (built 7 Oct 2026, hidden until the wedding day)
+
+The owner's idea: from the wedding day the details room's centrepiece stops being the RSVP's reveal and becomes a
+slideshow of photographs the guests take, added from a QR code on a sign at the villa, and anyone can look through
+them on the site afterwards. Her choices: anyone with the site may look (no sign-in); guests add with the sign's QR
+and no sign-in; photographs show at once and she removes any she wishes; photographs only (no video); uploads close
+two weeks after; it switches itself on (built in advance, hidden).
+- **When:** live from 2 pm in Italy on Saturday April 24, 2027 (noon UTC; the owner moved it from midnight, 7 Oct
+  2026); uploads close once
+  Saturday May 8 has ended everywhere (noon UTC on May 9); the photographs stay. Both are `OPENS` / `CLOSES` in
+  `api/gallery.js`. Before the day nothing changes anywhere: the pages do not even ask the server until two days
+  before (`PHOTOS_ASK` in gallery3d.js; the same date in mobile.js), and the server answers `live: false` until it is.
+- **The upload page:** `add.html`, at `/add?k=<key>` (vercel.json). The key is the sign link's (`gal:key` in Redis, made
+  when the private page first asks; "Make a new link" there replaces it and the old one stops at once). Each photograph
+  is made afresh on the guest's phone in a canvas (2048 px on its long side, JPEG 0.82, and a 640 px copy for grids;
+  turned the right way up by the browser; a transparent one gets a white ground), which leaves behind the place it was
+  taken and the camera's details; one at a time, each a tile with its progress. Before the day only the owner can add,
+  from a device that has opened the private page (it sends `ka-admin`), to try it; those photographs stay hidden until
+  the day. Messages for a wrong link, before the day, after May 8, and "not quite ready" (no store set up).
+- **The server:** `api/gallery.js` (list, add, delete, new key; its header lists every call and what Redis keeps),
+  `api/photo.js` (serves each file, `/api/photo?id=…&s=f|t`, through the site so the store stays private and the 3D
+  frame may paint it; Vercel's CDN keeps each a day), `api/_photos.js` (the store, and `cleanJpeg`: every upload must be
+  a whole JPEG of a sane size, and EXIF/XMP/IPTC/comments and anything after the picture's end are cut out; checked:
+  a test photo with GPS, a comment and trailing bytes came back with none of them). Uploads per address: 150 per 10
+  minutes (a villa shares one address). The public list is CDN-cached 15 seconds.
+- **The store: Cloudflare R2** (the owner's choice, 7 Oct 2026, over Vercel Blob, whose free plan locks for 30 days
+  if outgrown; the Blob option was built and then taken out). Free to 10 GB, no charge for downloads; the gallery stops
+  at 12,000 photographs or 9 GB (`LIMITS` in `_photos.js`), inside the free allowance. Set up in the Cloudflare
+  dashboard: R2 turned on (it asks for a card, though this use stays free), a private bucket, and an R2 API token with
+  Object Read & Write on that bucket only. Its four settings go in the Vercel project (Settings → Environment
+  Variables, Production and Preview): `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`; a
+  deployment made after they are added uses them. Signed requests, no package (`sigv4` reproduces Amazon's published
+  example signature). The local dev server can use the real bucket: `DEV_STORE=r2` with the four in its environment.
+  SET UP 8 Oct 2026: the owner made the bucket `ka-guest-photos` and an Account API token (Object Read & Write, that
+  bucket only); the four settings are in the Vercel project for Production (the two keys stored as Sensitive, so they
+  cannot be read back: if lost, make a new token in Cloudflare and replace them). Checked from this computer the same
+  day: two photographs uploaded through add.html into the real bucket, served back by /api/photo with no camera or
+  location data, removed from the private page's call, and the bucket left empty.
+- **The 3D gallery** (gallery3d.js, "the guests' photographs", after the curtain): once live, the curtain is drawn back
+  for everyone (without touching the RSVP's own `ka-posted` memory; R no longer closes it), the centrepiece's stop
+  (`detClose`) gets new words ("And now, the exhibit is you" …) and the panel button "See every photograph", and the
+  frame shows a new photograph every 7 seconds while you are in the details room, faded over the last on a second layer
+  (`GUEST_PHOTOS.front`): the newest first, then a shuffled round, new arrivals next; the list is asked again every
+  minute. Each is painted matted (`photoTexture`): a mat with its window cut to the photograph, a framer's weighted
+  bottom margin. MAT NOT YET CHOSEN (owner's request, 7 Oct 2026, for portrait photographs in the landscape frame):
+  three options in `PHOTO_MATS` (ivory with a bevel, burgundy velvet with a gilt slip, linen with a gilt slip),
+  `?mat=` picks one to look at; renders in ~/Desktop/Guest photo gallery - mat options/. Keep only the chosen one, drop
+  `?mat=`, and give the phone's frame (mobile.css `.gp-*`, still a blurred backdrop) the same mat. Until the first
+  photograph, the fresco shows gilt THE EXHIBIT IS YOU (`CURTAIN.words`). From the close-up, a click on the frame opens
+  the viewer at the photograph showing.
+- **The viewer:** `assets/guest-photos.js`, shared by both editions and loaded only when first opened: all of them in a
+  grid, newest first, then one at a time, large, with arrows, the arrow keys or a swipe; Esc steps back. It takes the
+  keys while open, so the gallery behind does not walk.
+- **The phone guide** (mobile.js, "the guests' photographs"): the centrepiece's words change, and under them a gilt
+  frame cross-fades the photographs every six seconds while on screen, then "See all N photographs"; sideways, the
+  centrepiece's slide (`#gv-centre`) gets the words and the button.
+- **The private page** (rsvp-admin.html, "The guests' photographs"): when it opens/closes (in her own time), which
+  store and how full, the sign's link and QR code (Copy, Download the QR code as an SVG for printing, Open the upload
+  page, Make a new link), every photograph newest first with Remove (a click opens it full size), and Download all (a
+  .zip made in the browser, oldest first, named by number and time added; checked with `unzip -t`).
+- **Trying it locally:** `DEV_GALLERY=0` on the dev server makes it live now (`DEV_GALLERY_CLOSED=0`: uploads closed),
+  with an in-memory store (`/api/photo` serves from it). The private key is needed for the private page and for adding
+  before the day; the owner's own key works locally too. For testing without it, the 7 Oct 2026 session ran a scratch
+  copy of the site whose `api/_lib.js` carried a test key's hash (never in the project). The harness has no server, so
+  the gallery-mode screenshots were taken with headless Chrome driven over its DevTools port against the dev server.
+- **Not done yet / to ask:** the sign itself (a station-label style card with the QR; the link and SVG come from the
+  private page); whether signed-in guests should also get an "Add yours" button on the site for after the weekend
+  (people at home will not have the sign).
 
 ## 5. Known loose ends / ideas not yet done
 

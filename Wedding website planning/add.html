@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex, nofollow, noimageindex">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#1c1611" />
+<title>Add your photographs · Kelly &amp; Anthony</title>
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32.png" />
+<link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png" />
+<link href="/assets/fonts/mobile.css" rel="stylesheet" />
+<!-- The guests' upload page (the owner's wish, 7 Oct 2026), reached from the QR code on the sign at the villa: its link,
+     /add?k=<key>, carries the key api/gallery.js checks, so the page works only for someone who has seen the sign. Each
+     photograph is made afresh here on the phone (a canvas: 2048 px on its long side, and a 640 px copy for the grids), which
+     leaves behind the place it was taken and the camera's details; the server cuts out any that remain. One is sent at a
+     time. Open from 2 pm in Italy on the wedding day, April 24, until May 8; before then only the owner can add, from a
+     device that holds the private page's key (localStorage ka-admin), to try it. -->
+<style>
+  :root { --bg:#1c1611; --ink:#EDE7D7; --ink-3:#A79C85; --gold:#C9A667; --gold-2:#E8C07A; --cream:#F4EFE1; --burg:#7A1A3C;
+    --serif:'EB Garamond', Georgia, serif; --display:'Cormorant Garamond', Georgia, serif; color-scheme: dark; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { margin: 0; min-height: 100dvh; background: var(--bg) radial-gradient(ellipse 120% 60% at 50% 0%, #2b2118 0%, var(--bg) 70%) no-repeat; color: var(--ink); font: 17.5px/1.5 var(--serif); }
+  main { max-width: 520px; margin: 0 auto; padding: max(34px, env(safe-area-inset-top)) 20px max(40px, env(safe-area-inset-bottom)); text-align: center; }
+  .mono { width: 84px; height: 84px; margin: 0 auto 18px; background: linear-gradient(125deg,#5E4718 0%,#A98436 22%,#F3DFA6 42%,#D8B368 55%,#8E6E2B 76%,#5E4718 100%);
+    -webkit-mask: url(/assets/monogram-ka.png) center/contain no-repeat; mask: url(/assets/monogram-ka.png) center/contain no-repeat; }
+  .eyebrow { font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: var(--gold); margin: 0 0 10px; }
+  h1 { font: 300 36px/1.12 var(--display); color: var(--cream); margin: 0; }
+  .rule { height: 1px; margin: 22px auto; width: 70%; background: linear-gradient(90deg, rgba(232,192,122,0), rgba(232,192,122,.8), rgba(232,192,122,0)); }
+  p { margin: 12px 0 0; }
+  .small { font-size: 14.5px; color: var(--ink-3); }
+  .btn { display: block; width: 100%; max-width: 340px; margin: 26px auto 0; padding: 15px 22px; background: rgba(40,6,18,.85); border: 2px solid #e0bc68;
+    box-shadow: inset 0 0 0 2px rgba(40,6,18,.85), inset 0 0 0 3px #e0bc68; color: #f0d48a; font: 600 14px var(--display); letter-spacing: .3em; text-transform: uppercase; cursor: pointer; text-decoration: none; }
+  .btn.quiet { background: transparent; box-shadow: none; border: 1px solid rgba(201,166,103,.55); color: var(--gold-2); font-weight: 500; margin-top: 12px; }
+  .btn[disabled] { opacity: .45; }
+  input[type=file] { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+  .note { margin: 18px 0 0; padding: 12px 14px; border: 1px solid rgba(201,166,103,.35); background: rgba(201,166,103,.07); font-size: 15px; text-align: left; }
+  #status { min-height: 1.5em; margin-top: 22px; font: 400 21px/1.3 var(--display); color: var(--gold-2); }
+  #tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 14px; }
+  .tile { position: relative; aspect-ratio: 1; overflow: hidden; background: #2B2520; border: 1px solid rgba(201,166,103,.25); }
+  .tile img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .tile i { position: absolute; inset: 0; display: grid; place-items: center; font-style: normal; font-size: 22px; background: rgba(20,14,8,.55); color: var(--gold-2); transition: background .3s; }
+  .tile.done i { background: transparent; align-items: end; justify-items: end; padding: 3px 5px; font-size: 16px; text-shadow: 0 1px 3px #000; }
+  .tile.fail i { background: rgba(70,8,28,.72); color: #f3c6b8; font-size: 20px; }
+  .tile.wait i::after { content: ''; width: 18px; height: 18px; border-radius: 50%; border: 2px solid rgba(232,192,122,.25); border-top-color: var(--gold-2); animation: spin 1s linear infinite; }
+  .tile.queued i::after { content: '·'; color: rgba(232,192,122,.6); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #why { font-size: 14.5px; color: #e0a39a; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <div class="mono" aria-hidden="true"></div>
+  <p class="eyebrow">Kelly &amp; Anthony · The Gallery</p>
+  <h1>Add your photographs</h1>
+  <div class="rule"></div>
+  <p id="lead">One moment…</p>
+  <p class="note" id="early" hidden>Until the gallery opens at 2 pm on April 24, only you can add photographs here, because this device holds the private page’s key. They will show when it opens.</p>
+  <div id="pick" hidden>
+    <input type="file" id="files" accept="image/*" multiple />
+    <button class="btn" id="choose" type="button">Choose photographs</button>
+    <p class="small">As many as you like. The place each one was taken, and the camera’s details, are removed.</p>
+  </div>
+  <p id="status" aria-live="polite"></p>
+  <p id="why"></p>
+  <div id="tiles"></div>
+  <div id="after" hidden>
+    <button class="btn" id="more" type="button">Add more</button>
+    <a class="btn quiet" id="see" href="/" hidden>See the gallery</a>
+  </div>
+  <a class="btn quiet" id="seeOnly" href="/" hidden>See the gallery</a>
+</main>
+<script>
+(function () {
+  const el = (id) => document.getElementById(id);
+  const KEY = (location.search.match(/[?&]k=([A-Za-z0-9_-]{10,64})/) || [])[1] || '';
+  let ADMIN = ''; try { ADMIN = localStorage.getItem('ka-admin') || ''; } catch (e) { /* none on this device */ }
+  const headers = () => ({ 'content-type': 'application/json', ...(ADMIN ? { 'x-admin-key': ADMIN } : {}) });
+  let state = null;
+
+  (async () => {
+    try { state = await fetch('/api/gallery?k=' + encodeURIComponent(KEY), { headers: headers() }).then((r) => r.json()); }
+    catch (e) { el('lead').textContent = 'We could not reach the gallery. Please check your connection and open this page again.'; return; }
+    if (!state.admin) ADMIN = '';                                     // a key kept here that is not the right one: send nothing
+    if (!state.keyOk) { el('lead').textContent = 'This page opens from the QR code on the sign at the villa. Please scan it again.'; return; }
+    if (!state.ready) { el('lead').textContent = 'The gallery is not quite ready for photographs yet. Please try again a little later.'; return; }
+    if (!state.open && !state.admin) {
+      el('lead').textContent = state.live ? 'The gallery closed to new photographs on May 8. Thank you for every one!' : 'The gallery opens for photographs at 2 pm on the wedding day, Saturday, April 24. This same QR code will work then.';
+      el('seeOnly').hidden = !state.live; return;
+    }
+    el('lead').textContent = 'Every photograph you add hangs in the centerpiece of our gallery, where everyone can look through them.';
+    el('early').hidden = state.open;
+    el('pick').hidden = false;
+  })();
+
+  el('choose').addEventListener('click', () => el('files').click());
+  el('more').addEventListener('click', () => el('files').click());
+  el('files').addEventListener('change', () => { const fs = [...el('files').files]; el('files').value = ''; if (fs.length) addAll(fs); });
+
+  // a picture made smaller in halves, then to size: one big step down would leave it jagged
+  function shrink(src, w, h, max) {
+    const k = Math.min(1, max / Math.max(w, h)), tw = Math.max(1, Math.round(w * k)), th = Math.max(1, Math.round(h * k));
+    let cur = src, cw = w, ch = h;
+    while (cw / 2 >= tw && ch / 2 >= th) {
+      const c = document.createElement('canvas'); c.width = Math.round(cw / 2); c.height = Math.round(ch / 2);
+      const x = c.getContext('2d'); x.imageSmoothingQuality = 'high'; x.drawImage(cur, 0, 0, c.width, c.height);
+      if (cur !== src) cur.width = 0;                                // let the phone have its memory back
+      cur = c; cw = c.width; ch = c.height;
+    }
+    const out = document.createElement('canvas'); out.width = tw; out.height = th;
+    const x = out.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, tw, th);   // a transparent picture becomes white, not black
+    x.imageSmoothingQuality = 'high'; x.drawImage(cur, 0, 0, tw, th);
+    if (cur !== src) cur.width = 0;
+    return out;
+  }
+  const base64 = (c, q) => c.toDataURL('image/jpeg', q).split(',')[1];
+  async function make(file) {                                        // { full, thumb } as base64 JPEGs
+    const url = URL.createObjectURL(file);
+    try {
+      const img = new Image(); img.src = url; await img.decode();     // the browser turns it the right way up
+      const full = shrink(img, img.naturalWidth, img.naturalHeight, 2048);
+      let f = base64(full, 0.82); if (f.length > 4e6) f = base64(full, 0.7);
+      const thumb = shrink(full, full.width, full.height, 640), t = base64(thumb, 0.8);
+      full.width = 0; thumb.width = 0;
+      return { full: f, thumb: t };
+    } finally { URL.revokeObjectURL(url); }
+  }
+
+  let busy = false; const queue = []; let added = 0, failed = 0, total = 0;
+  function addAll(files) {
+    el('after').hidden = true; el('pick').hidden = true; el('why').textContent = '';   // "Add more" takes its place afterwards
+    files.forEach((file) => {
+      const t = document.createElement('div'); t.className = 'tile queued';
+      const im = document.createElement('img'); im.alt = ''; im.src = URL.createObjectURL(file);
+      im.onload = () => URL.revokeObjectURL(im.src); im.onerror = () => { URL.revokeObjectURL(im.src); im.style.visibility = 'hidden'; };   // no broken-picture mark for a file that is not a picture
+      t.append(im, document.createElement('i')); el('tiles').append(t);
+      queue.push({ file, t });
+    });
+    total += files.length;
+    if (!busy) run();
+  }
+  async function run() {
+    busy = true; el('choose').disabled = true;
+    while (queue.length) {
+      const { file, t } = queue.shift();
+      t.className = 'tile wait';
+      el('status').textContent = 'Adding ' + (added + failed + 1) + ' of ' + total + '…';
+      let why = '';
+      try {
+        const p = await make(file);
+        let r = null;
+        for (let n = 0; n < 2 && !r; n++) { try { r = await fetch('/api/gallery', { method: 'POST', headers: headers(), body: JSON.stringify({ action: 'add', k: KEY, ...p }) }); } catch (e) { if (n) throw e; await new Promise((ok) => setTimeout(ok, 1500)); } }
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok) why = d.error || 'It could not be added.';
+      } catch (e) { why = file.type && !/jpe?g|png|heic|heif|webp|gif/i.test(file.type) ? 'Only photographs can be added.' : (e && e.name === 'EncodingError') ? 'This phone could not open that photograph.' : 'It could not be sent. Check the connection and try again.'; }
+      if (why) { failed++; t.className = 'tile fail'; t.querySelector('i').textContent = '×'; el('why').textContent = why; }
+      else { added++; t.className = 'tile done'; t.querySelector('i').textContent = '✓'; }
+    }
+    el('status').textContent = failed ? added + ' of ' + total + ' added.' : (total === 1 ? 'Added. Thank you!' : 'All ' + total + ' added. Thank you!');
+    if (!failed) el('why').textContent = '';
+    el('after').hidden = false; el('see').hidden = !(state && state.live);
+    busy = false; el('choose').disabled = false; added = failed = total = 0;
+  }
+})();
+</script>
+</body>
+</html>

@@ -19,6 +19,7 @@ class MemRedis {
   async set(k, v, o = {}) { this.m.set(k, { v: String(v), until: o.ex ? Date.now() + o.ex * 1000 : 0 }); return 'OK'; }
   async del(...ks) { let n = 0; ks.flat().forEach((k) => { if (this.m.delete(k)) n++; }); return n; }
   async incr(k) { const e = this.live(k); const n = (e ? Number(e.v) : 0) + 1; this.m.set(k, { v: String(n), until: e ? e.until : 0 }); return n; }
+  async incrby(k, by) { const e = this.live(k); const n = (e ? Number(e.v) : 0) + Number(by); this.m.set(k, { v: String(n), until: e ? e.until : 0 }); return n; }
   async expire(k, s) { const e = this.live(k); if (!e) return 0; e.until = Date.now() + s * 1000; return 1; }
   async smembers(k) { const e = this.live(k); return e ? [...e.v] : []; }
   async sadd(k, ...ms) { const e = this.live(k) || { v: new Set(), until: 0 }; ms.forEach((x) => e.v.add(String(x))); this.m.set(k, e); return ms.length; }
@@ -29,6 +30,7 @@ class MemRedis {
   cut(n, a, b) { if (a < 0) a += n; if (b < 0) b += n; return [Math.max(0, a), Math.min(n - 1, b)]; }
   async zadd(k, { score, member }) { const e = this.live(k) || { v: new Map(), until: 0 }; const had = e.v.has(member); e.v.set(member, Number(score)); this.m.set(k, e); return had ? 0 : 1; }
   async zrem(k, member) { const e = this.live(k); return e && e.v.delete(member) ? 1 : 0; }
+  async zcard(k) { const e = this.live(k); return e ? e.v.size : 0; }
   async zremrangebyrank(k, a, b) { const z = this.zs(k), [i, j] = this.cut(z.length, a, b), e = this.live(k); let n = 0; for (let x = i; x <= j; x++) { e.v.delete(z[x][0]); n++; } return n; }
   async zrevrank(k, member) { const i = this.zs(k).reverse().findIndex((p) => p[0] === member); return i < 0 ? null : i; }
   async zrange(k, a, b, o = {}) { const z = this.zs(k); if (o.rev) z.reverse(); const [i, j] = this.cut(z.length, a, b); const s = z.slice(i, j + 1); return o.withScores ? s.flat() : s.map((p) => p[0]); }
@@ -45,6 +47,15 @@ globalThis.fetch = async (url, opts = {}) => {
 };
 // DEV_RSVP_CLOSED=N: as if the RSVP deadline fell N seconds after this server started (0: it has already passed)
 if (process.env.DEV_RSVP_CLOSED) globalThis.__DEV_RSVP_CLOSES__ = Date.now() + 1000 * Number(process.env.DEV_RSVP_CLOSED);
+// the guests' photographs (api/gallery.js) are kept here in memory, in place of the real store, and forgotten when stopped.
+// DEV_STORE=r2 sends them to the real Cloudflare R2 bucket instead (R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY
+// and R2_BUCKET in this server's environment): to check the bucket. The list is still in memory, so remove any photograph
+// added this way before stopping, or its files stay in the bucket listed nowhere.
+// DEV_GALLERY=N: as if the gallery opened N seconds after this server started (0: it is already live);
+// DEV_GALLERY_CLOSED=N: as if uploads closed N seconds after it started (0: closed already, the photographs still shown)
+if (process.env.DEV_STORE !== 'r2') globalThis.__DEV_PHOTOS__ = new Map();
+if (process.env.DEV_GALLERY) globalThis.__DEV_GALLERY_OPENS__ = Date.now() + 1000 * Number(process.env.DEV_GALLERY);
+if (process.env.DEV_GALLERY_CLOSED) globalThis.__DEV_GALLERY_CLOSES__ = Date.now() + 1000 * Number(process.env.DEV_GALLERY_CLOSED);
 
 const vercel = JSON.parse(fs.readFileSync(path.join(ROOT, 'vercel.json'), 'utf8'));
 function route(p) {                                                 // vercel.json's rewrites, ":path*" and exact paths
@@ -67,7 +78,8 @@ http.createServer(async (req, res) => {
     try { request.body = raw ? JSON.parse(raw) : {}; } catch (e) { request.body = {}; }
     const response = { statusCode: 200, setHeader: (k, v) => res.setHeader(k, v),
       status(c) { this.statusCode = c; return this; },
-      json(o) { res.writeHead(this.statusCode, { 'content-type': 'application/json' }); res.end(JSON.stringify(o)); } };
+      json(o) { res.writeHead(this.statusCode, { 'content-type': 'application/json' }); res.end(JSON.stringify(o)); },
+      send(b) { res.writeHead(this.statusCode); res.end(b); } };                       // a file (a guest's photograph), its type set beforehand
     try { const mod = await import(pathToFileURL(path.join(ROOT, 'api', api[1] + '.js')).href); await mod.default(request, response); }
     catch (e) { res.writeHead(500, { 'content-type': 'text/plain' }); res.end(String(e.stack || e)); }
     return;

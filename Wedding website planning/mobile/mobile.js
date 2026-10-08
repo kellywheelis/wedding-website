@@ -74,7 +74,7 @@
 
   // the details room
   html += `<section class="chapter det" id="det"><div class="hero"><img src="${det.hero}" alt="The details room" loading="lazy" decoding="async"><div class="cap"><h2>${esc(det.title)}</h2><p class="sub">Everything you need to know</p></div></div>
-    <div class="text center"><p class="eyebrow">The centerpiece</p><h3>${esc(det.centre.title)}</h3><p class="body">${esc(det.centre.body)}</p><p class="meta">${esc(det.centre.meta)}</p></div>`;
+    <div class="text center" id="centre"><p class="eyebrow">The centerpiece</p><h3>${esc(det.centre.title)}</h3><p class="body">${esc(det.centre.body)}</p><p class="meta">${esc(det.centre.meta)}</p></div><div id="guestPhotos"></div>`;   // from the wedding day, the guests' photographs (below)
   // beside it, the Duke and Duchess of Urbino in their gilt ovals, facing each other as they do across the 3D room (she on
   // the left, he on the right); tap one for its write-up, and it opens as an oval
   if (det.ovals && det.ovals.length) html += `<div class="text center"><p class="eyebrow">Beside the centerpiece</p></div><div class="ovals">${det.ovals.map((o) => { lbItems.push(o);
@@ -428,6 +428,64 @@
     el('rsPost').disabled = false; el('rsPost').textContent = 'Post it';
   });
 
+  // ---- the guests' photographs (the owner's wish, 7 Oct 2026; the 3D gallery's centrepiece does the same). From 2 pm
+  // in Italy on the wedding day the centrepiece's words change, and under them a gilt frame shows the photographs guests add
+  // with the QR code on the sign at the villa (/add, api/gallery.js): newest first, a new one every six seconds while the
+  // frame is on screen. A tap opens them all (/assets/guest-photos.js, loaded only then). Sideways, the centrepiece's slide
+  // gets the words and a button. Nothing of it runs before the day: the page asks the server only from two days before
+  // (and always on the local dev server, whose DEV_GALLERY setting decides), and the server says when it is live.
+  const GP = { on: false, open: false, photos: [], at: 0, shown: null, layer: 0, inView: false };
+  const gpSrc = (p, s) => '/api/photo?id=' + encodeURIComponent(p.id) + '&s=' + s;
+  function gpViewer(i) {
+    const go = () => GuestPhotos.open(GP.photos, i);
+    if (window.GuestPhotos) { go(); return; }
+    const s = document.createElement('script'); s.src = '/assets/guest-photos.js?v=' + Date.now(); s.onload = go; document.head.appendChild(s);   // stamped, as every script is, so a change is never stale
+  }
+  function gpStep() {                                                // the next photograph fades in over the last, once it has arrived
+    const show = el('gpShow'); if (!show || !GP.photos.length) return;
+    const i = GP.at % GP.photos.length, p = GP.photos[i], img = new Image();
+    GP.at = i + 1;
+    img.onload = () => {
+      const L = show.querySelectorAll('.gp-l'), l = L[GP.layer ^ 1];
+      l.querySelector('img').src = img.src; l.querySelector('i').style.backgroundImage = `url("${gpSrc(p, 't')}")`;
+      L[GP.layer].classList.remove('on'); l.classList.add('on'); GP.layer ^= 1; GP.shown = p.id;
+    };
+    img.src = gpSrc(p, 'f');
+  }
+  function paintGuestPhotos() {
+    if (!GP.on) return;
+    const n = GP.photos.length, all = n === 1 ? 'See the photograph' : 'See all ' + n + ' photographs';
+    const words = `<p class="eyebrow">The centerpiece</p><h3>And now, the exhibit is you</h3><p class="body">The frame we kept for our guests now holds the wedding as you saw it: every photograph in it was taken by one of you.${GP.open ? ' To add yours, scan the QR code on the sign at the villa.' : ''}</p><p class="meta">Gilt frame · photographs by our guests</p>`;
+    el('centre').innerHTML = words;
+    const box = el('guestPhotos');
+    if (!n) box.innerHTML = '<div class="text center"><p class="body"><em>The first photographs will hang here as they arrive.</em></p></div>';
+    else if (!el('gpShow')) {
+      box.innerHTML = `<figure class="art"><button class="pic" id="gpShow" aria-label="The guests’ photographs"><div class="frame"><div class="gp-show"><div class="gp-l"><i></i><img alt=""></div><div class="gp-l"><i></i><img alt=""></div></div></div></button><p class="tap under">Tap to look closer</p></figure>
+        <button class="detbtn" id="gpAll"></button>`;
+      el('gpShow').addEventListener('click', () => gpViewer(Math.max(0, GP.photos.findIndex((x) => x.id === GP.shown))));   // at the one showing
+      el('gpAll').addEventListener('click', () => gpViewer());
+      if (window.IntersectionObserver) new IntersectionObserver((es) => { GP.inView = es[0].isIntersecting; }).observe(el('gpShow')); else GP.inView = true;
+      gpStep();
+    }
+    if (el('gpAll')) el('gpAll').textContent = all;
+    const g = el('gv-centre');                                       // the sideways view, once built
+    if (g) g.innerHTML = words + (n ? `<button class="detbtn" data-gpall>${all}</button>` : '');
+  }
+  document.addEventListener('click', (e) => { if (e.target.closest('[data-gpall]')) gpViewer(); });
+  setInterval(() => { if (GP.inView && !document.hidden && GP.photos.length > 1) gpStep(); }, 6000);
+  function askGuestPhotos() {
+    if (Date.now() < Date.UTC(2027, 3, 22, 12) && !/^(127\.0\.0\.1|localhost)$/.test(location.hostname)) return;   // two days before it opens
+    fetch('/api/gallery').then((r) => (r.ok ? r.json() : null)).then((d) => {
+      if (!d || !d.live || !Array.isArray(d.photos)) return;
+      const had = new Set(GP.photos.map((p) => p.id));
+      if (d.photos.some((p) => !had.has(p.id))) GP.at = 0;          // new arrivals: the newest is next
+      GP.on = true; GP.open = !!d.open; GP.photos = d.photos;
+      paintGuestPhotos();
+    }, () => { /* offline: the next round */ });
+  }
+  setTimeout(askGuestPhotos, 2000);
+  setInterval(() => { if (!document.hidden) askGuestPhotos(); }, 60000);   // new photographs join; a page left open when it opens switches over
+
   // ---- the gallery view: the phone held sideways (26 Sept 2026). The guide becomes a walk through the museum, one
   // work to a screen: swipe along (the strip snaps to each), tap a work for its write-up (or on a hidden pet to find it),
   // jump between rooms at the top. Turned upright again, the guide comes back at the room you were in.
@@ -445,7 +503,7 @@
     w.sculptures.forEach((it) => add(w.id, { kind: 'statue', it }));
   });
   add('det', { kind: 'room', img: wideOf(det.hero), title: det.title, sub: 'Everything you need to know' });
-  add('det', { kind: 'text', eyebrow: 'The centerpiece', title: det.centre.title, body: det.centre.body, meta: det.centre.meta });
+  add('det', { kind: 'text', key: 'centre', eyebrow: 'The centerpiece', title: det.centre.title, body: det.centre.body, meta: det.centre.meta });
   (det.ovals || []).forEach((it) => add('det', { kind: 'art', it }));   // the Duke and Duchess of Urbino, beside it
   if (det.hourglass) add('det', { kind: 'countdown', it: det.hourglass });
   add('det', { kind: 'text', eyebrow: 'Exhibit details · the table', title: det.table.title, body: det.table.body, note: 'Turn your phone upright to handle the save-the-date and the invitation.' });
@@ -469,7 +527,7 @@
       case 'pair': return `<figure class="gv-statue gv-pair" data-work><div>${img(s.it.img, 'Venus')}${img(s.it.img2, 'Mars')}</div>${cap(s.it)}</figure>`;
       case 'countdown': { const days = Math.max(0, Math.ceil((s.it.wedding - Date.now()) / 86400000));
         return `<div class="gv-two">${img(s.it.img, s.it.title)}<div class="gv-words"><p class="eyebrow">Exhibit details · the countdown</p><div class="brass"><small>${days === 1 ? 'Day' : 'Days'}</small><b>${days}</b><small>until Siena</small></div><h3>${esc(s.it.title)}</h3><p class="body">${esc(s.it.body)}</p></div></div>`; }
-      case 'text': return `<div class="gv-text"><p class="eyebrow">${esc(s.eyebrow)}</p><h3>${esc(s.title)}</h3><p class="body">${esc(s.body)}</p>${s.meta ? `<p class="meta">${esc(s.meta)}</p>` : ''}${s.note ? `<p class="note">${esc(s.note)}</p>` : ''}${cardBtn(s.card)}</div>`;
+      case 'text': return `<div class="gv-text"${s.key ? ` id="gv-${s.key}"` : ''}><p class="eyebrow">${esc(s.eyebrow)}</p><h3>${esc(s.title)}</h3><p class="body">${esc(s.body)}</p>${s.meta ? `<p class="meta">${esc(s.meta)}</p>` : ''}${s.note ? `<p class="note">${esc(s.note)}</p>` : ''}${cardBtn(s.card)}</div>`;
       case 'shop': return `<div class="gv-two">${img(s.img, s.title)}<div class="gv-words"><p class="eyebrow">Exhibit details · the gift shop</p><h3>${esc(s.title)}</h3><p class="body">${esc(s.body)}</p><p class="meta">${esc(s.meta)}</p>${cardBtn(s.card)}<button class="detbtn" data-rsvp>Write your postcard</button></div></div>`;
       case 'arcade': return `<div class="gv-two"><div class="gv-arcade" id="gvArcade" role="img" aria-label="The arcade's screen: turn your phone upright to play"></div><div class="gv-words"><p class="eyebrow">The atrium · Anthony · interactive installation</p><h3>The Arcade</h3><p class="body">Five playable pieces: Getting to Italy, Cross the Piazza, Catch the Bouquet, Flight to Siena, and The Seating Chart.</p><p class="tap">Turn your phone upright to play</p></div></div>`;
     }
@@ -486,6 +544,7 @@
       <aside class="gv-panel" id="gvPanel"><button class="x" data-gvclose aria-label="Close">&times;</button><div id="gvPanelIn"></div></aside>
       <div class="gv-card" id="gvCard"></div>`;
     strip = el('gvStrip'); panel = el('gvPanel');
+    paintGuestPhotos();                                              // from the wedding day, the centrepiece's slide speaks of the guests' photographs
     let ticking = false;
     strip.addEventListener('scroll', () => { if (ticking) return; ticking = true; requestAnimationFrame(() => { ticking = false; setIndex(Math.round(strip.scrollLeft / Math.max(1, strip.clientWidth))); }); }, { passive: true });
     gv.addEventListener('click', (e) => {

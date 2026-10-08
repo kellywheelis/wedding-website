@@ -41,9 +41,10 @@ export const RSVP_BY = 'Saturday, February 27';
 const RSVP_CLOSES = Date.UTC(2027, 1, 28, 12);
 export const rsvpState = () => ({ open: Date.now() < (globalThis.__DEV_RSVP_CLOSES__ ?? RSVP_CLOSES), by: RSVP_BY });
 
-// the private page's key: only its SHA-256 is here. The key itself was given to the owner (26 Sept 2026), not saved
-// anywhere in the project; to replace it, put the SHA-256 of a new key here
-const ADMIN_SHA256 = '72e7e255e655a8dd70b95bfd86041b8734f6d91faf550fa4934fc95c5ca5ac04';
+// the private page's key: only its SHA-256 is here. The key itself was given to the owner (26 Sept 2026; replaced at her
+// request 8 Oct 2026, the old one no longer opens anything), not saved anywhere in the project; to replace it, put the
+// SHA-256 of a new key here
+const ADMIN_SHA256 = 'a5a22a69e0a4c2ea61798ec9e465ee4d0c05798f58dc4c9d8f632d602a5791cc';
 
 export const sha256 = (s) => createHash('sha256').update(String(s)).digest('hex');
 export const newToken = () => randomBytes(24).toString('hex');

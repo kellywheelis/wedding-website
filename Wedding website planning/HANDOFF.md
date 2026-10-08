@@ -970,7 +970,8 @@ _Brought up to date 26 Sept 2026 (after `b5897ba`)._
   (Fri 23), Gelato pool day (Sun 25), Farewell brunch (Mon 26); Saturday, the wedding, is the card's yes/no.
 - The private page: `rsvp-admin.html`, served at `/rsvp-admin` (vercel.json). It holds nothing: the key arrives once
   in its link (`/rsvp-admin#key=...`), is kept in that browser, and every call sends it (header `x-admin-key`); only
-  the key's SHA-256 is in `api/_lib.js` (`ADMIN_SHA256`). The key was given to the owner, never saved in the project.
+  the key's SHA-256 is in `api/_lib.js` (`ADMIN_SHA256`). The key was given to the owner (replaced with a fresh one at
+  her request on 8 Oct 2026, when she could not find the first), never saved in the project.
   It shows totals (households replied, seats coming, each event's seats), every household with its code, phones and
   reply, the dietary list, a spreadsheet download (with each household's QR link), "Print the invitation codes" (a
   card per household: names, QR code, code; drawn by qrcode-generator 1.4.4 from cdnjs, pinned by its SRI hash), and
